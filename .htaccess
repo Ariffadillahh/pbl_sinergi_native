@@ -1,0 +1,11 @@
+RewriteEngine On
+RewriteBase /sinergi/
+
+Options -Indexes
+
+# Jika request BUKAN file atau direktori yang ada secara fisik
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Alihkan semua request ke index.php
+RewriteRule ^(.*)$ index.php?route=$1 [L,QSA]
