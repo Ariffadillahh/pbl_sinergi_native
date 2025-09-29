@@ -1,16 +1,3 @@
-<?php
-$currentUri = $_SERVER['REQUEST_URI'];
-$pathParts = explode('/', trim($currentUri, '/'));
-$activeChatId = null;
-if (strpos($currentUri, '/forums/chat/') !== false) {
-    $activeChatId = end($pathParts);
-}
-
-require_once __DIR__ . '/../../../controllers/ForumsController.php';
-$forumsController = new ForumsController();
-$forums = $forumsController->getAllForums();
-?>
-
 <style>
     .hide-scrollbar::-webkit-scrollbar {
         display: none;
@@ -43,11 +30,11 @@ $forums = $forumsController->getAllForums();
         <div id="tabs-content-container" class="flex h-full flex-1 overflow-hidden">
             <div id="All" class="relative h-full w-full">
                 <div class="flex h-full flex-col gap-1">
-                    <p class="text-sm text-gray-500 pb-2 border-b-[1px] border-gray-200">All Forums (<?php echo count($forums); ?>)</p>
+                    <p class="text-sm text-gray-500 pb-2 border-b-[1px] border-gray-200">All Forums (<?php echo count($allForums); ?>)</p>
                     <div id="Message-container" class="hide-scrollbar h-full w-full overflow-y-scroll">
                         <div class="flex w-full flex-col gap-1">
-                            <?php if (!empty($forums)): ?>
-                                <?php foreach ($forums as $forum): ?>
+                            <?php if (!empty($allForums)): ?>
+                                <?php foreach ($allForums as $forum): ?>
                                     <?php
                                     // Cek apakah ID forum saat ini sama dengan ID dari URL
                                     $isActive = ($activeChatId === $forum['id']) ? 'active' : '';
