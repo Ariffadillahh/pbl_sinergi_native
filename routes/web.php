@@ -11,6 +11,11 @@ if (strlen($route) > 1) {
 
 switch (true) {
     case $route === '':
+        $controller = new landingPageController();
+        $controller->index();
+        break;
+
+    case $route === 'homepage':
         $controller = new HomePageController();
         $controller->index();
         break;

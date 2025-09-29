@@ -46,7 +46,7 @@ class HomePageController
 
         $users = CRUD::getAll();
 
-        include __DIR__ . '/../views/homepage/index.php';
+        include __DIR__ . '/../views/homePage/index.php';
     }
 }
 
@@ -55,5 +55,13 @@ class NotFoundPageController
     public function index()
     {
         include __DIR__ . '/../views/404/index.php';
+    }
+}
+
+class landingPageController
+{
+    public function index()
+    {
+        include __DIR__ . '/../views/landingPage/index.php';
     }
 }
