@@ -48,6 +48,11 @@ class HomePageController
 
         include __DIR__ . '/../views/homePage/index.php';
     }
+
+    public function replayPage($id)
+    {
+        include __DIR__ . '/../views/homePage/repaly/index.php';
+    }
 }
 
 class NotFoundPageController

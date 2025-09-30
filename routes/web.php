@@ -19,6 +19,12 @@ switch (true) {
         $controller = new HomePageController();
         $controller->index();
         break;
+        
+    case preg_match('#^homepage/repaly/([a-zA-Z0-9\-]+)$#', $route, $matches):
+        $repaly = $matches[1];
+        $controller = new HomePageController();
+        $controller->replayPage($repaly);
+        break;
 
     case $route === 'signin':
         $controller = new SigninController();
