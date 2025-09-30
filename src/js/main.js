@@ -70,7 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const openModal = () => {
       modal.classList.remove("hidden");
       modal.classList.add("flex");
-      console.log("Modal opened");
     };
     const closeModal = () => {
       modal.classList.add("hidden");
@@ -144,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const buttonOpen = document.getElementById("infoForum");
     const buttonClose = document.getElementById("Close-Info");
 
-    if (!overlay) return;
+    if (!overlay || !buttonOpen || !buttonClose) return;
 
     const openModal = () => {
       overlay.classList.remove("hidden");
@@ -164,7 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function handleSendMessage(event, elements) {
     event.preventDefault();
-
     const {
       hiddenInput,
       fileInput,
@@ -172,28 +170,22 @@ document.addEventListener("DOMContentLoaded", () => {
       removePreview,
       updateTextInputState,
     } = elements;
-
     const message = hiddenInput.value.trim();
     const file = fileInput.files[0];
-
     if (!message && !file) {
       alert("Pesan atau file tidak boleh kosong!");
       return;
     }
-
     const formData = new FormData();
     formData.append("message", message);
     if (file) {
       formData.append("attachment", file, file.name);
     }
-
     console.log("Data yang akan dikirim:");
     for (let [key, value] of formData.entries()) {
       console.log(`${key}:`, value);
     }
-
     alert("Form siap dikirim! Lihat data di console.");
-
     chatInput.innerHTML = "";
     removePreview();
     updateTextInputState();
@@ -201,6 +193,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function setupChatForm() {
     const chatForm = document.getElementById("chat-form");
+    if (!chatForm) return;
+
     const chatInput = document.getElementById("Chat-Input");
     const placeholder = document.getElementById("placeholder");
     const hiddenInput = document.getElementById("message");
@@ -210,6 +204,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const previewImage = document.getElementById("preview-image");
     const previewFilename = document.getElementById("preview-filename");
     const removePreviewButton = document.getElementById("remove-preview");
+
+    if (!chatInput) return;
 
     const elements = {
       hiddenInput,
@@ -227,11 +223,8 @@ document.addEventListener("DOMContentLoaded", () => {
         hiddenInput.value = textContent;
       },
     };
-
     chatInput.addEventListener("input", elements.updateTextInputState);
-
     uploadButton.addEventListener("click", () => fileInput.click());
-
     const fileIconUrl = `${BASEURL}/src/asset/image/file.png`;
     fileInput.addEventListener("change", (event) => {
       const file = event.target.files[0];
@@ -242,14 +235,42 @@ document.addEventListener("DOMContentLoaded", () => {
         : fileIconUrl;
       previewContainer.classList.remove("hidden");
     });
-
     removePreviewButton.addEventListener("click", elements.removePreview);
-
     chatForm.addEventListener("submit", (event) =>
       handleSendMessage(event, elements)
     );
-
     elements.updateTextInputState();
+  }
+
+  function previewPost() {
+    const imageInput = document.getElementById("image-input");
+    const previewImage = document.getElementById("post-preview-image");
+    const closeButton = document.getElementById("post-remove-preview");
+
+    if (imageInput && previewImage && closeButton) {
+      imageInput.addEventListener("change", function () {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            previewImage.src = e.target.result;
+            previewImage.classList.remove("hidden");
+            closeButton.classList.remove("hidden");
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+      closeButton.addEventListener("click", function () {
+        previewImage.classList.add("hidden");
+        closeButton.classList.add("hidden");
+        previewImage.src = "";
+        imageInput.value = null;
+      });
+    } else {
+      console.log(
+        "Elemen untuk preview postingan tidak ditemukan di halaman ini."
+      );
+    }
   }
 
   showPasswordToggle();
@@ -259,4 +280,5 @@ document.addEventListener("DOMContentLoaded", () => {
   createForum();
   overlayInfo();
   setupChatForm();
+  previewPost();
 });
