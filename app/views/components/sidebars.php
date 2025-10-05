@@ -1,5 +1,4 @@
 <?php
-// Ambil URI saat ini untuk menentukan halaman aktif
 $current_uri = $_SERVER['REQUEST_URI'];
 
 $isHomepageActive = (strpos($current_uri, '/homepage') !== false);
@@ -34,16 +33,19 @@ $isSettingsActive = (strpos($current_uri, '/settings') !== false);
         </ul>
         <ul class="flex flex-col gap-5">
             <li>
-                <a href="#" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 hover:ring-1 hover:ring-blue-600">
+                <a href="<?php echo BASEURL ?>/logout" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 hover:ring-1 hover:ring-blue-600">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/Logout.svg" class="size-6" alt="icon">
                 </a>
             </li>
             <li>
-                <a href="#" class="size-11 flex shrink-0 overflow-hidden rounded-full bg-white transition-all duration-300 hover:ring-1 hover:ring-blue-600">
-                    <img src="<?php echo BASEURL; ?>/src/asset/image/default.png" class="h-full w-full object-cover" alt="photo">
-                </a>
+                <div class="size-11 flex shrink-0 overflow-hidden rounded-full bg-white transition-all duration-300 hover:ring-1 hover:ring-blue-600">
+                    <img src="<?= !empty($_SESSION['path_photo'])
+                                    ? BASEURL . '/storage/users/photos/' . $_SESSION['path_photo']
+                                    : BASEURL . '/src/asset/image/default.png' ?>" class="h-full w-full object-cover" alt="photo">
+                </div>
             </li>
         </ul>
+        <!-- <p><?= $_SESSION['path_photo'] ?> <?= $_SESSION['user_id'] ?></p> -->
     </nav>
 
     <nav class="lg:hidden fixed bottom-0 left-0 right-0 flex w-full h-[70px] items-center justify-around bg-white border-t border-gray-100 px-5 z-30">

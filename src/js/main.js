@@ -10,10 +10,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!showPasswordButton || !passwordInput || !showIcon || !hideIcon) return;
 
     showPasswordButton.addEventListener("click", () => {
-      const isPassword = passwordInput.type === "password";
-      passwordInput.type = isPassword ? "text" : "password";
-      showIcon.classList.toggle("hidden", !isPassword);
-      hideIcon.classList.toggle("hidden", isPassword);
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        showIcon.classList.add("hidden");
+        hideIcon.classList.remove("hidden");
+      } else {
+        passwordInput.type = "password";
+        showIcon.classList.remove("hidden");
+        hideIcon.classList.add("hidden");
+      }
     });
   }
 
@@ -91,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+
   function createForum() {
     const form = document.getElementById("create-forum-form");
 
@@ -120,7 +126,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const result = await response.json();
 
         if (result.success) {
-          alert("Forum berhasil dibuat!");
           window.location.href = result.redirectUrl;
         } else {
           errorMessageDiv.textContent = result.message;
@@ -242,35 +247,34 @@ document.addEventListener("DOMContentLoaded", () => {
     elements.updateTextInputState();
   }
 
-  function previewPost() {
-    const imageInput = document.getElementById("image-input");
-    const previewImage = document.getElementById("post-preview-image");
-    const closeButton = document.getElementById("post-remove-preview");
+  function modalEnrol() {
+    const modal = document.getElementById("modal-enrol-dosen");
+    const buttonEnrol = document.getElementById("enrolButton");
+    const enrolInput = document.getElementById("enrolKey");
+    const errorMessage = document.getElementById("message-error");
+    const key = "PNJ";
 
-    if (imageInput && previewImage && closeButton) {
-      imageInput.addEventListener("change", function () {
-        const file = this.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            previewImage.src = e.target.result;
-            previewImage.classList.remove("hidden");
-            closeButton.classList.remove("hidden");
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-      closeButton.addEventListener("click", function () {
-        previewImage.classList.add("hidden");
-        closeButton.classList.add("hidden");
-        previewImage.src = "";
-        imageInput.value = null;
-      });
-    } else {
-      console.log(
-        "Elemen untuk preview postingan tidak ditemukan di halaman ini."
-      );
-    }
+    buttonEnrol.addEventListener("click", function (event) {
+      event.preventDefault();
+
+      const enrolInputValue = enrolInput.value.trim();
+
+      if (enrolInputValue === "") {
+        errorMessage.textContent = "Enrol Key is required!";
+        errorMessage.classList.remove("hidden");
+        enrolInput.focus();
+        return;
+      }
+
+      if (enrolInputValue === key) {
+        modal.classList.add("hidden");
+        errorMessage.classList.add("hidden");
+        document.body.classList.remove("overflow-hidden");
+      } else {
+        errorMessage.textContent = "Enrol Key Wrong!!";
+        errorMessage.classList.remove("hidden");
+      }
+    });
   }
 
   showPasswordToggle();
@@ -281,4 +285,6 @@ document.addEventListener("DOMContentLoaded", () => {
   overlayInfo();
   setupChatForm();
   previewPost();
+  modalEnrol();
+  handleRegist()
 });

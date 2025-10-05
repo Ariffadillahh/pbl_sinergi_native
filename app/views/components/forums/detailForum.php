@@ -1,19 +1,15 @@
-<style>
-   
-</style>
-
 <div id="Chat-Navigation" class="flex items-center justify-between w-full border-b border-gray-200 p-5 gap-3 bg-white flex-shrink-0">
     <div id="Group-Title" class="flex items-center flex-1 gap-3">
         <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
-            <img src="<?php echo !empty($forumByid['photo'])
-                            ? BASEURL . '/storage/forums/photos/' . $forumByid['photo']
+            <img src="<?php echo !empty($forumByid['PATH_PHOTO'])
+                            ? BASEURL . '/storage/forums/photos/' . $forumByid['PATH_PHOTO']
                             : BASEURL . '/src/asset/image/default.png'; ?>"
                 class="w-full h-full object-cover" alt="photo">
         </div>
         <div class="flex flex-col gap-1">
             <div class="flex items-center gap-[6px]">
                 <h1 class="font-semibold text-lg truncate overflow-hidden whitespace-nowrap">
-                    <?= $forumByid["name"] ?>
+                    <?= $forumByid["NAME"] ?>
                 </h1>
             </div>
             <div class="flex items-center gap-[6px]">
@@ -35,10 +31,10 @@
         <p class="font-semibold text-lg text-center mt-4">Group Info</p>
         <div class="flex items-center justify-between border-b border-gray-200 py-3 px-5 flex-shrink-0">
             <div>
-                <a href="#" class="w-full h-full flex gap-1 items-center justify-center bg-white rounded-2xl p-[10px] ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300">
+                <button id="btn-open-exit-forum" class="w-full h-full flex gap-1 items-center justify-center bg-white rounded-2xl p-[10px] ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/logout-grey.svg" class="size-6 flex shrink-0" alt="icon">
                     <span class="font-medium text-sm text-heyhao-secondary">Leave Forum</span>
-                </a>
+                </button>
             </div>
             <div class="group">
                 <button id="Close-Info" class="size-11 flex shrink-0 bg-white rounded-xl p-[10px] items-center justify-center ring-1 ring-gray-100 hover:ring-1 hover:ring-blue-600 transition-all duration-300 cursor-pointer">
@@ -50,13 +46,13 @@
         <div class="flex-1 overflow-y-auto hide-scrollbar">
             <div class="flex flex-col items-center py-8 px-6 gap-4 border-b border-gray-200">
                 <div class="flex size-[120px] rounded-full overflow-hidden">
-                    <img src="<?php echo !empty($forumByid['photo'])
-                                    ? BASEURL . '/storage/forums/photos/' . $forumByid['photo']
+                    <img src="<?php echo !empty($forumByid['PATH_PHOTO'])
+                                    ? BASEURL . '/storage/forums/photos/' . $forumByid['PATH_PHOTO']
                                     : BASEURL . '/src/asset/image/default.png'; ?>" class="w-full h-full object-cover" alt="photo">
                 </div>
                 <div class="flex flex-col items-center gap-2">
                     <div class="flex items-center justify-center gap-[6px]">
-                        <p class="font-semibold text-lg"> <?= $forumByid["name"] ?></p>
+                        <p class="font-semibold text-lg"> <?= $forumByid["NAME"] ?></p>
                     </div>
                     <div class="flex items-center gap-[6px] font-semibold text-sm">
                         <p class="flex items-center gap-1">
@@ -70,7 +66,7 @@
             <div class="p-6">
                 <div id="About" class="flex  gap-3 flex-col">
                     <p class="font-semibold leading-5">About Forum</p>
-                    <p class="font-semibold leading-8"><?= $forumByid["about"] ?></p>
+                    <p class="font-semibold leading-8"><?= $forumByid["ABOUT"] ?></p>
                 </div>
                 <div>
                     <div id="Members" class="flex flex-col gap-3 mt-6">
@@ -79,20 +75,22 @@
                             <?php foreach ($membersForum as $member): ?>
                                 <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 p-4 gap-3">
                                     <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
-                                        <img src="<?php echo BASEURL; ?>/src/asset/image/default.png" class="w-full h-full object-cover" alt="photo">
+                                        <img src="<?= !empty($member['PATH_PHOTO'])
+                                                        ? BASEURL . '/storage/users/photos/' . $member['PATH_PHOTO']
+                                                        : BASEURL . '/src/asset/image/default.png' ?>" class="w-full h-full object-cover" alt="photo">
                                     </div>
                                     <div class="flex flex-col flex-1 gap-[6px]">
                                         <div class="flex items-center gap-2">
                                             <div class="flex items-center gap-1">
-                                                <p class="font-semibold truncate"><?= $member["nama"] ?></p>
+                                                <p class="font-semibold truncate"><?= $member["NAME"] ?></p>
                                             </div>
                                             <div class="flex items-center gap-0.5">
-                                                <span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm">Role</span>
+                                                <span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm"><?= $member["ROLE"] ?></span>
                                             </div>
                                         </div>
                                         <div class="flex font-medium text-sm text-heyhao-secondary gap-0.5 items-center">
                                             <p>Joined: </p>
-                                            <p>21 Dec 2024</p>
+                                            <p><?= $member["JOINED_AT"] ?></p>
                                         </div>
                                     </div>
                                 </div>
@@ -100,7 +98,31 @@
                         </div>
                     </div>
                 </div>
+
+                <?php if ($forumByid['OWNER_ID'] == $_SESSION['user_id']): ?>
+                    <div class="my-5 flex gap-3">
+                        <button type="button" id="btn-open-edit-forum"
+                            class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 
+                   hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 
+                   font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 w-full">
+                            Edit Forum
+                        </button>
+
+                        <button type="button" id="btn-open-delete-forum"
+                            class="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 
+                   focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg 
+                   text-sm px-5 py-2.5 text-center me-2 mb-2 w-full">
+                            Delete Forum
+                        </button>
+                    </div>
+                <?php endif; ?>
+
             </div>
+
         </div>
     </div>
 </div>
+
+<?php require_once 'app/views/components/forums/modalEditForum.php'; ?>
+<?php require_once 'app/views/components/forums/modalDeleteForum.php'; ?>
+<?php require_once 'app/views/components/forums/modalExitForum.php'; ?>

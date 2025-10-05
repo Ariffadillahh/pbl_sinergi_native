@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="<?php echo BASEURL; ?>/src/css/output.css" rel="stylesheet">
-    <title>Forums - <?= $forumByid["name"] ?></title>
+    <title>Forums - <?= $forumByid["NAME"] ?></title>
 </head>
 
 <body>
@@ -116,7 +116,7 @@
                         </div>
                         <div class="relative">
                             <div id="Chat-Input" contenteditable="true" spellcheck="false"
-                                class="appearance-none outline-none w-full min-h-[60px] max-h-[200px] overflow-y-auto rounded-2xl p-5 pl-4 pr-[112px] bg-white break-words font-medium leading-5 hide-scrollbar focus:ring-2 focus:ring-blue-600 transition-all duration-300 text-gray-900 shadow-sm">
+                                class="appearance-none outline-none w-full min-h-[60px] max-h-[200px] overflow-y-auto rounded-2xl p-5 pl-4 pr-[112px] bg-white break-all font-medium leading-5 hide-scrollbar focus:ring-2 focus:ring-blue-600 transition-all duration-300 text-gray-900 shadow-sm">
                             </div>
 
                             <div id="placeholder" class="absolute top-5 left-4 text-gray-500 pointer-events-none select-none">

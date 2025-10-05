@@ -7,8 +7,7 @@ class ForumsController
 {
     public function index()
     {
-        $allForums = Forum::getAll();
-        // Di halaman index, tidak ada chat yang aktif
+        $joinedForums = Forum::getForumsByUserId($_SESSION['user_id']);
         $activeChatId = null;
 
         $contentView = __DIR__ . '/../views/forums/index.php';
@@ -18,10 +17,28 @@ class ForumsController
     public function chat($id)
     {
         $forumByid = Forum::findById($id);
+
+        if (!$forumByid) {
+            header("Location: " . BASEURL . "/forums");
+            exit;
+        }
+
         $membersForum = ForumMember::findByForumId($id);
 
-        $allForums = Forum::getAll();
+        $isMember = false;
+        foreach ($membersForum as $member) {
+            if ($member['USER_ID'] == $_SESSION['user_id']) {
+                $isMember = true;
+                break;
+            }
+        }
 
+        if (!$isMember) {
+            header("Location: " . BASEURL . "/forums");
+            exit;
+        }
+
+        $joinedForums = Forum::getForumsByUserId($_SESSION['user_id']);
         $activeChatId = $id;
 
         $contentView = __DIR__ . '/../views/forums/chat/index.php';
@@ -66,7 +83,7 @@ class ForumsController
             'bio'       => $bio,
             'isPrivate' => $isPrivate,
             'keyForum'  => $_POST['keyForum'] ?? null,
-            'user_id'   => 1, // Ganti dengan user yang sedang login
+            'user_id'   => $_SESSION['user_id'],
             'photo'     => $photoPath
         ];
 
@@ -83,6 +100,244 @@ class ForumsController
         }
 
         echo json_encode($response);
+        exit;
+    }
+
+    public function edit()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
+            exit;
+        }
+
+        header('Content-Type: application/json');
+
+        $forumId   = $_POST['forum_id'] ?? null;
+        $forumName = trim($_POST['forumName'] ?? '');
+        $bio       = trim($_POST['bio'] ?? '');
+        $isPrivate = isset($_POST['isPrivate']) ? 1 : 0;
+        $keyForum  = $_POST['keyForum'] ?? null;
+
+        if (empty($forumId)) {
+            echo json_encode(['success' => false, 'message' => 'Forum ID tidak ditemukan.']);
+            exit;
+        }
+
+        if (empty($forumName) || empty($bio)) {
+            echo json_encode(['success' => false, 'message' => 'Nama Forum dan Bio tidak boleh kosong.']);
+            exit;
+        }
+
+
+
+        $oldForum = Forum::findById($forumId);
+        if (!$oldForum) {
+            echo json_encode(['success' => false, 'message' => 'Forum tidak ditemukan.']);
+            exit;
+        }
+
+        if ($oldForum['OWNER_ID'] != $_SESSION['user_id']) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki izin untuk mengedit forum ini.']);
+            exit;
+        }
+
+        $photoPath = $oldForum['PATH_PHOTO'];
+
+        if (!empty($_FILES['forumPhoto']['name'])) {
+            $targetDir = __DIR__ . '/../../storage/forums/photos/';
+            if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
+
+            $fileName = uniqid() . "_" . basename($_FILES['forumPhoto']['name']);
+            $targetFile = $targetDir . $fileName;
+
+            if (move_uploaded_file($_FILES['forumPhoto']['tmp_name'], $targetFile)) {
+                if (!empty($oldForum['PATH_PHOTO']) && $oldForum['PATH_PHOTO'] !== 'default.png') {
+                    $oldFile = $targetDir . $oldForum['PATH_PHOTO'];
+                    if (file_exists($oldFile)) {
+                        unlink($oldFile);
+                    }
+                }
+
+                $photoPath = $fileName;
+            }
+        }
+
+        $data = [
+            'NAME'       => $forumName,
+            'ABOUT'      => $bio,
+            'IS_PRIVATE' => $isPrivate,
+            'ACCESS_KEY' => $isPrivate ? $keyForum : null,
+            'PATH_PHOTO' => $photoPath,
+        ];
+
+        $updated = Forum::edit($forumId, $data);
+
+        if ($updated) {
+            $response = [
+                'success' => true,
+                'message' => 'Forum berhasil diperbarui!',
+                'redirectUrl' => BASEURL . "/forums/chat/" . $forumId
+            ];
+        } else {
+            $response = ['success' => false, 'message' => 'Gagal memperbarui forum.'];
+        }
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function delete()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
+            exit;
+        }
+
+        header('Content-Type: application/json');
+
+        $forumId = $_POST['forum_id'] ?? null;
+
+        if (empty($forumId)) {
+            echo json_encode(['success' => false, 'message' => 'Forum ID tidak ditemukan.']);
+            exit;
+        }
+
+        $forumToDelete = Forum::findById($forumId);
+        if (!$forumToDelete) {
+            echo json_encode(['success' => false, 'message' => 'Forum yang akan dihapus tidak ditemukan.']);
+            exit;
+        }
+
+        if ($forumToDelete['OWNER_ID'] != $_SESSION['user_id']) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki izin untuk mengedit forum ini.']);
+            exit;
+        }
+
+        $deleted = Forum::delete($forumId);
+
+        if ($deleted) {
+            $photoPath = $forumToDelete['PATH_PHOTO'] ?? null;
+
+            if (!empty($photoPath) && $photoPath !== 'default.png') {
+                $targetDir = __DIR__ . '/../../storage/forums/photos/';
+                $fullPath = $targetDir . $photoPath;
+
+                if (file_exists($fullPath)) {
+                    unlink($fullPath);
+                }
+            }
+
+            $response = [
+                'success' => true,
+                'message' => 'Forum berhasil dihapus!',
+                'redirectUrl' => BASEURL . "/forums"
+            ];
+        } else {
+            $response = ['success' => false, 'message' => 'Gagal menghapus forum.'];
+        }
+
+        echo json_encode($response);
+        exit;
+    }
+
+
+    public function exit()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
+            exit;
+        }
+
+        header('Content-Type: application/json');
+
+        $userId = $_SESSION['user_id'] ?? null;
+        if (empty($userId)) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'Anda harus login untuk keluar dari forum.']);
+            exit;
+        }
+
+        $forumId = $_POST['forum_id'] ?? null;
+        if (empty($forumId)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Forum ID tidak ditemukan.']);
+            exit;
+        }
+
+        $exited = Forum::exitForum($forumId, $userId);
+
+        if ($exited) {
+            $response = [
+                'success'     => true,
+                'message'     => 'Anda berhasil keluar dari forum!',
+                'redirectUrl' => BASEURL . "/forums"
+            ];
+        } else {
+            $response = ['success' => false, 'message' => 'Gagal keluar dari forum. Silakan coba lagi.'];
+        }
+
+        echo json_encode($response);
+        exit;
+    }
+
+    public function search()
+    {
+        header('Content-Type: application/json');
+
+        $keyword = $_GET['q'] ?? '';
+        $userId = $_SESSION['user_id'] ?? null;
+
+        if (trim($keyword) === '') {
+            echo json_encode([]);
+            exit;
+        }
+
+        $forums = Forum::searchByName($keyword, $userId);
+
+        echo json_encode($forums);
+        exit;
+    }
+
+
+    public function join()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method Not Allowed.']);
+            exit;
+        }
+
+        header('Content-Type: application/json');
+
+        $forumId = $_POST['forum_id'] ?? null;
+        $userId = $_SESSION['user_id'] ?? null;
+        $accessKey = $_POST['access_key'] ?? null;
+
+        if (empty($forumId) || empty($userId)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Data tidak lengkap.']);
+            exit;
+        }
+
+        $result = Forum::joinForum($forumId, $userId ,$accessKey);
+
+        if ($result['success']) {
+            echo json_encode(
+                [
+                    'success' => true,
+                    'message' => $result['message'],
+                    'redirectUrl' => BASEURL . '/forums/chat/' . $forumId
+                ]
+            );
+        } else {
+            http_response_code(409);
+            echo json_encode(['success' => false, 'message' => $result['message']]);
+        }
         exit;
     }
 }

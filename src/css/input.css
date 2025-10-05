@@ -8,3 +8,31 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+@keyframes slide-top {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes slide-bottom {
+  from {
+    transform: translateY(-50%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+.slide-top {
+  animation: slide-top 30s linear infinite;
+}
+
+.slide-bottom {
+  animation: slide-bottom 30s linear infinite;
+}

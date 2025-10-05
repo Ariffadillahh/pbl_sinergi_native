@@ -1,7 +1,9 @@
 <?php
+session_start();
 require_once __DIR__ . '/../app/controllers/HomepageController.php';
 require_once __DIR__ . '/../app/controllers/ForumsController.php';
 require_once __DIR__ . '/../app/controllers/AuthController.php';
+require_once __DIR__ . '/../app/helpers/auth.php';
 
 $route = $_GET['route'] ?? '';
 
@@ -15,41 +17,116 @@ switch (true) {
         $controller->index();
         break;
 
+    case $route === 'koneksi':
+        $controller = new landingPageController();
+        $controller->con();
+        break;
+
     case $route === 'homepage':
+        requireLogin();
+        checkRoleAccess(['MAHASISWA', 'DOSEN']);
         $controller = new HomePageController();
         $controller->index();
         break;
-        
-    case preg_match('#^homepage/repaly/([a-zA-Z0-9\-]+)$#', $route, $matches):
+
+    case preg_match('#^homepage/reply/([a-zA-Z0-9\-]+)$#', $route, $matches):
         $repaly = $matches[1];
+        requireLogin();
+        checkRoleAccess(['MAHASISWA', 'DOSEN']);
         $controller = new HomePageController();
         $controller->replayPage($repaly);
         break;
 
-    case $route === 'signin':
+    case $route === 'sign-in':
+        guestOnly();
         $controller = new SigninController();
         $controller->index();
         break;
 
-    case $route === 'signup':
+    case $route === 'sign-in/action':
+        guestOnly();
+        $controller = new SigninController();
+        $controller->signInAction();
+        break;
+
+    case $route === 'logout':
+        requireLogin();
+        $controller = new SigninController();
+        $controller->logout();
+        break;
+
+    case $route === 'sign-up':
+        guestOnly();
         $controller = new SignupController();
-        $controller->index();
+        $controller->StudentPage();
+        break;
+
+    case $route === 'sign-up/action':
+        guestOnly();
+        $controller = new SignupController();
+        $controller->register();
+        break;
+
+    case $route === 'sign-up/verif-otp':
+        guestOnly();
+        $controller = new SignupController();
+        $controller->verifyOtp();
+        break;
+
+    case $route === 'sign-up/lecturer':
+        $controller = new SignupController();
+        $controller->register();
         break;
 
     case $route === 'forums':
+        requireLogin();
         $controller = new ForumsController();
         $controller->index();
         break;
 
     case preg_match('#^forums/chat/([a-zA-Z0-9\-]+)$#', $route, $matches):
         $chatId = $matches[1];
+        requireLogin();
         $controller = new ForumsController();
         $controller->chat($chatId);
         break;
 
     case $route === 'forums/create':
+        requireLogin();
+        checkRoleAccess(['MAHASISWA', 'DOSEN']);
         $controller = new ForumsController();
         $controller->create();
+        break;
+
+    case $route === 'forums/edit':
+        requireLogin();
+        checkRoleAccess(['MAHASISWA', 'DOSEN']);
+        $controller = new ForumsController();
+        $controller->edit();
+        break;
+
+    case $route === 'forums/delete':
+        requireLogin();
+        checkRoleAccess(['MAHASISWA', 'DOSEN']);
+        $controller = new ForumsController();
+        $controller->delete();
+        break;
+
+    case $route === 'forums/exit':
+        requireLogin();
+        $controller = new ForumsController();
+        $controller->exit();
+        break;
+    case $route === 'forums/search':
+        requireLogin();
+        $controller = new ForumsController();
+        $controller->search();
+        break;
+        
+    case $route === 'forums/join':
+        requireLogin();
+        $controller = new ForumsController();
+        $controller->join();
         break;
 
     default:
