@@ -73,11 +73,6 @@ switch (true) {
         $controller->verifyOtp();
         break;
 
-    case $route === 'sign-up/lecturer':
-        $controller = new SignupController();
-        $controller->register();
-        break;
-
     case $route === 'forums':
         requireLogin();
         $controller = new ForumsController();
@@ -122,7 +117,7 @@ switch (true) {
         $controller = new ForumsController();
         $controller->search();
         break;
-        
+
     case $route === 'forums/join':
         requireLogin();
         $controller = new ForumsController();

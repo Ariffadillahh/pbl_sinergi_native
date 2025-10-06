@@ -37,7 +37,7 @@
                             <div class="relative">
                                 <div class="group relative">
                                     <input type="text" id="FullName" name="FullName" class="w-full h-[72px] pl-[80px] pr-6 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all" placeholder=" " required />
-                                    <label for="FullName" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">Your Full Name</label>
+                                    <label for="FullName" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">Full Name</label>
                                     <img src="<?php echo BASEURL; ?>/src/asset/icons/user-square-grey.svg" alt="User icon" class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
                                     <div class="absolute left-[64px] top-1/2 -translate-y-1/2 w-[1.5px] h-6 bg-gray-300"></div>
                                 </div>
@@ -47,7 +47,7 @@
                                 <div class="relative w-full  mb-6 md:mb-0">
                                     <div class="group relative">
                                         <input type="text" id="username" name="username" class="w-full h-[72px] pl-[80px] pr-6 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all" placeholder=" " required />
-                                        <label for="username" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">Your username</label>
+                                        <label for="username" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">username</label>
                                         <img src="<?php echo BASEURL; ?>/src/asset/image/@.png" alt="User icon" class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
                                         <div class="absolute left-[64px] top-1/2 -translate-y-1/2 w-[1.5px] h-6 bg-gray-300"></div>
                                     </div>
@@ -56,34 +56,9 @@
                                 <div class="relative w-full">
                                     <div class="group relative">
                                         <input type="text" id="personal_number" name="personal_number" class="w-full h-[72px] pl-[80px] pr-6 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all" placeholder=" " oninput="this.value=this.value.replace(/[^0-9]/g,'')" required />
-                                        <label for="personal_number" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">Your NIM</label>
+                                        <label for="personal_number" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">NIM/NIP</label>
                                         <img src="<?php echo BASEURL; ?>/src/asset/image/icons8-id-verified-96.png" alt="User icon" class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
                                         <div class="absolute left-[64px] top-1/2 -translate-y-1/2 w-[1.5px] h-6 bg-gray-300"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="md:flex gap-3">
-                                <div class="relative w-full mb-6 md:mb-0">
-                                    <div class="group relative">
-                                        <input type="text" id="tahunMasuk" name="tahunMasuk" class="w-full h-[72px] pl-[80px] pr-6 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all" oninput="this.value=this.value.replace(/[^0-9]/g,'')" placeholder=" " required />
-                                        <label for="tahunMasuk" pattern="[0-9]*" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">Tahun Masuk</label>
-                                        <img src="<?php echo BASEURL; ?>/src/asset/image/date.png" alt="Calendar icon" class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
-                                        <div class="absolute left-[64px] top-1/2 -translate-y-1/2 w-[1.5px] h-6 bg-gray-300"></div>
-                                    </div>
-                                </div>
-
-                                <div class="relative w-full">
-                                    <div class="group relative">
-                                        <select id="jenjangStudi" name="jenjangStudi" class="w-full h-[72px] pl-[80px] pt-7 pb-2 font-semibold text-gray-700  border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all appearance-none" required>
-                                            <option value="" disabled selected class="hidden"></option>
-                                            <option value="D3">D3 - Diploma III</option>
-                                            <option value="D4">D4 - Diploma IV</option>
-                                        </select>
-                                        <label for="jenjangStudi" class="absolute left-[80px] top-4 text-sm text-gray-500 font-medium transition-all">Jenjang Studi</label>
-                                        <img src="<?php echo BASEURL; ?>/src/asset/image/study.png" alt="Study level icon" class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
-                                        <div class="absolute left-[64px] top-1/2 -translate-y-1/2 w-[1.5px] h-6 bg-gray-300"></div>
-                                        <img src="<?php echo BASEURL; ?>/src/asset/image/arrow-down.png" alt="Dropdown arrow" class="absolute right-6 top-1/3 -translate-y-1/2 size-5 pointer-events-none" />
                                     </div>
                                 </div>
                             </div>
@@ -91,7 +66,7 @@
                             <div class="relative">
                                 <div class="group relative">
                                     <input type="email" id="Email" name="email" class="w-full h-[72px] pl-[80px] pr-10 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all" placeholder=" " required />
-                                    <label for="Email" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">Your email address</label>
+                                    <label for="Email" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">Email address</label>
                                     <img src="<?php echo BASEURL; ?>/src/asset/icons/sms-grey.svg" alt="Email icon" class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
                                     <div class="absolute left-[64px] top-1/2 -translate-y-1/2 w-[1.5px] h-6 bg-gray-300"></div>
                                 </div>

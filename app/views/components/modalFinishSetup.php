@@ -1,9 +1,6 @@
 <?php
-$tahunMasuk = $_SESSION['tahun_masuk'] ?? null;
-$jenjangStudi = $_SESSION['jenjang_studi'] ?? null;
-// $prodi = $_SESSION['prodi'] ?? null;
-
-$showModal = empty($tahunMasuk) || empty($jenjangStudi)
+$showModal = (isset($_SESSION['role']) && $_SESSION['role'] === 'MAHASISWA') &&
+    (empty($_SESSION['tahun_masuk']) || empty($_SESSION['jenjang_studi']) || empty($_SESSION['prodi']));
 ?>
 
 <div id="finish-setup-modal"

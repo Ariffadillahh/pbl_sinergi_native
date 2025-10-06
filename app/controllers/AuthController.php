@@ -89,11 +89,6 @@ class SignupController
         include __DIR__ . '/../views/sign-up/index.php';
     }
 
-    public function lecturerPage()
-    {
-        include __DIR__ . '/../views/sign-up/lecturer/index.php';
-    }
-
     public function register()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

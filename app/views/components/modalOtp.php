@@ -128,7 +128,7 @@
 
                 const result = await response.json();
                 if (result.success) {
-                    window.location.href = '<?php echo BASEURL ?>/sinergi/sign-in';
+                    window.location.href = '<?php echo BASEURL ?>/sign-in';
                 } else {
                     otpMessageDiv.classList.remove("hidden");
                     otpMessageDiv.textContent = result.message;

@@ -12,12 +12,19 @@ $isSettingsActive = (strpos($current_uri, '/settings') !== false);
             <li>
                 <img src="<?php echo BASEURL; ?>/src/asset/icons/logo-icon.svg" class="flex w-11 h-9 shrink-0" alt="logo">
             </li>
-            <li class="group <?php echo $isHomepageActive ? 'active' : ''; ?>">
-                <a href="<?php echo BASEURL ?>/homepage" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
-                    <img src="<?php echo BASEURL; ?>/src/asset/icons/chart-square-grey.svg" class="size-6 group-[.active]:hidden" alt="icon" />
-                    <img src="<?php echo BASEURL; ?>/src/asset/icons/chart-square-white-fill.svg" class="size-6 hidden group-[.active]:flex" alt="icon" />
-                </a>
-            </li>
+
+            <?php
+            if ($_SESSION['role'] === 'MAHASISWA' || $_SESSION['role'] === 'DOSEN') {
+            ?>
+                <li class="group <?php echo $isHomepageActive ? 'active' : ''; ?>">
+                    <a href="<?php echo BASEURL ?>/homepage" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
+                        <img src="<?php echo BASEURL; ?>/src/asset/icons/chart-square-grey.svg" class="size-6 group-[.active]:hidden" alt="icon" />
+                        <img src="<?php echo BASEURL; ?>/src/asset/icons/chart-square-white-fill.svg" class="size-6 hidden group-[.active]:flex" alt="icon" />
+                    </a>
+                </li>
+            <?php
+            }
+            ?>
             <li class="group <?php echo $isForumsActive ? 'active' : ''; ?>">
                 <a href="<?php echo BASEURL ?>/forums" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/messages.svg" class="size-6 group-[.active]:hidden" alt="icon">

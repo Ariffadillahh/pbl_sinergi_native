@@ -67,14 +67,9 @@
                             <p class="font-medium text-center text-gray-700">
                                 Don’t have an account?
                                 <a href="<?php echo BASEURL; ?>/sign-up" class="text-blue-600 font-semibold hover:text-blue-700 hover:underline transition">
-                                    Sign Up as Student
-                                </a>
-                                or
-                                <a href="<?php echo BASEURL; ?>/sign-up/lecturer" class="text-blue-600 font-semibold hover:text-blue-700 hover:underline transition">
-                                    Lecturer
+                                    Sign Up 
                                 </a>
                             </p>
-
                         </div>
                     </form>
                 </section>

@@ -1,18 +1,25 @@
 <aside id="forumsListSidebar" class="fixed lg:relative flex flex-col w-full max-w-[360px] lg:w-[360px] shrink-0 h-full border-r border-gray-100 bg-white overflow-hidden transition-all duration-300 ease-in-out z-20 -translate-x-full lg:translate-x-0 pb-[70px] lg:pb-0">
     <div id="Top-Bar" class="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-6">
         <p class="text-2xl font-semibold">Your Forums</p>
-        <ul class="flex gap-3">
-            <li>
-                <button id="openModalBtn" class="size-11 flex shrink-0 cursor-pointer items-center justify-center rounded-xl bg-white p-[10px] ring-1 ring-gray-100 transition-all duration-300 hover:ring-1 hover:ring-blue-600">
-                    <img src="<?php echo BASEURL; ?>/src/asset/icons/search-normal.svg" class="size-6" alt="icon">
-                </button>
-            </li>
-            <li>
-                <button id="AddForum" class="size-11 flex shrink-0 cursor-pointer items-center justify-center rounded-xl bg-white p-[10px] ring-1 ring-gray-100 transition-all duration-300 hover:ring-1 hover:ring-blue-600">
-                    <img src="<?php echo BASEURL; ?>/src/asset/icons/icons8-plus.svg" class="size-6" alt="icon">
-                </button>
-            </li>
-        </ul>
+        <?php
+
+        if ($_SESSION['role'] === 'MAHASISWA' || $_SESSION['role'] === 'DOSEN') {
+        ?>
+            <ul class="flex gap-3">
+                <li>
+                    <button id="openModalBtn" class="size-11 flex shrink-0 cursor-pointer items-center justify-center rounded-xl bg-white p-[10px] ring-1 ring-gray-100 transition-all duration-300 hover:ring-1 hover:ring-blue-600">
+                        <img src="<?php echo BASEURL; ?>/src/asset/icons/search-normal.svg" class="size-6" alt="icon">
+                    </button>
+                </li>
+                <li>
+                    <button id="AddForum" class="size-11 flex shrink-0 cursor-pointer items-center justify-center rounded-xl bg-white p-[10px] ring-1 ring-gray-100 transition-all duration-300 hover:ring-1 hover:ring-blue-600">
+                        <img src="<?php echo BASEURL; ?>/src/asset/icons/icons8-plus.svg" class="size-6" alt="icon">
+                    </button>
+                </li>
+            </ul>
+        <?php
+        }
+        ?>
     </div>
 
     <div id="Menu" class="flex flex-1 flex-col gap-5 overflow-hidden p-5 pb-0">
@@ -73,4 +80,3 @@
 </aside>
 
 <?php require_once 'app/views/components/forums/modalSearchForum.php'; ?>
-

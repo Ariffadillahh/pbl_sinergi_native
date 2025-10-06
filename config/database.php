@@ -21,15 +21,3 @@ if (!$conn) {
     trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
     die("Koneksi ke database Oracle gagal!");
 }
-
-
-// $db_host = "localhost";
-// $db_user = "root";
-// $db_pass = "";
-// $db_name = "pegawai";
-
-// $conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
-
-// if (mysqli_connect_errno()) {
-//     echo "Koneksi database gagal : " . mysqli_connect_error();
-// }
