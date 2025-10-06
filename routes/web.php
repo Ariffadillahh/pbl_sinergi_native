@@ -49,6 +49,35 @@ switch (true) {
         $controller->signInAction();
         break;
 
+    case $route === 'profile/setup':
+        $controller = new SigninController();
+        $controller->setUp();
+        break;
+
+    case $route === 'forget-password/action':
+        guestOnly();
+        $controller = new forgetPassword();
+        $controller->forgetPassword();
+        break;
+
+    case $route === 'forget-password':
+        guestOnly();
+        $controller = new forgetPassword();
+        $controller->index();
+        break;
+
+    case $route === 'forget-password/verif-otp':
+        guestOnly();
+        $controller = new forgetPassword();
+        $controller->verifyOtpForgetPassword();
+        break;
+
+    case $route === 'forget-password/resend-otp':
+        guestOnly();
+        $controller = new forgetPassword();
+        $controller->resendOtpForgetPassword();
+        break;
+
     case $route === 'logout':
         requireLogin();
         $controller = new SigninController();
@@ -71,6 +100,12 @@ switch (true) {
         guestOnly();
         $controller = new SignupController();
         $controller->verifyOtp();
+        break;
+
+    case $route === 'sign-up/resend-otp':
+        guestOnly();
+        $controller = new SignupController();
+        $controller->resendRegistrationOtp();
         break;
 
     case $route === 'forums':

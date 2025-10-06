@@ -14,7 +14,7 @@ $conn = @oci_connect(
     DB_PASSWORD,
     $connection_string,
     DB_CHARSET
-);
+);  
 
 if (!$conn) {
     $e = oci_error(); 

@@ -29,12 +29,36 @@
 
         <p class="text-sm text-gray-500 mt-8">
             Didn't get a code?
-            <a href="#" class="font-semibold text-blue-600 hover:underline">Resend</a>
+            <button type="button" id="resend-otp-btn" class="font-semibold text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline" disabled>
+                Resend
+            </button>
+            <span id="resend-timer" class="text-gray-500 font-medium"></span>
         </p>
     </div>
 </div>
 
 <script>
+    const resendBtn = document.getElementById("resend-otp-btn");
+    const timerSpan = document.getElementById("resend-timer");
+    let cooldown = 60;
+
+    function startCooldown() {
+        resendBtn.disabled = true;
+        timerSpan.textContent = `in ${cooldown}s`;
+
+        const interval = setInterval(() => {
+            cooldown--;
+            timerSpan.textContent = `in ${cooldown}s`;
+
+            if (cooldown <= 0) {
+                clearInterval(interval);
+                timerSpan.textContent = "";
+                resendBtn.disabled = false;
+                cooldown = 60;
+            }
+        }, 1000);
+    }
+
     function setupOtpModal() {
         const otpModal = document.getElementById("modal-otp");
         if (!otpModal) return;
@@ -56,7 +80,6 @@
                 input.value = input.value.replace(/[^0-9]/g, '');
                 console.log(`Input ${index}:`, input.value);
 
-                // Update OTP setiap kali ada input
                 console.log("OTP sekarang:", getOtpValue());
 
                 if (input.value.length === 1 && index < otpInputs.length - 1) {
@@ -95,7 +118,36 @@
                     }
                 }
             });
+
         });
+
+        resendBtn.addEventListener('click', async () => {
+            otpMessageDiv.textContent = 'Sending a new code...';
+            otpMessageDiv.className = 'w-full bg-blue-500 text-white p-2 rounded-xl mb-3';
+            otpMessageDiv.classList.remove('hidden');
+            resendBtn.disabled = true
+
+            try {
+                const response = await fetch('<?php echo BASEURL; ?>/sign-up/resend-otp', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    startCooldown();
+                    otpMessageDiv.textContent = result.message;
+                } else {
+                    otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
+                    otpMessageDiv.textContent = result.message;
+                }
+            } catch (error) {
+                otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
+                otpMessageDiv.textContent = 'Failed to connect to the server.';
+            } finally {
+                resendBtn.disabled = false
+            }
+        })
+
 
         otpForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -108,7 +160,7 @@
             }
 
             hiddenOtpInput.value = otp;
-            console.log("OTP yang dikirim:", hiddenOtpInput.value); 
+            console.log("OTP yang dikirim:", hiddenOtpInput.value);
 
             const formData = new FormData(otpForm);
             for (let pair of formData.entries()) {
@@ -132,10 +184,12 @@
                 } else {
                     otpMessageDiv.classList.remove("hidden");
                     otpMessageDiv.textContent = result.message;
+                    otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
                 }
             } catch (error) {
                 otpMessageDiv.classList.remove("hidden");
                 otpMessageDiv.textContent = error.message;
+                otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
             } finally {
                 verifyBtn.disabled = false;
                 verifyBtn.textContent = 'Verifikasi';
@@ -147,5 +201,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         handleRegist();
         setupOtpModal();
+        startCooldown();
     });
 </script>

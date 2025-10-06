@@ -14,10 +14,10 @@ class User extends BaseModel
 
         $sql = "INSERT INTO USERS (
                     ID, USERNAME, PERSONAL_NUMBER, FULL_NAME, TAHUN_MASUK, 
-                    EMAIL, PASSWORD, PATH_PHOTO, JENJANG_STUDI, ROLE
+                    EMAIL, PASSWORD, PATH_PHOTO, JENJANG_STUDI, ROLE, PRODI
                 ) VALUES (
                     :id, :username, :personal_number, :full_name, :tahun_masuk, 
-                    :email, :password, :path_photo, :jenjang_studi, :role
+                    :email, :password, :path_photo, :jenjang_studi, :role, :prodi
                 )";
 
 
@@ -39,6 +39,7 @@ class User extends BaseModel
             oci_bind_by_name($stmt, ':path_photo', $data['PATH_PHOTO']);
             oci_bind_by_name($stmt, ':jenjang_studi', $data['JENJANG_STUDI']);
             oci_bind_by_name($stmt, ':role', $data['ROLE']);
+            oci_bind_by_name($stmt, ':prodi', $data['PRODI']);
 
             $result = oci_execute($stmt, OCI_NO_AUTO_COMMIT);
 
@@ -60,5 +61,99 @@ class User extends BaseModel
                 oci_free_statement($stmt);
             }
         }
+    }
+
+    public static function updatePassword($userId, $hashedPassword)
+    {
+        $conn = self::getConnection();
+        if (!$conn) {
+            error_log("Gagal mendapatkan koneksi database.");
+            return false;
+        }
+
+        $sql = "UPDATE USERS SET PASSWORD = :password WHERE ID = :id";
+        $stmt_update = oci_parse($conn, $sql);
+
+        if (!$stmt_update) {
+            $e = oci_error($conn);
+            error_log("Gagal mem-parsing SQL: " . $e['message']);
+            return false;
+        }
+
+        oci_bind_by_name($stmt_update, ':password', $hashedPassword);
+        oci_bind_by_name($stmt_update, ':id', $userId);
+
+        $result = oci_execute($stmt_update, OCI_COMMIT_ON_SUCCESS);
+
+        if (!$result) {
+            $e = oci_error($stmt_update);
+            error_log("Gagal memperbarui password: " . $e['message']);
+            oci_free_statement($stmt_update);
+            return false;
+        }
+
+        oci_free_statement($stmt_update);
+        return true;
+    }
+
+
+    public static function updateProfile($userId, $data)
+    {
+        $allowedColumns = [
+            'FULL_NAME',
+            'PRODI',
+            'JENJANG_STUDI',
+            'TAHUN_MASUK',
+            'PATH_PHOTO',
+            'PERSONAL_NUMBER',
+            'PASSWORD'
+        ];
+
+        $setClauses = [];
+        $dataToBind = [];
+
+        foreach ($data as $key => $value) {
+            if (in_array($key, $allowedColumns)) {
+                $setClauses[] = "$key = :$key"; 
+                $dataToBind[$key] = $value;   
+            }
+        }
+
+        if (empty($setClauses)) {
+            error_log("Tidak ada data valid untuk diupdate.");
+            return false;
+        }
+
+        $conn = self::getConnection();
+        if (!$conn) {
+            error_log("Gagal mendapatkan koneksi database.");
+            return false;
+        }
+
+        $setString = implode(', ', $setClauses);
+        $sql = "UPDATE USERS SET $setString WHERE ID = :id";
+
+        $stmt = oci_parse($conn, $sql);
+        if (!$stmt) {
+            $e = oci_error($conn);
+            error_log("Gagal mem-parsing SQL: " . $e['message']);
+            return false;
+        }
+
+        foreach ($dataToBind as $key => &$value) { 
+            oci_bind_by_name($stmt, ':' . $key, $value);
+        }
+        oci_bind_by_name($stmt, ':id', $userId);
+
+        $result = oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
+        if (!$result) {
+            $e = oci_error($stmt);
+            error_log("Gagal mengupdate data user: " . $e['message']);
+            oci_free_statement($stmt);
+            return false;
+        }
+
+        oci_free_statement($stmt);
+        return true;
     }
 }

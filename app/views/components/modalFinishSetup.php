@@ -26,9 +26,8 @@ $showModal = (isset($_SESSION['role']) && $_SESSION['role'] === 'MAHASISWA') &&
                 <p id="modal-error-message"
                     class="bg-red-600 p-2 text-white text-center rounded-lg hidden mb-4"></p>
 
-                <form id="setup-form" method="post" class="my-5">
+                <form id="setup-form" action="<?php echo BASEURL ?>/profile/setup" method="POST" class="my-5">
                     <div class="my-6 max-w-md mx-auto">
-
                         <div class="relative mb-5">
                             <select id="jenjang-studi" name="jenjang_studi"
                                 class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
@@ -61,7 +60,7 @@ $showModal = (isset($_SESSION['role']) && $_SESSION['role'] === 'MAHASISWA') &&
                         </div>
 
                         <button type="submit" name="finish_setup" id="setup-submit-button"
-                            class="mt-8 w-full px-6 py-3.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors">Save
+                            class=" w-full px-6 py-3.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors">Save
                             and Continue</button>
                     </div>
                 </form>
@@ -91,8 +90,10 @@ $showModal = (isset($_SESSION['role']) && $_SESSION['role'] === 'MAHASISWA') &&
             errorMessage.classList.add('hidden');
 
             const formData = new FormData(setupForm);
+            const actionUrl = setupForm.getAttribute("action");
+
             try {
-                const response = await fetch('/users/finishSetup', {
+                const response = await fetch(actionUrl, {
                     method: 'POST',
                     body: formData
                 });

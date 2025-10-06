@@ -127,18 +127,24 @@
                 console.log("---------------------------------");
 
                 try {
+
                     const response = await fetch(actionUrl, {
                         method: "POST",
                         body: formData,
                     });
+                    console.log("meleawti respon")
 
                     const result = await response.json();
                     if (result.success) {
+                        console.log("succses")
                         modalOtp.classList.remove("hidden");
+                        document.body.classList.add("overflow-hidden");
                         modalOtp.classList.add("flex");
                         const userEmail = document.getElementById("Email").value;
                         const emailDisplayElement = document.getElementById("otp-email-display");
                         emailDisplayElement.textContent = userEmail;
+                    }else{
+                        console.error('error')
                     }
                 } catch (error) {
                     console.error("Fetch Error:", error);
