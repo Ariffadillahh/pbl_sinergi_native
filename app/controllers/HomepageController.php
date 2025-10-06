@@ -7,12 +7,14 @@ class HomePageController
 {
     public function index()
     {
-        include __DIR__ . '/../views/homePage/index.php';
+        $contentViewPost = __DIR__ . '/../views/homePage/index.php';
+        require_once __DIR__ . '/../views/homePage/layout.php';
     }
 
     public function replayPage($id)
     {
-        include __DIR__ . '/../views/homePage/repaly/index.php';
+        $contentViewPost = __DIR__ . '/../views/homePage/repaly/index.php';
+        require_once __DIR__ . '/../views/homePage/layout.php';
     }
 }
 

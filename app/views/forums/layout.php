@@ -17,6 +17,7 @@
     </div>
 
     <?php require_once __DIR__ . '/../components/forums/modalCreateForum.php'; ?>
+    <?php require_once 'app/views/components/modalFinishSetup.php'; ?>
 
     <script src="<?php echo BASEURL; ?>/src/js/main.js"></script>
 
