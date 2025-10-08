@@ -125,7 +125,7 @@
             otpMessageDiv.textContent = 'Sending a new code...';
             otpMessageDiv.className = 'w-full bg-blue-500 text-white p-2 rounded-xl mb-3';
             otpMessageDiv.classList.remove('hidden');
-            resendBtn.disabled = true
+            resendBtn.disabled = true;
 
             try {
                 const response = await fetch('<?php echo BASEURL; ?>/sign-up/resend-otp', {
@@ -134,19 +134,20 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    startCooldown();
                     otpMessageDiv.textContent = result.message;
+                    startCooldown(); 
                 } else {
                     otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
                     otpMessageDiv.textContent = result.message;
+                    resendBtn.disabled = false;
                 }
             } catch (error) {
                 otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
                 otpMessageDiv.textContent = 'Failed to connect to the server.';
-            } finally {
-                resendBtn.disabled = false
+                resendBtn.disabled = false;
             }
-        })
+        });
+
 
 
         otpForm.addEventListener('submit', async (e) => {

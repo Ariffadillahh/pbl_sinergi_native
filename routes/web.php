@@ -159,6 +159,24 @@ switch (true) {
         $controller->join();
         break;
 
+    case $route === 'forums/send-message':
+        requireLogin();
+        $controller = new ChatMessages();
+        $controller->sendMessage();
+        break;
+
+    case $route === 'forums/get-new-messages':
+        requireLogin();
+        $controller = new ChatMessages();
+        $controller->getNewMessages();
+        break;
+
+    case $route === 'forums/get-initial-messages':
+        requireLogin();
+        $controller = new ChatMessages();
+        $controller->getInitialMessages();
+        break;
+
     default:
         http_response_code(404);
         $controller = new NotFoundPageController();

@@ -14,7 +14,10 @@
 
         <main class="flex flex-1 min-h-screen items-center justify-center p-4 bg-white z-10">
 
-            <div class="w-full max-w-[435px]">
+
+            <div class="w-full max-w-[435px] relative">
+                <div id="error-notification" class="text-center bg-red-500 py-3 px-6 rounded-2xl shadow-lg text-white mb-4 fixed top-5 hidden">
+                </div>
                 <form id="registerForm" action="<?php echo BASEURL ?>/sign-up/action" method="POST" class="flex flex-col gap-10">
                     <div class="flex flex-col gap-8">
                         <header class="flex flex-col gap-3 text-center">
@@ -104,6 +107,7 @@
         function handleRegist() {
             const formRegist = document.getElementById("registerForm");
             const modalOtp = document.getElementById("modal-otp");
+            const errorNotif = document.getElementById("error-notification");
 
             if (!formRegist) {
                 return;
@@ -116,38 +120,38 @@
 
                 submitButton.textContent = "Loading....";
                 submitButton.disabled = true;
+                errorNotif.classList.add("hidden")
 
                 const formData = new FormData(formRegist);
                 const actionUrl = formRegist.getAttribute("action");
 
-                console.log("--- Data dari Form Registrasi ---");
-                for (let [key, value] of formData.entries()) {
-                    console.log(`${key}:`, value);
-                }
-                console.log("---------------------------------");
-
                 try {
-
                     const response = await fetch(actionUrl, {
                         method: "POST",
                         body: formData,
                     });
-                    console.log("meleawti respon")
 
                     const result = await response.json();
+
                     if (result.success) {
-                        console.log("succses")
                         modalOtp.classList.remove("hidden");
-                        document.body.classList.add("overflow-hidden");
                         modalOtp.classList.add("flex");
+                        document.body.classList.add("overflow-hidden");
+
                         const userEmail = document.getElementById("Email").value;
                         const emailDisplayElement = document.getElementById("otp-email-display");
                         emailDisplayElement.textContent = userEmail;
-                    }else{
-                        console.error('error')
+
+                        startCooldown();
+                    } else {
+                        console.error("error");
+                        errorNotif.classList.remove('hidden')
+                        errorNotif.textContent = result.message || "Terjadi kesalahan."
                     }
                 } catch (error) {
                     console.error("Fetch Error:", error);
+                    errorNotif.textContent = "Tidak dapat terhubung ke server. Periksa koneksi Anda.";
+                    errorNotif.classList.remove("hidden");  
                 } finally {
                     submitButton.textContent = "Create Account";
                     submitButton.disabled = false;

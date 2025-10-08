@@ -20,85 +20,8 @@
                 <?php require_once 'app/views/components/forums/detailForum.php'; ?>
 
                 <div id="Chat-Messages" class="relative flex-1 overflow-y-auto">
-                    <article class="relative flex flex-col gap-5 p-5 z-0 h-[200vh]">
-                        <p class="date sticky w-[150px] text-center top-5 mt-[21px] mx-auto rounded-xl py-[10px] px-3 bg-white font-medium text-sm z-30">
-                            Yesterday, 18 Dec
-                        </p>
-                        <div class="chat-row">
-                            <div class="message-in group flex flex-col gap-3 [&.message-out]:items-end [&.message-in]:items-start">
-                                <!-- change message-(in/out) class to swicth the card position to left (in) or right (out) -->
-                                <div class="time sender flex items-center gap-3 group-[&.message-in]:flex-row-reverse">
-                                    <div class="flex items-center gap-[6px] group-[&.message-in]:flex-row-reverse">
-                                        <img src="assets/images/icons/Send.svg" class="flex size-6 shrink-0 group-[&.message-in]:hidden" alt="icon">
-                                        <p class="flex gap-[6px] group-[&.message-in]:flex-row-reverse text-heyhao-secondary">
-                                            <span>12:06 AM</span>
-                                            <span> • </span>
-                                            <span class="text-heyhao-black">Neb</span>
-                                        </p>
-                                    </div>
-                                    <div class="flex size-8 shrink-0 overflow-hidden rounded-full">
-                                        <img src="<?php echo BASEURL; ?>/src/asset/image/default.png" class="w-full h-full object-cover" alt="photo">
-                                    </div>
-                                </div>
-                                <div class="message-card relative max-w-[584px]">
-                                    <div class="w-fit rounded-3xl group-[&.message-out]:rounded-tr-none group-[&.message-in]:rounded-tl-none py-5 px-4 gap-2 bg-heyhao-card-meesage group-[&.message-in]:bg-white leading-[28px]">
-                                        <p>Halo, semuanya! buat baru join. Yuk, kenalan dulu biar diskusinya nanti tambah seru dan santai!😎</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="date sticky w-[150px] text-center top-5 mt-[21px] mx-auto rounded-xl py-[10px] px-3 bg-white font-medium text-sm z-30">
-                            Yesterday, 19 Dec
-                        </p>
-                        <div class="chat-row">
-                            <div class="message-in group flex flex-col gap-3 [&.message-out]:items-end [&.message-in]:items-start">
-                                <!-- change message-(in/out) class to swicth the card position to left (in) or right (out) -->
-                                <div class="time sender flex items-center gap-3 group-[&.message-in]:flex-row-reverse">
-                                    <div class="flex items-center gap-[6px] group-[&.message-in]:flex-row-reverse">
-                                        <img src="assets/images/icons/Send.svg" class="flex size-6 shrink-0 group-[&.message-in]:hidden" alt="icon">
-                                        <p class="flex gap-[6px] group-[&.message-in]:flex-row-reverse text-heyhao-secondary">
-                                            <span>12:06 AM</span>
-                                            <span> • </span>
-                                            <span class="text-heyhao-black">Neb</span>
-                                        </p>
-                                    </div>
-                                    <div class="flex size-8 shrink-0 overflow-hidden rounded-full">
-                                        <img src="<?php echo BASEURL; ?>/src/asset/image/default.png" class="w-full h-full object-cover" alt="photo">
-                                    </div>
-                                </div>
-                                <div class="message-card relative max-w-[584px]">
-                                    <div class="w-fit rounded-3xl group-[&.message-out]:rounded-tr-none group-[&.message-in]:rounded-tl-none py-5 px-4 gap-2 bg-heyhao-card-meesage group-[&.message-in]:bg-white leading-[28px]">
-                                        <p>Halo, semuanya! buat baru join. Yuk, kenalan dulu biar diskusinya nanti tambah seru dan santai!😎</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="date sticky w-[150px] text-center top-5 mt-[21px] mx-auto rounded-xl py-[10px] px-3 bg-white font-medium text-sm z-30">
-                            Yesterday, 20 Dec
-                        </p>
-                        <div class="chat-row">
-                            <div class="message-in group flex flex-col gap-3 [&.message-out]:items-end [&.message-in]:items-start">
-                                <!-- change message-(in/out) class to swicth the card position to left (in) or right (out) -->
-                                <div class="time sender flex items-center gap-3 group-[&.message-in]:flex-row-reverse">
-                                    <div class="flex items-center gap-[6px] group-[&.message-in]:flex-row-reverse">
-                                        <img src="assets/images/icons/Send.svg" class="flex size-6 shrink-0 group-[&.message-in]:hidden" alt="icon">
-                                        <p class="flex gap-[6px] group-[&.message-in]:flex-row-reverse text-heyhao-secondary">
-                                            <span>12:06 AM</span>
-                                            <span> • </span>
-                                            <span class="text-heyhao-black">Neb</span>
-                                        </p>
-                                    </div>
-                                    <div class="flex size-8 shrink-0 overflow-hidden rounded-full">
-                                        <img src="<?php echo BASEURL; ?>/src/asset/image/default.png" class="w-full h-full object-cover" alt="photo">
-                                    </div>
-                                </div>
-                                <div class="message-card relative max-w-[584px]">
-                                    <div class="w-fit rounded-3xl group-[&.message-out]:rounded-tr-none group-[&.message-in]:rounded-tl-none py-5 px-4 gap-2 bg-heyhao-card-meesage group-[&.message-in]:bg-white leading-[28px]">
-                                        <p>Halo, semuanya! buat baru join. Yuk, kenalan dulu biar diskusinya nanti tambah seru dan santai!😎</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <article class="relative flex flex-col gap-5 p-5 z-0 mb-[30px] md:mb-0">
+                        
                     </article>
                 </div>
 
@@ -141,6 +64,373 @@
             </div>
         </main>
     </div>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const BASEURL = '<?php echo BASEURL; ?>';
+            const FORUM_ID = '<?= $forumByid['ID'] ?? '1' ?>';
+            const CURRENT_USER_ID = '<?= $_SESSION['user_id'] ?? '123' ?>';
+            const CURRENT_USER_NAME = "<?= $_SESSION['username'] ?? 'You' ?>";
+            const chatForm = document.getElementById("chat-form");
+            const chatInput = document.getElementById("Chat-Input");
+            const placeholder = document.getElementById("placeholder");
+            const hiddenInput = document.getElementById("message");
+            const uploadButton = document.getElementById("Upload-Image");
+            const fileInput = document.getElementById("imageInput");
+            const previewContainer = document.getElementById("preview-container");
+            const previewImage = document.getElementById("preview-image");
+            const previewFilename = document.getElementById("preview-filename");
+            const removePreviewButton = document.getElementById("remove-preview");
+            const CURRENT_USER_PHOTO = "<?= !empty($_SESSION['path_photo']) ? BASEURL . '/storage/users/photos/' . $_SESSION['path_photo'] : BASEURL . '/src/asset/image/default.png' ?>";
+            let lastSenderId = null;
+            let lastMessageTime = null;
+            let lastTimestamp = "<?= (new DateTime())->format('Y-m-d H:i:s.u') ?>";
+            let lastRenderedDate = null;
+
+            function renderMessage(msg) {
+                const chatMessagesContainer = document.querySelector("#Chat-Messages article");
+
+                // --- LOGIKA HEADER TANGGAL ---
+                if (msg.CREATED_AT) {
+                    const currentMessageDate = msg.CREATED_AT.substring(0, 10);
+                    if (currentMessageDate !== lastRenderedDate) {
+                        const dateHeader = document.createElement('p');
+                        dateHeader.className = "sticky w-[150px] text-center top-5 mt-[21px] mx-auto rounded-xl py-[10px] px-3 bg-white font-medium text-sm z-30";
+                        dateHeader.textContent = formatDateHeader(currentMessageDate);
+                        chatMessagesContainer.appendChild(dateHeader);
+                        lastRenderedDate = currentMessageDate;
+                        lastSenderId = null; // Reset pengelompokan di hari yang baru
+                    }
+                }
+
+                // --- Variabel & Logika Dasar ---
+                const messageId = msg.ID || msg.temp_id || `temp-${Date.now()}`;
+                const isOutgoing = msg.SENDER_ID == CURRENT_USER_ID;
+
+                // --- LOGIKA PENGELOMPOKKAN PESAN ---
+                let showHeader = true;
+                if (lastSenderId === msg.SENDER_ID) {
+                    showHeader = false;
+                }
+                lastSenderId = msg.SENDER_ID;
+
+                // --- Persiapan Class & Variabel Tampilan ---
+                const alignClass = isOutgoing ? 'items-end' : 'items-start';
+                const roundedClass = isOutgoing ? 'rounded-br-none bg-blue-500 text-white' : 'rounded-tl-none bg-white';
+                const senderName = isOutgoing ? 'You' : (msg.SENDER_NAME || 'User');
+                const marginClass = showHeader ? 'mt-4' : 'mt-1';
+
+                // --- PEMBUATAN ELEMEN ---
+                const messageRow = document.createElement('div');
+                messageRow.id = `message-${messageId}`;
+                messageRow.className = `chat-row flex flex-col ${alignClass} ${marginClass} ${!showHeader ? 'grouped' : ''}`;
+
+                let senderHtml = '';
+                // Tampilkan header (avatar & nama) hanya jika diperlukan
+                if (showHeader) {
+                    let avatarSrc;
+                    if (isOutgoing) {
+                        avatarSrc = CURRENT_USER_PHOTO;
+                    } else {
+                        avatarSrc = msg.SENDER_PHOTO ? `${BASEURL}/storage/users/photos/${msg.SENDER_PHOTO}` : `${BASEURL}/src/asset/image/default.png`;
+                    }
+                    const time = msg.CREATED_AT ? new Date(msg.CREATED_AT.replace(' ', 'T')).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : new Date().toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    senderHtml = `
+                        <div class="flex items-center gap-3 ${isOutgoing ? 'flex-row-reverse' : ''}">
+                            <div class="flex size-10 shrink-0 overflow-hidden rounded-full">
+                                <img src="${avatarSrc}" class="w-full h-full object-cover" alt="photo">
+                            </div>
+                            <div>
+                                <p class="flex gap-2 text-sm text-gray-600 ${isOutgoing ? 'flex-row-reverse' : ''}">
+                                    <span class="font-bold text-black">${senderName}</span>
+                                    <span>•</span>
+                                    <span>${time}</span>
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // --- FUNGSI IKON STATUS (Lengkap) ---
+                function getStatusIcon(status) {
+                    if (!isOutgoing) return '';
+                    const icons = {
+                        pending: `<svg class="size-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+                        sent: `<svg class="size-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`,
+                        failed: `<svg class="size-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 9.586V6z" clip-rule="evenodd"></path></svg>`,
+                    };
+                    return `<div class="message-status-indicator flex items-center justify-end h-4 mt-1">${icons[status] || ''}</div>`;
+                }
+
+                let contentHtml = '';
+                if (msg.PATH_MEDIA) {
+                    const mediaSrc = msg.status === 'pending' ? msg.PATH_MEDIA : `${BASEURL}/${msg.PATH_MEDIA}`;
+                    if (msg.TYPE === 'IMAGE') {
+                        contentHtml += `<img src="${mediaSrc}" class="rounded-lg md:max-w-xs max-w-[200px] mb-2" alt="Image" loading="lazy">`;
+                    } else if (msg.TYPE === 'VIDEO') {
+                        contentHtml += `<video controls class="rounded-lg md:max-w-xs max-w-[200px] mb-2"><source src="${mediaSrc}"></video>`;
+                    } else if (msg.TYPE === 'FILE') {
+                        const fileName = msg.ORIGINAL_NAME || msg.CONTENT || 'Unknown file';
+                        const linkColor = isOutgoing ? 'text-white' : 'text-blue-700';
+                        contentHtml += `<a href="${BASEURL}/${msg.PATH_MEDIA}" download="${msg.ORIGINAL_NAME}" target="_blank" class="flex items-center gap-2 ${linkColor} font-medium hover:underline mb-1">📎 ${fileName}</a>`;
+                    }
+                }
+                const textContent = msg.messageText || (msg.TYPE === 'TEXT' ? msg.CONTENT : '');
+                if (textContent) {
+                    contentHtml += `<p class="whitespace-pre-wrap">${textContent}</p>`;
+                }
+
+                const messageCardHtml = `
+                    <div class="message-card relative ${isOutgoing ? 'mr-12' : 'ml-12'}">
+                        <div class="w-fit max-w-md rounded-2xl py-3 px-4 leading-normal shadow ${roundedClass}">
+                            ${contentHtml}
+                            ${getStatusIcon(msg.status)}
+                        </div>
+                    </div>
+                `;
+
+                messageRow.innerHTML = senderHtml + messageCardHtml;
+
+                chatMessagesContainer.appendChild(messageRow);
+                chatMessagesContainer.parentElement.scrollTop = chatMessagesContainer.parentElement.scrollHeight;
+            }
+
+            function updateMessageStatus(tempId, newStatus, serverResult = null) {
+                const messageElement = document.querySelector(`#message-${tempId}`);
+                if (!messageElement) return;
+
+                const statusIndicator = messageElement.querySelector('.message-status-indicator');
+                if (!statusIndicator) return;
+
+                const icons = {
+                    pending: `...`,
+                    sent: `<svg class="size-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`,
+                    failed: `<svg class="size-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 9.586V6z" clip-rule="evenodd"></path></svg>`
+                };
+
+                statusIndicator.innerHTML = icons[newStatus] || '';
+
+                if (newStatus === 'sent' && serverResult && serverResult.message_id) {
+                    messageElement.id = `message-${serverResult.message_id}`;
+                }
+
+                if (newStatus === 'failed') {
+                    const messageCard = messageElement.querySelector('.message-card');
+                    messageCard.title = "Pesan gagal terkirim.";
+                }
+            }
+
+            async function handleSendMessage(event, elements) {
+                event.preventDefault();
+                const {
+                    hiddenInput,
+                    fileInput,
+                    chatInput,
+                    removePreview,
+                    updateTextInputState,
+                } = elements;
+
+                const messageText = hiddenInput.value.trim();
+                const file = fileInput.files[0];
+
+                if (!messageText && !file) return;
+
+                const tempId = crypto.randomUUID();
+
+                const tempMessage = {
+                    temp_id: tempId,
+                    SENDER_ID: CURRENT_USER_ID,
+                    SENDER_NAME: CURRENT_USER_NAME,
+                    SENDER_PHOTO: CURRENT_USER_PHOTO,
+                    CONTENT: file ? file.name : messageText,
+                    messageText: file ? messageText : null,
+                    PATH_MEDIA: file ? URL.createObjectURL(file) : null,
+                    TYPE: file ? (file.type.startsWith("image/") ? 'IMAGE' : (file.type.startsWith("video/") ? 'VIDEO' : 'FILE')) : 'TEXT',
+                    CREATED_AT: new Date().toISOString(),
+                    status: 'pending',
+                    ORIGINAL_NAME: file ? file.name : null
+                };
+
+                renderMessage(tempMessage);
+
+                chatInput.innerHTML = "";
+                removePreview();
+                updateTextInputState();
+
+                const formData = new FormData();
+                formData.append("forum_id", FORUM_ID);
+                formData.append("message", messageText);
+                if (file) {
+                    formData.append("attachment", file, file.name);
+                }
+
+                try {
+                    const response = await fetch(`${BASEURL}/forums/send-message`, {
+                        method: "POST",
+                        body: formData,
+                    });
+                    const result = await response.json();
+                    if (!response.ok) {
+                        throw new Error(result.error || 'Server mengalami masalah.');
+                    }
+                    updateMessageStatus(tempId, 'sent', result);
+                } catch (error) {
+                    console.error("Gagal mengirim pesan:", error);
+                    updateMessageStatus(tempId, 'failed');
+                }
+            }
+
+
+            function setupChatForm() {
+                if (!chatInput) return;
+
+                const elements = {
+                    hiddenInput,
+                    fileInput,
+                    chatInput,
+                    removePreview: () => {
+                        previewContainer.classList.add("hidden");
+                        fileInput.value = "";
+                        previewImage.src = "";
+                    },
+                    updateTextInputState: () => {
+                        const textContent = chatInput.innerText;
+                        placeholder.style.display =
+                            textContent.trim() === "" ? "block" : "none";
+                        hiddenInput.value = textContent;
+                    },
+                };
+                chatInput.addEventListener("input", elements.updateTextInputState);
+                uploadButton.addEventListener("click", () => fileInput.click());
+                const fileIconUrl = `${BASEURL}/src/asset/image/file.png`;
+                fileInput.addEventListener("change", (event) => {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    previewFilename.textContent = file.name;
+                    previewImage.src = file.type.startsWith("image/") ?
+                        URL.createObjectURL(file) :
+                        fileIconUrl;
+                    previewContainer.classList.remove("hidden");
+                });
+                removePreviewButton.addEventListener("click", elements.removePreview);
+                chatForm.addEventListener("submit", (event) =>
+                    handleSendMessage(event, elements)
+                );
+                elements.updateTextInputState();
+            }
+
+            function groupMessages(messages) {
+                if (!messages || messages.length === 0) return [];
+                const combinedMessages = [];
+                for (let i = 0; i < messages.length; i++) {
+                    let currentMessage = messages[i];
+                    let lastCombined = combinedMessages[combinedMessages.length - 1];
+                    if (lastCombined &&
+                        lastCombined.SENDER_ID === currentMessage.SENDER_ID &&
+                        lastCombined.CREATED_AT.substring(0, 19) === currentMessage.CREATED_AT.substring(0, 19)) {
+                        const textMessage = currentMessage.TYPE === 'TEXT' ? currentMessage : lastCombined;
+                        const fileMessage = currentMessage.TYPE !== 'TEXT' ? currentMessage : lastCombined;
+                        lastCombined.TYPE = fileMessage.TYPE;
+                        lastCombined.PATH_MEDIA = fileMessage.PATH_MEDIA;
+                        lastCombined.ORIGINAL_NAME = fileMessage.TYPE !== 'TEXT' ? fileMessage.CONTENT : null;
+                        lastCombined.CONTENT = textMessage.CONTENT;
+                        lastCombined.messageText = textMessage.CONTENT;
+                    } else {
+                        combinedMessages.push(currentMessage);
+                    }
+                }
+                return combinedMessages;
+            }
+
+            async function longPoll() {
+                try {
+                    const response = await fetch(`${BASEURL}/forums/get-new-messages?forum_id=${FORUM_ID}&since=${encodeURIComponent(lastTimestamp)}`);
+                    if (!response.ok) {
+                        console.error(`Polling request failed with status: ${response.status}`);
+                        await new Promise(resolve => setTimeout(resolve, 10000));
+                        return;
+                    }
+                    const messages = await response.json();
+                    if (messages.length > 0) {
+                        console.log("Pesan BARU dari server:", JSON.parse(JSON.stringify(messages)));
+                        const finalMessages = groupMessages(messages);
+                        console.log("Pesan BARU SETELAH digabung:", finalMessages);
+                        finalMessages.forEach(msg => {
+                            if (msg.SENDER_ID != CURRENT_USER_ID) {
+                                renderMessage(msg);
+                            }
+                        });
+                        lastTimestamp = messages[messages.length - 1].CREATED_AT;
+                    }
+                } catch (error) {
+                    console.error('Long polling error:', error);
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+                } finally {
+                    longPoll();
+                }
+            }
+
+            async function loadInitialMessages() {
+                const chatMessagesContainer = document.querySelector("#Chat-Messages article");
+                chatMessagesContainer.innerHTML = '';
+                try {
+                    const response = await fetch(`${BASEURL}/forums/get-initial-messages?forum_id=${FORUM_ID}`);
+                    if (!response.ok) throw new Error('Gagal memuat pesan awal.');
+                    const messages = await response.json();
+                    if (messages.length > 0) {
+                        console.log("Pesan ASLI dari server:", JSON.parse(JSON.stringify(messages)));
+                        const finalMessages = groupMessages(messages);
+                        console.log("Pesan SETELAH digabung:", finalMessages);
+                        finalMessages.forEach(renderMessage);
+                        lastTimestamp = messages[messages.length - 1].CREATED_AT;
+                    }
+                } catch (error) {
+                    console.error('Initial load error:', error);
+                } finally {
+                    console.log("Memulai Long Polling...");
+                    longPoll();
+                }
+            }
+
+            function formatDateHeader(dateString) {
+                const today = new Date();
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+
+                const msgDate = new Date(dateString);
+
+                // Set jam ke 0 untuk perbandingan tanggal yang akurat
+                today.setHours(0, 0, 0, 0);
+                yesterday.setHours(0, 0, 0, 0);
+                msgDate.setHours(0, 0, 0, 0);
+
+                if (today.getTime() === msgDate.getTime()) {
+                    return 'Today';
+                }
+                if (yesterday.getTime() === msgDate.getTime()) {
+                    return 'Yesterday';
+                }
+
+                // Untuk tanggal yang lebih lama, format menjadi "DD Mon YYYY"
+                return msgDate.toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+            }
+
+            setupChatForm();
+            loadInitialMessages()
+        });
+    </script>
 </body>
 
 </html>

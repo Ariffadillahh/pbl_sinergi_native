@@ -1,7 +1,7 @@
 <?php
-// Pastikan path-nya sesuai dengan struktur folder Anda
 require_once __DIR__ . '/../models/Forums/Forum.php';
 require_once __DIR__ . '/../models/Forums/ForumMember.php';
+require_once __DIR__ . '/../models/Forums/ChatMessage.php';
 
 class ForumsController
 {
@@ -324,7 +324,7 @@ class ForumsController
             exit;
         }
 
-        $result = Forum::joinForum($forumId, $userId ,$accessKey);
+        $result = Forum::joinForum($forumId, $userId, $accessKey);
 
         if ($result['success']) {
             echo json_encode(
@@ -339,5 +339,123 @@ class ForumsController
             echo json_encode(['success' => false, 'message' => $result['message']]);
         }
         exit;
+    }
+}
+
+class ChatMessages
+{
+    public function sendMessage()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['error' => 'Invalid request method.']);
+            return;
+        }
+
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'User not authenticated.']);
+            return;
+        }
+
+        $forum_id = $_POST['forum_id'] ?? null;
+        $user_id  = $_SESSION['user_id'];
+        $message  = trim($_POST['message'] ?? '');
+        $responses = [];
+
+        if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = __DIR__ . '/../../storage/forums/attachment/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $originalName = basename($_FILES['attachment']['name']);
+            $fileName = uniqid() . '-' . $originalName;
+            $targetPath = $uploadDir . $fileName;
+
+            if (move_uploaded_file($_FILES['attachment']['tmp_name'], $targetPath)) {
+                $mime = mime_content_type($targetPath);
+                $fileType = 'FILE';
+                if (strpos($mime, 'image/') === 0) {
+                    $fileType = 'IMAGE';
+                } elseif (strpos($mime, 'video/') === 0) {
+                    $fileType = 'VIDEO';
+                }
+
+                $dataFile = [
+                    'forum_id'   => $forum_id,
+                    'sender_id'  => $user_id,
+                    'content'    => $originalName,
+                    'path_media' => 'storage/forums/attachment/' . $fileName,
+                    'type'       => $fileType
+                ];
+
+                $resultFile = ChatMessage::createMessage($dataFile);
+
+                if (is_array($resultFile) && isset($resultFile['ID'])) {
+                    $responses[] = ['file' => $resultFile['ID']];
+                } else {
+                    error_log("❌ Gagal menyimpan pesan file: " . json_encode($dataFile));
+                }
+            } else {
+                error_log("❌ Gagal memindahkan file ke $targetPath");
+            }
+        }
+
+        if (!empty($message)) {
+            $dataText = [
+                'forum_id'   => $forum_id,
+                'sender_id'  => $user_id,
+                'content'    => $message,
+                'path_media' => null,
+                'type'       => 'TEXT'
+            ];
+
+            $resultText = ChatMessage::createMessage($dataText);
+
+            if (is_array($resultText) && isset($resultText['ID'])) {
+                $responses[] = ['text' => $resultText['ID']];
+            } else {
+                error_log("❌ Gagal menyimpan pesan teks: " . json_encode($dataText));
+            }
+        }
+
+        if (empty($responses)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Message or file cannot be empty or failed to save.']);
+            return;
+        }
+
+        echo json_encode([
+            'success' => true,
+            'responses' => $responses
+        ]);
+    }
+
+    public function getNewMessages()
+    {
+        header('Content-Type: application/json');
+        $forumId = $_GET['forum_id'] ?? 0;
+        $lastTimestamp = $_GET['since'] ?? date('Y-m-d H:i:s');
+
+        set_time_limit(30);
+
+        while (true) {
+            $messages = ChatMessage::getMessagesSince($forumId, $lastTimestamp);
+
+            if (!empty($messages)) {
+                echo json_encode($messages);
+                return;
+            }
+            sleep(1);
+        }
+    }
+
+    public function getInitialMessages()
+    {
+        header('Content-Type: application/json');
+        $forumId = $_GET['forum_id'] ?? 0;
+        $messages = ChatMessage::getInitialMessages($forumId);
+        echo json_encode($messages);
     }
 }

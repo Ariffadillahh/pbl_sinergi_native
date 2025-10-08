@@ -193,6 +193,7 @@
                         if (emailDisplayElement) {
                             emailDisplayElement.textContent = userEmail;
                         }
+                        startCooldown();
                     } else {
                         errorNotif.textContent = result.message || "Terjadi kesalahan.";
                         errorNotif.classList.remove("hidden");
@@ -267,8 +268,6 @@
                 } catch (error) {
                     otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
                     otpMessageDiv.textContent = 'Failed to connect to the server.';
-                } finally {
-                    resendBtn.disabled = false
                 }
             });
 

@@ -166,86 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
     buttonClose.addEventListener("click", closeModal);
   }
 
-  function handleSendMessage(event, elements) {
-    event.preventDefault();
-    const {
-      hiddenInput,
-      fileInput,
-      chatInput,
-      removePreview,
-      updateTextInputState,
-    } = elements;
-    const message = hiddenInput.value.trim();
-    const file = fileInput.files[0];
-    if (!message && !file) {
-      alert("Pesan atau file tidak boleh kosong!");
-      return;
-    }
-    const formData = new FormData();
-    formData.append("message", message);
-    if (file) {
-      formData.append("attachment", file, file.name);
-    }
-    console.log("Data yang akan dikirim:");
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
-    }
-    alert("Form siap dikirim! Lihat data di console.");
-    chatInput.innerHTML = "";
-    removePreview();
-    updateTextInputState();
-  }
-
-  function setupChatForm() {
-    const chatForm = document.getElementById("chat-form");
-    if (!chatForm) return;
-
-    const chatInput = document.getElementById("Chat-Input");
-    const placeholder = document.getElementById("placeholder");
-    const hiddenInput = document.getElementById("message");
-    const uploadButton = document.getElementById("Upload-Image");
-    const fileInput = document.getElementById("imageInput");
-    const previewContainer = document.getElementById("preview-container");
-    const previewImage = document.getElementById("preview-image");
-    const previewFilename = document.getElementById("preview-filename");
-    const removePreviewButton = document.getElementById("remove-preview");
-
-    if (!chatInput) return;
-
-    const elements = {
-      hiddenInput,
-      fileInput,
-      chatInput,
-      removePreview: () => {
-        previewContainer.classList.add("hidden");
-        fileInput.value = "";
-        previewImage.src = "";
-      },
-      updateTextInputState: () => {
-        const textContent = chatInput.innerText;
-        placeholder.style.display =
-          textContent.trim() === "" ? "block" : "none";
-        hiddenInput.value = textContent;
-      },
-    };
-    chatInput.addEventListener("input", elements.updateTextInputState);
-    uploadButton.addEventListener("click", () => fileInput.click());
-    const fileIconUrl = `${BASEURL}/src/asset/image/file.png`;
-    fileInput.addEventListener("change", (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
-      previewFilename.textContent = file.name;
-      previewImage.src = file.type.startsWith("image/")
-        ? URL.createObjectURL(file)
-        : fileIconUrl;
-      previewContainer.classList.remove("hidden");
-    });
-    removePreviewButton.addEventListener("click", elements.removePreview);
-    chatForm.addEventListener("submit", (event) =>
-      handleSendMessage(event, elements)
-    );
-    elements.updateTextInputState();
-  }
+  
 
   function modalEnrol() {
     const modal = document.getElementById("modal-enrol-dosen");
@@ -283,8 +204,6 @@ document.addEventListener("DOMContentLoaded", () => {
   openModal();
   createForum();
   overlayInfo();
-  setupChatForm();
-  previewPost();
   modalEnrol();
   handleRegist()
 });
