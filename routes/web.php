@@ -121,6 +121,14 @@ switch (true) {
         $controller->chat($chatId);
         break;
 
+    case preg_match('#^forums/getInitialMessages/([a-zA-Z0-9\-]+)$#', $route, $matches):
+        $chatId = $matches[1];
+        requireLogin();
+        $controller = new ChatMessages();
+        $controller->getInitialMessages($chatId);
+        break;
+
+
     case $route === 'forums/create':
         requireLogin();
         checkRoleAccess(['MAHASISWA', 'DOSEN']);
@@ -169,12 +177,6 @@ switch (true) {
         requireLogin();
         $controller = new ChatMessages();
         $controller->getNewMessages();
-        break;
-
-    case $route === 'forums/get-initial-messages':
-        requireLogin();
-        $controller = new ChatMessages();
-        $controller->getInitialMessages();
         break;
 
     default:

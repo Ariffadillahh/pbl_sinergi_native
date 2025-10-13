@@ -9,6 +9,7 @@
 </head>
 
 <body>
+
     <div class="relative flex h-screen overflow-hidden bg-gray-50">
 
         <?php require_once 'app/views/components/sidebars.php'; ?>
@@ -20,8 +21,17 @@
                 <?php require_once 'app/views/components/forums/detailForum.php'; ?>
 
                 <div id="Chat-Messages" class="relative flex-1 overflow-y-auto">
+                    <div id="loading-indicator" class="flex items-center justify-center h-full">
+                        <div class="text-center">
+                            <svg class="animate-spin h-8 w-8 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <p class="mt-2 text-gray-500">Memuat pesan...</p>
+                        </div>
+                    </div>
+
                     <article class="relative flex flex-col gap-5 p-5 z-0 mb-[30px] md:mb-0">
-                        
                     </article>
                 </div>
 
@@ -91,7 +101,6 @@
             function renderMessage(msg) {
                 const chatMessagesContainer = document.querySelector("#Chat-Messages article");
 
-                // --- LOGIKA HEADER TANGGAL ---
                 if (msg.CREATED_AT) {
                     const currentMessageDate = msg.CREATED_AT.substring(0, 10);
                     if (currentMessageDate !== lastRenderedDate) {
@@ -100,41 +109,22 @@
                         dateHeader.textContent = formatDateHeader(currentMessageDate);
                         chatMessagesContainer.appendChild(dateHeader);
                         lastRenderedDate = currentMessageDate;
-                        lastSenderId = null; // Reset pengelompokan di hari yang baru
+                        lastSenderId = null;
                     }
                 }
 
-                // --- Variabel & Logika Dasar ---
                 const messageId = msg.ID || msg.temp_id || `temp-${Date.now()}`;
                 const isOutgoing = msg.SENDER_ID == CURRENT_USER_ID;
 
-                // --- LOGIKA PENGELOMPOKKAN PESAN ---
-                let showHeader = true;
-                if (lastSenderId === msg.SENDER_ID) {
-                    showHeader = false;
-                }
+
+                let showHeader = !(lastSenderId === msg.SENDER_ID);
                 lastSenderId = msg.SENDER_ID;
 
-                // --- Persiapan Class & Variabel Tampilan ---
-                const alignClass = isOutgoing ? 'items-end' : 'items-start';
-                const roundedClass = isOutgoing ? 'rounded-br-none bg-blue-500 text-white' : 'rounded-tl-none bg-white';
-                const senderName = isOutgoing ? 'You' : (msg.SENDER_NAME || 'User');
-                const marginClass = showHeader ? 'mt-4' : 'mt-1';
-
-                // --- PEMBUATAN ELEMEN ---
-                const messageRow = document.createElement('div');
-                messageRow.id = `message-${messageId}`;
-                messageRow.className = `chat-row flex flex-col ${alignClass} ${marginClass} ${!showHeader ? 'grouped' : ''}`;
-
                 let senderHtml = '';
-                // Tampilkan header (avatar & nama) hanya jika diperlukan
                 if (showHeader) {
-                    let avatarSrc;
-                    if (isOutgoing) {
-                        avatarSrc = CURRENT_USER_PHOTO;
-                    } else {
-                        avatarSrc = msg.SENDER_PHOTO ? `${BASEURL}/storage/users/photos/${msg.SENDER_PHOTO}` : `${BASEURL}/src/asset/image/default.png`;
-                    }
+                    let avatarSrc = isOutgoing ? CURRENT_USER_PHOTO :
+                        (msg.SENDER_PHOTO ? `${BASEURL}/storage/users/photos/${msg.SENDER_PHOTO}` : `${BASEURL}/src/asset/image/default.png`);
+
                     const time = msg.CREATED_AT ? new Date(msg.CREATED_AT.replace(' ', 'T')).toLocaleTimeString([], {
                         hour: '2-digit',
                         minute: '2-digit'
@@ -142,6 +132,8 @@
                         hour: '2-digit',
                         minute: '2-digit'
                     });
+
+                    const senderName = isOutgoing ? 'You' : (msg.SENDER_NAME || 'User');
 
                     senderHtml = `
                         <div class="flex items-center gap-3 ${isOutgoing ? 'flex-row-reverse' : ''}">
@@ -159,33 +151,41 @@
                     `;
                 }
 
-                // --- FUNGSI IKON STATUS (Lengkap) ---
+
+                let contentHtml = '';
+
+                if (msg.PATH_MEDIA) {
+                    const mediaSrc = msg.status === 'pending' ? msg.PATH_MEDIA : `${BASEURL}/${msg.PATH_MEDIA}`;
+
+                    if (msg.TYPE === 'IMAGE') {
+                        contentHtml += `<img src="${mediaSrc}" class="rounded-lg md:max-w-xs max-w-[200px]" alt="Image" loading="lazy">`;
+                    } else if (msg.TYPE === 'VIDEO') {
+                        contentHtml += `<video controls class="rounded-lg md:max-w-xs max-w-[200px]"><source src="${mediaSrc}"></video>`;
+                    } else if (msg.TYPE === 'FILE') {
+                        const fileName = msg.ORIGINAL_FILENAME || 'Download File';
+                        const linkColor = isOutgoing ? 'text-white' : 'text-blue-700';
+                        contentHtml += `<a href="${mediaSrc}" download="${fileName}" target="_blank" class="flex items-center gap-2 ${linkColor} font-medium hover:underline">📎 ${fileName}</a>`;
+                    }
+                }
+
+                const textContent = msg.CONTENT;
+                if (textContent) {
+                    const textMargin = msg.PATH_MEDIA ? 'mt-2' : '';
+                    contentHtml += `<p class="whitespace-pre-wrap ${textMargin}">${textContent}</p>`;
+                }
+
+                const alignClass = isOutgoing ? 'items-end' : 'items-start';
+                const roundedClass = isOutgoing ? 'rounded-br-none bg-blue-500 text-white' : 'rounded-tl-none bg-white';
+                const marginClass = showHeader ? 'mt-4' : 'mt-1';
+
                 function getStatusIcon(status) {
                     if (!isOutgoing) return '';
                     const icons = {
                         pending: `<svg class="size-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
-                        sent: `<svg class="size-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`,
+                        sent: `<svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`, // Warna akan ikut dari parent (putih)
                         failed: `<svg class="size-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 9.586V6z" clip-rule="evenodd"></path></svg>`,
                     };
                     return `<div class="message-status-indicator flex items-center justify-end h-4 mt-1">${icons[status] || ''}</div>`;
-                }
-
-                let contentHtml = '';
-                if (msg.PATH_MEDIA) {
-                    const mediaSrc = msg.status === 'pending' ? msg.PATH_MEDIA : `${BASEURL}/${msg.PATH_MEDIA}`;
-                    if (msg.TYPE === 'IMAGE') {
-                        contentHtml += `<img src="${mediaSrc}" class="rounded-lg md:max-w-xs max-w-[200px] mb-2" alt="Image" loading="lazy">`;
-                    } else if (msg.TYPE === 'VIDEO') {
-                        contentHtml += `<video controls class="rounded-lg md:max-w-xs max-w-[200px] mb-2"><source src="${mediaSrc}"></video>`;
-                    } else if (msg.TYPE === 'FILE') {
-                        const fileName = msg.ORIGINAL_NAME || msg.CONTENT || 'Unknown file';
-                        const linkColor = isOutgoing ? 'text-white' : 'text-blue-700';
-                        contentHtml += `<a href="${BASEURL}/${msg.PATH_MEDIA}" download="${msg.ORIGINAL_NAME}" target="_blank" class="flex items-center gap-2 ${linkColor} font-medium hover:underline mb-1">📎 ${fileName}</a>`;
-                    }
-                }
-                const textContent = msg.messageText || (msg.TYPE === 'TEXT' ? msg.CONTENT : '');
-                if (textContent) {
-                    contentHtml += `<p class="whitespace-pre-wrap">${textContent}</p>`;
                 }
 
                 const messageCardHtml = `
@@ -197,6 +197,9 @@
                     </div>
                 `;
 
+                const messageRow = document.createElement('div');
+                messageRow.id = `message-${messageId}`;
+                messageRow.className = `chat-row flex flex-col ${alignClass} ${marginClass}`;
                 messageRow.innerHTML = senderHtml + messageCardHtml;
 
                 chatMessagesContainer.appendChild(messageRow);
@@ -250,13 +253,12 @@
                     SENDER_ID: CURRENT_USER_ID,
                     SENDER_NAME: CURRENT_USER_NAME,
                     SENDER_PHOTO: CURRENT_USER_PHOTO,
-                    CONTENT: file ? file.name : messageText,
-                    messageText: file ? messageText : null,
+                    CONTENT: messageText,
                     PATH_MEDIA: file ? URL.createObjectURL(file) : null,
+                    ORIGINAL_FILENAME: file ? file.name : null,
                     TYPE: file ? (file.type.startsWith("image/") ? 'IMAGE' : (file.type.startsWith("video/") ? 'VIDEO' : 'FILE')) : 'TEXT',
                     CREATED_AT: new Date().toISOString(),
-                    status: 'pending',
-                    ORIGINAL_NAME: file ? file.name : null
+                    status: 'pending'
                 };
 
                 renderMessage(tempMessage);
@@ -360,11 +362,12 @@
                     }
                     const messages = await response.json();
                     if (messages.length > 0) {
-                        console.log("Pesan BARU dari server:", JSON.parse(JSON.stringify(messages)));
-                        const finalMessages = groupMessages(messages);
-                        console.log("Pesan BARU SETELAH digabung:", finalMessages);
-                        finalMessages.forEach(msg => {
-                            if (msg.SENDER_ID != CURRENT_USER_ID) {
+                        messages.forEach(msg => {
+                            if (msg.SENDER_ID == CURRENT_USER_ID) {
+                                return;
+                            }
+                            const existingMessage = document.getElementById(`message-${msg.ID}`);
+                            if (!existingMessage) {
                                 renderMessage(msg);
                             }
                         });
@@ -380,22 +383,33 @@
 
             async function loadInitialMessages() {
                 const chatMessagesContainer = document.querySelector("#Chat-Messages article");
+                const loadingIndicator = document.getElementById("loading-indicator");
+
                 chatMessagesContainer.innerHTML = '';
+                loadingIndicator.style.display = 'flex';
+
                 try {
-                    const response = await fetch(`${BASEURL}/forums/get-initial-messages?forum_id=${FORUM_ID}`);
-                    if (!response.ok) throw new Error('Gagal memuat pesan awal.');
+                    const response = await fetch(`${BASEURL}/forums/getInitialMessages/${FORUM_ID}`);
+
+                    if (!response.ok) {
+                        throw new Error('Gagal mengambil data pesan.');
+                    }
+
                     const messages = await response.json();
-                    if (messages.length > 0) {
-                        console.log("Pesan ASLI dari server:", JSON.parse(JSON.stringify(messages)));
-                        const finalMessages = groupMessages(messages);
-                        console.log("Pesan SETELAH digabung:", finalMessages);
-                        finalMessages.forEach(renderMessage);
+
+                    loadingIndicator.style.display = 'none';
+
+                    chatMessagesContainer.innerHTML = '';
+
+                    if (messages && messages.length > 0) {
+                        messages.forEach(renderMessage);
                         lastTimestamp = messages[messages.length - 1].CREATED_AT;
                     }
                 } catch (error) {
-                    console.error('Initial load error:', error);
+                    console.error('Gagal memuat pesan awal:', error);
+                    loadingIndicator.innerHTML = '<p class="text-red-500">Gagal memuat pesan. Coba muat ulang halaman.</p>';
                 } finally {
-                    console.log("Memulai Long Polling...");
+                    console.log("Memulai Long Polling setelah memuat pesan awal...");
                     longPoll();
                 }
             }
@@ -407,7 +421,6 @@
 
                 const msgDate = new Date(dateString);
 
-                // Set jam ke 0 untuk perbandingan tanggal yang akurat
                 today.setHours(0, 0, 0, 0);
                 yesterday.setHours(0, 0, 0, 0);
                 msgDate.setHours(0, 0, 0, 0);
@@ -419,13 +432,14 @@
                     return 'Yesterday';
                 }
 
-                // Untuk tanggal yang lebih lama, format menjadi "DD Mon YYYY"
                 return msgDate.toLocaleDateString('en-GB', {
                     day: 'numeric',
                     month: 'short',
                     year: 'numeric'
                 });
             }
+
+
 
             setupChatForm();
             loadInitialMessages()

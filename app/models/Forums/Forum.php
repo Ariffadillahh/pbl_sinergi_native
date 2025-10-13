@@ -323,4 +323,5 @@ class Forum extends BaseModel
             if ($stmt_insert) oci_free_statement($stmt_insert);
         }
     }
+    
 }
