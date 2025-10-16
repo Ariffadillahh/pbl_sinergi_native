@@ -92,6 +92,7 @@
             const previewImage = document.getElementById("preview-image");
             const previewFilename = document.getElementById("preview-filename");
             const removePreviewButton = document.getElementById("remove-preview");
+            const fileIconUrl = `${BASEURL}/src/asset/image/file.png`;
             const CURRENT_USER_PHOTO = "<?= !empty($_SESSION['path_photo']) ? BASEURL . '/storage/users/photos/' . $_SESSION['path_photo'] : BASEURL . '/src/asset/image/default.png' ?>";
             let lastSenderId = null;
             let lastMessageTime = null;
@@ -105,7 +106,7 @@
                     const currentMessageDate = msg.CREATED_AT.substring(0, 10);
                     if (currentMessageDate !== lastRenderedDate) {
                         const dateHeader = document.createElement('p');
-                        dateHeader.className = "sticky w-[150px] text-center top-5 mt-[21px] mx-auto rounded-xl py-[10px] px-3 bg-white font-medium text-sm z-30";
+                        dateHeader.className = "sticky w-[100px] md:w-[150px] text-center top-4 mt-5 mx-auto rounded-xl py-2 px-4 bg-white text-xs md:text-sm z-30 border border-gray-200 shadow-sm";
                         dateHeader.textContent = formatDateHeader(currentMessageDate);
                         chatMessagesContainer.appendChild(dateHeader);
                         lastRenderedDate = currentMessageDate;
@@ -115,7 +116,6 @@
 
                 const messageId = msg.ID || msg.temp_id || `temp-${Date.now()}`;
                 const isOutgoing = msg.SENDER_ID == CURRENT_USER_ID;
-
 
                 let showHeader = !(lastSenderId === msg.SENDER_ID);
                 lastSenderId = msg.SENDER_ID;
@@ -136,21 +136,20 @@
                     const senderName = isOutgoing ? 'You' : (msg.SENDER_NAME || 'User');
 
                     senderHtml = `
-                        <div class="flex items-center gap-3 ${isOutgoing ? 'flex-row-reverse' : ''}">
-                            <div class="flex size-10 shrink-0 overflow-hidden rounded-full">
+                        <div class="flex items-center gap-2 sm:gap-3 ${isOutgoing ? 'flex-row-reverse' : ''}">
+                            <div class="flex size-8 sm:size-10 shrink-0 overflow-hidden rounded-full">
                                 <img src="${avatarSrc}" class="w-full h-full object-cover" alt="photo">
                             </div>
                             <div>
-                                <p class="flex gap-2 text-sm text-gray-600 ${isOutgoing ? 'flex-row-reverse' : ''}">
-                                    <span class="font-bold text-black">${senderName}</span>
+                                <p class="flex gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-600 ${isOutgoing ? 'flex-row-reverse' : ''}">
+                                    <span class="font-bold text-black truncate max-w-[120px] sm:max-w-none">${senderName}</span>
                                     <span>•</span>
-                                    <span>${time}</span>
+                                    <span class="whitespace-nowrap">${time}</span>
                                 </p>
                             </div>
                         </div>
                     `;
                 }
-
 
                 let contentHtml = '';
 
@@ -158,39 +157,66 @@
                     const mediaSrc = msg.status === 'pending' ? msg.PATH_MEDIA : `${BASEURL}/${msg.PATH_MEDIA}`;
 
                     if (msg.TYPE === 'IMAGE') {
-                        contentHtml += `<img src="${mediaSrc}" class="rounded-lg md:max-w-xs max-w-[200px]" alt="Image" loading="lazy">`;
+                        contentHtml += `
+                            <img src="${mediaSrc}" 
+                                class="rounded-lg w-full md:max-w-xl h-auto object-cover" 
+                                alt="Image" 
+                                loading="lazy">
+                        `;
                     } else if (msg.TYPE === 'VIDEO') {
-                        contentHtml += `<video controls class="rounded-lg md:max-w-xs max-w-[200px]"><source src="${mediaSrc}"></video>`;
+                        contentHtml += `
+                            <video controls 
+                                class="rounded-lg w-full md:max-w-xl h-auto">
+                                <source src="${mediaSrc}">
+                            </video>
+                        `;
                     } else if (msg.TYPE === 'FILE') {
                         const fileName = msg.ORIGINAL_FILENAME || 'Download File';
-                        const linkColor = isOutgoing ? 'text-white' : 'text-blue-700';
-                        contentHtml += `<a href="${mediaSrc}" download="${fileName}" target="_blank" class="flex items-center gap-2 ${linkColor} font-medium hover:underline">📎 ${fileName}</a>`;
+                        const cardBgColor = isOutgoing ? 'bg-white' : 'bg-gray-200';
+                        const textColor = isOutgoing ? 'text-blue-700' : 'text-gray-800';
+                        const buttonBgColor = isOutgoing ? 'bg-blue-700 hover:bg-blue-600' : 'bg-white hover:bg-gray-100';
+                        const buttonTextColor = isOutgoing ? 'text-white' : 'text-gray-900';
+
+                        contentHtml += `
+                            <div class="w-full max-w-[280px] sm:max-w-sm ${cardBgColor} rounded-lg p-3 flex flex-col gap-2">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <img src="${fileIconUrl}" class="w-7 h-7" >
+                                    <span class="font-medium ${textColor} truncate text-sm sm:text-base">${fileName}</span>
+                                </div>
+                                <a href="${mediaSrc}" 
+                                download="${fileName}" 
+                                target="_blank" 
+                                class="w-full ${buttonBgColor} ${buttonTextColor} font-semibold py-2 px-4 rounded-lg transition-all active:scale-95 text-center text-sm sm:text-base">
+                                    Download
+                                </a>
+                            </div>
+                        `;
                     }
                 }
 
                 const textContent = msg.CONTENT;
                 if (textContent) {
                     const textMargin = msg.PATH_MEDIA ? 'mt-2' : '';
-                    contentHtml += `<p class="whitespace-pre-wrap ${textMargin}">${textContent}</p>`;
+                    contentHtml += `<p class="whitespace-pre-wrap break-words text-sm sm:text-base ${textMargin}">${textContent}</p>`;
                 }
 
                 const alignClass = isOutgoing ? 'items-end' : 'items-start';
-                const roundedClass = isOutgoing ? 'rounded-br-none bg-blue-500 text-white' : 'rounded-tl-none bg-white';
-                const marginClass = showHeader ? 'mt-4' : 'mt-1';
+                const roundedClass = isOutgoing ? 'rounded-br-none bg-blue-600 text-white' : 'rounded-tl-none bg-white text-gray-900';
+                const marginClass = showHeader ? 'mt-3 sm:mt-4' : 'mt-1';
 
                 function getStatusIcon(status) {
                     if (!isOutgoing) return '';
                     const icons = {
-                        pending: `<svg class="size-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
-                        sent: `<svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`, // Warna akan ikut dari parent (putih)
-                        failed: `<svg class="size-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 9.586V6z" clip-rule="evenodd"></path></svg>`,
+                        pending: `<svg class="size-3 sm:size-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+                        sent: `<svg class="size-3 sm:size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`,
+                        failed: `<svg class="size-3 sm:size-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 9.586V6z" clip-rule="evenodd"></path></svg>`,
                     };
                     return `<div class="message-status-indicator flex items-center justify-end h-4 mt-1">${icons[status] || ''}</div>`;
                 }
 
                 const messageCardHtml = `
-                    <div class="message-card relative ${isOutgoing ? 'mr-12' : 'ml-12'}">
-                        <div class="w-fit max-w-md rounded-2xl py-3 px-4 leading-normal shadow ${roundedClass}">
+                    <div class="message-card relative ${isOutgoing ? 'mr-8 sm:mr-12' : 'ml-8 sm:ml-12'}">
+                        <div class="w-fit max-w-[280px] sm:max-w-sm md:max-w-md rounded-2xl py-2.5 px-3 sm:py-3 sm:px-4 leading-relaxed shadow ${roundedClass}">
                             ${contentHtml}
                             ${getStatusIcon(msg.status)}
                         </div>
@@ -199,11 +225,18 @@
 
                 const messageRow = document.createElement('div');
                 messageRow.id = `message-${messageId}`;
-                messageRow.className = `chat-row flex flex-col ${alignClass} ${marginClass}`;
+                messageRow.className = `chat-row flex flex-col px-2 sm:px-4 ${alignClass} ${marginClass}`;
                 messageRow.innerHTML = senderHtml + messageCardHtml;
 
                 chatMessagesContainer.appendChild(messageRow);
-                chatMessagesContainer.parentElement.scrollTop = chatMessagesContainer.parentElement.scrollHeight;
+
+                requestAnimationFrame(() => {
+                    const container = chatMessagesContainer.parentElement;
+                    container.scrollTo({
+                        top: container.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                });
             }
 
             function updateMessageStatus(tempId, newStatus, serverResult = null) {
@@ -312,7 +345,6 @@
                 };
                 chatInput.addEventListener("input", elements.updateTextInputState);
                 uploadButton.addEventListener("click", () => fileInput.click());
-                const fileIconUrl = `${BASEURL}/src/asset/image/file.png`;
                 fileInput.addEventListener("change", (event) => {
                     const file = event.target.files[0];
                     if (!file) return;
@@ -327,29 +359,6 @@
                     handleSendMessage(event, elements)
                 );
                 elements.updateTextInputState();
-            }
-
-            function groupMessages(messages) {
-                if (!messages || messages.length === 0) return [];
-                const combinedMessages = [];
-                for (let i = 0; i < messages.length; i++) {
-                    let currentMessage = messages[i];
-                    let lastCombined = combinedMessages[combinedMessages.length - 1];
-                    if (lastCombined &&
-                        lastCombined.SENDER_ID === currentMessage.SENDER_ID &&
-                        lastCombined.CREATED_AT.substring(0, 19) === currentMessage.CREATED_AT.substring(0, 19)) {
-                        const textMessage = currentMessage.TYPE === 'TEXT' ? currentMessage : lastCombined;
-                        const fileMessage = currentMessage.TYPE !== 'TEXT' ? currentMessage : lastCombined;
-                        lastCombined.TYPE = fileMessage.TYPE;
-                        lastCombined.PATH_MEDIA = fileMessage.PATH_MEDIA;
-                        lastCombined.ORIGINAL_NAME = fileMessage.TYPE !== 'TEXT' ? fileMessage.CONTENT : null;
-                        lastCombined.CONTENT = textMessage.CONTENT;
-                        lastCombined.messageText = textMessage.CONTENT;
-                    } else {
-                        combinedMessages.push(currentMessage);
-                    }
-                }
-                return combinedMessages;
             }
 
             async function longPoll() {

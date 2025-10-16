@@ -9,43 +9,66 @@ class ChatMessage extends BaseModel
         $conn = self::getConnection();
         $uuid = uniqid();
 
-        $stmt = null;
-        $clob = null;
-
         try {
-            $sql = "INSERT INTO FORUM_MESSAGES (ID, FORUM_ID, SENDER_ID, CONTENT, PATH_MEDIA, ORIGINAL_FILENAME, TYPE) 
-                VALUES (:id, :forum_id, :sender_id, EMPTY_CLOB(), :path_media, :original_filename, :type)
-                RETURNING CONTENT INTO :content";
+            $contentLength = strlen($data['content']);
 
-            $stmt = oci_parse($conn, $sql);
-            $clob = oci_new_descriptor($conn, OCI_D_LOB);
+            if ($contentLength < 4000) {
+                $sql = "INSERT INTO FORUM_MESSAGES 
+                    (ID, FORUM_ID, SENDER_ID, CONTENT, PATH_MEDIA, ORIGINAL_FILENAME, TYPE) 
+                    VALUES (:id, :forum_id, :sender_id, :content, :path_media, :original_filename, :type)";
 
-            oci_bind_by_name($stmt, ':id', $uuid);
-            oci_bind_by_name($stmt, ':forum_id', $data['forum_id']);
-            oci_bind_by_name($stmt, ':sender_id', $data['sender_id']);
-            oci_bind_by_name($stmt, ':path_media', $data['path_media']);
-            oci_bind_by_name($stmt, ':type', $data['type']);
-            oci_bind_by_name($stmt, ':original_filename', $data['original_filename']);
-            oci_bind_by_name($stmt, ':content', $clob, -1, OCI_B_CLOB);
+                $stmt = oci_parse($conn, $sql);
 
-            if (oci_execute($stmt, OCI_NO_AUTO_COMMIT)) {
-                if ($clob->save($data['content'])) {
-                    oci_commit($conn);
+                oci_bind_by_name($stmt, ':id', $uuid);
+                oci_bind_by_name($stmt, ':forum_id', $data['forum_id']);
+                oci_bind_by_name($stmt, ':sender_id', $data['sender_id']);
+                oci_bind_by_name($stmt, ':content', $data['content']);
+                oci_bind_by_name($stmt, ':path_media', $data['path_media']);
+                oci_bind_by_name($stmt, ':original_filename', $data['original_filename']);
+                oci_bind_by_name($stmt, ':type', $data['type']);
+
+                $result = oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
+
+                oci_free_statement($stmt);
+
+                if ($result) {
                     return ['ID' => $uuid];
-                } else {
-                    oci_rollback($conn);
                 }
             } else {
+                $sql = "INSERT INTO FORUM_MESSAGES 
+                    (ID, FORUM_ID, SENDER_ID, CONTENT, PATH_MEDIA, ORIGINAL_FILENAME, TYPE) 
+                    VALUES (:id, :forum_id, :sender_id, EMPTY_CLOB(), :path_media, :original_filename, :type)
+                    RETURNING CONTENT INTO :content";
+
+                $stmt = oci_parse($conn, $sql);
+                $clob = oci_new_descriptor($conn, OCI_D_LOB);
+
+                oci_bind_by_name($stmt, ':id', $uuid);
+                oci_bind_by_name($stmt, ':forum_id', $data['forum_id']);
+                oci_bind_by_name($stmt, ':sender_id', $data['sender_id']);
+                oci_bind_by_name($stmt, ':path_media', $data['path_media']);
+                oci_bind_by_name($stmt, ':original_filename', $data['original_filename']);
+                oci_bind_by_name($stmt, ':type', $data['type']);
+                oci_bind_by_name($stmt, ':content', $clob, -1, OCI_B_CLOB);
+
+                if (oci_execute($stmt, OCI_NO_AUTO_COMMIT)) {
+                    if ($clob->save($data['content'])) {
+                        oci_commit($conn);
+                        $clob->free();
+                        oci_free_statement($stmt);
+                        return ['ID' => $uuid];
+                    }
+                }
+
                 oci_rollback($conn);
+                $clob->free();
+                oci_free_statement($stmt);
             }
         } catch (\Exception $e) {
             error_log('Error in createMessage: ' . $e->getMessage());
             if ($conn) {
                 oci_rollback($conn);
             }
-        } finally {
-            if ($clob) $clob->free();
-            if ($stmt) oci_free_statement($stmt);
         }
 
         return false;
@@ -65,7 +88,7 @@ class ChatMessage extends BaseModel
         if (oci_execute($stmt)) {
             $row = oci_fetch_assoc($stmt);
             if ($row && is_object($row['CONTENT'])) {
-                $row['CONTENT'] = $row['CONTENT']->load(); 
+                $row['CONTENT'] = $row['CONTENT']->load();
             }
             $rowData = $row;
         }
@@ -161,7 +184,7 @@ class ChatMessage extends BaseModel
             if ($stmt) {
                 oci_free_statement($stmt);
             }
-            oci_close($conn); 
+            oci_close($conn);
         }
 
         return $messages;

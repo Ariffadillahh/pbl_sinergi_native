@@ -346,6 +346,8 @@ class ChatMessages
 {
     public function sendMessage()
     {
+        header('Content-Type: application/json');
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['error' => 'Metode request tidak valid.']);
@@ -353,7 +355,7 @@ class ChatMessages
         }
 
         if (!isset($_SESSION['user_id'])) {
-            http_response_code(401); 
+            http_response_code(401);
             echo json_encode(['error' => 'Pengguna tidak terautentikasi.']);
             return;
         }
@@ -362,8 +364,10 @@ class ChatMessages
         $user_id  = $_SESSION['user_id'];
         $message  = trim($_POST['message'] ?? '');
 
-        if (empty($message) && (!isset($_FILES['attachment']) || $_FILES['attachment']['error'] !== UPLOAD_ERR_OK)) {
-            http_response_code(400); 
+        $hasFile = isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK;
+
+        if (empty($message) && !$hasFile) {
+            http_response_code(400);
             echo json_encode(['error' => 'Pesan atau file tidak boleh kosong.']);
             return;
         }
@@ -371,25 +375,27 @@ class ChatMessages
         $data = [
             'forum_id'          => $forum_id,
             'sender_id'         => $user_id,
-            'content'           => $message, 
+            'content'           => $message,
             'path_media'        => null,
-            'original_filename' => null,     
-            'type'              => 'TEXT'    
+            'original_filename' => null,
+            'type'              => 'TEXT'
         ];
 
-        if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
+        if ($hasFile) {
+            $uploadStart = microtime(true);
 
-            $uploadDir = __DIR__ . '/../../storage/forums/attachment/'; 
+            $uploadDir = __DIR__ . '/../../storage/forums/attachment/';
             if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
+                mkdir($uploadDir, 0755, true);
             }
 
             $originalName = basename($_FILES['attachment']['name']);
-            $fileName = uniqid() . '-' . preg_replace("/[^a-zA-Z0-9.\-_]/", "", $originalName);
+            $fileName = uniqid('', true) . '-' . preg_replace("/[^a-zA-Z0-9.\-_]/", "", $originalName);
             $targetPath = $uploadDir . $fileName;
 
             if (move_uploaded_file($_FILES['attachment']['tmp_name'], $targetPath)) {
                 $mime = mime_content_type($targetPath);
+
                 $fileType = 'FILE';
                 if (strpos($mime, 'image/') === 0) $fileType = 'IMAGE';
                 elseif (strpos($mime, 'video/') === 0) $fileType = 'VIDEO';
@@ -398,23 +404,27 @@ class ChatMessages
                 $data['original_filename'] = $originalName;
                 $data['type'] = $fileType;
             } else {
-                error_log("Gagal memindahkan file upload ke: $targetPath");
-                http_response_code(500); 
-                echo json_encode(['error' => 'Gagal memproses file yang di-upload.']);
+                http_response_code(500);
+                echo json_encode(['error' => 'Gagal memproses file.']);
                 return;
             }
+
+            $uploadEnd = microtime(true);
+            error_log("File upload took: " . ($uploadEnd - $uploadStart) . " seconds");
         }
 
+        $dbStart = microtime(true);
         $result = ChatMessage::createMessage($data);
+        $dbEnd = microtime(true);
+        error_log("Database insert took: " . ($dbEnd - $dbStart) . " seconds");
 
-        header('Content-Type: application/json');
         if (is_array($result) && isset($result['ID'])) {
+
             echo json_encode([
                 'success'    => true,
-                'message_id' => $result['ID'] 
+                'message_id' => $result['ID']
             ]);
         } else {
-            error_log("Gagal menyimpan pesan ke database. Data: " . json_encode($data));
             http_response_code(500);
             echo json_encode(['error' => 'Gagal menyimpan pesan.']);
         }
@@ -423,27 +433,50 @@ class ChatMessages
     public function getNewMessages()
     {
         header('Content-Type: application/json');
-        $forumId = $_GET['forum_id'] ?? 0;
-        $lastTimestamp = $_GET['since'] ?? date('Y-m-d H:i:s');
 
-        set_time_limit(30);
+        try {
+            $forumId = $_GET['forum_id'] ?? 0;
+            $lastTimestamp = $_GET['since'] ?? null;
 
-        while (true) {
-            $messages = ChatMessage::getMessagesSince($forumId, $lastTimestamp);
-
-            if (!empty($messages)) {
-                echo json_encode($messages);
+            if (!isset($_SESSION['user_id'])) {
+                http_response_code(401);
+                echo json_encode(['error' => 'Tidak terautentikasi']);
                 return;
             }
-            sleep(1);
+
+            session_write_close();
+
+            if (!$forumId) {
+                echo json_encode([]);
+                return;
+            }
+
+            set_time_limit(60);
+
+            $startTime = time();
+
+            while ((time() - $startTime) < 55) {
+                $messages = ChatMessage::getMessagesSince($forumId, $lastTimestamp);
+
+                if (!empty($messages)) {
+                    echo json_encode($messages);
+                    return;
+                }
+
+                sleep(1);
+            }
+
+            echo json_encode([]);
+        } catch (\Throwable $e) {
+            error_log('Error in getNewMessages: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['error' => 'Terjadi kesalahan pada server.']);
         }
     }
 
     public function getInitialMessages($forum_id)
     {
         header('Content-Type: application/json');
-
-        sleep(2);
 
         $messages = ChatMessage::getMessagesByForumId($forum_id);
 
