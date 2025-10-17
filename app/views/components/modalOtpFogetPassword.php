@@ -40,21 +40,27 @@
 <script>
     const resendBtn = document.getElementById("resend-otp-btn");
     const timerSpan = document.getElementById("resend-timer");
-    let cooldown = 60;
+    let cooldownInterval = null;
 
     function startCooldown() {
+
+        if (cooldownInterval) {
+            clearInterval(cooldownInterval);
+        }
+
+        let cooldown = 60;
         resendBtn.disabled = true;
         timerSpan.textContent = `in ${cooldown}s`;
 
-        const interval = setInterval(() => {
+        cooldownInterval = setInterval(() => {
             cooldown--;
             timerSpan.textContent = `in ${cooldown}s`;
 
             if (cooldown <= 0) {
-                clearInterval(interval);
+                clearInterval(cooldownInterval);
+                cooldownInterval = null;
                 timerSpan.textContent = "";
                 resendBtn.disabled = false;
-                cooldown = 60; 
             }
         }, 1000);
     }

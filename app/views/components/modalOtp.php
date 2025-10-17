@@ -40,21 +40,27 @@
 <script>
     const resendBtn = document.getElementById("resend-otp-btn");
     const timerSpan = document.getElementById("resend-timer");
-    let cooldown = 60;
+    let cooldownInterval = null; 
 
     function startCooldown() {
+
+        if (cooldownInterval) {
+            clearInterval(cooldownInterval);
+        }
+
+        let cooldown = 60;
         resendBtn.disabled = true;
         timerSpan.textContent = `in ${cooldown}s`;
 
-        const interval = setInterval(() => {
+        cooldownInterval = setInterval(() => {
             cooldown--;
             timerSpan.textContent = `in ${cooldown}s`;
 
             if (cooldown <= 0) {
-                clearInterval(interval);
+                clearInterval(cooldownInterval);
+                cooldownInterval = null;
                 timerSpan.textContent = "";
                 resendBtn.disabled = false;
-                cooldown = 60;
             }
         }, 1000);
     }
@@ -78,19 +84,14 @@
         otpInputs.forEach((input, index) => {
             input.addEventListener('input', () => {
                 input.value = input.value.replace(/[^0-9]/g, '');
-                console.log(`Input ${index}:`, input.value);
-
-                console.log("OTP sekarang:", getOtpValue());
 
                 if (input.value.length === 1 && index < otpInputs.length - 1) {
                     otpInputs[index + 1].focus();
-                    console.log(`Fokus pindah ke input ${index + 1}`);
                 }
             });
 
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Backspace' && input.value.length === 0 && index > 0) {
-                    console.log(`Backspace di input ${index}, pindah ke ${index - 1}`);
                     otpInputs[index - 1].focus();
                 }
             });
@@ -99,26 +100,18 @@
                 e.preventDefault();
                 const pasteData = e.clipboardData.getData('text');
                 const digits = pasteData.replace(/[^0-9]/g, '');
-                console.log("Data di-paste:", digits);
 
                 for (let i = 0; i < otpInputs.length; i++) {
                     if (i < digits.length) {
                         otpInputs[i].value = digits[i];
-                        console.log(`Input ${i} terisi:`, digits[i]);
                     }
                 }
-
-                console.log("OTP setelah paste:", getOtpValue());
 
                 const lastFilledIndex = Math.min(digits.length, otpInputs.length - 1);
                 if (lastFilledIndex >= 0) {
                     otpInputs[lastFilledIndex].focus();
-                    if (lastFilledIndex === otpInputs.length - 1) {
-                        verifyBtn.focus();
-                    }
                 }
             });
-
         });
 
         resendBtn.addEventListener('click', async () => {
@@ -148,29 +141,29 @@
             }
         });
 
-
-
         otpForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const otp = getOtpValue();
             if (otp.length < otpInputs.length) {
                 otpMessageDiv.classList.remove("hidden");
+                otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
                 otpMessageDiv.textContent = 'Harap isi semua 4 digit OTP.';
                 return;
             }
 
             hiddenOtpInput.value = otp;
-            console.log("OTP yang dikirim:", hiddenOtpInput.value);
-
-            const formData = new FormData(otpForm);
-            for (let pair of formData.entries()) {
-                console.log(pair[0] + ': ' + pair[1]);
-            }
 
             verifyBtn.disabled = true;
-            verifyBtn.textContent = 'Memverifikasi...';
+            verifyBtn.innerHTML = `
+                <svg class="inline w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="ml-2">Verifying...</span>
+            `;
 
+            const formData = new FormData(otpForm);
             const actionUrl = otpForm.getAttribute("action");
 
             try {
@@ -180,6 +173,7 @@
                 });
 
                 const result = await response.json();
+
                 if (result.success) {
                     window.location.href = '<?php echo BASEURL ?>/sign-in';
                 } else {
@@ -189,19 +183,17 @@
                 }
             } catch (error) {
                 otpMessageDiv.classList.remove("hidden");
-                otpMessageDiv.textContent = error.message;
+                otpMessageDiv.textContent = 'Failed to connect to the server.';
                 otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
             } finally {
                 verifyBtn.disabled = false;
-                verifyBtn.textContent = 'Verifikasi';
+                verifyBtn.innerHTML = 'Verify email';
             }
         });
-
     }
 
     document.addEventListener('DOMContentLoaded', function() {
         handleRegist();
         setupOtpModal();
-        startCooldown();
     });
 </script>

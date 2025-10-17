@@ -166,19 +166,19 @@ class SignupController
 
     public function register()
     {
+        header('Content-Type: application/json');
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
             exit;
         }
 
-        header('Content-Type: application/json');
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
         $required_fields = ['FullName', 'username', 'personal_number', 'email', 'password'];
-
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
                 echo json_encode(['success' => false, 'message' => "Field '{$field}' tidak boleh kosong."]);
@@ -186,9 +186,13 @@ class SignupController
             }
         }
 
-        $email = $_POST['email'];
-        $role = null;
+        $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+        if (!$email) {
+            echo json_encode(['success' => false, 'message' => 'Format email tidak valid.']);
+            exit;
+        }
 
+        $role = null;
         if (str_ends_with($email, '@stu.pnj.ac.id')) {
             $role = 'MAHASISWA';
         } elseif (str_ends_with($email, '@tik.pnj.ac.id')) {
@@ -199,14 +203,13 @@ class SignupController
         }
 
         $tempPhotoPath = null;
-
         if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
             $tempUploadDir = __DIR__ . '/../../storage/users/temp/';
             if (!is_dir($tempUploadDir)) {
                 mkdir($tempUploadDir, 0777, true);
             }
 
-            $tempFileName = uniqid('temp_') . '-' . basename($_FILES['photo']['name']);
+            $tempFileName = uniqid('temp_', true) . '-' . basename($_FILES['photo']['name']);
             $tempPhotoPath = $tempUploadDir . $tempFileName;
 
             if (!move_uploaded_file($_FILES['photo']['tmp_name'], $tempPhotoPath)) {
@@ -215,22 +218,21 @@ class SignupController
             }
         }
 
-
         $otp = rand(1000, 9999);
         $registrationData = [
-            'ID'              => uniqid(),
-            'USERNAME'        => htmlspecialchars($_POST['username']),
-            'PERSONAL_NUMBER' => htmlspecialchars($_POST['personal_number']),
-            'FULL_NAME'       => htmlspecialchars($_POST['FullName']),
+            'ID'              => uniqid('user_', true),
+            'USERNAME'        => htmlspecialchars($_POST['username'], ENT_QUOTES, 'UTF-8'),
+            'PERSONAL_NUMBER' => htmlspecialchars($_POST['personal_number'], ENT_QUOTES, 'UTF-8'),
+            'FULL_NAME'       => htmlspecialchars($_POST['FullName'], ENT_QUOTES, 'UTF-8'),
             'TAHUN_MASUK'     => null,
-            'EMAIL'           => filter_var($_POST['email'], FILTER_VALIDATE_EMAIL),
+            'EMAIL'           => $email,
             'PASSWORD'        => password_hash($_POST['password'], PASSWORD_DEFAULT),
             'PATH_PHOTO'      => null,
             'JENJANG_STUDI'   => null,
             'ROLE'            => $role,
             'PRODI'           => null,
             'otp'             => $otp,
-            'otp_expiry'      => time() + (5 * 60),
+            'otp_expiry'      => time() + 300, 
             'temp_photo_path' => $tempPhotoPath
         ];
 
@@ -241,7 +243,6 @@ class SignupController
             $mailConfig = require __DIR__ . '/../../config/mail.php';
 
             $mail = new PHPMailer(true);
-
             $mail->isSMTP();
             $mail->Host       = $mailConfig['host'];
             $mail->SMTPAuth   = true;
@@ -251,10 +252,9 @@ class SignupController
             $mail->Port       = $mailConfig['port'];
 
             $mail->setFrom($mailConfig['from_address'], $mailConfig['from_name']);
-            $mail->addAddress($registrationData['EMAIL'], $registrationData['FULL_NAME']);
+            $mail->addAddress($email, $registrationData['FULL_NAME']);
 
             $mail->isHTML(true);
-
             $mail->Subject = 'Kode Verifikasi Registrasi Akun SINERGI';
             $mail->Body    = "Halo <b>{$registrationData['FULL_NAME']}</b>,<br><br>Terima kasih telah mendaftar. Gunakan kode OTP di bawah ini untuk menyelesaikan proses registrasi Anda. Kode ini hanya berlaku 5 menit.<br><br>Kode OTP Anda adalah: <h2><b>{$otp}</b></h2>";
             $mail->AltBody = "Kode OTP Anda adalah: {$otp}";
@@ -264,13 +264,12 @@ class SignupController
             echo json_encode([
                 'success' => true,
                 'message' => 'OTP berhasil dikirim. Silakan periksa email Anda.',
-                'otp' => $otp,
-                'role' => $role
+                'role'    => $role
             ]);
         } catch (Exception $e) {
             echo json_encode([
                 'success' => false,
-                'message' => "Gagal mengirim email verifikasi. Mailer Error: {$mail->ErrorInfo}"
+                'message' => 'Gagal mengirim email verifikasi. Silakan coba lagi.'
             ]);
         }
 
