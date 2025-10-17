@@ -159,7 +159,7 @@ class SigninController
 
 class SignupController
 {
-    public function  StudentPage()
+    public function  index()
     {
         include __DIR__ . '/../views/sign-up/index.php';
     }
@@ -178,11 +178,24 @@ class SignupController
         }
 
         $required_fields = ['FullName', 'username', 'personal_number', 'email', 'password'];
+
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
                 echo json_encode(['success' => false, 'message' => "Field '{$field}' tidak boleh kosong."]);
                 exit;
             }
+        }
+
+        $email = $_POST['email'];
+        $role = null;
+
+        if (str_ends_with($email, '@stu.pnj.ac.id')) {
+            $role = 'MAHASISWA';
+        } elseif (str_ends_with($email, '@tik.pnj.ac.id')) {
+            $role = 'DOSEN';
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Domain email tidak valid. Gunakan email PNJ yang sesuai.']);
+            exit;
         }
 
         $tempPhotoPath = null;
@@ -214,7 +227,7 @@ class SignupController
             'PASSWORD'        => password_hash($_POST['password'], PASSWORD_DEFAULT),
             'PATH_PHOTO'      => null,
             'JENJANG_STUDI'   => null,
-            'ROLE'            => 'MAHASISWA',
+            'ROLE'            => $role,
             'PRODI'           => null,
             'otp'             => $otp,
             'otp_expiry'      => time() + (5 * 60),
@@ -250,7 +263,9 @@ class SignupController
 
             echo json_encode([
                 'success' => true,
-                'message' => 'OTP berhasil dikirim. Silakan periksa email Anda.'
+                'message' => 'OTP berhasil dikirim. Silakan periksa email Anda.',
+                'otp' => $otp,
+                'role' => $role
             ]);
         } catch (Exception $e) {
             echo json_encode([
@@ -283,7 +298,7 @@ class SignupController
         $sessionData = $_SESSION['registration_data'];
 
         $newOtp = rand(1000, 9999);
-        $newExpiry = time() + (5 * 60); 
+        $newExpiry = time() + (5 * 60);
 
         $_SESSION['registration_data']['otp'] = $newOtp;
         $_SESSION['registration_data']['otp_expiry'] = $newExpiry;

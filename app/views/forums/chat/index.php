@@ -81,7 +81,7 @@
             const BASEURL = '<?php echo BASEURL; ?>';
             const FORUM_ID = '<?= $forumByid['ID'] ?? '1' ?>';
             const CURRENT_USER_ID = '<?= $_SESSION['user_id'] ?? '123' ?>';
-            const CURRENT_USER_NAME = "<?= $_SESSION['username'] ?? 'You' ?>";
+            const CURRENT_USER_NAME = "<?= $_SESSION['full_name'] ?? 'You' ?>";
             const chatForm = document.getElementById("chat-form");
             const chatInput = document.getElementById("Chat-Input");
             const placeholder = document.getElementById("placeholder");

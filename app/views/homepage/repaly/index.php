@@ -29,7 +29,7 @@
                                 <img src="<?php echo BASEURL . '/src/asset/image/default.png'; ?>" alt="Your Profile" class="w-12 h-12 rounded-full">
                             </div>
                             <textarea
-                                class="w-full bg-transparent text-lg text-gray-800 placeholder-gray-500 border-none focus:ring-0 focus:outline-none resize-none p-1"
+                                class="w-full hide-scrollbar bg-transparent text-lg text-gray-800 placeholder-gray-500 border-none focus:ring-0 focus:outline-none resize-none p-1"
                                 rows="2"
                                 placeholder="Add Comment...."></textarea>
                             <div class="mt-2 flex items-center justify-end">

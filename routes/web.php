@@ -87,7 +87,7 @@ switch (true) {
     case $route === 'sign-up':
         guestOnly();
         $controller = new SignupController();
-        $controller->StudentPage();
+        $controller->index();
         break;
 
     case $route === 'sign-up/action':
@@ -95,7 +95,7 @@ switch (true) {
         $controller = new SignupController();
         $controller->register();
         break;
-
+        
     case $route === 'sign-up/verif-otp':
         guestOnly();
         $controller = new SignupController();
