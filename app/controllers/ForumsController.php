@@ -340,6 +340,68 @@ class ForumsController
         }
         exit;
     }
+
+    public function reportForum()
+    {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['error' => 'Metode request tidak valid.']);
+            return;
+        }
+
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Pengguna tidak terautentikasi.']);
+            return;
+        }
+
+        $userId = $_SESSION['user_id'];
+        $forumId = isset($_POST['forum_id']) ? $_POST['forum_id'] : null;
+        $targetType = $_POST['target_type'] ?? null;
+        $reason = isset($_POST['reason']) ? trim($_POST['reason']) : null;
+        $otherReasonText = isset($_POST['other_reason_text']) ? trim($_POST['other_reason_text']) : null;
+
+        if (empty($forumId) || empty($reason)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Data tidak lengkap. ID Forum dan alasan wajib diisi.']);
+            return;
+        }
+
+        if ($reason === 'other' && empty($otherReasonText)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Silakan jelaskan alasan Anda jika memilih "Lainnya".']);
+            return;
+        }
+
+        $reportDescription = $reason;
+        if ($reason === 'other') {
+            $reportDescription = "Lainnya: " . htmlspecialchars($otherReasonText);
+        }
+
+        $data = [
+            'user_id' => $userId,
+            'forum_id' => $forumId,
+            'target_type' => $targetType,
+            'reason' => $reportDescription,
+        ];
+
+        $reportForum = Forum::createReport($data);
+
+        try {
+            if ($reportForum['success']) {
+                http_response_code(200);
+                echo json_encode(['success' => true, 'message' => 'Laporan Anda telah berhasil dikirim.']);
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'Gagal menyimpan laporan ke database.']);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan pada server.']);
+        }
+    }
 }
 
 class ChatMessages

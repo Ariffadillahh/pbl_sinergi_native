@@ -100,7 +100,6 @@ class SigninController
     public function signInAction()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
             $identifier = $_POST['username_or_email'];
             $password = $_POST['password'];
 
@@ -108,9 +107,43 @@ class SigninController
             $user = $loginModel->getUserByUsernameOrEmail($identifier);
 
             if ($user && password_verify($password, $user['PASSWORD'])) {
+                if ($user['ROLE'] == 'MAHASISWA') {
+                    $tahunMasuk = (int)$user['TAHUN_MASUK']; 
+                    $jenjangStudi = $user['JENJANG_STUDI'];  
+                    $userId = $user['ID'];                 
+
+                    if ($tahunMasuk > 0 && !empty($jenjangStudi)) {
+
+                        $durasiStudi = 0;
+                        if ($jenjangStudi == 'D4') {
+                            $durasiStudi = 4;
+                        } elseif ($jenjangStudi == 'D3') {
+                            $durasiStudi = 3;
+                        }
+
+                        if ($durasiStudi > 0) {
+                            $tahunLulus = $tahunMasuk + $durasiStudi;
+                            $bulanLulus = 10; // Oktober, sesuai permintaan
+
+                            $tahunSekarang = (int)date('Y');
+                            $bulanSekarang = (int)date('m');
+
+                            if ($tahunSekarang > $tahunLulus || ($tahunSekarang == $tahunLulus && $bulanSekarang >= $bulanLulus)) {
+
+                                $loginModel->updateUserRole($userId, 'ALUMNI');
+
+                                $user['ROLE'] = 'ALUMNI';
+
+                                $this->createSession($user);
+
+                                header('Location: ' . BASEURL . '/forums');
+                                exit();
+                            }
+                        }
+                    }
+                }
 
                 $this->createSession($user);
-
                 $role = $user['ROLE'];
 
                 if ($role == 'MAHASISWA' || $role == 'DOSEN') {
@@ -232,7 +265,7 @@ class SignupController
             'ROLE'            => $role,
             'PRODI'           => null,
             'otp'             => $otp,
-            'otp_expiry'      => time() + 300, 
+            'otp_expiry'      => time() + 300,
             'temp_photo_path' => $tempPhotoPath
         ];
 

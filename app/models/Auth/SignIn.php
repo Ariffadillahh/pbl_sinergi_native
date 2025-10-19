@@ -12,7 +12,7 @@ class SignInModel extends BaseModel
             FROM USERS 
             WHERE USERNAME = :identifier_bv 
                OR EMAIL = :identifier_bv
-               OR ID = :identifier_bv"; 
+               OR ID = :identifier_bv";
 
         $stmt = oci_parse($conn, $sql);
         if (!$stmt) {
@@ -33,5 +33,33 @@ class SignInModel extends BaseModel
         oci_free_statement($stmt);
 
         return $user;
+    }
+
+    public static function updateUserRole($userId, $newRole)
+    {
+        $conn = self::getConnection();
+        $sql = "UPDATE USERS SET ROLE = :new_role_bv WHERE ID = :user_id_bv";
+
+        $stmt = oci_parse($conn, $sql);
+        if (!$stmt) {
+            $e = oci_error($conn);
+            error_log('Oracle parse error in updateUserRole: ' . htmlentities($e['message']));
+            return false;
+        }
+
+        oci_bind_by_name($stmt, ':new_role_bv', $newRole);
+        oci_bind_by_name($stmt, ':user_id_bv', $userId);
+
+        $executed = oci_execute($stmt);
+        if (!$executed) {
+            $e = oci_error($stmt);
+            error_log('Oracle execute error in updateUserRole: ' . htmlentities($e['message']));
+            oci_free_statement($stmt); 
+            return false;
+        }
+
+        oci_free_statement($stmt);
+
+        return true;
     }
 }

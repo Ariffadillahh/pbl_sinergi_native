@@ -323,5 +323,51 @@ class Forum extends BaseModel
             if ($stmt_insert) oci_free_statement($stmt_insert);
         }
     }
-    
+
+    public static function createReport($data)
+    {
+        $conn = self::getConnection();
+        if (!$conn) {
+            return ['success' => false, 'message' => 'Gagal terhubung ke database.'];
+        }
+
+        $stmt_insert = null; 
+        try {
+            $insertData = [
+                'id' => uniqid(), 
+                'target_id' => $data['forum_id'],
+                'target_type' => $data['target_type'], 
+                'user_id' => $data['user_id'],
+                'reason' => $data['reason']
+            ];
+
+            $query = "INSERT INTO REPORT (ID, TARGET_ID, TARGET_TYPE, USER_ID, REASON) 
+                  VALUES (:id, :target_id, :target_type, :user_id, :reason)";
+
+            $stmt_insert = oci_parse($conn, $query);
+            if (!$stmt_insert) {
+                $error = oci_error($conn);
+                return ['success' => false, 'message' => 'Terjadi kesalahan saat menyiapkan query.'];
+            }
+
+            oci_bind_by_name($stmt_insert, ':id', $insertData['id']);
+            oci_bind_by_name($stmt_insert, ':target_id', $insertData['target_id']);
+            oci_bind_by_name($stmt_insert, ':target_type', $insertData['target_type']);
+            oci_bind_by_name($stmt_insert, ':user_id', $insertData['user_id']);
+            oci_bind_by_name($stmt_insert, ':reason', $insertData['reason']);
+
+            $result = oci_execute($stmt_insert);
+
+            if ($result) {
+                return ['success' => true, 'message' => 'Laporan Anda berhasil dikirim. Terima kasih.'];
+            } else {
+                $error = oci_error($stmt_insert); 
+                return ['success' => false, 'message' => 'Gagal mengirim laporan: ' . htmlspecialchars($error['message'])];
+            }
+        } finally {
+            if ($stmt_insert) {
+                oci_free_statement($stmt_insert);
+            }
+        }
+    }
 }

@@ -179,6 +179,12 @@ switch (true) {
         $controller->getNewMessages();
         break;
 
+    case $route === 'forums/report':
+        requireLogin();
+        $controller = new ForumsController();
+        $controller->reportForum();
+        break;
+
     default:
         http_response_code(404);
         $controller = new NotFoundPageController();
