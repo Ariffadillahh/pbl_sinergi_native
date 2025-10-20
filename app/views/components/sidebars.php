@@ -4,7 +4,7 @@ $current_uri = $_SERVER['REQUEST_URI'];
 $isHomepageActive = (strpos($current_uri, '/homepage') !== false);
 $isForumsActive   = (strpos($current_uri, '/forums') !== false);
 $isSettingsActive = (strpos($current_uri, '/settings') !== false);
-$showHomepage = ($_SESSION['role'] === 'MAHASISWA' || $_SESSION['role'] === 'DOSEN');
+$accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
 ?>
 
 <div>
@@ -14,7 +14,7 @@ $showHomepage = ($_SESSION['role'] === 'MAHASISWA' || $_SESSION['role'] === 'DOS
                 <img src="<?php echo BASEURL; ?>/src/asset/icons/logo-icon.svg" class="flex w-11 h-9 shrink-0" alt="logo">
             </li>
 
-            <?php if ($_SESSION['role'] === 'MAHASISWA' || $_SESSION['role'] === 'DOSEN') : ?>
+            <?php if ($accsesPages) : ?>
                 <li class="group relative flex items-center <?php echo $isHomepageActive ? 'active' : ''; ?>">
                     <a href="<?php echo BASEURL ?>/homepage" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
                         <img src="<?php echo BASEURL; ?>/src/asset/icons/chart-square-grey.svg" class="size-6 group-[.active]:hidden" alt="icon" />
@@ -67,9 +67,9 @@ $showHomepage = ($_SESSION['role'] === 'MAHASISWA' || $_SESSION['role'] === 'DOS
         </ul>
     </nav>
 
-    <nav class="lg:hidden fixed bottom-0 left-0 right-0 grid <?php echo $showHomepage ? 'grid-cols-5' : 'grid-cols-4'; ?> h-[70px] items-center bg-white border-t border-gray-100 px-2 z-30">
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 grid <?php echo $accsesPages ? 'grid-cols-5' : 'grid-cols-4'; ?> h-[70px] items-center bg-white border-t border-gray-100 px-2 z-30">
 
-        <?php if ($_SESSION['role'] === 'MAHASISWA' || $_SESSION['role'] === 'DOSEN') : ?>
+        <?php if ($accsesPages) : ?>
             <a href="<?php echo BASEURL ?>/homepage" class="flex flex-col items-center justify-center gap-1 text-center">
                 <img src="<?php echo BASEURL; ?>/src/asset/icons/<?php echo $isHomepageActive ? 'chart-square-white-fill.svg' : 'chart-square-grey.svg'; ?>"
                     class="h-7 w-7 <?php echo $isHomepageActive ? 'bg-blue-600 p-1 rounded-lg' : ''; ?>" alt="icon">

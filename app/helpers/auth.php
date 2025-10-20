@@ -17,7 +17,20 @@ function checkRoleAccess(array $allowedRoles)
     $userRole = $_SESSION['role'];
 
     if (!in_array($userRole, $allowedRoles)) {
-        header('Location: ' . BASEURL . '/forums');
+        if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
+            $redirectUrl = $_SERVER['HTTP_REFERER'];
+        } else {
+            $role = $_SESSION['role'];
+
+            if ($role == 'MAHASISWA' || $role == 'DOSEN') {
+                $redirectUrl = BASEURL . '/homepage';
+            } elseif ($role == 'ALUMNI' || $role == 'MITRA') {
+                $redirectUrl = BASEURL . '/forums';
+            } else {
+                $redirectUrl = BASEURL . '/dashboard';
+            }
+        }
+        header('Location: ' . $redirectUrl);
         exit;
     }
 }
@@ -29,7 +42,7 @@ function guestOnly()
         if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
             $redirectUrl = $_SERVER['HTTP_REFERER'];
         } else {
-            $role = $_SESSION['role']; 
+            $role = $_SESSION['role'];
 
             if ($role == 'MAHASISWA' || $role == 'DOSEN') {
                 $redirectUrl = BASEURL . '/homepage';
