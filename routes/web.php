@@ -2,6 +2,8 @@
 session_start();
 require_once __DIR__ . '/../app/controllers/HomepageController.php';
 require_once __DIR__ . '/../app/controllers/ForumsController.php';
+require_once __DIR__ . '/../app/controllers/ProfileController.php';
+require_once __DIR__ . '/../app/controllers/SettingsController.php';
 require_once __DIR__ . '/../app/controllers/AuthController.php';
 require_once __DIR__ . '/../app/helpers/auth.php';
 
@@ -95,7 +97,7 @@ switch (true) {
         $controller = new SignupController();
         $controller->register();
         break;
-        
+
     case $route === 'sign-up/verif-otp':
         guestOnly();
         $controller = new SignupController();
@@ -183,6 +185,18 @@ switch (true) {
         requireLogin();
         $controller = new ForumsController();
         $controller->reportForum();
+        break;
+
+    case $route === 'settings':
+        requireLogin();
+        $controller = new SettingsController();
+        $controller->index();
+        break;
+
+    case $route === 'profile':
+        requireLogin();
+        $controller = new ProfileController();
+        $controller->index();
         break;
 
     default:

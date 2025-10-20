@@ -15,7 +15,7 @@
         <main class="flex flex-1 items-center justify-center px-4 bg-white/50 md:bg-white z-10 lg:rounded-l-4xl ">
             <div class="w-full max-w-[435px] relative mt-6 md:mt-0">
 
-                <div id="error-notification" class="absolute bottom-[calc(100%+24px)] w-full text-center bg-red-500/90 py-3 px-6 rounded-2xl shadow-lg hidden text-white">
+                <div id="error-notification" class="absolute bottom-[calc(100%+-10px)] md:bottom-[calc(100%+15px)] w-full text-center bg-red-500/90 py-3 px-6 rounded-2xl shadow-lg hidden z-[999] text-white">
 
                 </div>
 

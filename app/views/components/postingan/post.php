@@ -3,7 +3,7 @@
         <div>
             <img src="<?php echo BASEURL . '/src/asset/image/empty-folder.png'; ?>" alt="icon" width="100" class="mx-auto">
             <h1 class="text-center">
-                Tidak ada data pengguna untuk ditampilkan.</h1>
+                Saat ini belum ada postingan.</h1>
         </div>
     </div>
 <?php else: ?>
