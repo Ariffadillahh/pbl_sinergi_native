@@ -176,5 +176,4 @@ document.addEventListener("DOMContentLoaded", () => {
   openModal();
   createForum();
   overlayInfo();
-  handleRegist();
 });
