@@ -1,4 +1,4 @@
-<form class="bg-white rounded-2xl p-4 shadow-md" method="POST" action="" enctype="multipart/form-data">
+<form class="bg-white rounded-2xl p-4 shadow-md" method="POST" action="<?php echo BASEURL; ?>/post/create" enctype="multipart/form-data" id="createPostForm">
     <div class="flex items-start gap-4">
         <div class="flex size-14 rounded-full overflow-hidden flex-shrink-0">
             <img src="<?= !empty($_SESSION['path_photo'])
@@ -7,7 +7,7 @@
                 class="w-full h-full object-cover"
                 alt="photo">
         </div>
-        <textarea name="post_content" id="post_content" rows="3" placeholder="Apa yang sedang Anda pikirkan?" class="w-full bg-gray-100 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 resize-none"></textarea>
+        <textarea name="content" id="content" rows="3" placeholder="Apa yang sedang Anda pikirkan?" class="w-full bg-gray-100 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 resize-none"></textarea>
     </div>
 
     <div id="image-preview-container" class="mt-4 flex flex-nowrap gap-3 overflow-x-auto pb-2">
@@ -18,7 +18,7 @@
             <label for="image-input" class="size-11 flex shrink-0 bg-white rounded-xl p-[10px] items-center justify-center ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 cursor-pointer">
                 <img src="<?php echo BASEURL; ?>/src/asset/icons/gallery-import.svg" class="w-6 h-6" alt="icon">
             </label>
-            <input type="file" id="image-input" name="post_images[]" class="hidden" accept="image/*" multiple
+            <input type="file" id="image-input" name="images[]" class="hidden" accept="image/*" multiple
                 data-icon-url="<?php echo BASEURL; ?>/src/asset/icons/close-circle-grey.svg">
         </div>
 
@@ -98,4 +98,32 @@
             renderPreviews();
         });
     });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('createPostForm');
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert('✅ ' + result.message);
+                window.location.reload(); // refresh feed
+            } else {
+                alert('❌ ' + result.message);
+            }
+        } catch (err) {
+            alert('⚠️ Gagal terhubung ke server.');
+            console.error(err);
+        }
+    });
+});
 </script>

@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html>
 
@@ -25,8 +26,8 @@
             </form>
         </div>
         <div class="max-w-xl mx-auto px-5 md:p-0 mb-20 md:mb-0">
-            <?php require_once 'app/views/components/postingan/createPost.php' ?>
-            <?php require_once 'app/views/components/postingan/post.php' ?>
+        <?php require_once __DIR__ . '/../components/postingan/createPost.php'; ?>
+        <?php require_once __DIR__ . '/../components/postingan/post.php'; ?>
         </div>
     </main>
 </body>

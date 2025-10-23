@@ -10,7 +10,7 @@
             $controller->index();
             break;
 
-        case preg_match('#^homepage/reply/([a-zA-Z0-9\-]+)$#', $route, $matches):
+        case preg_match('#^homepage/repaly/([a-zA-Z0-9\-]+)$#', $route, $matches):
             $repaly = $matches[1];
             requireLogin();
             checkRoleAccess(['MAHASISWA', 'DOSEN', 'ADMIN']);

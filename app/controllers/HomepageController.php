@@ -7,6 +7,10 @@ class HomePageController
 {
     public function index()
     {
+        require_once __DIR__ . '/../models/Posts/PostModel.php';
+        $postModel = new PostModel();
+        $posts = $postModel->getAllPosts();
+        
         $contentViewPost = __DIR__ . '/../views/homePage/index.php';
         require_once __DIR__ . '/../views/homePage/layout.php';
     }
