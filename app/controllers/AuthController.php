@@ -179,6 +179,7 @@ class SigninController
     {
         $_SESSION['user_id'] = $user['ID'];
         $_SESSION['username'] = $user['USERNAME'];
+        $_SESSION['personal_number'] = $user['PERSONAL_NUMBER'];
         $_SESSION['full_name'] = $user['FULL_NAME'];
         $_SESSION['email'] = $user['EMAIL'];
         $_SESSION['role'] = $user['ROLE'];
