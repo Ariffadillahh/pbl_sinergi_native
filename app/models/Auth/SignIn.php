@@ -8,7 +8,7 @@ class SignInModel extends BaseModel
     {
         $conn = self::getConnection();
 
-        $sql = "SELECT ID, USERNAME, FULL_NAME, EMAIL, PASSWORD, ROLE, PRODI, JENJANG_STUDI, TAHUN_MASUK, PATH_PHOTO 
+        $sql = "SELECT ID, USERNAME, FULL_NAME, EMAIL, PASSWORD, ROLE, PRODI, JENJANG_STUDI, TAHUN_MASUK, PATH_PHOTO, PERSONAL_NUMBER
             FROM USERS 
             WHERE USERNAME = :identifier_bv 
                OR EMAIL = :identifier_bv

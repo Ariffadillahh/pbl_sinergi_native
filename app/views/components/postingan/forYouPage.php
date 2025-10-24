@@ -1,5 +1,5 @@
 <div class="border-b border-gray-200 mb-4">
-    <h2 class="text-2xl mb-4 text-center font-bold bg-gradient-to-r from-blue-600 to-[#30A9EE] bg-clip-text text-transparent">
+    <h2 class="text-2xl mb-5 pt-2 text-center font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
         For You
     </h2>
     <div class="w-[50px] h-[2px] bg-blue-600 mx-auto"></div>

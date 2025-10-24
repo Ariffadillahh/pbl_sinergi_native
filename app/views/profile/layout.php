@@ -7,12 +7,12 @@
     <link href="<?php echo BASEURL; ?>/src/css/output.css" rel="stylesheet">
 </head>
 
-<body class="bg-gray-100 h-screen flex">
+<body class="h-screen flex ">
     <?php require_once 'app/views/components/sidebars.php'; ?>
 
-    <div class="relative flex h-screen bg-white ">
+    <div class="relative h-screen bg-white justify-center flex-1 overflow-y-auto">
 
-        <main class="flex-1 overflow-y-auto p-3 md:p-5">
+        <main class="flex-1 overflow-y-auto p-3 md:p-5 ">
             <?php require_once $contentViewProfile; ?>
         </main>
 
