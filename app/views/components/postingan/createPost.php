@@ -35,7 +35,7 @@
         const imageInput = document.getElementById("image-input");
         const previewContainer = document.getElementById("image-preview-container");
         const MAX_FILES = 5;
-        const removeIconUrl = imageInput.dataset.iconUrl; // Ambil URL ikon dari atribut data-*
+        const removeIconUrl = imageInput.dataset.iconUrl;
 
         let fileBuffer = [];
 
@@ -87,10 +87,7 @@
                 return;
             }
 
-            // Tambahkan file baru ke buffer yang sudah ada
             fileBuffer.push(...selectedFiles);
-
-            // Perbarui input file dengan buffer gabungan
             const dataTransfer = new DataTransfer();
             fileBuffer.forEach(f => dataTransfer.items.add(f));
             this.files = dataTransfer.files;
@@ -116,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
             if (result.success) {
                 alert('✅ ' + result.message);
-                window.location.reload(); // refresh feed
+                window.location.reload();
             } else {
                 alert('❌ ' + result.message);
             }

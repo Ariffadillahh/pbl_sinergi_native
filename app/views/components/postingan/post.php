@@ -11,7 +11,6 @@
         ?>
         <div class="my-5">
             <div class="bg-white text-gray-900 border border-gray-200 rounded-2xl shadow-sm p-4">
-                <!-- 🧩 Header -->
                 <div class="flex items-start space-x-3">
                     <img src="<?= !empty($post['PATH_PHOTO'])
                         ? BASEURL . '/storage/users/photos/' . $post['PATH_PHOTO']
@@ -47,8 +46,21 @@
                         <div id="dropdown-<?= $post['POST_ID'] ?>"
                             class="hidden absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                             <?php if ($isOwner): ?>
-                                <button type="button" class="w-full text-left px-4 py-2 text-sm text-blue-500 hover:bg-gray-100"
-                                    onclick="openEditPostModal('<?= $post['POST_ID'] ?>')">Edit</button>
+                                <?php
+                                $content = $post['CONTENT'];
+                                if ($content instanceof OCILob) {
+                                    $content = $content->load(); // ubah CLOB jadi string biasa
+                                }
+
+                                $media = $post['MEDIA'] ?? [];
+                                $postJson = htmlspecialchars(json_encode([
+                                    'id' => $post['POST_ID'],
+                                    'content' => $content ?? '',
+                                    'media' => $media,
+                                ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), ENT_QUOTES);
+                                ?>
+                                <button type="button" class="edit-post-btn w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
+                                data-post="<?= $postJson ?>">Edit</button>
                                 <button type="button" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
                                     onclick="openDeletePostModal('<?= $post['POST_ID'] ?>')">Hapus</button>
                             <?php else: ?>
@@ -59,7 +71,6 @@
                     </div>
                 </div>
 
-                <!-- 🖼️ Media Swiper -->
                 <?php if (!empty($post['MEDIA'])): ?>
                     <div class="mt-4 rounded-2xl overflow-hidden border border-gray-100">
                         <swiper-container class="mySwiper aspect-video w-full min-h-[250px] md:min-h-[400px]" init="false">
@@ -72,7 +83,6 @@
                     </div>
                 <?php endif; ?>
 
-                <!-- ❤️ Like & 💬 Comment -->
                 <div class="mt-3 flex items-center justify-between text-gray-500 text-sm border-t border-gray-100 pt-3">
                     <div class="flex items-center space-x-6">
                         <button class="flex items-center hover:text-red-500 transition-colors group cursor-pointer">
@@ -85,7 +95,7 @@
                             <span>0</span>
                         </button>
 
-                        <a href="<?= BASEURL ?>/homepage/repaly/<?= $post['POST_ID'] ?>" class="flex items-center hover:text-blue-600 transition-colors group cursor-pointer">
+                        <a href="<?= BASEURL ?>/homepage/reply/<?= $post['POST_ID'] ?>" class="flex items-center hover:text-blue-600 transition-colors group cursor-pointer">
                             <div class="p-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -148,18 +158,45 @@ function toggleDropdown(id) {
     dropdown.classList.toggle('hidden');
 }
 
-function openEditPostModal(postId) {
-    const modal = document.getElementById("modal-edit-post");
-    modal.classList.remove("hidden");
-    modal.classList.add("flex");
-    document.getElementById("edit-post-id").value = postId; // isi hidden input modal
+function openEditPostModal(postId, content, mediaPaths = []) {
+    const container = document.getElementById("media-preview-container");
+    if (!container) {
+        console.error("Elemen #media-preview-container tidak ditemukan!");
+        return;
+    }
+    modalEditPost.classList.remove("hidden");
+    modalEditPost.classList.add("flex");
+
+    document.getElementById("edit-post-id").value = postId;
+    document.getElementById("edit-post-content").value = content || "";
+
+    existingMedia = [...mediaPaths];
+    deletedMedia = [];
+    newMediaFiles = [];
+    renderMediaPreviews();
 }
+
+document.querySelectorAll('.edit-post-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    const json = this.getAttribute('data-post');
+    if (!json) return console.error('data-post kosong pada tombol edit');
+    let data;
+    try {
+      data = JSON.parse(json);
+    } catch (e) {
+      console.error('Gagal parse data-post JSON', e, json);
+      return;
+    }
+    // Panggil modal dengan data yang sudah ter-parse
+    openEditPostModal(data.id, data.content, data.media || []);
+  });
+});
 
 function openDeletePostModal(postId) {
     const modal = document.getElementById("modal-delete-post");
     modal.classList.remove("hidden");
     modal.classList.add("flex");
-    document.getElementById("delete-post-id").value = postId; // isi hidden input modal
+    document.getElementById("delete-post-id").value = postId;
 }
 
 function reportPost(postId) {

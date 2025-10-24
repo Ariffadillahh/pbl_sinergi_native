@@ -15,9 +15,9 @@ class HomePageController
         require_once __DIR__ . '/../views/homePage/layout.php';
     }
 
-    public function replayPage($id)
+    public function replyPage($id)
     {
-        $contentViewPost = __DIR__ . '/../views/homePage/repaly/index.php';
+        $contentViewPost = __DIR__ . '/../views/homePage/reply/index.php';
         require_once __DIR__ . '/../views/homePage/layout.php';
     }
 }

@@ -10,9 +10,6 @@ class PostController
         $this->postModel = new PostModel();
     }
 
-    /**
-     * Endpoint: tampilkan semua posting (feed)
-     */
     public function index()
     {
         header('Content-Type: application/json');
@@ -22,11 +19,16 @@ class PostController
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => 'Gagal mengambil data postingan.']);
         }
+        $posts = $this->postModel->getAllPosts();
+        foreach ($posts as &$post) {
+            $post['MEDIA_PATHS'] = $this->postModel->getMediaByPostId($post['POST_ID']);
     }
 
-    /**
-     * Endpoint: buat posting baru
-     */
+    include __DIR__ . '/../views/components/postingan/post.php';
+    }
+
+
+
     public function create()
     {
         header('Content-Type: application/json');
@@ -105,17 +107,8 @@ class PostController
         }
     }
 
-    /**
-     * Endpoint: update posting
-     */
 public function update()
 {
-    
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-    file_put_contents('debug.txt', print_r($_FILES, true), FILE_APPEND);
-    file_put_contents('debug.txt', print_r($_POST, true), FILE_APPEND);
-
     header('Content-Type: application/json');
     session_start();
 
@@ -137,10 +130,14 @@ public function update()
         exit;
     }
 
+    if (empty($caption) && empty($_FILES['images']['name'][0]) && empty($_POST['existing_media'])) {
+        echo json_encode(['success' => false, 'message' => 'Postingan tidak boleh kosong.']);
+        exit;
+    }
+
     $uploadDir = __DIR__ . '/../../storage/posts/images/';
     if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-    // 1. Upload gambar baru
     $uploadedPaths = [];
     if (!empty($_FILES['images']['name'][0])) {
         foreach ($_FILES['images']['name'] as $i => $name) {
@@ -149,38 +146,42 @@ public function update()
             $targetFile = $uploadDir . $fileName;
             $fileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
             $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
-            if (!in_array($fileType, $allowedTypes)) { 
-                echo json_encode(['success' => false, 'message' => 'Hanya gambar yang diperbolehkan']); 
-                exit; 
+            if (!in_array($fileType, $allowedTypes)) {
+                echo json_encode(['success' => false, 'message' => 'Hanya gambar (JPG, JPEG, PNG, GIF) yang diperbolehkan']);
+                exit;
             }
             if (!move_uploaded_file($_FILES['images']['tmp_name'][$i], $targetFile)) {
-                echo json_encode(['success' => false, 'message' => 'Gagal upload gambar']); 
+                echo json_encode(['success' => false, 'message' => 'Gagal upload gambar']);
                 exit;
             }
             $uploadedPaths[] = 'storage/posts/images/' . $fileName;
         }
     }
 
-    // 2. Media lama yang tetap dipertahankan
     $existingMedia = $_POST['existing_media'] ?? [];
+    if (!is_array($existingMedia)) $existingMedia = explode(',', $existingMedia);
 
-    // 3. Media yang dihapus user (dari tombol X)
     $mediaToDelete = $_POST['deleted_media'] ?? [];
+    if (!is_array($mediaToDelete)) $mediaToDelete = explode(',', $mediaToDelete);
 
-    // 4. Merge media yang dipertahankan + media baru
-    $allMediaPaths = array_merge($existingMedia, $uploadedPaths);
+    foreach ($mediaToDelete as $path) {
+        $filePath = __DIR__ . '/../../' . $path;
+        if (file_exists($filePath)) @unlink($filePath);
+    }
 
-    // 5. Update post
-    $success = $this->postModel->updatePost($postId, $_SESSION['user_id'], $caption, $allMediaPaths, $mediaToDelete);
+    $allMediaPaths = array_values(array_unique(array_merge($existingMedia, $uploadedPaths)));
 
-    if ($success) echo json_encode(['success' => true, 'message' => 'Postingan berhasil diperbarui']);
-    else echo json_encode(['success' => false, 'message' => 'Gagal memperbarui postingan']);
+    $success = $this->postModel->updatePost($postId, $_SESSION['user_id'], $caption, $uploadedPaths, $mediaToDelete);
+    if ($success) {
+        echo json_encode(['success' => true, 'message' => 'Postingan berhasil diperbarui']);
+        exit;
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Gagal memperbarui postingan']);
+        exit;
 }
 
+}
 
-    /**
-     * Endpoint: hapus posting
-     */
  public function delete()
 {
     header('Content-Type: application/json');
@@ -207,7 +208,6 @@ public function update()
         exit;
     }
 
-    // Panggil model untuk hapus post (beserta media di storage)
     $success = $this->postModel->deletePost($postId, $_SESSION['user_id']);
 
     if ($success) {

@@ -1,31 +1,48 @@
-<div id="modal-edit-post" class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50">
-    <div class="relative p-4 w-full max-w-md max-h-full">
-        <div class="relative bg-white rounded-lg shadow-sm">
-            <div class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t">
-                <h3 class="text-xl font-semibold text-gray-900">Edit Post</h3>
-                <button type="button" id="btn-close-edit-post" class="text-gray-400 rounded-lg w-8 h-8 flex justify-center items-center">&times;</button>
-            </div>
-            <div class="p-4">
-                <p id="edit-post-error" class="bg-red-600 p-2 text-white text-center rounded-lg hidden mb-2"></p>
-                <form id="form-edit-post" action="<?= BASEURL ?>/post/update" method="post" enctype="multipart/form-data">
-                    <input type="hidden" name="post_id" id="edit-post-id">
-                    <textarea name="content" id="edit-post-content" rows="4" class="w-full p-2 border rounded-lg mb-4"></textarea>
-                    
-                    <!-- Container preview gambar -->
-                    <div id="media-preview-container" class="flex gap-2 flex-wrap mb-4"></div>
-
-                    <input type="file" id="edit-post-file-input" name="images[]" class="hidden" accept="image/*" multiple>
-                    <button type="button" id="btn-edit-post-change-photo" class="px-4 py-2 bg-gray-900 text-white rounded-full hover:bg-gray-700 mb-4">
-                        Tambah Gambar
-                    </button>
-
-                    <button type="submit" id="btn-submit-edit-post" class="w-full py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-500 transition-colors">
-                        Save Changes
-                    </button>
-                </form>
-            </div>
-        </div>
+<div id="modal-edit-post" class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/60 backdrop-blur-sm">
+  <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-500">
+      <h3 class="text-lg font-bold text-white">Edit Postingan</h3>
+      <button id="btn-close-edit-post" class="text-white hover:bg-white/20 w-8 h-8 flex items-center justify-center rounded-full">&times;</button>
     </div>
+
+    <!-- Body -->
+    <div class="p-6 space-y-4">
+      <p id="edit-post-error" class="bg-red-600 p-2 text-white text-center rounded-lg hidden"></p>
+
+      <form id="form-edit-post" action="<?= BASEURL ?>/post/update" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <input type="hidden" name="post_id" id="edit-post-id">
+
+        <textarea
+          name="content"
+          id="edit-post-content"
+          rows="4"
+          placeholder="Tulis sesuatu..."
+          class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none"
+        ></textarea>
+
+        <!-- Gambar Preview -->
+        <div id="media-preview-container" class="grid grid-cols-3 sm:grid-cols-4 gap-3"></div>
+
+        <!-- Upload Gambar -->
+        <div class="flex justify-between items-center">
+          <button type="button" id="btn-edit-post-change-photo" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Tambah Gambar
+          </button>
+
+          <input type="file" id="edit-post-file-input" name="images[]" class="hidden" accept="image/*" multiple>
+        </div>
+
+        <!-- Tombol Simpan -->
+        <button type="submit" id="btn-submit-edit-post" class="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold rounded-full hover:opacity-90 transition">
+          Simpan Perubahan
+        </button>
+      </form>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -53,54 +70,54 @@ function openEditPostModal(postId, content, mediaPaths = []) {
 }
 
 function renderMediaPreviews() {
-    mediaPreviewContainer.innerHTML = '';
+  mediaPreviewContainer.innerHTML = '';
 
-    // render gambar lama
-    existingMedia.forEach((path, i) => {
-        const div = document.createElement('div');
-        div.className = 'relative w-20 h-20 rounded-lg overflow-hidden border';
+  // render gambar lama
+  existingMedia.forEach((path, i) => {
+    const div = document.createElement('div');
+    div.className = 'relative aspect-square rounded-lg overflow-hidden group shadow-sm hover:shadow-md transition';
 
-        const img = document.createElement('img');
-        img.src = '<?= BASEURL ?>' + path; // pastikan mediaPaths relatif ke BASEURL
-        img.className = 'w-full h-full object-cover';
-        div.appendChild(img);
+    const img = document.createElement('img');
+    img.src = '<?= rtrim(BASEURL, "/") ?>/' + path.replace(/^\/+/, '');
+    img.className = 'w-full h-full object-cover transition-transform duration-300 group-hover:scale-105';
+    div.appendChild(img);
 
-        const btnX = document.createElement('button');
-        btnX.type = 'button';
-        btnX.innerText = '×';
-        btnX.className = 'absolute top-0 right-0 bg-black/50 text-white w-6 h-6 rounded-full';
-        btnX.onclick = () => {
-            existingMedia.splice(i, 1);
-            deletedMedia.push(path);
-            renderMediaPreviews();
-        };
-        div.appendChild(btnX);
+    const btnX = document.createElement('button');
+    btnX.type = 'button';
+    btnX.innerHTML = '&times;';
+    btnX.className = 'absolute top-1 right-1 bg-black/60 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition';
+    btnX.onclick = () => {
+      existingMedia.splice(i, 1);
+      deletedMedia.push(path);
+      renderMediaPreviews();
+    };
+    div.appendChild(btnX);
 
-        mediaPreviewContainer.appendChild(div);
-    });
+    mediaPreviewContainer.appendChild(div);
+  });
 
-    // render gambar baru
-    newMediaFiles.forEach((file, i) => {
-        const div = document.createElement('div');
-        div.className = 'relative w-20 h-20 rounded-lg overflow-hidden border';
+  // render gambar baru
+  newMediaFiles.forEach((file, i) => {
+    const div = document.createElement('div');
+    div.className = 'relative aspect-square rounded-lg overflow-hidden group shadow-sm hover:shadow-md transition';
 
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(file);
-        img.className = 'w-full h-full object-cover';
-        div.appendChild(img);
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    img.className = 'w-full h-full object-cover transition-transform duration-300 group-hover:scale-105';
+    div.appendChild(img);
 
-        const btnX = document.createElement('button');
-        btnX.type = 'button';
-        btnX.innerText = '×';
-        btnX.className = 'absolute top-0 right-0 bg-black/50 text-white w-6 h-6 rounded-full';
-        btnX.onclick = () => {
-            newMediaFiles.splice(i, 1);
-            renderMediaPreviews();
-        };
-        div.appendChild(btnX);
+    const btnX = document.createElement('button');
+    btnX.type = 'button';
+    btnX.innerHTML = '&times;';
+    btnX.className = 'absolute top-1 right-1 bg-black/60 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition';
+    btnX.onclick = () => {
+      newMediaFiles.splice(i, 1);
+      renderMediaPreviews();
+    };
+    div.appendChild(btnX);
 
-        mediaPreviewContainer.appendChild(div);
-    });
+    mediaPreviewContainer.appendChild(div);
+  });
 }
 
 btnCloseEditPost.addEventListener('click', () => {
@@ -146,19 +163,32 @@ formEditPost.addEventListener('submit', async (e) => {
     deletedMedia.forEach(path => formData.append('deleted_media[]', path));
 
     try {
-        const response = await fetch(formEditPost.action, { method: 'POST', body: formData });
-        const result = await response.json();
-        if(result.success) window.location.reload();
-        else { 
-            errorDiv.textContent = result.message || "Failed to update post."; 
-            errorDiv.classList.remove("hidden"); 
-        }
-    } catch(err) {
-        errorDiv.textContent = "Network error while updating post."; 
-        errorDiv.classList.remove("hidden");
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerText = "Save Changes";
+    const response = await fetch(formEditPost.action, { method: 'POST', body: formData });
+
+    if (!response.ok) throw new Error(`Server returned ${response.status}`);
+
+    let result;
+    try {
+        result = await response.json();
+    } catch (err) {
+        console.error("Response bukan JSON:", await response.text());
+        throw new Error("Response bukan JSON");
     }
+
+    if (result.success) {
+        window.location.reload();
+    } else {
+        errorDiv.textContent = result.message || "Gagal memperbarui postingan.";
+        errorDiv.classList.remove("hidden");
+    }
+    } catch (err) {
+    console.error(err);
+    errorDiv.textContent = "Terjadi kesalahan saat memproses update.";
+    errorDiv.classList.remove("hidden");
+    } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Simpan Perubahan";
+    }
+
 });
 </script>

@@ -28,6 +28,7 @@ switch (true) {
         include __DIR__ . '/homepage.php';
         include __DIR__ . '/settings.php';
         include __DIR__ . '/post.php';
+        include __DIR__ . '/profile.php';
 
         if (!isset($controller)) {
             http_response_code(404);

@@ -10,11 +10,11 @@
             $controller->index();
             break;
 
-        case preg_match('#^homepage/repaly/([a-zA-Z0-9\-]+)$#', $route, $matches):
-            $repaly = $matches[1];
+        case preg_match('#^homepage/reply/([a-zA-Z0-9\-]+)$#', $route, $matches):
+            $reply = $matches[1];
             requireLogin();
             checkRoleAccess(['MAHASISWA', 'DOSEN', 'ADMIN']);
             $controller = new HomePageController();
-            $controller->replayPage($repaly);
+            $controller->replyPage($reply);
             break;
     }
