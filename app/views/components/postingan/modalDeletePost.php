@@ -8,7 +8,7 @@
                         d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                 </svg>
                 <h3 class="mb-5 text-lg font-normal text-gray-600">Are you sure you want to delete this post?</h3>
-                <form id="form-delete-post" action="<?= BASEURL ?>/post/delete" method="post">
+                <form id="form-delete-post" action="<?php echo BASEURL ?>/post/delete" method="post">
                     <input type="hidden" name="post_id" id="delete-post-id">
                 </form>
                 <div class="flex justify-center gap-3 mt-4">

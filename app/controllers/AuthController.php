@@ -319,9 +319,6 @@ class SignupController
         }
 
         header('Content-Type: application/json');
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
 
         if (!isset($_SESSION['registration_data'])) {
             echo json_encode(['success' => false, 'message' => 'Sesi registrasi Anda telah berakhir. Harap ulangi dari awal.']);
