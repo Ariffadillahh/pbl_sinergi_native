@@ -22,7 +22,7 @@
                 data-icon-url="<?php echo BASEURL; ?>/src/asset/icons/close-circle-grey.svg">
         </div>
 
-        <button type="submit" class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center flex items-center gap-2 transition-all duration-300">
+        <button type="submit" id="submit-post-btn" class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center flex items-center gap-2 transition-all duration-300">
             Posting
             <img src="<?php echo BASEURL; ?>/src/asset/image/send.png" class="size-4 mt-1" alt="icon">
         </button>
@@ -31,7 +31,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-
         const imageInput = document.getElementById("image-input");
         const previewContainer = document.getElementById("image-preview-container");
         const MAX_FILES = 5;
@@ -39,43 +38,79 @@
 
         let fileBuffer = [];
 
-        function renderPreviews() {
-            previewContainer.innerHTML = "";
+        function updateInputFiles() {
+            const dataTransfer = new DataTransfer();
+            fileBuffer.forEach(f => dataTransfer.items.add(f));
+            imageInput.files = dataTransfer.files;
+        }
 
-            fileBuffer.forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
+        function removeFile(fileToRemove) {
+            const indexToRemove = fileBuffer.findIndex(f => f === fileToRemove);
+            if (indexToRemove > -1) {
+                fileBuffer.splice(indexToRemove, 1);
+                updateInputFiles();
+                renderPreviews(); // Cukup panggil renderPreviews yang sudah diperbaiki
+            }
+        }
+
+        // ===================================================================
+        // INI ADALAH FUNGSI YANG DIPERBAIKI MENGGUNAKAN ASYNC/AWAIT DAN PROMISE.ALL
+        // ===================================================================
+        async function renderPreviews() {
+            previewContainer.innerHTML = ""; // Kosongkan container
+
+            // 1. Buat sebuah Promise untuk setiap file yang sedang dibaca
+            const filePromises = fileBuffer.map(file => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        // Jika berhasil, kirim hasil (URL gambar) dan file aslinya
+                        resolve({
+                            result: e.target.result,
+                            originalFile: file
+                        });
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            try {
+                // 2. Tunggu SEMUA promise selesai. Promise.all menjamin urutannya tetap sama.
+                const imageSources = await Promise.all(filePromises);
+
+                // 3. Sekarang 'imageSources' adalah array berisi hasil yang sudah PASTI BERURUTAN
+                imageSources.forEach(imageData => {
+                    const {
+                        result,
+                        originalFile
+                    } = imageData;
+
                     const wrapper = document.createElement('div');
                     wrapper.classList.add('relative', 'flex-shrink-0', 'h-44', 'w-auto');
 
                     const img = document.createElement("img");
-                    img.src = e.target.result;
+                    img.src = result;
                     img.classList.add("h-full", "w-full", "rounded-lg", "object-cover");
 
                     const removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
                     removeBtn.classList.add('absolute', 'top-1', 'right-1', 'size-6', 'flex', 'items-center', 'justify-center', 'bg-white', 'hover:bg-gray-200', 'rounded-full', 'transition-colors');
                     removeBtn.innerHTML = `<img src="${removeIconUrl}" class="w-6 h-6" alt="Remove">`;
-                    removeBtn.dataset.index = index;
 
+                    // Event listener tetap menunjuk ke file asli yang unik
                     removeBtn.addEventListener('click', function(event) {
                         event.preventDefault();
-                        const fileIndexToRemove = parseInt(this.dataset.index, 10);
-                        fileBuffer.splice(fileIndexToRemove, 1);
-
-                        const dataTransfer = new DataTransfer();
-                        fileBuffer.forEach(f => dataTransfer.items.add(f));
-                        imageInput.files = dataTransfer.files;
-
-                        renderPreviews();
+                        removeFile(originalFile);
                     });
 
                     wrapper.appendChild(img);
                     wrapper.appendChild(removeBtn);
                     previewContainer.appendChild(wrapper);
-                };
-                reader.readAsDataURL(file);
-            });
+                });
+            } catch (error) {
+                console.error("Gagal membaca salah satu file:", error);
+            }
         }
 
         imageInput.addEventListener("change", function() {
@@ -88,39 +123,56 @@
             }
 
             fileBuffer.push(...selectedFiles);
-            const dataTransfer = new DataTransfer();
-            fileBuffer.forEach(f => dataTransfer.items.add(f));
-            this.files = dataTransfer.files;
-
-            renderPreviews();
+            updateInputFiles();
+            renderPreviews(); // Panggil fungsi render yang baru
         });
     });
 </script>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('createPostForm');
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('createPostForm');
+        const submitButton = document.getElementById('submit-post-btn');
 
-        const formData = new FormData(form);
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault(); // Mencegah form dari submit bawaan browser
 
-        try {
-            const response = await fetch(form.action, {
-                method: 'POST',
-                body: formData
-            });
+            // Nonaktifkan tombol untuk mencegah double-click
+            submitButton.disabled = true;
+            submitButton.textContent = 'Memposting...';
 
-            const result = await response.json();
-            if (result.success) {
-                alert('✅ ' + result.message);
-                window.location.reload();
-            } else {
-                alert('❌ ' + result.message);
+            const formData = new FormData(form);
+
+            try {
+                // Kirim data menggunakan Fetch API
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                // Cek apakah respons dari server adalah JSON yang valid
+                if (!response.ok) {
+                    // Jika server mengembalikan status error (4xx, 5xx), lempar error
+                    throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('✅ ' + result.message);
+                    window.location.reload(); // Refresh halaman jika berhasil
+                } else {
+                    alert('❌ ' + result.message);
+                }
+            } catch (err) {
+                // Tangani error jaringan atau error parsing JSON
+                alert('⚠️ Gagal terhubung ke server. Silakan coba lagi.');
+                console.error('Fetch Error:', err);
+            } finally {
+                // Aktifkan kembali tombol setelah proses selesai (baik berhasil maupun gagal)
+                submitButton.disabled = false;
+                submitButton.innerHTML = `Posting <img src="<?php echo BASEURL; ?>/src/asset/image/send.png" class="size-4 mt-1" alt="icon">`;
             }
-        } catch (err) {
-            alert('⚠️ Gagal terhubung ke server.');
-            console.error(err);
-        }
+        });
     });
-});
 </script>

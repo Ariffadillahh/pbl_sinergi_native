@@ -1,134 +1,229 @@
 <!doctype html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="<?= BASEURL ?>/src/css/output.css" rel="stylesheet">
-    <title>Post | <?= htmlspecialchars($id) ?></title>
+    <link href="<?php echo BASEURL; ?>/src/css/output.css" rel="stylesheet">
+    <title>Home Page | <?php echo $id ?></title>
 </head>
 
 <body>
-    <main class="w-full h-screen overflow-y-auto border-gray-200 hide-scrollbar relative">
-        <!-- Header -->
-        <div class="sticky top-0 z-10 bg-white w-full px-5 py-3 mb-4 border-b border-gray-200 flex items-center gap-3">
-            <button onclick="window.history.back()" class="flex items-center gap-2 text-black font-semibold">
-                <img src="<?= BASEURL ?>/src/asset/icons/left-arrow-svgrepo-com.svg" class="w-6 h-6" alt="icon">
+    <main class="w-full h-screen overflow-y-auto border-gray-200 hide-scrollbar relative z-[9999]">
+        <div class="sticky top-0 z-10 bg-white w-full px-5 py-3 mb-4 border-b border-gray-200">
+            <button onclick="window.history.back()" class="flex items-center gap-3 text-black font-semibold cursor-pointer">
+                <img src="<?php echo BASEURL . '/src/asset/icons/left-arrow-svgrepo-com.svg'; ?>" alt="icon" class="w-6 h-6">
                 <h1 class="text-xl">Post</h1>
             </button>
         </div>
 
-        <div class="max-w-xl mx-auto px-5 mb-20">
-            <!-- Komponen post utama -->
-            <?php require_once 'app/views/components/postingan/replyPost.php'; ?>
+        <div class="max-w-xl mx-auto px-5 md:p-0 mb-20 md:mb-10">
+            <div class="max-w-xl w-full mx-auto">
+                <?php require_once 'app/views/components/postingan/replyPost.php'; ?>
 
-            <!-- Form tambah komentar -->
-            <form id="form-comment" method="POST" action="<?= BASEURL ?>/comment/add"
-                class="bg-white border-t border-gray-200 p-4 rounded-2xl mt-4">
-                <input type="hidden" name="post_id" value="<?= $id ?>">
-                <div class="flex items-start space-x-3">
-                    <img src="<?= BASEURL ?>/src/asset/image/default.png" alt="Your Profile" class="w-12 h-12 rounded-full">
-                    <textarea name="message" id="comment-message"
-                        class="w-full bg-gray-50 border rounded-lg px-4 py-2 resize-none focus:ring-2 focus:ring-blue-500"
-                        rows="2" placeholder="Tulis komentar..."></textarea>
-                    <button type="submit"
-                        class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg transition">
-                        Kirim
-                    </button>
+                <div class="sticky top-16 max-w-xl">
+                    <form method="POST" action="" class="bg-white/60 backdrop-blur border-[1px] text-black border-t border-gray-200 p-4 rounded-2xl my-2">
+                        <div class="flex items-start space-x-3">
+                            <div class="flex-shrink-0">
+                                <img src="<?php echo BASEURL . '/src/asset/image/default.png'; ?>" alt="Your Profile" class="w-12 h-12 rounded-full">
+                            </div>
+                            <textarea
+                                class="w-full hide-scrollbar bg-transparent text-lg text-gray-800 placeholder-gray-500 border-none focus:ring-0 focus:outline-none resize-none p-1"
+                                rows="2"
+                                placeholder="Add Comment...."></textarea>
+                            <div class="mt-2 flex items-center justify-end">
+                                <button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-full transition-colors">
+                                    Comment
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-            </form>
 
-            <!-- Daftar komentar -->
-            <div id="comment-section" class="mt-6 space-y-4"></div>
+                <!-- ============ CONTOH KOMENTAR 1 ============ -->
+                <div class="bg-white text-black border-t border-gray-200 p-4 rounded-2xl my-4 comment-block">
+                    <div class="flex items-start space-x-3 border-b border-gray-200 pb-5">
+                        <div class="flex-shrink-0">
+                            <img src="<?php echo BASEURL . '/src/asset/image/default.png'; ?>" alt="Profile" class="w-12 h-12 rounded-full">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h1 class="text-black min-w-0 truncate font-semibold">Arif Fadillah Wicaksono</h1>
+                            <span class="text-gray-500">@feraacorp</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-gray-800 text-base">
+                        <p>Kata siapa ga angker?</p>
+                        <p class="mt-2">Orang yg mau manjat Everest sudah siap kehilangan nyawa.</p>
+                    </div>
+
+                    <div class="mt-4 flex items-center text-gray-500 text-sm max-w-sm gap-4">
+                        <p class="text-gray-400">21h</p>
+                        <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold">
+                            Reply
+                        </button>
+                    </div>
+
+                    <!-- Form balasan -->
+                    <div class="hidden reply-form">
+                        <form method="POST" action="" class="bg-white text-black border-t border-gray-200 p-4 rounded-2xl my-2">
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0">
+                                    <img src="<?php echo BASEURL . '/src/asset/image/default.png'; ?>" alt="Your Profile" class="w-10 h-10 rounded-full">
+                                </div>
+                                <input type="text" class="w-full bg-transparent text-gray-800 ring-1 placeholder-gray-500 border-none focus:ring-1 focus:outline-blue-600 rounded-full p-1.5 ps-3" placeholder="Reply...">
+                                <div class="flex items-center justify-end">
+                                    <button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-full transition-colors">
+                                        Reply
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Balasan komentar -->
+                    <div class="border-t border-gray-200 mt-4 pt-4 replies-section space-y-4">
+                        <div class="comment-container">
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0">
+                                    <img src="<?php echo BASEURL . '/src/asset/image/default.png'; ?>" alt="Profile" class="w-9 h-9 rounded-full">
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h1 class="text-black min-w-0 truncate font-semibold">Radit Meyka</h1>
+                                    <span class="text-gray-500">@owcdit</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 ml-1 pl-12 text-gray-800 text-base">
+                                <p>Ini adalah contoh balasan yang sudah dirapikan.</p>
+                            </div>
+
+                            <div class="mt-3 ml-1 pl-12 flex items-center text-gray-500 text-sm gap-4">
+                                <p class="text-gray-400">20h</p>
+                                <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold">
+                                    Reply
+                                </button>
+                            </div>
+
+                            <div class="hidden reply-form ml-1 pl-12">
+                                <form method="POST" action="" class="bg-white text-black border-t border-gray-200 p-4 rounded-2xl my-2">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="flex-shrink-0">
+                                            <img src="<?php echo BASEURL . '/src/asset/image/default.png'; ?>" alt="Your Profile" class="w-10 h-10 rounded-full">
+                                        </div>
+                                        <input type="text" class="w-full bg-transparent text-gray-800 ring-1 placeholder-gray-500 border-none focus:ring-1 focus:outline-blue-600 rounded-full p-1.5 ps-3" placeholder="Reply...">
+                                        <div class="flex items-center justify-end">
+                                            <button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-full transition-colors">
+                                                Reply
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END KOMENTAR -->
+
+                <!-- ============ CONTOH KOMENTAR 2 ============ -->
+                <div class="bg-white text-black border-t border-gray-200 p-4 rounded-2xl my-4 comment-block">
+                    <div class="flex items-start space-x-3 border-b border-gray-200 pb-5">
+                        <div class="flex-shrink-0">
+                            <img src="<?php echo BASEURL . '/src/asset/image/default.png'; ?>" alt="Profile" class="w-12 h-12 rounded-full">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h1 class="text-black min-w-0 truncate font-semibold">Arif Fadillah Wicaksono</h1>
+                            <span class="text-gray-500">@feraacorp</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-gray-800 text-base">
+                        <p>Kata siapa ga angker?</p>
+                        <p class="mt-2">Orang yg mau manjat Everest sudah siap kehilangan nyawa.</p>
+                    </div>
+
+                    <div class="mt-4 flex items-center text-gray-500 text-sm max-w-sm gap-4">
+                        <p class="text-gray-400">21h</p>
+                        <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold">
+                            Reply
+                        </button>
+                    </div>
+
+                    <!-- Form balasan -->
+                    <div class="hidden reply-form">
+                        <form method="POST" action="" class="bg-white text-black border-t border-gray-200 p-4 rounded-2xl my-2">
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0">
+                                    <img src="<?php echo BASEURL . '/src/asset/image/default.png'; ?>" alt="Your Profile" class="w-10 h-10 rounded-full">
+                                </div>
+                                <input type="text" class="w-full bg-transparent text-gray-800 ring-1 placeholder-gray-500 border-none focus:ring-1 focus:outline-blue-600 rounded-full p-1.5 ps-3" placeholder="Reply...">
+                                <div class="flex items-center justify-end">
+                                    <button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-full transition-colors">
+                                        Reply
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Balasan komentar -->
+                    <div class="border-t border-gray-200 mt-4 pt-4 replies-section space-y-4">
+                        <div class="comment-container">
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0">
+                                    <img src="<?php echo BASEURL . '/src/asset/image/default.png'; ?>" alt="Profile" class="w-9 h-9 rounded-full">
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h1 class="text-black min-w-0 truncate font-semibold">Radit Meyka</h1>
+                                    <span class="text-gray-500">@owcdit</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 ml-1 pl-12 text-gray-800 text-base">
+                                <p>Ini adalah contoh balasan yang sudah dirapikan.</p>
+                            </div>
+
+                            <div class="mt-3 ml-1 pl-12 flex items-center text-gray-500 text-sm gap-4">
+                                <p class="text-gray-400">20h</p>
+                                <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold">
+                                    Reply
+                                </button>
+                            </div>
+
+                            <div class="hidden reply-form ml-1 pl-12">
+                                <form method="POST" action="" class="bg-white text-black border-t border-gray-200 p-4 rounded-2xl my-2">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="flex-shrink-0">
+                                            <img src="<?php echo BASEURL . '/src/asset/image/default.png'; ?>" alt="Your Profile" class="w-10 h-10 rounded-full">
+                                        </div>
+                                        <input type="text" class="w-full bg-transparent text-gray-800 ring-1 placeholder-gray-500 border-none focus:ring-1 focus:outline-blue-600 rounded-full p-1.5 ps-3" placeholder="Reply...">
+                                        <div class="flex items-center justify-end">
+                                            <button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-full transition-colors">
+                                                Reply
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END KOMENTAR -->
+            </div>
         </div>
     </main>
 
     <script>
-        const BASEURL = "<?= BASEURL ?>";
-        const postId = "<?= $id ?>";
-        const commentSection = document.getElementById("comment-section");
-
-        // === Ambil komentar dari server ===
-        async function loadComments() {
-            const res = await fetch(`${BASEURL}/comment/get?id=${postId}`);
-            const data = await res.json();
-
-            if (data.success) renderComments(data.comments);
-            else commentSection.innerHTML = "<p class='text-center text-gray-500'>Gagal memuat komentar.</p>";
-        }
-
-        // === Render komentar dan reply ===
-        function renderComments(comments) {
-            commentSection.innerHTML = comments.map(c => `
-                <div class="bg-white border border-gray-200 rounded-xl p-4">
-                    <div class="flex items-start gap-3">
-                        <img src="${BASEURL}/src/asset/image/default.png" class="w-10 h-10 rounded-full" alt="pfp">
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <span class="font-semibold">${c.USERNAME}</span>
-                                <span class="text-xs text-gray-400">${c.CREATED_AT}</span>
-                            </div>
-                            <p class="mt-1 text-gray-700">${c.MESSAGE}</p>
-                        </div>
-                    </div>
-
-                    <!-- Reply Section -->
-                    <div class="ml-12 mt-3 space-y-2">
-                        ${c.REPLIES.map(r => `
-                            <div class="flex items-start gap-3">
-                                <img src="${BASEURL}/src/asset/image/default.png" class="w-8 h-8 rounded-full" alt="pfp">
-                                <div>
-                                    <span class="font-semibold text-sm">${r.USERNAME}</span>
-                                    <p class="text-gray-700 text-sm">${r.MESSAGE}</p>
-                                </div>
-                            </div>
-                        `).join('')}
-
-                        <!-- Form balasan -->
-                        <form class="reply-form flex gap-2 mt-2" data-comment="${c.COMMENT_ID}">
-                            <input type="text" name="message" class="flex-1 bg-gray-50 border rounded-full px-3 py-1 text-sm" placeholder="Balas komentar...">
-                            <button class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm hover:bg-blue-600">Balas</button>
-                        </form>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // === Tambah komentar utama ===
-        document.getElementById("form-comment").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-
-            const res = await fetch(e.target.action, { method: "POST", body: formData });
-            const data = await res.json();
-
-            if (data.success) {
-                e.target.reset();
-                loadComments();
-            } else alert(data.message || "Gagal mengirim komentar");
-        });
-
-        // === Balasan komentar ===
-        commentSection.addEventListener("submit", async (e) => {
-            if (e.target.classList.contains("reply-form")) {
-                e.preventDefault();
-                const commentId = e.target.dataset.comment;
-                const message = e.target.querySelector("input").value;
-
-                const formData = new FormData();
-                formData.append("comment_id", commentId);
-                formData.append("message", message);
-
-                const res = await fetch(`${BASEURL}/comment/reply`, { method: "POST", body: formData });
-                const data = await res.json();
-
-                if (data.success) {
-                    e.target.reset();
-                    loadComments();
-                } else alert("Gagal menambahkan balasan");
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('toggle-reply')) {
+                const commentBlock = e.target.closest('.comment-block, .comment-container');
+                const replyForm = commentBlock.querySelector('.reply-form');
+                if (replyForm) {
+                    replyForm.classList.toggle('hidden');
+                    const input = replyForm.querySelector('input');
+                    if (input) input.focus();
+                }
             }
         });
-
-        loadComments();
     </script>
 </body>
+
 </html>

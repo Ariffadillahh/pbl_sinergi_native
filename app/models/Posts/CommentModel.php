@@ -4,12 +4,10 @@ require_once __DIR__ . '/../BaseModel.php';
 
 class CommentModel extends BaseModel
 {
-    // Ambil semua komentar + balasannya untuk 1 post
     public function getCommentsByPostId($postId)
     {
         $conn = self::getConnection();
 
-        // Ambil komentar utama
         $sql = "
             SELECT 
                 C.ID AS COMMENT_ID,
@@ -48,7 +46,6 @@ class CommentModel extends BaseModel
             ];
         }
 
-        // Ambil semua reply untuk komentar di post ini
         $sqlReply = "
             SELECT 
                 R.ID AS REPLY_ID,
@@ -89,7 +86,6 @@ class CommentModel extends BaseModel
         return array_values($comments);
     }
 
-    // Tambah komentar utama
     public function addComment($postId, $userId, $message)
     {
         $conn = self::getConnection();
@@ -115,7 +111,6 @@ class CommentModel extends BaseModel
         }
     }
 
-    // Tambah balasan komentar
     public function addReply($commentId, $userId, $message)
     {
         $conn = self::getConnection();

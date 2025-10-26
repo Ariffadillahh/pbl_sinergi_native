@@ -4,75 +4,76 @@
         <h1 class="text-gray-600 text-center text-sm">Saat ini belum ada postingan.</h1>
     </div>
 <?php else: ?>
-        <?php
-        $currentUserId = $_SESSION['user_id'] ?? null;
-        foreach ($posts as $post):
-            $isOwner = ($currentUserId !== null && $currentUserId === $post['USER_ID']);
-        ?>
+    <?php
+    $currentUserId = $_SESSION['user_id'] ?? null;
+    foreach ($posts as $post):
+        $isOwner = ($currentUserId !== null && $currentUserId === $post['USER_ID']);
+    ?>
         <div class="my-5">
             <div class="bg-white text-gray-900 border border-gray-200 rounded-2xl shadow-sm p-4">
                 <div class="flex items-start space-x-3">
                     <img src="<?= !empty($post['PATH_PHOTO'])
-                        ? BASEURL . '/storage/users/photos/' . $post['PATH_PHOTO']
-                        : BASEURL . '/src/asset/image/default.png' ?>"
+                                    ? BASEURL . '/storage/users/photos/' . $post['PATH_PHOTO']
+                                    : BASEURL . '/src/asset/image/default.png' ?>"
                         alt="Profile" class="w-12 h-12 rounded-full object-cover flex-shrink-0">
 
                     <div class="flex-1">
-                        <div class="flex flex-wrap items-center gap-1 text-sm">
-                            <span class="font-semibold text-gray-800"><?= htmlspecialchars($post['FULL_NAME'] ?? $post['USERNAME']) ?></span>
+                        <div class="text-lg">
+                            <span class="font-semibold text-gray-700"><?= htmlspecialchars($post['FULL_NAME']) ?></span>
+                        </div>
+                        <div class="text-sm">
                             <span class="text-gray-500">@<?= htmlspecialchars($post['USERNAME']) ?></span>
                             <span class="text-gray-400">· <?= date('d M Y', strtotime($post['CREATED_AT'])) ?></span>
                         </div>
-                        <?php
-                        $content = $post['CONTENT'];
-                        if ($content instanceof OCILob) {
-                            $content = $content->load();
-                        }
-                        ?>
-                        <p class="mt-2 text-gray-700 text-[15px] leading-relaxed"><?= nl2br(htmlspecialchars($content ?? '')) ?></p>
                     </div>
 
-                    <!-- Dropdown -->
                     <div class="relative">
-                        <button class="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                            onclick="toggleDropdown('dropdown-<?= $post['POST_ID'] ?>')">
-                            <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-                                <circle cx="5" cy="12" r="2" />
-                                <circle cx="12" cy="12" r="2" />
-                                <circle cx="19" cy="12" r="2" />
-                            </svg>
-                        </button>
+                        <div class="relative inline-block text-left">
+                            <button
+                                class="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                                onclick="toggleDropdown('dropdown-<?= $post['POST_ID'] ?>')">
+                                <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                                    <circle cx="5" cy="12" r="2" />
+                                    <circle cx="12" cy="12" r="2" />
+                                    <circle cx="19" cy="12" r="2" />
+                                </svg>
+                            </button>
 
-                        <div id="dropdown-<?= $post['POST_ID'] ?>"
-                            class="hidden absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                            <?php if ($isOwner): ?>
-                                <?php
-                                $content = $post['CONTENT'];
-                                if ($content instanceof OCILob) {
-                                    $content = $content->load(); // ubah CLOB jadi string biasa
-                                }
-
-                                $media = $post['MEDIA'] ?? [];
-                                $postJson = htmlspecialchars(json_encode([
-                                    'id' => $post['POST_ID'],
-                                    'content' => $content ?? '',
-                                    'media' => $media,
-                                ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), ENT_QUOTES);
-                                ?>
-                                <button type="button" class="edit-post-btn w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
-                                data-post="<?= $postJson ?>">Edit</button>
-                                <button type="button" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
-                                    onclick="openDeletePostModal('<?= $post['POST_ID'] ?>')">Hapus</button>
-                            <?php else: ?>
-                                <button type="button" class="w-full text-left px-4 py-2 text-sm text-yellow-500 hover:bg-gray-100"
-                                    onclick="reportPost('<?= $post['POST_ID'] ?>')">Report</button>
-                            <?php endif; ?>
+                            <div
+                                id="dropdown-<?= $post['POST_ID'] ?>"
+                                class="hidden absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
+                                <?php if ($isOwner): ?>
+                                    <button
+                                        type="button"
+                                        class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
+                                        onclick="openDeletePostModal('<?= $post['POST_ID'] ?>')">
+                                        Hapus
+                                    </button>
+                                <?php else: ?>
+                                    <button
+                                        type="button"
+                                        class="report-btn w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-100"
+                                        data-post-id="<?= $post['POST_ID']; ?>">
+                                        Report
+                                    </button>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                 </div>
 
+                <div class="mt-5">
+                    <?php
+                    $content = $post['CONTENT'];
+                    if ($content instanceof OCILob) {
+                        $content = $content->load();
+                    }
+                    ?>
+                    <p class="mt-2 text-black text-[15px leading-relaxed"><?= nl2br(htmlspecialchars($content ?? '')) ?></p>
+                </div>
+
                 <?php if (!empty($post['MEDIA'])): ?>
-                    <div class="mt-4 rounded-2xl overflow-hidden border border-gray-100">
+                    <div class="mt-4 rounded-2xl overflow-hidden border border-gray-100 ">
                         <swiper-container class="mySwiper aspect-video w-full min-h-[250px] md:min-h-[400px]" init="false">
                             <?php foreach ($post['MEDIA'] as $mediaPath): ?>
                                 <swiper-slide>
@@ -113,93 +114,100 @@
 <?php include __DIR__ . '/modalDeletePost.php'; ?>
 <?php include __DIR__ . '/modalEditPost.php'; ?>
 
-<!-- ðŸŽžï¸ Swiper -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script>
 <script>
-customElements.whenDefined('swiper-container').then(() => {
-    const swiperElements = document.querySelectorAll('swiper-container.mySwiper');
-    const style = `
-        .swiper-button-next,
-        .swiper-button-prev {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            color: #1E40AF; /* biru sinergi */
-            background-color: rgba(255, 255, 255, 0.4);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            --swiper-navigation-size: 24px;
-        }
-        :host(:hover) .swiper-button-next,
-        :host(:hover) .swiper-button-prev {
-            opacity: 1;
-        }
-        .swiper-button-disabled {
-            opacity: 0 !important;
-            pointer-events: none;
-        }
-    `;
-    const swiperParams = {
-        navigation: true,
-        pagination: { clickable: true, dynamicBullets: true },
-        injectStyles: [style],
-    };
-    swiperElements.forEach(swiperEl => {
-        Object.assign(swiperEl, swiperParams);
-        swiperEl.initialize();
+    customElements.whenDefined('swiper-container').then(() => {
+        const swiperElements = document.querySelectorAll('swiper-container.mySwiper');
+
+        const style = `
+            .swiper-button-next,
+            .swiper-button-prev {
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                color: #ffffff; 
+                padding: 6px;
+                background-color: rgba(0, 0, 0, 0.2); 
+                border-radius: 50%;
+                width: 15px;
+                height: 15px;
+                --swiper-navigation-size: 16px; 
+            }
+
+            :host(:hover) .swiper-button-next,
+            :host(:hover) .swiper-button-prev {
+                opacity: 1;
+            }
+
+            .swiper-button-disabled {
+                opacity: 0 !important;
+                pointer-events: none;
+            }
+        `;
+
+        const swiperParams = {
+            navigation: true,
+            pagination: {
+                clickable: true,
+                dynamicBullets: true,
+            },
+            injectStyles: [style],
+        };
+
+        swiperElements.forEach(swiperEl => {
+            Object.assign(swiperEl, swiperParams);
+            swiperEl.initialize();
+        });
     });
-});
 
-function toggleDropdown(id) {
-    document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
-        if (d.id !== id) d.classList.add('hidden');
+    function toggleDropdown(id) {
+        document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
+            if (d.id !== id) d.classList.add('hidden');
+        });
+        const dropdown = document.getElementById(id);
+        dropdown.classList.toggle('hidden');
+    }
+
+    function openEditPostModal(postId, content, mediaPaths = []) {
+        const container = document.getElementById("media-preview-container");
+        if (!container) {
+            console.error("Elemen #media-preview-container tidak ditemukan!");
+            return;
+        }
+        modalEditPost.classList.remove("hidden");
+        modalEditPost.classList.add("flex");
+
+        document.getElementById("edit-post-id").value = postId;
+        document.getElementById("edit-post-content").value = content || "";
+
+        existingMedia = [...mediaPaths];
+        deletedMedia = [];
+        newMediaFiles = [];
+        renderMediaPreviews();
+    }
+
+    document.querySelectorAll('.edit-post-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const json = this.getAttribute('data-post');
+            if (!json) return console.error('data-post kosong pada tombol edit');
+            let data;
+            try {
+                data = JSON.parse(json);
+            } catch (e) {
+                console.error('Gagal parse data-post JSON', e, json);
+                return;
+            }
+            openEditPostModal(data.id, data.content, data.media || []);
+        });
     });
-    const dropdown = document.getElementById(id);
-    dropdown.classList.toggle('hidden');
-}
 
-function openEditPostModal(postId, content, mediaPaths = []) {
-    const container = document.getElementById("media-preview-container");
-    if (!container) {
-        console.error("Elemen #media-preview-container tidak ditemukan!");
-        return;
+    function openDeletePostModal(postId) {
+        const modal = document.getElementById("modal-delete-post");
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        document.getElementById("delete-post-id").value = postId;
     }
-    modalEditPost.classList.remove("hidden");
-    modalEditPost.classList.add("flex");
 
-    document.getElementById("edit-post-id").value = postId;
-    document.getElementById("edit-post-content").value = content || "";
-
-    existingMedia = [...mediaPaths];
-    deletedMedia = [];
-    newMediaFiles = [];
-    renderMediaPreviews();
-}
-
-document.querySelectorAll('.edit-post-btn').forEach(btn => {
-  btn.addEventListener('click', function () {
-    const json = this.getAttribute('data-post');
-    if (!json) return console.error('data-post kosong pada tombol edit');
-    let data;
-    try {
-      data = JSON.parse(json);
-    } catch (e) {
-      console.error('Gagal parse data-post JSON', e, json);
-      return;
+    function reportPost(postId) {
+        alert("Report post: " + postId);
     }
-    // Panggil modal dengan data yang sudah ter-parse
-    openEditPostModal(data.id, data.content, data.media || []);
-  });
-});
-
-function openDeletePostModal(postId) {
-    const modal = document.getElementById("modal-delete-post");
-    modal.classList.remove("hidden");
-    modal.classList.add("flex");
-    document.getElementById("delete-post-id").value = postId;
-}
-
-function reportPost(postId) {
-    alert("Report post: " + postId);
-}
 </script>

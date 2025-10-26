@@ -24,8 +24,8 @@
                     </p>
                 </div>
 
-                <form id="form-report-forum" action="<?php echo BASEURL; ?>/forums/report" method="post">
-                    <input type="hidden" name="forum_id" value="<?php echo $forumByid['ID']; ?>">
+                <form id="form-report-forum" action="<?php echo BASEURL; ?>/report" method="post">
+                    <input type="hidden" name="target_id" value="<?php echo $forumByid['ID']; ?>">
                     <input type="hidden" name="target_type" value="FORUM">
 
                     <h3 class="mb-3 font-semibold text-gray-900 text-left">Pilih Alasan</h3>

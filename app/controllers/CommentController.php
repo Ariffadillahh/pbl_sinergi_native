@@ -11,23 +11,18 @@ class CommentController
         $this->commentModel = new CommentModel();
     }
 
-    /**
-     * Ambil semua komentar + reply untuk 1 post
-     */
     public function getComments($postId)
     {
         $comments = $this->commentModel->getCommentsByPostId($postId);
 
         header('Content-Type: application/json');
+
         echo json_encode([
             'success' => true,
             'comments' => $comments
         ]);
     }
 
-    /**
-     * Tambah komentar utama di sebuah post
-     */
     public function addComment()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -55,9 +50,7 @@ class CommentController
         }
     }
 
-    /**
-     * Tambah balasan komentar
-     */
+
     public function addReply()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

@@ -10,13 +10,22 @@ class HomePageController
         require_once __DIR__ . '/../models/Posts/PostModel.php';
         $postModel = new PostModel();
         $posts = $postModel->getAllPosts();
-        
+
         $contentViewPost = __DIR__ . '/../views/homePage/index.php';
         require_once __DIR__ . '/../views/homePage/layout.php';
     }
 
     public function replyPage($id)
     {
+        $postModel = new PostModel();
+
+        $post = $postModel->getPostById($id);
+
+        if (!$post) {
+            header("Location: " . BASEURL . "/homepage");
+            exit();
+        }
+
         $contentViewPost = __DIR__ . '/../views/homePage/reply/index.php';
         require_once __DIR__ . '/../views/homePage/layout.php';
     }

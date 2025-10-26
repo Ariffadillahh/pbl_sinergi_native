@@ -335,7 +335,7 @@ class Forum extends BaseModel
         try {
             $insertData = [
                 'id' => uniqid(), 
-                'target_id' => $data['forum_id'],
+                'target_id' => $data['target_id'],
                 'target_type' => $data['target_type'], 
                 'user_id' => $data['user_id'],
                 'reason' => $data['reason']
