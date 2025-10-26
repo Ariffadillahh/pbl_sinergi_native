@@ -15,6 +15,6 @@
             requireLogin();
             checkRoleAccess(['MAHASISWA', 'DOSEN', 'ADMIN']);
             $controller = new HomePageController();
-            $controller->replayPage($repaly);
+            $controller->replyPage($reply);
             break;
     }

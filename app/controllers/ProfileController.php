@@ -32,7 +32,7 @@ class ProfileController
         }
 
         // 🧠 kirim ke view dengan cara include manual
-        $contentViewPost = __DIR__ . '/../views/profile/index.php';
-        require_once __DIR__ . '/../views/homePage/layout.php'; 
+        $contentViewProfile = __DIR__ . '/../views/profile/index.php';
+        require_once __DIR__ . '/../views/profile/layout.php'; 
     }
 }
