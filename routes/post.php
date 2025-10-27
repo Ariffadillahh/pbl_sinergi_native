@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../app/controllers/PostController.php';
+require_once __DIR__ . '/../app/controllers/CommentController.php';
 
 switch (true) {
     case $route === 'post':
@@ -28,19 +29,25 @@ switch (true) {
 
     case $route === 'comment/add':
         requireLogin();
+        header('Content-Type: application/json');
         $commentController = new CommentController();
         $commentController->addComment();
+        exit;
         break;
 
     case $route === 'comment/reply':
         requireLogin();
+        header('Content-Type: application/json');
         $commentController = new CommentController();
         $commentController->addReply();
+        exit;
         break;
 
     case $route === 'comment/get':
         requireLogin();
+        header('Content-Type: application/json');
         $commentController = new CommentController();
         $commentController->getComments($commentId);
+        exit;
         break;
 }

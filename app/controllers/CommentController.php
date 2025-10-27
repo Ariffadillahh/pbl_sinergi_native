@@ -11,6 +11,12 @@ class CommentController
         $this->commentModel = new CommentModel();
     }
 
+    public function getModel()
+    {
+        return $this->commentModel;
+    }
+
+
     public function getComments($postId)
     {
         $comments = $this->commentModel->getCommentsByPostId($postId);
@@ -26,6 +32,8 @@ class CommentController
     public function addComment()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+             ob_clean();
+            header('Content-Type: application/json');
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method not allowed']);
             return;
@@ -37,12 +45,16 @@ class CommentController
         $message = trim($_POST['message'] ?? '');
 
         if (!$userId || !$postId || $message === '') {
+            ob_clean();
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'Data tidak lengkap']);
             return;
         }
 
         $result = $this->commentModel->addComment($postId, $userId, $message);
 
+        ob_clean();
+        header('Content-Type: application/json');
         if ($result) {
             echo json_encode(['success' => true, 'message' => 'Komentar berhasil ditambahkan']);
         } else {
@@ -54,6 +66,8 @@ class CommentController
     public function addReply()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            ob_clean();
+            header('Content-Type: application/json');
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method not allowed']);
             return;
@@ -65,12 +79,16 @@ class CommentController
         $message = trim($_POST['message'] ?? '');
 
         if (!$userId || !$commentId || $message === '') {
+            ob_clean();
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'Data tidak lengkap']);
             return;
         }
 
         $result = $this->commentModel->addReply($commentId, $userId, $message);
 
+        ob_clean();
+        header('Content-Type: application/json');
         if ($result) {
             echo json_encode(['success' => true, 'message' => 'Balasan berhasil ditambahkan']);
         } else {

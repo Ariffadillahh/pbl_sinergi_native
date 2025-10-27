@@ -61,47 +61,56 @@ class PostModel extends BaseModel
     public function getAllPosts()
     {
         $conn = self::getConnection();
+
         $sql = "
-        SELECT 
-            P.ID AS POST_ID,
-            P.CONTENT,
-            TO_CHAR(P.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
-            P.USER_ID,
-            U.USERNAME,
-            U.FULL_NAME,
-            U.PATH_PHOTO,
-            PM.MEDIA_PATH
-        FROM POSTS P
-        JOIN USERS U ON P.USER_ID = U.ID
-        LEFT JOIN POST_MEDIA PM ON P.ID = PM.POST_ID
-        ORDER BY P.CREATED_AT DESC
-    ";
+            SELECT 
+                P.ID AS POST_ID,
+                P.USER_ID,
+                P.CONTENT,
+                P.CREATED_AT,
+                U.USERNAME,
+                U.FULL_NAME,
+                U.PATH_PHOTO,
+                (
+                    SELECT COUNT(*) 
+                    FROM COMMENTAR C 
+                    WHERE C.POST_ID = P.ID
+                ) AS COMMENT_COUNT
+            FROM POSTS P
+            JOIN USERS U ON P.USER_ID = U.ID
+            ORDER BY P.CREATED_AT DESC
+        ";
 
         $stmt = oci_parse($conn, $sql);
         oci_execute($stmt);
 
         $posts = [];
         while ($row = oci_fetch_assoc($stmt)) {
-            $postId = $row['POST_ID'];
-            if (!isset($posts[$postId])) {
-                $posts[$postId] = [
-                    'POST_ID' => $postId,
-                    'CONTENT' => $row['CONTENT'],
-                    'CREATED_AT' => $row['CREATED_AT'],
-                    'USER_ID' => $row['USER_ID'],
-                    'USERNAME' => $row['USERNAME'],
-                    'FULL_NAME' => $row['FULL_NAME'],
-                    'PATH_PHOTO' => $row['PATH_PHOTO'],
-                    'MEDIA' => []
-                ];
-            }
-            if (!empty($row['MEDIA_PATH'])) {
-                $posts[$postId]['MEDIA'][] = $row['MEDIA_PATH'];
-            }
+            $media = $this->getMediaByPostId($row['POST_ID']);
+            $row['MEDIA'] = $media;
+            $commentCount = (int)$row['COMMENT_COUNT'];
+
+            $replySql = "
+                SELECT COUNT(*) AS REPLY_COUNT 
+                FROM REPLY_COMMENTAR R 
+                WHERE R.COMMENTAR_ID IN (
+                    SELECT ID FROM COMMENTAR WHERE POST_ID = :post_id
+                )
+            ";
+            $replyStmt = oci_parse($conn, $replySql);
+            oci_bind_by_name($replyStmt, ":post_id", $row['POST_ID']);
+            oci_execute($replyStmt);
+            $replyRow = oci_fetch_assoc($replyStmt);
+            $replyCount = (int)$replyRow['REPLY_COUNT'];
+
+            $row['TOTAL_COMMENT'] = $commentCount + $replyCount;
+
+            $posts[] = $row;
         }
 
-        return array_values($posts);
+        return $posts;
     }
+
 
     public function getMediaByPostId($postId)
     {
