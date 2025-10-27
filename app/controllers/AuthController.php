@@ -108,9 +108,9 @@ class SigninController
 
             if ($user && password_verify($password, $user['PASSWORD'])) {
                 if ($user['ROLE'] == 'MAHASISWA') {
-                    $tahunMasuk = (int)$user['TAHUN_MASUK']; 
-                    $jenjangStudi = $user['JENJANG_STUDI'];  
-                    $userId = $user['ID'];                 
+                    $tahunMasuk = (int)$user['TAHUN_MASUK'];
+                    $jenjangStudi = $user['JENJANG_STUDI'];
+                    $userId = $user['ID'];
 
                     if ($tahunMasuk > 0 && !empty($jenjangStudi)) {
 
@@ -220,6 +220,11 @@ class SignupController
             }
         }
 
+        if (strlen($_POST['password']) < 6) {
+            echo json_encode(['success' => false, 'message' => 'Password Harus lebih dari 6 karakter']);
+            exit;
+        }
+
         $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
         if (!$email) {
             echo json_encode(['success' => false, 'message' => 'Format email tidak valid.']);
@@ -235,6 +240,25 @@ class SignupController
             echo json_encode(['success' => false, 'message' => 'Domain email tidak valid. Gunakan email PNJ yang sesuai.']);
             exit;
         }
+
+        $loginModel = new SignInModel();
+        $username = $_POST['username'];
+        $email = $_POST['email'];
+
+        $user = $loginModel->getUserByUsernameOrEmail($username);
+
+        if ($user) {
+            echo json_encode(['success' => false, 'message' => 'Username sudah ada']);
+            exit;
+        }
+
+        $user = $loginModel->getUserByUsernameOrEmail($email);
+
+        if ($user) {
+            echo json_encode(['success' => false, 'message' => 'Email sudah ada']);
+            exit;
+        }
+
 
         $tempPhotoPath = null;
         if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
@@ -254,7 +278,7 @@ class SignupController
 
         $otp = rand(1000, 9999);
         $registrationData = [
-            'ID'              => uniqid('user_', true),
+            'ID'              => uniqid(),
             'USERNAME'        => htmlspecialchars($_POST['username'], ENT_QUOTES, 'UTF-8'),
             'PERSONAL_NUMBER' => htmlspecialchars($_POST['personal_number'], ENT_QUOTES, 'UTF-8'),
             'FULL_NAME'       => htmlspecialchars($_POST['FullName'], ENT_QUOTES, 'UTF-8'),
@@ -480,6 +504,11 @@ class forgetPassword
 
         if (!$user) {
             echo json_encode(['success' => false, 'message' => 'Pengguna dengan username atau email tersebut tidak ditemukan.']);
+            exit;
+        }
+
+        if (strlen($newPassword) < 6) {
+            echo json_encode(['success' => false, 'message' => 'Password Harus lebih dari 6 karakter']);
             exit;
         }
 

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="<?php echo BASEURL; ?>/src/css/output.css" rel="stylesheet">
-    <title>Home Page | <?php echo $id ?></title>
+    <title>Home Page | Positingan @<?= $post['USERNAME'] ?></title>
 </head>
 
 <body>

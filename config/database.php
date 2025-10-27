@@ -1,5 +1,4 @@
 <?php
-
 define('DB_HOST', 'localhost');
 define('DB_PORT', '1521');
 define('DB_SERVICE_NAME', 'FREEPDB1');
