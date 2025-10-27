@@ -53,14 +53,16 @@ class CommentModel extends BaseModel
                 R.USER_ID,
                 R.MESSAGE,
                 TO_CHAR(R.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
-                U.USERNAME,
-                U.FULL_NAME,
-                U.PATH_PHOTO
+                UR.USERNAME AS REPLY_USERNAME,
+                UR.FULL_NAME AS REPLY_FULL_NAME,
+                UR.PATH_PHOTO AS REPLY_PATH_PHOTO,
+                UC.USERNAME AS COMMENT_USERNAME,
+                UC.FULL_NAME AS COMMENT_FULL_NAME
             FROM REPLY_COMMENTAR R
-            JOIN USERS U ON R.USER_ID = U.ID
-            WHERE R.COMMENTAR_ID IN (
-                SELECT ID FROM COMMENTAR WHERE POST_ID = :post_id
-            )
+            JOIN USERS UR ON R.USER_ID = UR.ID
+            JOIN COMMENTAR C ON R.COMMENTAR_ID = C.ID
+            JOIN USERS UC ON C.USER_ID = UC.ID
+            WHERE C.POST_ID = :post_id
             ORDER BY R.CREATED_AT ASC
         ";
 
@@ -71,15 +73,17 @@ class CommentModel extends BaseModel
         while ($row = oci_fetch_assoc($stmtReply)) {
             $commentId = $row['COMMENTAR_ID'];
             if (isset($comments[$commentId])) {
-                $comments[$commentId]['REPLIES'][] = [
-                    'REPLY_ID' => $row['REPLY_ID'],
-                    'USER_ID' => $row['USER_ID'],
-                    'USERNAME' => $row['USERNAME'],
-                    'FULL_NAME' => $row['FULL_NAME'],
-                    'PATH_PHOTO' => $row['PATH_PHOTO'],
-                    'MESSAGE' => $row['MESSAGE'],
-                    'CREATED_AT' => $row['CREATED_AT']
-                ];
+            $comments[$commentId]['REPLIES'][] = [
+                'REPLY_ID' => $row['REPLY_ID'],
+                'USER_ID' => $row['USER_ID'],
+                'USERNAME' => $row['REPLY_USERNAME'],
+                'FULL_NAME' => $row['REPLY_FULL_NAME'],
+                'PATH_PHOTO' => $row['REPLY_PATH_PHOTO'],
+                'MESSAGE' => $row['MESSAGE'],
+                'CREATED_AT' => $row['CREATED_AT'],
+                'REPLY_TO_USERNAME' => $row['COMMENT_USERNAME'],
+                'REPLY_TO_FULLNAME' => $row['COMMENT_FULL_NAME']
+            ];
             }
         }
 
@@ -111,16 +115,33 @@ class CommentModel extends BaseModel
         }
     }
 
-    public function addReply($commentId, $userId, $message)
+   public function addReply($commentId, $userId, $message)
     {
         $conn = self::getConnection();
         $replyId = uniqid('reply_');
+
+        error_log("==== DEBUG ADD REPLY ====");
+        error_log("commentId: $commentId");
+        error_log("userId: $userId");
+        error_log("message: $message");
+
+        // ✅ Cek apakah commentId beneran ada di tabel COMMENTAR
+        $checkSql = "SELECT COUNT(*) AS CNT FROM COMMENTAR WHERE ID = :cid";
+        $checkStmt = oci_parse($conn, $checkSql);
+        oci_bind_by_name($checkStmt, ":cid", $commentId);
+        oci_execute($checkStmt);
+        oci_fetch($checkStmt);
+        $count = oci_result($checkStmt, "CNT");
+        error_log("CHECK COMMENTAR.ID EXIST? => $count");
+
+        if ($count == 0) {
+            error_log("❌ COMMENTAR_ID TIDAK DITEMUKAN DI TABEL COMMENTAR");
+        }
 
         $sql = "
             INSERT INTO REPLY_COMMENTAR (ID, COMMENTAR_ID, USER_ID, MESSAGE, CREATED_AT)
             VALUES (:id, :comment_id, :user_id, :message, CURRENT_TIMESTAMP)
         ";
-
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ":id", $replyId);
         oci_bind_by_name($stmt, ":comment_id", $commentId);
@@ -135,4 +156,5 @@ class CommentModel extends BaseModel
             return false;
         }
     }
+
 }

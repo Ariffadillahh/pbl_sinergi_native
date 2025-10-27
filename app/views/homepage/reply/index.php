@@ -5,7 +5,11 @@ $commentController = new CommentController();
 $postId = $id ?? $_GET['id'] ?? null;
 $comments = $commentController->getModel()->getCommentsByPostId($postId);
 ?>
-
+<?php
+function loadLobSafe($data) {
+    return ($data instanceof OCILob) ? $data->load() : $data;
+}
+?>
 <!doctype html>
 <html>
 
@@ -55,7 +59,7 @@ $comments = $commentController->getModel()->getCommentsByPostId($postId);
 <?php else: ?>
     <?php foreach ($comments as $comment): ?>
         <div class="bg-white text-black border border-gray-200 p-4 rounded-2xl my-4 comment-block">
-            <!-- HEADER KOMENTAR -->
+
             <div class="flex items-start space-x-3 border-b border-gray-200 pb-5">
                 <div class="flex-shrink-0">
                     <img src="<?= !empty($comment['PATH_PHOTO'])
@@ -82,7 +86,7 @@ $comments = $commentController->getModel()->getCommentsByPostId($postId);
             </div>
 
             <div class="mt-4 flex items-center text-gray-500 text-sm max-w-sm gap-4">
-                <p class="text-gray-400"><?= date('d M H:i', strtotime($comment['CREATED_AT'])) ?></p>
+                <p class="text-gray-400 time-ago" data-time="<?= htmlspecialchars($comment['CREATED_AT']) ?>"></p>
                 <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold" required>
                     Reply
                 </button>
@@ -90,7 +94,7 @@ $comments = $commentController->getModel()->getCommentsByPostId($postId);
 
             <div class="hidden reply-form">
                 <form method="POST" class="reply-form-data bg-white text-black border-t border-gray-200 p-4 rounded-2xl my-2">
-                    <input type="hidden" name="comment_id" value="<?= htmlspecialchars($comment['COMMENT_ID']) ?>">
+                    <input type="hidden" name="comment_id" value="<?= htmlspecialchars($comment['ID'] ?? $comment['COMMENT_ID']) ?>">
                     <div class="flex items-start space-x-3">
                         <div class="flex-shrink-0">
                             <img src="<?= BASEURL ?>/src/asset/image/default.png" alt="Your Profile" class="w-10 h-10 rounded-full">
@@ -126,19 +130,38 @@ $comments = $commentController->getModel()->getCommentsByPostId($postId);
                                     <span class="text-gray-500">@<?= htmlspecialchars($reply['USERNAME']) ?></span>
                                 </div>
                             </div>
-
+                        
+                            <?php
+                            $replyMsg = $reply['MESSAGE'];
+                            if ($replyMsg instanceof OCILob) {
+                                $replyMsg = $replyMsg->load();
+                            }
+                            if (preg_match('/^@(\w+)/', trim($replyMsg), $matches)) {
+                                $replyTo = $matches[1];
+                                $cleanMsg = preg_replace('/^@\w+\s*/', '', $replyMsg);
+                            } else {
+                                $replyTo = null;
+                                $cleanMsg = $replyMsg;
+                            }
+                            ?>
                             <div class="mt-2 ml-1 pl-12 text-gray-800 text-base">
-                                <?php
-                                $replyMsg = $reply['MESSAGE'];
-                                if ($replyMsg instanceof OCILob) {
-                                    $replyMsg = $replyMsg->load();
-                                }
-                                ?>
-                                <p><?= nl2br(htmlspecialchars($replyMsg ?? '')) ?></p>
+                                <?php if (!empty($reply['REPLY_TO_USERNAME'])): ?>
+                                    <p class="text-sm text-blue-600 font-semibold mb-1">
+                                        Replying to <a href="<?= BASEURL ?>/profile/<?= htmlspecialchars($reply['REPLY_TO_USERNAME']) ?>" class="hover:underline">
+                                            @<?= htmlspecialchars($reply['REPLY_TO_USERNAME']) ?>
+                                        </a>
+                                    </p>
+                                <?php endif; ?>
+                                <?php if ($replyTo): ?>
+                                    <p class="text-sm text-blue-600 font-semibold mb-1">
+                                        Replying to <a href="<?= BASEURL ?>/profile/<?= htmlspecialchars($replyTo) ?>" class="hover:underline">@<?= htmlspecialchars($replyTo) ?></a>
+                                    </p>
+                                <?php endif; ?>
+                                <p><?= nl2br(htmlspecialchars($cleanMsg ?? '')) ?></p>
                             </div>
 
                             <div class="mt-3 ml-1 pl-12 flex items-center text-gray-500 text-sm gap-4">
-                                <p class="text-gray-400"><?= date('d M H:i', strtotime($reply['CREATED_AT'])) ?></p>
+                            <p class="text-gray-400 time-ago" data-time="<?= htmlspecialchars($reply['CREATED_AT']) ?>"></p>
                                 <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold">
                                     Reply
                                 </button>
@@ -146,7 +169,7 @@ $comments = $commentController->getModel()->getCommentsByPostId($postId);
 
                             <div class="hidden reply-form ml-1 pl-12">
                                 <form method="POST" class="reply-form-data bg-white text-black border-t border-gray-200 p-4 rounded-2xl my-2">
-                                    <input type="hidden" name="comment_id" value="<?= htmlspecialchars($comment['COMMENT_ID']) ?>">
+                                    <input type="hidden" name="comment_id" value="<?= trim(htmlspecialchars($comment['COMMENT_ID'])) ?>">
                                     <div class="flex items-start space-x-3">
                                         <div class="flex-shrink-0">
                                             <img src="<?= BASEURL ?>/src/asset/image/default.png" alt="Your Profile" class="w-10 h-10 rounded-full">
@@ -181,7 +204,16 @@ document.addEventListener('DOMContentLoaded', function() {
             if (replyForm) {
                 replyForm.classList.toggle('hidden');
                 const input = replyForm.querySelector('input');
-                if (input) input.focus();
+                if (input) {
+                    const usernameTag = e.target.closest('.comment-block, .comment-container')
+                        ?.querySelector('span.text-gray-500')?.textContent?.trim().replace('@','');
+
+                    if (usernameTag) {
+                        input.placeholder = `Reply to @${usernameTag}`;
+                        input.dataset.replyTo = usernameTag;
+                    }
+                    input.focus();
+                }
             }
         }
     });
@@ -199,14 +231,47 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.reply-form-data').forEach(form => {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            const input = form.querySelector('input[name="message"]');
+            const placeholder = input.getAttribute('placeholder');
+
+            const replyTo = input.dataset.replyTo;
+            if (replyTo && !input.value.startsWith(`@${replyTo}`)) {
+                input.value = `@${replyTo} ${input.value}`;
+            }
+
             const formData = new FormData(form);
-            const res = await fetch('<?= BASEURL ?>/comment/reply', { method: 'POST', body: formData });
+
+            const res = await fetch('<?= BASEURL ?>/comment/reply', {
+                method: 'POST',
+                body: formData
+            });
+
             const data = await res.json();
             if (data.success) location.reload();
             else alert(data.message);
         });
     });
+
 });
+
+function timeAgo(dateString) {
+    const now = new Date();
+    const past = new Date(dateString);
+    const diff = Math.floor((now - past) / 1000);
+
+    if (diff < 60) return `${diff}s ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    if (diff < 2592000) return `${Math.floor(diff / 86400)}d ago`;
+    return past.toLocaleDateString();
+}
+
+document.querySelectorAll('.time-ago').forEach(el => {
+    const t = el.dataset.time;
+    el.textContent = timeAgo(t);
+});
+
 </script>
 
 </body>
