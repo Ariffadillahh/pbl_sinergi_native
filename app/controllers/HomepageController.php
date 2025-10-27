@@ -7,13 +7,26 @@ class HomePageController
 {
     public function index()
     {
+        require_once __DIR__ . '/../models/Posts/PostModel.php';
+        $postModel = new PostModel();
+        $posts = $postModel->getAllPosts();
+
         $contentViewPost = __DIR__ . '/../views/homePage/index.php';
         require_once __DIR__ . '/../views/homePage/layout.php';
     }
 
-    public function replayPage($id)
+    public function replyPage($id)
     {
-        $contentViewPost = __DIR__ . '/../views/homePage/repaly/index.php';
+        $postModel = new PostModel();
+
+        $post = $postModel->getPostById($id);
+
+        if (!$post) {
+            header("Location: " . BASEURL . "/homepage");
+            exit();
+        }
+
+        $contentViewPost = __DIR__ . '/../views/homePage/reply/index.php';
         require_once __DIR__ . '/../views/homePage/layout.php';
     }
 }

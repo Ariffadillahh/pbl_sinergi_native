@@ -73,9 +73,9 @@
             $controller->getNewMessages();
             break;
 
-        case $route === 'forums/report':
+        case $route === 'report':
             requireLogin();
             $controller = new ForumsController();
-            $controller->reportForum();
+            $controller->reportForumOrPost();
             break;
     }

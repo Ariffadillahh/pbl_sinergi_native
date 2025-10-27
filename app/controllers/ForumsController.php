@@ -341,7 +341,7 @@ class ForumsController
         exit;
     }
 
-    public function reportForum()
+    public function reportForumOrPost()
     {
         header('Content-Type: application/json');
 
@@ -358,12 +358,12 @@ class ForumsController
         }
 
         $userId = $_SESSION['user_id'];
-        $forumId = isset($_POST['forum_id']) ? $_POST['forum_id'] : null;
+        $targetId = isset($_POST['target_id']) ? $_POST['target_id'] : null;
         $targetType = $_POST['target_type'] ?? null;
         $reason = isset($_POST['reason']) ? trim($_POST['reason']) : null;
         $otherReasonText = isset($_POST['other_reason_text']) ? trim($_POST['other_reason_text']) : null;
 
-        if (empty($forumId) || empty($reason)) {
+        if (empty($targetId) || empty($reason)) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Data tidak lengkap. ID Forum dan alasan wajib diisi.']);
             return;
@@ -382,7 +382,7 @@ class ForumsController
 
         $data = [
             'user_id' => $userId,
-            'forum_id' => $forumId,
+            'target_id' => $targetId,
             'target_type' => $targetType,
             'reason' => $reportDescription,
         ];
