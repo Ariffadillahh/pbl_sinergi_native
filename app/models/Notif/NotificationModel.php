@@ -119,4 +119,31 @@ class NotificationModel extends BaseModel
         oci_free_statement($stmt);
         return $result;
     }
+    public function addNotification($targetUserId, $senderId, $postId, $type)
+    {
+        $conn = self::getConnection();
+
+        $id = uniqid('notif_');
+        $senderName = $_SESSION['full_name'] ?? 'Someone';
+        $notifData = [
+            'sender_name' => $senderName,
+            'sender_id' => $senderId,
+            'target_id' => $postId,
+            'link' => "homepage/reply/$postId"
+        ];
+
+        $jsonData = json_encode($notifData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        $sql = "INSERT INTO NOTIFICATIONS (ID, USER_ID, TYPE, DATA, IS_READ, CREATED_AT)
+                VALUES (:id, :user_id, :type, :data, 0, CURRENT_TIMESTAMP)";
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ':id', $id);
+        oci_bind_by_name($stmt, ':user_id', $targetUserId);
+        oci_bind_by_name($stmt, ':type', $type);
+        oci_bind_by_name($stmt, ':data', $jsonData);
+        oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
+
+        oci_free_statement($stmt);
+}
+
 }

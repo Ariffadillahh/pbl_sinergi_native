@@ -162,7 +162,6 @@
     document.querySelectorAll('.like-btn').forEach(button => {
         button.addEventListener('click', async () => {
             const postId = button.getAttribute('data-post-id');
-            const liked = button.getAttribute('data-liked') === 'true';
             const countSpan = button.querySelector('.like-count');
             const icon = button.querySelector('svg');
 
@@ -171,21 +170,21 @@
                     method: 'POST',
                     body: new URLSearchParams({ post_id: postId })
                 });
+
                 const data = await res.json();
 
                 if (data.success) {
-                    // Ubah status liked
-                    button.setAttribute('data-liked', data.liked ? 'true' : 'false');
-                    countSpan.textContent = data.totalLikes;
+                    const isLiked = data.action === 'liked';
+                    button.setAttribute('data-liked', isLiked ? 'true' : 'false');
+                    countSpan.textContent = data.total_likes;
 
-                    // Ubah warna ikon
-                    if (data.liked) {
+                    if (isLiked) {
                         icon.classList.add('text-red-500', 'fill-red-500');
                     } else {
                         icon.classList.remove('text-red-500', 'fill-red-500');
                     }
                 } else {
-                    alert('Gagal update like.');
+                    alert(data.message || 'Gagal update like.');
                 }
             } catch (err) {
                 console.error('Error:', err);

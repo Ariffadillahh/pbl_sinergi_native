@@ -16,4 +16,18 @@
             $controller = new HomePageController();
             $controller->replyPage($reply);
             break;
+
+        case $route === 'homepage/search':
+            requireLogin();
+            checkRoleAccess(['MAHASISWA', 'DOSEN', 'ADMIN']);
+            $controller = new HomePageController();
+            $controller->searchPage();
+            break;
+
+        case $route === 'homepage/search/ajax':
+            requireLogin();
+            checkRoleAccess(['MAHASISWA', 'DOSEN', 'ADMIN']);
+            $controller = new HomePageController();
+            $controller->searchAjax();
+            break;
     }

@@ -1,42 +1,52 @@
 <?php
 require_once __DIR__ . '/../models/Posts/LikeModel.php';
-require_once __DIR__ . '/../models/Users/NotificationModel.php';
+require_once __DIR__ . '/../models/Notif/NotificationModel.php';
 
-class LikeController {
-    public function toggleLike() {
-        session_start();
-        $userId = $_SESSION['user_id'] ?? null;
-        $postId = $_POST['post_id'] ?? null;
+class LikeController
+{
+    private $likeModel;
+    private $notificationModel;
 
-        if (!$userId || !$postId) {
-            echo json_encode(['success' => false, 'message' => 'Invalid data']);
-            return;
+    public function __construct()
+    {
+        $this->likeModel = new LikeModel();
+        $this->notificationModel = new NotificationModel();
+    }
+
+    public function toggleLike()
+    {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+            exit;
         }
 
-        $likeModel = new LikeModel();
-        $notifModel = new NotificationModel();
+        if (empty($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            exit;
+        }
 
-        // 🔁 Toggle like / unlike
-        $result = $likeModel->toggleLike($userId, $postId);
-        $totalLikes = $likeModel->getLikeCount($postId);
+        $userId = $_SESSION['user_id'];
+        $postId = $_POST['post_id'] ?? null;
 
-        // 📨 Jika baru di-like, kirim notifikasi
+        if (!$postId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Post ID required']);
+            exit;
+        }
+
+        $result = $this->likeModel->toggleLike($userId, $postId);
+        $totalLikes = $this->likeModel->getLikeCount($postId);
+        $type = 'LIKE_POST';
+
         if ($result['action'] === 'liked') {
-            $postOwner = $likeModel->getPostOwner($postId);
-
-            if ($postOwner && $postOwner['ID'] !== $userId) {
-                $notifData = [
-                    'sender_name' => $_SESSION['full_name'] ?? 'Someone',
-                    'sender_id'   => $userId,
-                    'target_id'   => $postId,
-                    'link'        => "homepage/reply/$postId"
-                ];
-
-                $notifModel->addNotification(
-                    $postOwner['ID'],
-                    'LIKE_POST',
-                    json_encode($notifData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
-                );
+            $owner = $this->likeModel->getPostOwner($postId);
+            if ($owner && $owner['ID'] !== $userId) {
+                // 🔹 Panggil dari model notif, bukan query langsung
+                $this->notificationModel->addNotification($owner['ID'], $userId, $postId, $type);
             }
         }
 
@@ -45,5 +55,7 @@ class LikeController {
             'action' => $result['action'],
             'total_likes' => $totalLikes
         ]);
+        exit;
     }
 }
+

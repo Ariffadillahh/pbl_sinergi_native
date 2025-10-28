@@ -70,4 +70,32 @@ class UserModel extends BaseModel
             return ['success' => false, 'message' => $e['message']];
         }
     }
+    
+    public function searchUsers($keyword)
+    {
+        $conn = self::getConnection();
+        $sql = "
+            SELECT 
+                ID,
+                USERNAME,
+                FULL_NAME,
+                PATH_PHOTO,
+                ROLE
+            FROM USERS
+            WHERE LOWER(USERNAME) LIKE LOWER(:keyword)
+               OR LOWER(FULL_NAME) LIKE LOWER(:keyword)
+            ORDER BY FULL_NAME ASC
+        ";
+        $stmt = oci_parse($conn, $sql);
+        $search = "%$keyword%";
+        oci_bind_by_name($stmt, ":keyword", $search);
+        oci_execute($stmt);
+
+        $users = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $users[] = $row;
+        }
+
+        return $users;
+    }
 }

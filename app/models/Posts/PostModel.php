@@ -67,7 +67,7 @@ class PostModel extends BaseModel
                 P.ID AS POST_ID,
                 P.CONTENT,
                 P.USER_ID,
-                P.CREATED_AT,
+                TO_CHAR(P.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
                 U.USERNAME,
                 U.FULL_NAME,
                 U.PATH_PHOTO,
@@ -239,40 +239,62 @@ class PostModel extends BaseModel
     public function getPostsByUser($userId)
     {
         $conn = self::getConnection();
+
         $sql = "
             SELECT 
                 P.ID AS POST_ID,
                 P.CONTENT,
+                P.USER_ID,
                 TO_CHAR(P.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
-                PM.MEDIA_PATH
+                (
+                    SELECT COUNT(*) FROM LIKE_POST L WHERE L.POST_ID = P.ID
+                ) AS TOTAL_LIKES,
+                (
+                    SELECT COUNT(*) FROM LIKE_POST L 
+                    WHERE L.POST_ID = P.ID AND L.USER_ID = :current_user_id
+                ) AS IS_LIKED,
+                (
+                    SELECT COUNT(*) FROM COMMENTAR C WHERE C.POST_ID = P.ID
+                ) AS COMMENT_COUNT
             FROM POSTS P
-            LEFT JOIN POST_MEDIA PM ON P.ID = PM.POST_ID
             WHERE P.USER_ID = :user_id
             ORDER BY P.CREATED_AT DESC
         ";
 
         $stmt = oci_parse($conn, $sql);
+        $currentUserId = $_SESSION['user_id'] ?? '';
         oci_bind_by_name($stmt, ':user_id', $userId);
+        oci_bind_by_name($stmt, ':current_user_id', $currentUserId);
         oci_execute($stmt);
 
         $posts = [];
         while ($row = oci_fetch_assoc($stmt)) {
-            $id = $row['POST_ID'];
-            if (!isset($posts[$id])) {
-                $posts[$id] = [
-                    'POST_ID' => $id,
-                    'CONTENT' => $row['CONTENT'],
-                    'CREATED_AT' => $row['CREATED_AT'],
-                    'MEDIA' => []
-                ];
-            }
-            if (!empty($row['MEDIA_PATH'])) {
-                $posts[$id]['MEDIA'][] = $row['MEDIA_PATH'];
-            }
+            // Hitung jumlah reply untuk komentar dalam post ini
+            $replySql = "
+                SELECT COUNT(*) AS REPLY_COUNT 
+                FROM REPLY_COMMENTAR R 
+                WHERE R.COMMENTAR_ID IN (
+                    SELECT ID FROM COMMENTAR WHERE POST_ID = :post_id
+                )
+            ";
+            $replyStmt = oci_parse($conn, $replySql);
+            oci_bind_by_name($replyStmt, ":post_id", $row['POST_ID']);
+            oci_execute($replyStmt);
+            $replyRow = oci_fetch_assoc($replyStmt);
+            $replyCount = (int)$replyRow['REPLY_COUNT'];
+
+            $commentCount = (int)$row['COMMENT_COUNT'];
+            $row['TOTAL_COMMENT'] = $commentCount + $replyCount;
+
+            // Ambil media post
+            $row['MEDIA'] = $this->getMediaByPostId($row['POST_ID']);
+
+            $posts[] = $row;
         }
 
-        return array_values($posts);
+        return $posts;
     }
+
 
     public function getPostById($postId)
     {
@@ -286,14 +308,23 @@ class PostModel extends BaseModel
                 P.USER_ID,
                 U.USERNAME,
                 U.FULL_NAME,
-                U.PATH_PHOTO
+                U.PATH_PHOTO,
+                (
+                    SELECT COUNT(*) FROM LIKE_POST L WHERE L.POST_ID = P.ID
+                ) AS TOTAL_LIKES,
+                (
+                    SELECT COUNT(*) FROM LIKE_POST L 
+                    WHERE L.POST_ID = P.ID AND L.USER_ID = :current_user_id
+                ) AS IS_LIKED
             FROM POSTS P
             JOIN USERS U ON P.USER_ID = U.ID
             WHERE P.ID = :post_id
         ";
 
         $stmtPost = oci_parse($conn, $sqlPost);
+        $currentUserId = $_SESSION['user_id'] ?? '';
         oci_bind_by_name($stmtPost, ':post_id', $postId);
+        oci_bind_by_name($stmtPost, ':current_user_id', $currentUserId);
         oci_execute($stmtPost);
 
         $post = oci_fetch_assoc($stmtPost);
@@ -303,13 +334,7 @@ class PostModel extends BaseModel
         }
 
         $post['MEDIA'] = [];
-
-        $sqlMedia = "
-        SELECT MEDIA_PATH
-        FROM POST_MEDIA
-        WHERE POST_ID = :post_id
-    ";
-
+        $sqlMedia = "SELECT MEDIA_PATH FROM POST_MEDIA WHERE POST_ID = :post_id";
         $stmtMedia = oci_parse($conn, $sqlMedia);
         oci_bind_by_name($stmtMedia, ':post_id', $postId);
         oci_execute($stmtMedia);
@@ -323,4 +348,49 @@ class PostModel extends BaseModel
 
         return $post;
     }
+    public function searchPosts($keyword, $filter = 'top')
+    {
+        $conn = self::getConnection();
+        $orderBy = $filter === 'latest' ? 'P.CREATED_AT DESC' : 'TOTAL_LIKES DESC';
+
+        $sql = "
+            SELECT 
+                P.ID AS POST_ID,
+                P.CONTENT,
+                P.USER_ID,
+                U.USERNAME,
+                U.FULL_NAME,
+                U.PATH_PHOTO,
+                (
+                    SELECT COUNT(*) FROM LIKE_POST L WHERE L.POST_ID = P.ID
+                ) AS TOTAL_LIKES,
+                (
+                    SELECT COUNT(*) FROM COMMENTAR C WHERE C.POST_ID = P.ID
+                ) +
+                (
+                    SELECT COUNT(*) FROM REPLY_COMMENTAR R 
+                    WHERE R.COMMENTAR_ID IN (
+                        SELECT ID FROM COMMENTAR WHERE POST_ID = P.ID
+                    )
+                ) AS TOTAL_COMMENT
+            FROM POSTS P
+            JOIN USERS U ON P.USER_ID = U.ID
+            WHERE LOWER(P.CONTENT) LIKE LOWER(:keyword)
+            ORDER BY $orderBy
+        ";
+
+        $stmt = oci_parse($conn, $sql);
+        $search = "%$keyword%";
+        oci_bind_by_name($stmt, ":keyword", $search);
+        oci_execute($stmt);
+
+        $posts = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $posts[] = $row;
+        }
+
+        return $posts;
+    }
+
+
 }

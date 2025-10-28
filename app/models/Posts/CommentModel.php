@@ -156,5 +156,16 @@ class CommentModel extends BaseModel
             return false;
         }
     }
-
+    public function getPostOwner($postId)
+    {
+        $conn = self::getConnection();
+        $sql = "SELECT U.ID, U.FULL_NAME
+                FROM POSTS P 
+                JOIN USERS U ON P.USER_ID = U.ID
+                WHERE P.ID = :post_id";
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ':post_id', $postId);
+        oci_execute($stmt);
+        return oci_fetch_assoc($stmt);
+    }
 }
