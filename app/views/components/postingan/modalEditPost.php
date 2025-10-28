@@ -1,30 +1,25 @@
-<div id="modal-edit-post" class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/60 backdrop-blur-sm">
+<div id="modal-edit-post" class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/60 backdrop-blur-sm p-3">
   <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
-    <!-- Header -->
     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-500">
       <h3 class="text-lg font-bold text-white">Edit Postingan</h3>
       <button id="btn-close-edit-post" class="text-white hover:bg-white/20 w-8 h-8 flex items-center justify-center rounded-full">&times;</button>
     </div>
 
-    <!-- Body -->
     <div class="p-6 space-y-4">
       <p id="edit-post-error" class="bg-red-600 p-2 text-white text-center rounded-lg hidden"></p>
+      <p id="edit-post-succses" class="bg-green-600 p-2 text-white text-center rounded-lg hidden"></p>
 
       <form id="form-edit-post" action="<?= BASEURL ?>/post/update" method="POST" enctype="multipart/form-data" class="space-y-4">
         <input type="hidden" name="post_id" id="edit-post-id">
-
         <textarea
           name="content"
           id="edit-post-content"
           rows="4"
           placeholder="Tulis sesuatu..."
-          class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none"
-        ></textarea>
+          class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none"></textarea>
 
-        <!-- Gambar Preview -->
         <div id="media-preview-container" class="grid grid-cols-3 sm:grid-cols-4 gap-3"></div>
 
-        <!-- Upload Gambar -->
         <div class="flex justify-between items-center">
           <button type="button" id="btn-edit-post-change-photo" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
@@ -36,7 +31,6 @@
           <input type="file" id="edit-post-file-input" name="images[]" class="hidden" accept="image/*" multiple>
         </div>
 
-        <!-- Tombol Simpan -->
         <button type="submit" id="btn-submit-edit-post" class="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold rounded-full hover:opacity-90 transition">
           Simpan Perubahan
         </button>
@@ -46,17 +40,18 @@
 </div>
 
 <script>
-const modalEditPost = document.getElementById("modal-edit-post");
-const btnCloseEditPost = document.getElementById("btn-close-edit-post");
-const btnChangePostPhoto = document.getElementById("btn-edit-post-change-photo");
-const fileInputPost = document.getElementById("edit-post-file-input");
-const mediaPreviewContainer = document.getElementById("media-preview-container");
+  const modalEditPost = document.getElementById("modal-edit-post");
+  const btnCloseEditPost = document.getElementById("btn-close-edit-post");
+  const btnChangePostPhoto = document.getElementById("btn-edit-post-change-photo");
+  const fileInputPost = document.getElementById("edit-post-file-input");
+  const mediaPreviewContainer = document.getElementById("media-preview-container");
+  const formEditPost = document.getElementById("form-edit-post");
 
-let existingMedia = []; // path gambar lama yang tetap
-let deletedMedia = []; // gambar lama yang dihapus
-let newMediaFiles = []; // file baru
+  let existingMedia = [];
+  let deletedMedia = [];
+  let newMediaFiles = [];
 
-function openEditPostModal(postId, content, mediaPaths = []) {
+  function openEditPostModal(postId, content, mediaPaths = []) {
     modalEditPost.classList.remove("hidden");
     modalEditPost.classList.add("flex");
 
@@ -67,128 +62,140 @@ function openEditPostModal(postId, content, mediaPaths = []) {
     deletedMedia = [];
     newMediaFiles = [];
     renderMediaPreviews();
-}
+  }
 
-function renderMediaPreviews() {
-  mediaPreviewContainer.innerHTML = '';
+  function renderMediaPreviews() {
+    mediaPreviewContainer.innerHTML = '';
 
-  // render gambar lama
-  existingMedia.forEach((path, i) => {
-    const div = document.createElement('div');
-    div.className = 'relative aspect-square rounded-lg overflow-hidden group shadow-sm hover:shadow-md transition';
+    existingMedia.forEach((path, i) => {
+      const div = document.createElement('div');
+      div.className = 'relative aspect-square rounded-lg overflow-hidden group shadow-sm hover:shadow-md transition';
 
-    const img = document.createElement('img');
-    img.src = '<?= rtrim(BASEURL, "/") ?>/' + path.replace(/^\/+/, '');
-    img.className = 'w-full h-full object-cover transition-transform duration-300 group-hover:scale-105';
-    div.appendChild(img);
+      const img = document.createElement('img');
+      img.src = '<?= rtrim(BASEURL, "/") ?>/' + path.replace(/^\/+/, '');
+      img.className = 'w-full h-full object-cover transition-transform duration-300 group-hover:scale-105';
+      div.appendChild(img);
 
-    const btnX = document.createElement('button');
-    btnX.type = 'button';
-    btnX.innerHTML = '&times;';
-    btnX.className = 'absolute top-1 right-1 bg-black/60 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition';
-    btnX.onclick = () => {
-      existingMedia.splice(i, 1);
-      deletedMedia.push(path);
-      renderMediaPreviews();
-    };
-    div.appendChild(btnX);
+      const btnX = document.createElement('button');
+      btnX.type = 'button';
+      btnX.innerHTML = '&times;';
+      btnX.className = 'absolute top-1 right-1 bg-black/60 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition';
+      btnX.onclick = () => {
+        existingMedia.splice(i, 1);
+        deletedMedia.push(path);
+        renderMediaPreviews();
+      };
+      div.appendChild(btnX);
 
-    mediaPreviewContainer.appendChild(div);
-  });
+      mediaPreviewContainer.appendChild(div);
+    });
 
-  // render gambar baru
-  newMediaFiles.forEach((file, i) => {
-    const div = document.createElement('div');
-    div.className = 'relative aspect-square rounded-lg overflow-hidden group shadow-sm hover:shadow-md transition';
+    newMediaFiles.forEach((file, i) => {
+      const div = document.createElement('div');
+      div.className = 'relative aspect-square rounded-lg overflow-hidden group shadow-sm hover:shadow-md transition';
 
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(file);
-    img.className = 'w-full h-full object-cover transition-transform duration-300 group-hover:scale-105';
-    div.appendChild(img);
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      img.className = 'w-full h-full object-cover transition-transform duration-300 group-hover:scale-105';
+      div.appendChild(img);
 
-    const btnX = document.createElement('button');
-    btnX.type = 'button';
-    btnX.innerHTML = '&times;';
-    btnX.className = 'absolute top-1 right-1 bg-black/60 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition';
-    btnX.onclick = () => {
-      newMediaFiles.splice(i, 1);
-      renderMediaPreviews();
-    };
-    div.appendChild(btnX);
+      const btnX = document.createElement('button');
+      btnX.type = 'button';
+      btnX.innerHTML = '&times;';
+      btnX.className = 'absolute top-1 right-1 bg-black/60 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition';
+      btnX.onclick = () => {
+        newMediaFiles.splice(i, 1);
+        renderMediaPreviews();
+      };
+      div.appendChild(btnX);
 
-    mediaPreviewContainer.appendChild(div);
-  });
-}
+      mediaPreviewContainer.appendChild(div);
+    });
+  }
 
-btnCloseEditPost.addEventListener('click', () => {
+  btnCloseEditPost.addEventListener('click', () => {
     modalEditPost.classList.add("hidden");
     modalEditPost.classList.remove("flex");
-});
+  });
 
-modalEditPost.addEventListener('click', (e) => {
+  modalEditPost.addEventListener('click', (e) => {
     if (e.target === modalEditPost) {
-        modalEditPost.classList.add("hidden");
-        modalEditPost.classList.remove("flex");
+      modalEditPost.classList.add("hidden");
+      modalEditPost.classList.remove("flex");
     }
-});
+  });
 
-btnChangePostPhoto.addEventListener('click', () => fileInputPost.click());
+  btnChangePostPhoto.addEventListener('click', () => fileInputPost.click());
 
-fileInputPost.addEventListener('change', (e) => {
+  fileInputPost.addEventListener('change', (e) => {
     const files = Array.from(e.target.files);
     newMediaFiles.push(...files);
     renderMediaPreviews();
-    fileInputPost.value = ''; 
-});
+    fileInputPost.value = '';
+  });
 
-// submit form
-const formEditPost = document.getElementById("form-edit-post");
-formEditPost.addEventListener('submit', async (e) => {
+
+  formEditPost.addEventListener('submit', async (e) => {
     e.preventDefault();
+
     const submitBtn = document.getElementById("btn-submit-edit-post");
     const errorDiv = document.getElementById("edit-post-error");
+    const succsesDiv = document.getElementById("edit-post-succses");
+
     submitBtn.disabled = true;
-    submitBtn.innerText = "Saving...";
+    submitBtn.innerText = "Menyimpan...";
     errorDiv.classList.add("hidden");
 
-    const formData = new FormData(formEditPost);
+    const formData = new FormData();
 
-    // existing media yang masih dipertahankan
-    existingMedia.forEach(path => formData.append('existing_media[]', path));
+    formData.append('post_id', document.getElementById('edit-post-id').value);
+    formData.append('content', document.getElementById('edit-post-content').value);
 
-    // gambar baru
-    newMediaFiles.forEach(file => formData.append('images[]', file));
+    existingMedia.forEach(path => {
+      formData.append('existing_media[]', path);
+    });
 
-    // gambar lama yang dihapus
-    deletedMedia.forEach(path => formData.append('deleted_media[]', path));
+    deletedMedia.forEach(path => {
+      formData.append('deleted_media[]', path);
+    });
+
+    newMediaFiles.forEach(file => {
+      formData.append('images[]', file, file.name);
+    });
 
     try {
-    const response = await fetch(formEditPost.action, { method: 'POST', body: formData });
+      const response = await fetch(formEditPost.action, {
+        method: 'POST',
+        body: formData
+      });
 
-    if (!response.ok) throw new Error(`Server returned ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.statusText}`);
+      }
 
-    let result;
-    try {
-        result = await response.json();
-    } catch (err) {
-        console.error("Response bukan JSON:", await response.text());
-        throw new Error("Response bukan JSON");
-    }
+      const result = await response.json();
 
-    if (result.success) {
-        window.location.reload();
-    } else {
+      if (result.success) {
+        succsesDiv.classList.remove("hidden");
+        succsesDiv.textContent = "Postingan berhasil diperbarui.";
+
+        setTimeout(() => {
+          succsesDiv.classList.add("hidden");
+          modalEditPost.classList.add("hidden");
+          modalEditPost.classList.remove("flex");
+          location.reload();
+        }, 1500);
+      } else {
         errorDiv.textContent = result.message || "Gagal memperbarui postingan.";
         errorDiv.classList.remove("hidden");
-    }
+      }
     } catch (err) {
-    console.error(err);
-    errorDiv.textContent = "Terjadi kesalahan saat memproses update.";
-    errorDiv.classList.remove("hidden");
+      console.error("Fetch error:", err);
+      errorDiv.textContent = "Terjadi kesalahan koneksi ke server.";
+      errorDiv.classList.remove("hidden");
     } finally {
-    submitBtn.disabled = false;
-    submitBtn.innerText = "Simpan Perubahan";
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Simpan Perubahan";
     }
-
-});
+  });
 </script>

@@ -43,15 +43,17 @@ $hiddenRoles = ['ADMIN', 'DOSEN', 'ALUMNI', 'MITRA'];
                 </p>
             </div>
 
-            <div class="lg:w-3xl w-full mx-auto">
+            <div class="max-w-xl w-full mx-auto">
                 <div class="bg-white shadow-lg rounded-2xl border border-gray-200 overflow-hidden">
                     <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4">
-                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            Informasi Akun
-                        </h2>
+                        <div class="flex justify-between">
+                            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                Informasi Akun
+                            </h2>
+                        </div>
                     </div>
 
                     <div class="p-6 space-y-4">
@@ -80,11 +82,26 @@ $hiddenRoles = ['ADMIN', 'DOSEN', 'ALUMNI', 'MITRA'];
                                 </svg>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-xs text-gray-500 font-medium mb-0.5">Personal Number</p>
+                                <p class="text-xs text-gray-500 font-medium mb-0.5">
+                                    <?php
+                                    if (isset($_SESSION['role'])) {
+                                        if ($_SESSION['role'] === 'MAHASISWA') {
+                                            echo 'NIM';
+                                        } elseif ($_SESSION['role'] === 'DOSEN') {
+                                            echo 'NIP';
+                                        } else {
+                                            echo 'Personal Number';
+                                        }
+                                    } else {
+                                        echo 'Personal Number';
+                                    }
+                                    ?>
+                                </p>
                                 <p class="text-sm text-gray-900 font-semibold truncate">
                                     <?= htmlspecialchars($_SESSION['personal_number'] ?? '-') ?>
                                 </p>
                             </div>
+
                         </div>
 
                         <div class="flex items-start gap-3">
@@ -113,9 +130,15 @@ $hiddenRoles = ['ADMIN', 'DOSEN', 'ALUMNI', 'MITRA'];
                                 </div>
                                 <div class="flex-1">
                                     <p class="text-xs text-gray-500 font-medium mb-1">Jenjang Studi</p>
-                                    <p class="text-sm text-gray-900 font-medium">
-                                        <?= htmlspecialchars($_SESSION['jenjang_studi'] ?? '') ?>
-                                    </p>
+                                    <?php if (!isset($_SESSION['jenjang_studi']) || empty($_SESSION['jenjang_studi'])): ?>
+                                        <p class="text-sm font-medium text-blue-600">
+                                            Setup Your Jenjang Studi
+                                        </p>
+                                    <?php else: ?>
+                                        <p class="text-xs text-gray-500 font-medium mb-1">
+                                            <?= htmlspecialchars($_SESSION['jenjang_studi']) ?>
+                                        </p>
+                                    <?php endif; ?>
                                 </div>
                             </div>
 
@@ -127,14 +150,33 @@ $hiddenRoles = ['ADMIN', 'DOSEN', 'ALUMNI', 'MITRA'];
                                 </div>
                                 <div class="flex-1">
                                     <p class="text-xs text-gray-500 font-medium mb-1">Program Studi</p>
-                                    <p class="text-xs text-gray-500 font-medium mb-1">
-                                        <?= htmlspecialchars($_SESSION['prodi'] ?? '-') ?> - Angkatan <?= htmlspecialchars($_SESSION['tahun_masuk'] ?? '-') ?>
-                                    </p>
+                                    <?php if (!isset($_SESSION['prodi']) || empty($_SESSION['prodi'])): ?>
+                                        <p class="text-sm font-medium text-blue-600">
+                                            Setup Your Program Studi
+                                        </p>
+                                    <?php else: ?>
+                                        <p class="text-xs text-gray-500 font-medium mb-1">
+                                            <?= htmlspecialchars($_SESSION['prodi'] ?? '-') ?> - Angkatan <?= htmlspecialchars($_SESSION['tahun_masuk'] ?? '-') ?>
+                                        </p>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         <?php endif; ?>
                     </div>
+
+                    <div class="flex gap-3 p-6">
+                        <button type="button" id="openModalEditProfile" class="text-white w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                            Edit Profile
+                        </button>
+                        <button id="btn-open-update-password" class="relative inline-flex items-center justify-center p-0.5 w-full mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-purple-600 to-blue-500 group-hover:from-purple-600 group-hover:to-blue-500 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 ">
+                            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white w-full  rounded-md group-hover:bg-transparent ">
+                                Update Password
+                            </span>
+                        </button>
+                    </div>
+
                 </div>
+
             </div>
         </div>
 
@@ -158,13 +200,13 @@ $hiddenRoles = ['ADMIN', 'DOSEN', 'ALUMNI', 'MITRA'];
                     <div class="my-5">
                         <div class="bg-white text-gray-900 border border-gray-200 rounded-2xl shadow-sm p-4">
                             <div class="flex items-start space-x-3">
-                                <img src="<?= !empty($post['PATH_PHOTO'])
-                                                ? BASEURL . '/storage/users/photos/' . $post['PATH_PHOTO']
+                                <img src="<?= !empty($_SESSION['path_photo'])
+                                                ? BASEURL . '/storage/users/photos/' . $_SESSION['path_photo']
                                                 : BASEURL . '/src/asset/image/default.png' ?>"
                                     alt="Profile" class="w-12 h-12 rounded-full object-cover flex-shrink-0">
 
                                 <div class="flex-1">
-                                    <div class="text-lg">
+                                    <div class="text-base md:text-lg">
                                         <span class="font-semibold text-gray-700"><?= htmlspecialchars($_SESSION['full_name']) ?></span>
                                     </div>
                                     <div class="text-sm">
@@ -267,6 +309,11 @@ $hiddenRoles = ['ADMIN', 'DOSEN', 'ALUMNI', 'MITRA'];
             <?php endif; ?>
         </div>
     </div>
+
+    <?php include_once 'app/views/components/modalEditProfile.php'; ?>
+    <?php include_once 'app/views/components/modalUpdatePassword.php'; ?>
+    <?php include_once 'app/views/components/postingan/modalDeletePost.php'; ?>
+    <?php include_once 'app/views/components/postingan/modalEditPost.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script>
     <script>

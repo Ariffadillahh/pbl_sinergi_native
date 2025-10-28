@@ -14,4 +14,60 @@ class UserModel extends BaseModel
 
         return oci_fetch_assoc($stmt);
     }
+
+    public function updateProfile($userId, $fullName, $personalNumber, $programStudi, $jenjangStudi, $tahunMasuk, $photoPath)
+    {
+        $conn = self::getConnection();
+
+        $sql = "UPDATE USERS SET 
+                FULL_NAME = :full_name,
+                PERSONAL_NUMBER = :personal_number,
+                PRODI = :program_studi,
+                JENJANG_STUDI = :jenjang_studi,
+                TAHUN_MASUK = :tahun_masuk,
+                PATH_PHOTO = :path_photo
+            WHERE ID = :id";
+
+        $stmt = oci_parse($conn, $sql);
+
+        oci_bind_by_name($stmt, ':full_name', $fullName);
+        oci_bind_by_name($stmt, ':personal_number', $personalNumber);
+        oci_bind_by_name($stmt, ':program_studi', $programStudi);
+        oci_bind_by_name($stmt, ':jenjang_studi', $jenjangStudi);
+        oci_bind_by_name($stmt, ':tahun_masuk', $tahunMasuk);
+        oci_bind_by_name($stmt, ':path_photo', $photoPath);
+        oci_bind_by_name($stmt, ':id', $userId);
+
+        $result = oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
+
+        if ($result) {
+            return ['success' => true];
+        } else {
+            $e = oci_error($stmt);
+            return ['success' => false, 'message' => $e['message']];
+        }
+    }
+
+    public function updatePassword($userId, $hashedPassword)
+    {
+        $conn = self::getConnection();
+
+        $sql = "UPDATE USERS SET 
+                PASSWORD = :password
+            WHERE ID = :id";
+
+        $stmt = oci_parse($conn, $sql);
+
+        oci_bind_by_name($stmt, ':password', $hashedPassword);
+        oci_bind_by_name($stmt, ':id', $userId);
+
+        $result = oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
+
+        if ($result) {
+            return ['success' => true];
+        } else {
+            $e = oci_error($stmt);
+            return ['success' => false, 'message' => $e['message']];
+        }
+    }
 }

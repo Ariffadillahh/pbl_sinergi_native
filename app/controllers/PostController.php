@@ -107,7 +107,6 @@ class PostController
     public function update()
     {
         header('Content-Type: application/json');
-        session_start();
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
@@ -127,55 +126,65 @@ class PostController
             exit;
         }
 
-        if (empty($caption) && empty($_FILES['images']['name'][0]) && empty($_POST['existing_media'])) {
-            echo json_encode(['success' => false, 'message' => 'Postingan tidak boleh kosong.']);
-            exit;
+        $uploadDir = __DIR__ . '/../../storage/posts/images/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
         }
 
-        $uploadDir = __DIR__ . '/../../storage/posts/images/';
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+        $newlyUploadedPaths = [];
+        if (isset($_FILES['images']) && is_array($_FILES['images']['name'])) {
+            foreach (array_keys($_FILES['images']['name']) as $i) {
+                if ($_FILES['images']['error'][$i] !== UPLOAD_ERR_OK) {
+                    if ($_FILES['images']['error'][$i] == UPLOAD_ERR_NO_FILE) {
+                        continue;
+                    }
+                    echo json_encode(['success' => false, 'message' => 'Error saat upload file: ' . $_FILES['images']['error'][$i]]);
+                    exit;
+                }
 
-        $uploadedPaths = [];
-        if (!empty($_FILES['images']['name'][0])) {
-            foreach ($_FILES['images']['name'] as $i => $name) {
-                if (empty($name)) continue;
-                $fileName = uniqid('post_', true) . '-' . basename($name);
+                $fileExtension = strtolower(pathinfo($_FILES['images']['name'][$i], PATHINFO_EXTENSION));
+                $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                if (!in_array($fileExtension, $allowedExtensions)) {
+                    echo json_encode(['success' => false, 'message' => 'Format file tidak diizinkan. Hanya (JPG, JPEG, PNG, GIF, WEBP).']);
+                    exit;
+                }
+
+                $fileName = uniqid('post_', true) . '-' . basename($_FILES['images']['name'][$i]);
                 $targetFile = $uploadDir . $fileName;
-                $fileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-                $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
-                if (!in_array($fileType, $allowedTypes)) {
-                    echo json_encode(['success' => false, 'message' => 'Hanya gambar (JPG, JPEG, PNG, GIF) yang diperbolehkan']);
-                    exit;
-                }
+
                 if (!move_uploaded_file($_FILES['images']['tmp_name'][$i], $targetFile)) {
-                    echo json_encode(['success' => false, 'message' => 'Gagal upload gambar']);
+                    echo json_encode(['success' => false, 'message' => 'Gagal memindahkan file upload. Periksa izin folder.']);
                     exit;
                 }
-                $uploadedPaths[] = 'storage/posts/images/' . $fileName;
+                $newlyUploadedPaths[] = 'storage/posts/images/' . $fileName;
+            }
+        }
+
+        $mediaToDelete = $_POST['deleted_media'] ?? [];
+        foreach ($mediaToDelete as $path) {
+            $filePath = realpath(__DIR__ . '/../../' . $path);
+            $baseDir = realpath($uploadDir);
+            if ($filePath && strpos($filePath, $baseDir) === 0 && file_exists($filePath)) {
+                @unlink($filePath);
             }
         }
 
         $existingMedia = $_POST['existing_media'] ?? [];
-        if (!is_array($existingMedia)) $existingMedia = explode(',', $existingMedia);
+        $finalMediaPaths = array_merge($existingMedia, $newlyUploadedPaths);
 
-        $mediaToDelete = $_POST['deleted_media'] ?? [];
-        if (!is_array($mediaToDelete)) $mediaToDelete = explode(',', $mediaToDelete);
-
-        foreach ($mediaToDelete as $path) {
-            $filePath = __DIR__ . '/../../' . $path;
-            if (file_exists($filePath)) @unlink($filePath);
+        if (empty($caption) && empty($finalMediaPaths)) {
+            echo json_encode(['success' => false, 'message' => 'Postingan tidak boleh kosong.']);
+            exit;
         }
 
-        $allMediaPaths = array_values(array_unique(array_merge($existingMedia, $uploadedPaths)));
+        $success = $this->postModel->updatePost($postId, $_SESSION['user_id'], $caption, $finalMediaPaths);
 
-        $success = $this->postModel->updatePost($postId, $_SESSION['user_id'], $caption, $uploadedPaths, $mediaToDelete);
         if ($success) {
             echo json_encode(['success' => true, 'message' => 'Postingan berhasil diperbarui']);
-            exit;
         } else {
-            echo json_encode(['success' => false, 'message' => 'Gagal memperbarui postingan']);
-            exit;
+            echo json_encode(['success' => false, 'message' => 'Gagal memperbarui postingan di database.']);
         }
+        exit;
     }
 
     public function delete()

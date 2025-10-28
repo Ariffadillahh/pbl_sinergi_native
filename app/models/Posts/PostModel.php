@@ -134,60 +134,53 @@ class PostModel extends BaseModel
         return $media;
     }
 
-    public function updatePost($postId, $userId, $newContent, $newMediaPaths = [], $mediaToDelete = [])
+    public function updatePost($postId, $userId, $newContent, $finalMediaPaths = [])
     {
         $conn = self::getConnection();
 
         $checkSql = "SELECT USER_ID FROM POSTS WHERE ID = :id";
         $checkStmt = oci_parse($conn, $checkSql);
         oci_bind_by_name($checkStmt, ":id", $postId);
-        oci_execute($checkStmt);
-        $row = oci_fetch_assoc($checkStmt);
+        if (!oci_execute($checkStmt)) return false;
 
+        $row = oci_fetch_assoc($checkStmt);
         if (!$row || $row['USER_ID'] !== $userId) {
             return false;
         }
-
-        oci_execute(oci_parse($conn, "BEGIN NULL; END;"));
 
         $sqlUpdate = "UPDATE POSTS SET CONTENT = :content WHERE ID = :id";
         $stmt = oci_parse($conn, $sqlUpdate);
         oci_bind_by_name($stmt, ":content", $newContent);
         oci_bind_by_name($stmt, ":id", $postId);
-
         if (!oci_execute($stmt, OCI_NO_AUTO_COMMIT)) {
             oci_rollback($conn);
             return false;
         }
 
-        if (!empty($mediaToDelete)) {
-            $deleteSql = "DELETE FROM POST_MEDIA WHERE POST_ID = :post_id AND MEDIA_PATH = :media_path";
-            foreach ($mediaToDelete as $path) {
-                $stmtDel = oci_parse($conn, $deleteSql);
-                oci_bind_by_name($stmtDel, ":post_id", $postId);
-                oci_bind_by_name($stmtDel, ":media_path", $path);
-                if (!oci_execute($stmtDel, OCI_NO_AUTO_COMMIT)) {
+        $deleteSql = "DELETE FROM POST_MEDIA WHERE POST_ID = :post_id";
+        $stmtDel = oci_parse($conn, $deleteSql);
+        oci_bind_by_name($stmtDel, ":post_id", $postId);
+        if (!oci_execute($stmtDel, OCI_NO_AUTO_COMMIT)) {
+            oci_rollback($conn);
+            return false;
+        }
+
+        if (!empty($finalMediaPaths)) {
+            $sqlMedia = "INSERT INTO POST_MEDIA (ID, POST_ID, MEDIA_PATH, MEDIA_TYPE) VALUES (:id, :post_id, :media_path, :media_type)";
+            foreach ($finalMediaPaths as $path) {
+                $mediaId = uniqid('media_');
+                $mediaType = 'IMAGE';
+
+                $stmtMedia = oci_parse($conn, $sqlMedia);
+                oci_bind_by_name($stmtMedia, ":id", $mediaId);
+                oci_bind_by_name($stmtMedia, ":post_id", $postId);
+                oci_bind_by_name($stmtMedia, ":media_path", $path);
+                oci_bind_by_name($stmtMedia, ":media_type", $mediaType);
+
+                if (!oci_execute($stmtMedia, OCI_NO_AUTO_COMMIT)) {
                     oci_rollback($conn);
                     return false;
                 }
-            }
-        }
-
-        foreach ($newMediaPaths as $path) {
-            $mediaId = uniqid('media_');
-            $mediaType = 'IMAGE';
-            $sqlMedia = "
-            INSERT INTO POST_MEDIA (ID, POST_ID, MEDIA_PATH, MEDIA_TYPE)
-            VALUES (:id, :post_id, :media_path, :media_type)
-        ";
-            $stmtMedia = oci_parse($conn, $sqlMedia);
-            oci_bind_by_name($stmtMedia, ":id", $mediaId);
-            oci_bind_by_name($stmtMedia, ":post_id", $postId);
-            oci_bind_by_name($stmtMedia, ":media_path", $path);
-            oci_bind_by_name($stmtMedia, ":media_type", $mediaType);
-            if (!oci_execute($stmtMedia, OCI_NO_AUTO_COMMIT)) {
-                oci_rollback($conn);
-                return false;
             }
         }
 

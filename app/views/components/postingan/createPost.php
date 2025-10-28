@@ -1,13 +1,13 @@
 <form class="bg-white rounded-2xl p-4 shadow-md" method="POST" action="<?php echo BASEURL; ?>/post/create" enctype="multipart/form-data" id="createPostForm">
     <div class="flex items-start gap-4">
-        <div class="flex size-14 rounded-full overflow-hidden flex-shrink-0">
+        <div class="flex size-10 md:size-14 rounded-full overflow-hidden flex-shrink-0">
             <img src="<?= !empty($_SESSION['path_photo'])
                             ? BASEURL . '/storage/users/photos/' . $_SESSION['path_photo']
                             : BASEURL . '/src/asset/image/default.png' ?>"
                 class="w-full h-full object-cover"
                 alt="photo">
         </div>
-        <textarea name="content" id="content" rows="3" placeholder="Apa yang sedang Anda pikirkan?" class="w-full bg-gray-100 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 resize-none"></textarea>
+        <textarea name="content" id="content" rows="3" placeholder="Apa yang sedang Anda pikirkan?" class="w-full bg-gray-100 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 resize-none "></textarea>
     </div>
 
     <div id="image-preview-container" class="mt-4 flex flex-nowrap gap-3 overflow-x-auto pb-2">
