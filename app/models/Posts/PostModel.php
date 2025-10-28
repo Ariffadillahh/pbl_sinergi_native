@@ -65,23 +65,30 @@ class PostModel extends BaseModel
         $sql = "
             SELECT 
                 P.ID AS POST_ID,
-                P.USER_ID,
                 P.CONTENT,
+                P.USER_ID,
                 P.CREATED_AT,
                 U.USERNAME,
                 U.FULL_NAME,
                 U.PATH_PHOTO,
                 (
-                    SELECT COUNT(*) 
-                    FROM COMMENTAR C 
-                    WHERE C.POST_ID = P.ID
-                ) AS COMMENT_COUNT
+                    SELECT COUNT(*) FROM LIKE_POST L WHERE L.POST_ID = P.ID
+                ) AS TOTAL_LIKES,
+                (
+                    SELECT COUNT(*) FROM COMMENTAR C WHERE C.POST_ID = P.ID
+                ) AS COMMENT_COUNT,
+                (
+                    SELECT COUNT(*) FROM LIKE_POST L 
+                    WHERE L.POST_ID = P.ID AND L.USER_ID = :current_user_id
+                ) AS IS_LIKED
             FROM POSTS P
             JOIN USERS U ON P.USER_ID = U.ID
             ORDER BY P.CREATED_AT DESC
         ";
 
         $stmt = oci_parse($conn, $sql);
+        $currentUserId = $_SESSION['user_id'] ?? '';
+        oci_bind_by_name($stmt, ":current_user_id", $currentUserId);
         oci_execute($stmt);
 
         $posts = [];
