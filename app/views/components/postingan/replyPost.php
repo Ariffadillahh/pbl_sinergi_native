@@ -50,13 +50,8 @@
          </div>
      </div>
      <div class="mt-5">
-         <?php
-            $content = $post['CONTENT'];
-            if ($content instanceof OCILob) {
-                $content = $content->load();
-            }
-            ?>
-         <p class="mt-2 text-black text-[15px leading-relaxed"><?= nl2br(htmlspecialchars($content ?? '')) ?></p>
+         <p class="mt-2 text-black text-[15px leading-relaxed"><?= $post['CONTENT_FORMATTED'] ?? '' ?></p>
+
      </div>
 
      <?php if (!empty($post['MEDIA'])): ?>

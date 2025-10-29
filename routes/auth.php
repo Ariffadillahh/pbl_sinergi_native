@@ -73,4 +73,10 @@
             $controller = new SignupController();
             $controller->resendRegistrationOtp();
             break;
+
+        case $route === 'getAllUsers':
+            requireLogin();
+            $controller = new SigninController();
+            $controller->getAllUsers();
+            break;
     }

@@ -189,6 +189,17 @@ class SigninController
         $_SESSION['path_photo'] = $user['PATH_PHOTO'];
         $_SESSION['logged_in'] = true;
     }
+
+    public function getAllUsers()
+    {
+        header('Content-Type: application/json');
+
+        $userModel = new User();
+        $users = $userModel->getAllUsers();
+
+        echo json_encode(['success' => true, 'data' => $users]);
+        exit;
+    }
 }
 
 class SignupController

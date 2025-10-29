@@ -316,4 +316,37 @@ class PostModel extends BaseModel
 
         return $post;
     }
+
+    public function getUsersByUsernames(array $usernames)
+    {
+        if (empty($usernames)) {
+            return [];
+        }
+
+        $conn = self::getConnection();
+
+        $placeholders = [];
+        foreach ($usernames as $key => $value) {
+            $placeholders[] = ":u" . $key;
+        }
+        $inClause = implode(', ', $placeholders);
+
+        $sql = "SELECT ID, USERNAME FROM USERS WHERE USERNAME IN ($inClause)";
+
+        $stmt = oci_parse($conn, $sql);
+
+        foreach ($usernames as $key => $username) {
+            oci_bind_by_name($stmt, ":u" . $key, $usernames[$key]);
+        }
+
+        oci_execute($stmt);
+
+        $results = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $results[$row['USERNAME']] = $row;
+        }
+
+        oci_free_statement($stmt);
+        return $results;
+    }
 }
