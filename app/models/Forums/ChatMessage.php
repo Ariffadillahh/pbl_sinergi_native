@@ -130,7 +130,8 @@ class ChatMessage extends BaseModel
                         fm.ORIGINAL_FILENAME,
                         TO_CHAR(fm.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
                         u.FULL_NAME AS SENDER_NAME, 
-                        u.PATH_PHOTO AS SENDER_PHOTO 
+                        u.PATH_PHOTO AS SENDER_PHOTO,
+                        u.ROLE 
                     FROM 
                         FORUM_MESSAGES fm
                     JOIN 

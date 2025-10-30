@@ -23,17 +23,17 @@
 
                     <form class="flex-1 max-w-2xl">
                         <div class="relative group">
-                            <input type="search"
+                            <input
+                                type="search"
                                 id="default-search"
-                                class="block w-full p-4 pr-14 text-sm text-gray-900 rounded-full bg-white shadow-md 
-                                      border border-gray-200
-                                      placeholder:text-gray-400
-                                      focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                                      hover:border-gray-300
-                                      transition-all duration-200"
+                                class="block w-full p-4 pr-14 text-sm text-gray-900 rounded-full bg-white shadow-md
+                                        placeholder:text-gray-700
+                                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                        transition-all duration-200 outline-none"
                                 placeholder="Search somethings..."
                                 autocomplete="off"
                                 required />
+
 
                             <button type="submit"
                                 class="text-white absolute right-1.5 top-1/2 -translate-y-1/2 
@@ -53,9 +53,20 @@
                         </div>
                     </form>
 
+                    <div class="group relative flex justify-center">
+                        <button id="quote-btn-opn" aria-label="Show Quote of the Day" class="flex items-center justify-center p-2.5 rounded-full cursor-pointer">
+                            <img src="<?php echo BASEURL; ?>/src/asset/icons/quote.svg" class="h-8 w-8" alt="Quotes of the Day icon">
+                        </button>
 
-                    <?php require_once 'app/views/components/notifikasi.php' ?>
-
+                        <div role="tooltip"
+                            class="absolute top-full mt-2 left-0 -translate-x-1/2 
+                                    whitespace-nowrap bg-gray-800 text-white text-sm font-medium 
+                                    px-3 py-1.5 rounded-lg shadow-sm 
+                                    opacity-0 invisible group-hover:opacity-100 group-hover:visible 
+                                    transition-opacity duration-300">
+                            Quotes of the Day
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -64,6 +75,10 @@
             <?php require_once 'app/views/components/postingan/createPost.php' ?>
             <?php require_once 'app/views/components/postingan/post.php' ?>
         </div>
+
+        <?php require_once 'app/views/components/quotes.php' ?>
+
+
     </main>
 </body>
 

@@ -93,6 +93,9 @@
             const FORUM_ID = '<?= $forumByid['ID'] ?? '1' ?>';
             const CURRENT_USER_ID = '<?= $_SESSION['user_id'] ?? '123' ?>';
             const CURRENT_USER_NAME = "<?= $_SESSION['full_name'] ?? 'You' ?>";
+            const CURRENT_USER_PHOTO = "<?= !empty($_SESSION['path_photo']) ? BASEURL . '/storage/users/photos/' . $_SESSION['path_photo'] : BASEURL . '/src/asset/image/default.png' ?>";
+            const fileIconUrl = `${BASEURL}/src/asset/image/file.png`;
+
             const chatForm = document.getElementById("chat-form");
             const chatInput = document.getElementById("Chat-Input");
             const placeholder = document.getElementById("placeholder");
@@ -103,12 +106,17 @@
             const previewImage = document.getElementById("preview-image");
             const previewFilename = document.getElementById("preview-filename");
             const removePreviewButton = document.getElementById("remove-preview");
-            const fileIconUrl = `${BASEURL}/src/asset/image/file.png`;
-            const CURRENT_USER_PHOTO = "<?= !empty($_SESSION['path_photo']) ? BASEURL . '/storage/users/photos/' . $_SESSION['path_photo'] : BASEURL . '/src/asset/image/default.png' ?>";
+
             let lastSenderId = null;
             let lastMessageTime = null;
             let lastTimestamp = "<?= (new DateTime())->format('Y-m-d H:i:s.u') ?>";
             let lastRenderedDate = null;
+
+            const statusIcons = {
+                pending: `<svg class="size-3 sm:size-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+                sent: `<svg class="size-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`,
+                failed: `<svg class="size-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 9.586V6z" clip-rule="evenodd"></path></svg>`,
+            };
 
             function renderMessage(msg) {
                 const chatMessagesContainer = document.querySelector("#Chat-Messages article");
@@ -117,7 +125,7 @@
                     const currentMessageDate = msg.CREATED_AT.substring(0, 10);
                     if (currentMessageDate !== lastRenderedDate) {
                         const dateHeader = document.createElement('p');
-                        dateHeader.className = "sticky w-[100px] md:w-[150px] text-center top-4 mt-5 mx-auto rounded-xl py-2 px-4 bg-white text-xs md:text-sm z-30 border border-gray-200 shadow-sm";
+                        dateHeader.className = "sticky w-[100px] md:w-[150px] text-center top-4 mt-5 mx-auto rounded-xl py-2 px-4 bg-white text-xs md:text-sm z-30 border border-gray-200";
                         dateHeader.textContent = formatDateHeader(currentMessageDate);
                         chatMessagesContainer.appendChild(dateHeader);
                         lastRenderedDate = currentMessageDate;
@@ -136,15 +144,23 @@
                     let avatarSrc = isOutgoing ? CURRENT_USER_PHOTO :
                         (msg.SENDER_PHOTO ? `${BASEURL}/storage/users/photos/${msg.SENDER_PHOTO}` : `${BASEURL}/src/asset/image/default.png`);
 
-                    const time = msg.CREATED_AT ? new Date(msg.CREATED_AT.replace(' ', 'T')).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    }) : new Date().toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-
                     const senderName = isOutgoing ? 'You' : (msg.SENDER_NAME || 'User');
+                    let roleHtml = '';
+
+                    if (!isOutgoing && msg.ROLE) {
+                        const roleStyles = {
+                            'ADMIN': 'bg-red-100 text-red-800',
+                            'DOSEN': 'bg-green-100 text-green-800',
+                            'MAHASISWA': 'bg-blue-100 text-blue-800',
+                            'ALUMNI': 'bg-yellow-100 text-yelloe-800',
+                            'default': 'bg-gray-100 text-gray-800'
+                        };
+
+                        const styles = roleStyles[msg.ROLE] || roleStyles['default'];
+
+                        roleHtml = `<span class="text-xs font-semibold px-2 py-0.5 rounded-full ${styles}">${msg.ROLE}</span>`;
+                    }
+
 
                     senderHtml = `
                         <div class="flex items-center gap-2 sm:gap-3 ${isOutgoing ? 'flex-row-reverse' : ''}">
@@ -152,56 +168,39 @@
                                 <img src="${avatarSrc}" class="w-full h-full object-cover" alt="photo">
                             </div>
                             <div>
-                                <p class="flex gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-600 ${isOutgoing ? 'flex-row-reverse' : ''}">
-                                    <span class="font-bold text-black truncate max-w-[120px] sm:max-w-none">${senderName}</span>
-                                    <span>•</span>
-                                    <span class="whitespace-nowrap">${time}</span>
-                                </p>
+                                <div class="block text-xs sm:text-sm ${isOutgoing ? 'flex-row-reverse' : ''}">
+                                    <span class="font-bold text-black truncate max-w-[120px] sm:max-w-none">${senderName} </span>
+                                    ${roleHtml} 
+                                </div>
                             </div>
                         </div>
                     `;
                 }
 
                 let contentHtml = '';
-
                 if (msg.PATH_MEDIA) {
                     const mediaSrc = msg.status === 'pending' ? msg.PATH_MEDIA : `${BASEURL}/${msg.PATH_MEDIA}`;
-
                     if (msg.TYPE === 'IMAGE') {
-                        contentHtml += `
-                            <img src="${mediaSrc}" 
-                                class="rounded-lg w-full md:max-w-xl h-auto object-cover" 
-                                alt="Image" 
-                                loading="lazy">
-                        `;
+                        contentHtml += `<img src="${mediaSrc}" class="rounded-lg w-full md:max-w-xl h-auto object-cover" alt="Image" loading="lazy">`;
                     } else if (msg.TYPE === 'VIDEO') {
-                        contentHtml += `
-                            <video controls 
-                                class="rounded-lg w-full md:max-w-xl h-auto">
-                                <source src="${mediaSrc}">
-                            </video>
-                        `;
+                        contentHtml += `<video controls class="rounded-lg w-full md:max-w-xl h-auto"><source src="${mediaSrc}"></video>`;
                     } else if (msg.TYPE === 'FILE') {
                         const fileName = msg.ORIGINAL_FILENAME || 'Download File';
                         const cardBgColor = isOutgoing ? 'bg-white' : 'bg-gray-200';
                         const textColor = isOutgoing ? 'text-blue-700' : 'text-gray-800';
                         const buttonBgColor = isOutgoing ? 'bg-blue-700 hover:bg-blue-600' : 'bg-white hover:bg-gray-100';
                         const buttonTextColor = isOutgoing ? 'text-white' : 'text-gray-900';
-
                         contentHtml += `
-                            <div class="w-full max-w-[280px] sm:max-w-sm ${cardBgColor} rounded-lg p-3 flex flex-col gap-2">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <img src="${fileIconUrl}" class="w-7 h-7" >
-                                    <span class="font-medium ${textColor} truncate text-sm sm:text-base">${fileName}</span>
-                                </div>
-                                <a href="${mediaSrc}" 
-                                download="${fileName}" 
-                                target="_blank" 
-                                class="w-full ${buttonBgColor} ${buttonTextColor} font-semibold py-2 px-4 rounded-lg transition-all active:scale-95 text-center text-sm sm:text-base">
-                                    Download
-                                </a>
+                        <div class="w-full max-w-[280px] sm:max-w-sm ${cardBgColor} rounded-lg p-3 flex flex-col gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <img src="${fileIconUrl}" class="w-7 h-7" >
+                                <span class="font-medium ${textColor} truncate text-sm sm:text-base">${fileName}</span>
                             </div>
-                        `;
+                            <a href="${mediaSrc}" download="${fileName}" target="_blank" class="w-full ${buttonBgColor} ${buttonTextColor} font-semibold py-2 px-4 rounded-lg transition-all active:scale-95 text-center text-sm sm:text-base">
+                                Download
+                            </a>
+                        </div>
+                    `;
                     }
                 }
 
@@ -217,28 +216,39 @@
 
                 function getStatusIcon(status) {
                     if (!isOutgoing) return '';
-                    const icons = {
-                        pending: `<svg class="size-3 sm:size-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
-                        sent: `<svg class="size-3 sm:size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`,
-                        failed: `<svg class="size-3 sm:size-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 9.586V6z" clip-rule="evenodd"></path></svg>`,
-                    };
-                    return `<div class="message-status-indicator flex items-center justify-end h-4 mt-1">${icons[status] || ''}</div>`;
+                    const iconSvg = statusIcons[status] || '';
+                    const sentIconColor = (status === 'sent' && isOutgoing) ? 'text-white' : '';
+                    const finalIconSvg = iconSvg.replace('<svg class="', `<svg class="${sentIconColor} `);
+                    return `<div class="message-status-indicator flex items-center justify-end h-4 mt-1">${finalIconSvg}</div>`;
                 }
 
+                const time = msg.CREATED_AT ? new Date(msg.CREATED_AT.replace(' ', 'T')).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) : new Date().toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
                 const messageCardHtml = `
-                    <div class="message-card relative ${isOutgoing ? 'mr-8 sm:mr-12' : 'ml-8 sm:ml-12'}">
-                        <div class="w-fit max-w-[280px] sm:max-w-sm md:max-w-md rounded-2xl py-2.5 px-3 sm:py-3 sm:px-4 leading-relaxed shadow ${roundedClass}">
-                            ${contentHtml}
-                            ${getStatusIcon(msg.status)}
+                <div class="message-card relative ${isOutgoing ? 'mr-8 sm:mr-12' : 'ml-8 sm:ml-12'}">
+                    <div class="w-fit max-w-[280px] sm:max-w-sm md:max-w-md rounded-2xl py-2 px-3 sm:py-2.5 sm:px-3.5 leading-relaxed shadow ${roundedClass}">
+                        
+                        <div>${contentHtml}</div>
+
+                        <div class="flex items-center justify-end gap-1.5 mt-1 text-xs ${isOutgoing ? 'text-blue-100 opacity-80' : 'text-gray-500'}">
+                            <span class="message-timestamp">${time}</span>
+                            <span class="message-status-indicator">${getStatusIcon(msg.status)}</span>
                         </div>
+
                     </div>
-                `;
+                </div>
+            `;
 
                 const messageRow = document.createElement('div');
                 messageRow.id = `message-${messageId}`;
                 messageRow.className = `chat-row flex flex-col px-2 sm:px-4 ${alignClass} ${marginClass}`;
                 messageRow.innerHTML = senderHtml + messageCardHtml;
-
                 chatMessagesContainer.appendChild(messageRow);
 
                 requestAnimationFrame(() => {
@@ -257,13 +267,7 @@
                 const statusIndicator = messageElement.querySelector('.message-status-indicator');
                 if (!statusIndicator) return;
 
-                const icons = {
-                    pending: `...`,
-                    sent: `<svg class="size-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`,
-                    failed: `<svg class="size-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 9.586V6z" clip-rule="evenodd"></path></svg>`
-                };
-
-                statusIndicator.innerHTML = icons[newStatus] || '';
+                statusIndicator.innerHTML = statusIcons[newStatus] || '';
 
                 if (newStatus === 'sent' && serverResult && serverResult.message_id) {
                     messageElement.id = `message-${serverResult.message_id}`;
@@ -282,16 +286,14 @@
                     fileInput,
                     chatInput,
                     removePreview,
-                    updateTextInputState,
+                    updateTextInputState
                 } = elements;
-
                 const messageText = hiddenInput.value.trim();
                 const file = fileInput.files[0];
 
                 if (!messageText && !file) return;
 
                 const tempId = crypto.randomUUID();
-
                 const tempMessage = {
                     temp_id: tempId,
                     SENDER_ID: CURRENT_USER_ID,
@@ -306,7 +308,6 @@
                 };
 
                 renderMessage(tempMessage);
-
                 chatInput.innerHTML = "";
                 removePreview();
                 updateTextInputState();
@@ -334,10 +335,8 @@
                 }
             }
 
-
             function setupChatForm() {
                 if (!chatInput) return;
-
                 const elements = {
                     hiddenInput,
                     fileInput,
@@ -349,8 +348,7 @@
                     },
                     updateTextInputState: () => {
                         const textContent = chatInput.innerText;
-                        placeholder.style.display =
-                            textContent.trim() === "" ? "block" : "none";
+                        placeholder.style.display = textContent.trim() === "" ? "block" : "none";
                         hiddenInput.value = textContent;
                     },
                 };
@@ -360,15 +358,11 @@
                     const file = event.target.files[0];
                     if (!file) return;
                     previewFilename.textContent = file.name;
-                    previewImage.src = file.type.startsWith("image/") ?
-                        URL.createObjectURL(file) :
-                        fileIconUrl;
+                    previewImage.src = file.type.startsWith("image/") ? URL.createObjectURL(file) : fileIconUrl;
                     previewContainer.classList.remove("hidden");
                 });
                 removePreviewButton.addEventListener("click", elements.removePreview);
-                chatForm.addEventListener("submit", (event) =>
-                    handleSendMessage(event, elements)
-                );
+                chatForm.addEventListener("submit", (event) => handleSendMessage(event, elements));
                 elements.updateTextInputState();
             }
 
@@ -388,6 +382,7 @@
                             }
                             const existingMessage = document.getElementById(`message-${msg.ID}`);
                             if (!existingMessage) {
+                                msg.status = 'sent';
                                 renderMessage(msg);
                             }
                         });
@@ -404,32 +399,27 @@
             async function loadInitialMessages() {
                 const chatMessagesContainer = document.querySelector("#Chat-Messages article");
                 const loadingIndicator = document.getElementById("loading-indicator");
-
                 chatMessagesContainer.innerHTML = '';
                 loadingIndicator.style.display = 'flex';
-
                 try {
                     const response = await fetch(`${BASEURL}/forums/getInitialMessages/${FORUM_ID}`);
-
                     if (!response.ok) {
                         throw new Error('Gagal mengambil data pesan.');
                     }
-
                     const messages = await response.json();
-
                     loadingIndicator.style.display = 'none';
-
                     chatMessagesContainer.innerHTML = '';
-
                     if (messages && messages.length > 0) {
-                        messages.forEach(renderMessage);
+                        messages.forEach(msg => {
+                            msg.status = 'sent';
+                            renderMessage(msg);
+                        });
                         lastTimestamp = messages[messages.length - 1].CREATED_AT;
                     }
                 } catch (error) {
                     console.error('Gagal memuat pesan awal:', error);
                     loadingIndicator.innerHTML = '<p class="text-red-500">Gagal memuat pesan. Coba muat ulang halaman.</p>';
                 } finally {
-                    console.log("Memulai Long Polling setelah memuat pesan awal...");
                     longPoll();
                 }
             }
@@ -438,20 +428,16 @@
                 const today = new Date();
                 const yesterday = new Date();
                 yesterday.setDate(yesterday.getDate() - 1);
-
                 const msgDate = new Date(dateString);
-
                 today.setHours(0, 0, 0, 0);
                 yesterday.setHours(0, 0, 0, 0);
                 msgDate.setHours(0, 0, 0, 0);
-
                 if (today.getTime() === msgDate.getTime()) {
                     return 'Today';
                 }
                 if (yesterday.getTime() === msgDate.getTime()) {
                     return 'Yesterday';
                 }
-
                 return msgDate.toLocaleDateString('en-GB', {
                     day: 'numeric',
                     month: 'short',
@@ -459,10 +445,8 @@
                 });
             }
 
-
-
             setupChatForm();
-            loadInitialMessages()
+            loadInitialMessages();
         });
     </script>
 </body>

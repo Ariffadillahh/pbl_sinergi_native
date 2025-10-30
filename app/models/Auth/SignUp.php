@@ -114,8 +114,8 @@ class User extends BaseModel
 
         foreach ($data as $key => $value) {
             if (in_array($key, $allowedColumns)) {
-                $setClauses[] = "$key = :$key"; 
-                $dataToBind[$key] = $value;   
+                $setClauses[] = "$key = :$key";
+                $dataToBind[$key] = $value;
             }
         }
 
@@ -140,7 +140,7 @@ class User extends BaseModel
             return false;
         }
 
-        foreach ($dataToBind as $key => &$value) { 
+        foreach ($dataToBind as $key => &$value) {
             oci_bind_by_name($stmt, ':' . $key, $value);
         }
         oci_bind_by_name($stmt, ':id', $userId);
@@ -165,7 +165,13 @@ class User extends BaseModel
             return [];
         }
 
-        $sql = "SELECT USERNAME, FULL_NAME, PATH_PHOTO, ROLE FROM USERS WHERE ROLE NOT IN ('MITRA', 'ALUMNI')";
+        $userId = $_SESSION['user_id'];
+
+        $sql = "SELECT USERNAME, FULL_NAME, PATH_PHOTO, ROLE 
+            FROM USERS 
+            WHERE ROLE NOT IN ('MITRA', 'ALUMNI') 
+            AND ID != :id";
+
         $stmt = oci_parse($conn, $sql);
 
         if (!$stmt) {
@@ -174,7 +180,10 @@ class User extends BaseModel
             return [];
         }
 
+        oci_bind_by_name($stmt, ':id', $userId);
+
         $result = oci_execute($stmt);
+
         if (!$result) {
             $e = oci_error($stmt);
             error_log("Gagal mengeksekusi query: " . $e['message']);

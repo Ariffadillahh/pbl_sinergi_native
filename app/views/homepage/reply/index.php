@@ -15,7 +15,7 @@ function loadLobSafe($data)
 </head>
 
 <body>
-    <main class="w-full h-screen overflow-y-auto border-gray-200 hide-scrollbar relative z-[9999]">
+    <main class="w-full h-screen overflow-y-auto border-gray-200 hide-scrollbar relative z-[999]">
         <div class="sticky top-0 z-10 bg-white w-full px-5 py-3 mb-4 border-b border-gray-200">
             <button onclick="window.history.back()" class="flex items-center gap-3 text-black font-semibold cursor-pointer">
                 <img src="<?php echo BASEURL . '/src/asset/icons/left-arrow-svgrepo-com.svg'; ?>" alt="icon" class="w-6 h-6">
