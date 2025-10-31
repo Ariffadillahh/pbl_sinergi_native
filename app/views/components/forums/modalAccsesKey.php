@@ -9,7 +9,7 @@
 
             <div>
                 <label for="access_key" class="block text-sm font-medium text-gray-700">Kunci Akses</label>
-                <input type="text" id="access_key" name="access_key" required
+                <input type="password" id="access_key" name="access_key" autocomplete="off"
                     class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
             </div>
 

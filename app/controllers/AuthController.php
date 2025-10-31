@@ -219,10 +219,6 @@ class SignupController
             exit;
         }
 
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
         $required_fields = ['FullName', 'username', 'personal_number', 'email', 'password'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
@@ -255,6 +251,7 @@ class SignupController
         $loginModel = new SignInModel();
         $username = $_POST['username'];
         $email = $_POST['email'];
+        $personalNumber = $_POST['personal_number'];
 
         $user = $loginModel->getUserByUsernameOrEmail($username);
 
@@ -267,6 +264,13 @@ class SignupController
 
         if ($user) {
             echo json_encode(['success' => false, 'message' => 'Email sudah ada']);
+            exit;
+        }
+
+        $user = $loginModel->getUserByUsernameOrEmail($personalNumber);
+
+        if ($user) {
+            echo json_encode(['success' => false, 'message' => 'NIM/NIP sudah ada']);
             exit;
         }
 

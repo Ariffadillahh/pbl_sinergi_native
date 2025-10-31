@@ -12,6 +12,7 @@ class SignInModel extends BaseModel
             FROM USERS 
             WHERE USERNAME = :identifier_bv 
                OR EMAIL = :identifier_bv
+               OR PERSONAL_NUMBER = :identifier_bv
                OR ID = :identifier_bv";
 
         $stmt = oci_parse($conn, $sql);

@@ -34,6 +34,15 @@ class ProfileController
 
             $userModel = new UserModel();
             $oldUserData = $userModel->getUserById($userId);
+
+            $userData = new SignInModel();
+            $user = $userData->getUserByUsernameOrEmail($personalNumber);
+
+            if ($user) {
+                echo json_encode(['success' => false, 'message' => 'NIM/NIP sudah ada']);
+                exit;
+            }
+
             $photoPath = $oldUserData['PATH_PHOTO'] ?? '';
 
             if (!empty($_FILES['profileFoto']['name'])) {
