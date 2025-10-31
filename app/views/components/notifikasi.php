@@ -51,8 +51,6 @@
             }
         });
 
-
-
         function createNotificationHTML(notif) {
             const {
                 ID,
@@ -211,11 +209,13 @@
         });
 
         notifListContainer.addEventListener('click', async (event) => {
-            const notificationElement = event.target.closest('[data-notif-id]');
+            const notificationElement = event.target.closest('.notification-item');
 
-            if (!notificationElement || !notificationElement.classList.contains('is-unread')) {
-                const link = `http://localhost/sinergi/${notificationElement?.dataset.link}`;
-                if (link && link !== '#') window.location.href = link;
+            if (!notificationElement.classList.contains('is-unread')) {
+                const link = `http://localhost/sinergi/${notificationElement.dataset.link}`;
+                if (link && link !== '#') {
+                    window.location.href = link;
+                }
                 return;
             }
 

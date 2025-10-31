@@ -46,25 +46,38 @@ class CommentModel extends BaseModel
             ];
         }
 
+
         $sqlReply = "
-            SELECT 
-                R.ID AS REPLY_ID,
-                R.COMMENTAR_ID,
-                R.USER_ID,
-                R.MESSAGE,
-                TO_CHAR(R.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
-                UR.USERNAME AS REPLY_USERNAME,
-                UR.FULL_NAME AS REPLY_FULL_NAME,
-                UR.PATH_PHOTO AS REPLY_PATH_PHOTO,
-                UC.USERNAME AS COMMENT_USERNAME,
-                UC.FULL_NAME AS COMMENT_FULL_NAME
-            FROM REPLY_COMMENTAR R
-            JOIN USERS UR ON R.USER_ID = UR.ID
-            JOIN COMMENTAR C ON R.COMMENTAR_ID = C.ID
-            JOIN USERS UC ON C.USER_ID = UC.ID
-            WHERE C.POST_ID = :post_id
-            ORDER BY R.CREATED_AT ASC
-        ";
+                SELECT 
+                        rc.ID AS REPLY_ID,
+                        rc.COMMENTAR_ID,
+                        rc.USER_ID AS REPLY_USER_ID,
+                        rc.MESSAGE,
+                        rc.PARENT_ID,
+                        ru.USERNAME AS REPLY_USERNAME,
+                        ru.FULL_NAME AS REPLY_FULL_NAME,
+                        ru.PATH_PHOTO AS REPLY_PATH_PHOTO,
+                        cu.USERNAME AS COMMENT_USERNAME,
+                        cu.FULL_NAME AS COMMENT_FULL_NAME,
+                        pu.USERNAME AS PARENT_USERNAME,
+                        pu.FULL_NAME AS PARENT_FULL_NAME,
+                        TO_CHAR(rc.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT
+                    FROM REPLY_COMMENTAR rc
+                    JOIN COMMENTAR c 
+                        ON rc.COMMENTAR_ID = c.ID
+                    JOIN USERS ru 
+                        ON rc.USER_ID = ru.ID
+                    JOIN USERS cu 
+                        ON c.USER_ID = cu.ID
+                    LEFT JOIN REPLY_COMMENTAR prc 
+                        ON rc.PARENT_ID = prc.ID
+                    LEFT JOIN USERS pu 
+                        ON prc.USER_ID = pu.ID
+                    WHERE c.POST_ID = :post_id
+                    ORDER BY rc.CREATED_AT ASC
+            ";
+
+
 
         $stmtReply = oci_parse($conn, $sqlReply);
         oci_bind_by_name($stmtReply, ":post_id", $postId);
@@ -72,20 +85,25 @@ class CommentModel extends BaseModel
 
         while ($row = oci_fetch_assoc($stmtReply)) {
             $commentId = $row['COMMENTAR_ID'];
+
             if (isset($comments[$commentId])) {
-            $comments[$commentId]['REPLIES'][] = [
-                'REPLY_ID' => $row['REPLY_ID'],
-                'USER_ID' => $row['USER_ID'],
-                'USERNAME' => $row['REPLY_USERNAME'],
-                'FULL_NAME' => $row['REPLY_FULL_NAME'],
-                'PATH_PHOTO' => $row['REPLY_PATH_PHOTO'],
-                'MESSAGE' => $row['MESSAGE'],
-                'CREATED_AT' => $row['CREATED_AT'],
-                'REPLY_TO_USERNAME' => $row['COMMENT_USERNAME'],
-                'REPLY_TO_FULLNAME' => $row['COMMENT_FULL_NAME']
-            ];
+                $comments[$commentId]['REPLIES'][] = [
+                    'REPLY_ID'          => $row['REPLY_ID'],
+                    'USER_ID'           => $row['REPLY_USER_ID'],
+                    'USERNAME'          => $row['REPLY_USERNAME'],
+                    'FULL_NAME'         => $row['REPLY_FULL_NAME'],
+                    'PATH_PHOTO'        => $row['REPLY_PATH_PHOTO'],
+                    'MESSAGE'           => $row['MESSAGE'],
+                    'CREATED_AT'        => $row['CREATED_AT'],
+                    'PARENT_ID'         => $row['PARENT_ID'],
+                    'REPLY_TO_USERNAME' => $row['PARENT_USERNAME']
+                        ?? $row['COMMENT_USERNAME'],
+                    'REPLY_TO_FULLNAME' => $row['PARENT_FULL_NAME']
+                        ?? $row['COMMENT_FULL_NAME'],
+                ];
             }
         }
+
 
         return array_values($comments);
     }
@@ -115,44 +133,50 @@ class CommentModel extends BaseModel
         }
     }
 
-   public function addReply($commentId, $userId, $message)
+    public function addReply($commentId, $userId, $message, $parentId)
     {
         $conn = self::getConnection();
-        $replyId = uniqid('reply_');
+        $replyId = 'reply_' . uniqid();
 
         error_log("==== DEBUG ADD REPLY ====");
-        error_log("commentId: $commentId");
-        error_log("userId: $userId");
-        error_log("message: $message");
+        error_log("Comment ID (Jangkar): $commentId");
+        error_log("User ID: $userId");
+        error_log("Parent ID (Balasan ke): " . ($parentId ?? 'NULL'));
+        error_log("Message: $message");
 
-        // ✅ Cek apakah commentId beneran ada di tabel COMMENTAR
         $checkSql = "SELECT COUNT(*) AS CNT FROM COMMENTAR WHERE ID = :cid";
         $checkStmt = oci_parse($conn, $checkSql);
         oci_bind_by_name($checkStmt, ":cid", $commentId);
         oci_execute($checkStmt);
-        oci_fetch($checkStmt);
-        $count = oci_result($checkStmt, "CNT");
-        error_log("CHECK COMMENTAR.ID EXIST? => $count");
-
+        $row = oci_fetch_array($checkStmt, OCI_ASSOC);
+        $count = $row['CNT'];
         if ($count == 0) {
-            error_log("❌ COMMENTAR_ID TIDAK DITEMUKAN DI TABEL COMMENTAR");
+            error_log("❌ GAGAL: COMMENTAR_ID '$commentId' tidak ditemukan.");
+            return false;
         }
 
+
         $sql = "
-            INSERT INTO REPLY_COMMENTAR (ID, COMMENTAR_ID, USER_ID, MESSAGE, CREATED_AT)
-            VALUES (:id, :comment_id, :user_id, :message, CURRENT_TIMESTAMP)
+            INSERT INTO REPLY_COMMENTAR (ID, COMMENTAR_ID, USER_ID, MESSAGE, PARENT_ID)
+            VALUES (:id, :comment_id, :user_id, :message, :parent_id)
         ";
+
         $stmt = oci_parse($conn, $sql);
+
         oci_bind_by_name($stmt, ":id", $replyId);
         oci_bind_by_name($stmt, ":comment_id", $commentId);
         oci_bind_by_name($stmt, ":user_id", $userId);
         oci_bind_by_name($stmt, ":message", $message);
 
+
+        oci_bind_by_name($stmt, ":parent_id", $parentId);
+
         if (oci_execute($stmt)) {
+            error_log("✅ SUKSES: Reply ditambahkan dengan ID: $replyId");
             return $replyId;
         } else {
             $e = oci_error($stmt);
-            error_log("Gagal tambah reply: " . $e['message']);
+            error_log("❌ GAGAL INSERT REPLY: " . $e['message']);
             return false;
         }
     }

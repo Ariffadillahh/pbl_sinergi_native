@@ -74,30 +74,6 @@ class ChatMessage extends BaseModel
         return false;
     }
 
-    public static function getMessageById($id)
-    {
-        $conn = self::getConnection();
-        if (!$conn) return false;
-
-        $sql = "SELECT * FROM FORUM_MESSAGES WHERE ID = :id";
-
-        $stmt = oci_parse($conn, $sql);
-        oci_bind_by_name($stmt, ':id', $id);
-
-        $rowData = false;
-        if (oci_execute($stmt)) {
-            $row = oci_fetch_assoc($stmt);
-            if ($row && is_object($row['CONTENT'])) {
-                $row['CONTENT'] = $row['CONTENT']->load();
-            }
-            $rowData = $row;
-        }
-
-        oci_free_statement($stmt);
-        oci_close($conn);
-        return $rowData;
-    }
-
     public static function getMessagesSince($forumId, $timestamp = null)
     {
         $conn = self::getConnection();

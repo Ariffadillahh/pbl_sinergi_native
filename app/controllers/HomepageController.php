@@ -3,7 +3,8 @@
 require_once __DIR__ . '/../models/CRUD/crud.php';
 require_once __DIR__ . '/../models/Users/UserModel.php';
 require_once __DIR__ . '/../models/Posts/PostModel.php';
-
+require_once __DIR__ . '/../models/Fypage/FypageModel.php';
+require_once __DIR__ . '/../helpers/mentionHelper.php';
 
 class HomePageController
 {
@@ -12,6 +13,14 @@ class HomePageController
         require_once __DIR__ . '/../models/Posts/PostModel.php';
         $postModel = new PostModel();
         $posts = $postModel->getAllPosts();
+        $fypModel = new FypageModel();
+        $trending = $fypModel->getTrendingPosts();   
+        $hot      = $fypModel->getHotForums();       
+        $new      = $fypModel->getNewForums();
+
+        foreach ($posts as &$post) {
+            $post['CONTENT_FORMATTED'] = mentionHelper::formatMentions($post['CONTENT']);
+        }
 
         $contentViewPost = __DIR__ . '/../views/homePage/index.php';
         require_once __DIR__ . '/../views/homePage/layout.php';
@@ -21,12 +30,33 @@ class HomePageController
     {
         $postModel = new PostModel();
 
+        require_once __DIR__ . '/../models/Posts/CommentModel.php';
         $post = $postModel->getPostById($id);
 
         if (!$post) {
             header("Location: " . BASEURL . "/homepage");
             exit();
         }
+        $post['CONTENT_FORMATTED'] = mentionHelper::extractMentions($post['CONTENT']);
+
+        $commentModel = new CommentModel();
+        $comments = $commentModel->getCommentsByPostId($id);
+
+        foreach ($comments as &$comment) { 
+            if (isset($comment['MESSAGE'])) {
+                $comment['MESSAGE_FORMATTED'] = mentionHelper::extractMentions($comment['MESSAGE']);
+            }
+
+            if (isset($comment['REPLIES']) && is_array($comment['REPLIES'])) {
+                foreach ($comment['REPLIES'] as &$reply) {
+                    if (isset($reply['MESSAGE'])) {
+                        $reply['MESSAGE_FORMATTED'] = mentionHelper::extractMentions($reply['MESSAGE']);
+                    }
+                }
+                unset($reply); 
+            }
+        }
+        unset($comment); 
 
         $contentViewPost = __DIR__ . '/../views/homePage/reply/index.php';
         require_once __DIR__ . '/../views/homePage/layout.php';
@@ -78,6 +108,18 @@ class HomePageController
             exit;
         }
     }
+
+    public function sidebarData()
+    {
+        $model = new FypageModel();
+
+        $trending = $model->getTrendingPosts();
+        $hot = $model->getHotForums();
+        $new = $model->getNewForums();
+
+        require_once __DIR__ . '/../views/components/forYouPage.php';
+    }
+
 }
 
 class NotFoundPageController

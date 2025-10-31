@@ -63,13 +63,7 @@
                 </div>
 
                 <div class="mt-5">
-                    <?php
-                    $content = $post['CONTENT'];
-                    if ($content instanceof OCILob) {
-                        $content = $content->load();
-                    }
-                    ?>
-                    <p class="mt-2 text-black text-[15px leading-relaxed"><?= nl2br(htmlspecialchars($content ?? '')) ?></p>
+                    <p class="mt-2 text-black text-[15px leading-relaxed"><?= $post['CONTENT_FORMATTED'] ?? '' ?></p>
                 </div>
 
                 <?php if (!empty($post['MEDIA'])): ?>
@@ -113,6 +107,7 @@
 <?php endif; ?>
 <?php include __DIR__ . '/modalDeletePost.php'; ?>
 <?php include __DIR__ . '/modalEditPost.php'; ?>
+<?php include __DIR__ . '/modalReportPost.php'; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script>
 <script>
@@ -198,6 +193,7 @@
         });
         const dropdown = document.getElementById(id);
         dropdown.classList.toggle('hidden');
+        
     }
 
     function openEditPostModal(postId, content, mediaPaths = []) {

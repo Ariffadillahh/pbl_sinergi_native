@@ -37,5 +37,21 @@
   animation: slide-bottom 30s linear infinite;
 }
 
+/* Style untuk placeholder pada contenteditable div */
+[contenteditable]:empty::before {
+    content: attr(data-placeholder);
+    color: #9ca3af; /* Warna abu-abu seperti placeholder asli */
+    pointer-events: none;
+}
 
+/* Style untuk tag mention yang berwarna biru */
+#content .mention-tag {
+    color: #1d4ed8; /* Biru tua */
+    background-color: #dbeafe; /* Biru muda */
+    padding: 1px 4px;
+    border-radius: 4px;
+    font-weight: 500;
+    /* Mencegah user mengedit di dalam tag mention */
+    contenteditable: false; 
+}
 
