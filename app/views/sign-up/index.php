@@ -16,8 +16,10 @@
 
 
             <div class="w-full max-w-[435px] relative">
-                <div id="error-notification" class="text-center bg-red-500 py-3 px-6 rounded-2xl shadow-lg text-white mb-4 fixed top-5 hidden">
+                <div id="error-notification" class="fixed top-5 left-1/2 -translate-x-1/2 w-11/12 max-w-md bg-red-500 text-white p-4 rounded-lg shadow-lg flex items-center justify-center space-x-3 hidden">
+
                 </div>
+
                 <form id="registerForm" action="<?php echo BASEURL ?>/sign-up/action" method="POST" class="flex flex-col gap-10">
                     <div class="flex flex-col gap-8">
                         <header class="flex flex-col gap-3 text-center">
@@ -158,11 +160,19 @@
                     } else {
                         errorNotif.textContent = result.message || "Terjadi kesalahan.";
                         errorNotif.classList.remove('hidden');
+
+                        setTimeout(() => {
+                            errorNotif.classList.add('hidden');
+                        }, 2000);
                     }
                 } catch (error) {
                     console.error("Fetch Error:", error);
                     errorNotif.textContent = "Tidak dapat terhubung ke server. Periksa koneksi Anda.";
                     errorNotif.classList.remove("hidden");
+
+                    setTimeout(() => {
+                        errorNotif.classList.add('hidden');
+                    }, 2000);
                 } finally {
                     submitButton.innerHTML = originalButtonText;
                     submitButton.disabled = false;

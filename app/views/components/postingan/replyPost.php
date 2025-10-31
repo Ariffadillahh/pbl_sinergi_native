@@ -50,13 +50,8 @@
          </div>
      </div>
      <div class="mt-5">
-         <?php
-            $content = $post['CONTENT'];
-            if ($content instanceof OCILob) {
-                $content = $content->load();
-            }
-            ?>
-         <p class="mt-2 text-black text-[15px leading-relaxed"><?= nl2br(htmlspecialchars($content ?? '')) ?></p>
+         <p class="mt-2 text-black text-[15px leading-relaxed"><?= $post['CONTENT_FORMATTED'] ?? '' ?></p>
+
      </div>
 
      <?php if (!empty($post['MEDIA'])): ?>
@@ -73,15 +68,14 @@
 
      <div class="mt-3 flex items-center justify-between text-gray-500 text-sm border-t border-gray-100 pt-3">
          <div class="flex items-center space-x-6">
-             <button class="flex items-center hover:text-red-500 transition-colors group cursor-pointer">
-                 <div class="p-2">
-                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                             d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                     </svg>
-                 </div>
-                 <span>0</span>
-             </button>
+            <button class="like-btn flex items-center hover:text-red-500 transition-colors group cursor-pointer" data-post-id="<?= $post['POST_ID'] ?>" data-liked="<?= $post['IS_LIKED'] ?'true' : 'false' ?>">
+                <div class="p-2">
+                    <svg class="w-5 h-5 <?= $post['IS_LIKED'] ? 'text-red-500 fill-red-500' : '' ?>" fill="<?= $post['IS_LIKED'] ? 'currentColor' : 'none' ?>" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                </div>
+                <span class="like-count"><?= htmlspecialchars($post['TOTAL_LIKES'] ?? 0) ?></span>
+            </button>
          </div>
      </div>
  </div>
@@ -141,6 +135,39 @@
          const dropdown = document.getElementById(id);
          dropdown.classList.toggle('hidden');
      }
+
+         document.querySelectorAll('.like-btn').forEach(button => {
+        button.addEventListener('click', async () => {
+            const postId = button.getAttribute('data-post-id');
+            const countSpan = button.querySelector('.like-count');
+            const icon = button.querySelector('svg');
+
+            try {
+                const res = await fetch('<?= BASEURL ?>/like/toggle', {
+                    method: 'POST',
+                    body: new URLSearchParams({ post_id: postId })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    const isLiked = data.action === 'liked';
+                    button.setAttribute('data-liked', isLiked ? 'true' : 'false');
+                    countSpan.textContent = data.total_likes;
+
+                    if (isLiked) {
+                        icon.classList.add('text-red-500', 'fill-red-500');
+                    } else {
+                        icon.classList.remove('text-red-500', 'fill-red-500');
+                    }
+                } else {
+                    alert(data.message || 'Gagal update like.');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        });
+    });
 
      function openEditPostModal(postId, content, mediaPaths = []) {
          const container = document.getElementById("media-preview-container");

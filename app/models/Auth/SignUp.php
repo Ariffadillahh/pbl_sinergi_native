@@ -156,4 +156,38 @@ class User extends BaseModel
         oci_free_statement($stmt);
         return true;
     }
+
+    public function getAllUsers()
+    {
+        $conn = self::getConnection();
+        if (!$conn) {
+            error_log("Gagal mendapatkan koneksi database.");
+            return [];
+        }
+
+        $sql = "SELECT USERNAME, FULL_NAME, PATH_PHOTO, ROLE FROM USERS WHERE ROLE NOT IN ('MITRA', 'ALUMNI')";
+        $stmt = oci_parse($conn, $sql);
+
+        if (!$stmt) {
+            $e = oci_error($conn);
+            error_log("Gagal mem-parsing SQL: " . $e['message']);
+            return [];
+        }
+
+        $result = oci_execute($stmt);
+        if (!$result) {
+            $e = oci_error($stmt);
+            error_log("Gagal mengeksekusi query: " . $e['message']);
+            oci_free_statement($stmt);
+            return [];
+        }
+
+        $users = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $users[] = $row;
+        }
+
+        oci_free_statement($stmt);
+        return $users;
+    }
 }

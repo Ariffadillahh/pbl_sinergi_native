@@ -1,21 +1,25 @@
 <?php
 
 require_once __DIR__ . '/../models/Posts/CommentModel.php';
+require_once __DIR__ . '/../models/Notif/NotificationModel.php';
+require_once __DIR__ . '/../models/Posts/PostModel.php';
 
 class CommentController
 {
     private $commentModel;
+    private $notificationModel;
 
     public function __construct()
     {
         $this->commentModel = new CommentModel();
+        $this->notificationModel = new NotificationModel();
+        
     }
 
     public function getModel()
     {
         return $this->commentModel;
     }
-
 
     public function getComments($postId)
     {
@@ -32,7 +36,7 @@ class CommentController
     public function addComment()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-             ob_clean();
+            ob_clean();
             header('Content-Type: application/json');
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method not allowed']);
@@ -43,6 +47,7 @@ class CommentController
         $userId = $_SESSION['user_id'] ?? null;
         $postId = $_POST['post_id'] ?? null;
         $message = trim($_POST['message'] ?? '');
+        $type = 'REPLY_POST';
 
         if (!$userId || !$postId || $message === '') {
             ob_clean();
@@ -52,14 +57,16 @@ class CommentController
         }
 
         $result = $this->commentModel->addComment($postId, $userId, $message);
-
-        ob_clean();
-        header('Content-Type: application/json');
-        if ($result) {
-            echo json_encode(['success' => true, 'message' => 'Komentar berhasil ditambahkan']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Gagal menambahkan komentar']);
-        }
+            if ($result) {
+                        $owner = $this->commentModel->getPostOwner($postId);
+                        if ($owner && $owner['ID'] !== $userId) {
+                        $this->notificationModel->addNotification($owner['ID'], $userId, $postId, $type);
+                        }
+                    }
+        echo json_encode([
+            'success' => (bool)$result,
+            'message' => $result ? 'Komentar berhasil ditambahkan' : 'Gagal menambahkan komentar'
+        ]);
     }
 
 
@@ -74,24 +81,29 @@ class CommentController
         }
 
         session_start();
+
         $userId = $_SESSION['user_id'] ?? null;
         $commentId = $_POST['comment_id'] ?? null;
         $message = trim($_POST['message'] ?? '');
 
+        $parentId = empty($_POST['parent_id']) ? null : $_POST['parent_id'];
+
         if (!$userId || !$commentId || $message === '') {
             ob_clean();
             header('Content-Type: application/json');
+            http_response_code(400); 
             echo json_encode(['success' => false, 'message' => 'Data tidak lengkap']);
             return;
         }
 
-        $result = $this->commentModel->addReply($commentId, $userId, $message);
+        $result = $this->commentModel->addReply($commentId, $userId, $message, $parentId);
 
         ob_clean();
         header('Content-Type: application/json');
         if ($result) {
-            echo json_encode(['success' => true, 'message' => 'Balasan berhasil ditambahkan']);
+            echo json_encode(['success' => true, 'message' => 'Balasan berhasil ditambahkan', 'reply_id' => $result]);
         } else {
+            http_response_code(500); 
             echo json_encode(['success' => false, 'message' => 'Gagal menambahkan balasan']);
         }
     }

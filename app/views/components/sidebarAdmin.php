@@ -12,7 +12,7 @@ $isPeminjamanActive = (strpos($current_uri, '/dashboard/peminjaman') !== false);
     <div class="px-6 py-8 border-b border-blue-500/30">
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg">
-                <img src="<?php echo BASEURL; ?>/src/asset/icons/logo-icon.svg" class="w-9 h-9 shrink-0" alt="logo">
+                <img src="<?php echo BASEURL; ?>/src/asset/icons/logo-icon.svg" class="w-8 h-8 shrink-0" alt="logo">
 
             </div>
             <h2 class="text-2xl font-bold text-white tracking-wide">SINERGI</h2>

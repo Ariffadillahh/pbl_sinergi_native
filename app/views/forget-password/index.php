@@ -23,6 +23,7 @@
                     <form id="resetForm" class="flex flex-col gap-10" method="POST">
                         <div class="flex flex-col gap-8">
                             <header class="flex flex-col gap-3 text-center">
+                                <img src="<?php echo BASEURL; ?>/src/asset/icons/logo-icon.svg" class="w-12 h-10 shrink-0 mx-auto" alt="logo">
                                 <h1 class="font-light text-2xl">SINERGI</h1>
                                 <p class="font-medium text-gray-500">Change Your Password Now</p>
                             </header>
