@@ -155,7 +155,6 @@ class CommentModel extends BaseModel
             return false;
         }
 
-
         $sql = "
             INSERT INTO REPLY_COMMENTAR (ID, COMMENTAR_ID, USER_ID, MESSAGE, PARENT_ID)
             VALUES (:id, :comment_id, :user_id, :message, :parent_id)
@@ -179,5 +178,39 @@ class CommentModel extends BaseModel
             error_log("❌ GAGAL INSERT REPLY: " . $e['message']);
             return false;
         }
+    }
+
+    public function getPostOwner($postId)
+    {
+        $conn = self::getConnection();
+        $sql = "SELECT U.ID, U.FULL_NAME
+                FROM POSTS P 
+                JOIN USERS U ON P.USER_ID = U.ID
+                WHERE P.ID = :post_id";
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ':post_id', $postId);
+        oci_execute($stmt);
+        return oci_fetch_assoc($stmt);
+    }
+
+    public function getCommentDetails($commentId)
+    {
+        $conn = self::getConnection(); 
+
+        $sql = "SELECT USER_ID, POST_ID 
+            FROM COMMENTAR 
+            WHERE ID = :comment_id";
+
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ':comment_id', $commentId);
+
+        if (oci_execute($stmt)) {
+            $details = oci_fetch_assoc($stmt);
+            oci_free_statement($stmt);
+            return $details; 
+        }
+
+        oci_free_statement($stmt);
+        return false;
     }
 }

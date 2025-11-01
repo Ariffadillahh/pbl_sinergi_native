@@ -5,9 +5,18 @@ require_once __DIR__ . '/../models/Forums/ChatMessage.php';
 
 class ForumsController
 {
+    private $forumModel;
+    private $forumMemberModel;
+
+    public function __construct()
+    {
+        $this->forumModel = new Forum();
+        $this->forumMemberModel = new ForumMember();
+    }
+
     public function index()
     {
-        $joinedForums = Forum::getForumsByUserId($_SESSION['user_id']);
+        $joinedForums = $this->forumModel->getForumsByUserId($_SESSION['user_id']);
         $activeChatId = null;
 
         $contentView = __DIR__ . '/../views/forums/index.php';
@@ -16,15 +25,14 @@ class ForumsController
 
     public function chat($id)
     {
-        $forumByid = Forum::findById($id);
+        $forumByid = $this->forumModel->findById($id);
 
         if (!$forumByid) {
             header("Location: " . BASEURL . "/forums");
             exit;
         }
 
-        $membersForum = ForumMember::findByForumId($id);
-
+        $membersForum = $this->forumMemberModel->findByForumId($id);
         $isMember = false;
         foreach ($membersForum as $member) {
             if ($member['USER_ID'] == $_SESSION['user_id']) {
@@ -38,7 +46,7 @@ class ForumsController
             exit;
         }
 
-        $joinedForums = Forum::getForumsByUserId($_SESSION['user_id']);
+        $joinedForums = $this->forumModel->getForumsByUserId($_SESSION['user_id']);
         $activeChatId = $id;
 
         $contentView = __DIR__ . '/../views/forums/chat/index.php';
@@ -47,13 +55,12 @@ class ForumsController
 
     public function create()
     {
+        header('Content-Type: application/json');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
             exit;
         }
-
-        header('Content-Type: application/json');
 
         $forumName = trim($_POST['forumName'] ?? '');
         $bio = trim($_POST['bio'] ?? '');
@@ -69,10 +76,8 @@ class ForumsController
             $id_sementara = uniqid();
             $targetDir = __DIR__ . '/../../storage/forums/photos/';
             if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
-
             $fileName = $id_sementara . "_" . basename($_FILES['forumPhoto']['name']);
             $targetFile = $targetDir . $fileName;
-
             if (move_uploaded_file($_FILES['forumPhoto']['tmp_name'], $targetFile)) {
                 $photoPath = $fileName;
             }
@@ -87,51 +92,37 @@ class ForumsController
             'photo'     => $photoPath
         ];
 
-        $newForumId = Forum::create($data);
-
+        $newForumId = $this->forumModel->create($data);
         if ($newForumId) {
-            $response = [
-                'success' => true,
-                'message' => 'Forum berhasil dibuat!',
-                'redirectUrl' => BASEURL . "/forums/chat/" . $newForumId
-            ];
+            $response = ['success' => true, 'message' => 'Forum berhasil dibuat!', 'redirectUrl' => BASEURL . "/forums/chat/" . $newForumId];
         } else {
             $response = ['success' => false, 'message' => 'Gagal membuat forum.'];
         }
-
         echo json_encode($response);
         exit;
     }
 
     public function edit()
     {
+        header('Content-Type: application/json');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
             exit;
         }
 
-        header('Content-Type: application/json');
-
-        $forumId   = $_POST['forum_id'] ?? null;
+        $forumId = $_POST['forum_id'] ?? null;
         $forumName = trim($_POST['forumName'] ?? '');
-        $bio       = trim($_POST['bio'] ?? '');
+        $bio = trim($_POST['bio'] ?? '');
         $isPrivate = isset($_POST['isPrivate']) ? 1 : 0;
-        $keyForum  = $_POST['keyForum'] ?? null;
+        $keyForum = $_POST['keyForum'] ?? null;
 
-        if (empty($forumId)) {
-            echo json_encode(['success' => false, 'message' => 'Forum ID tidak ditemukan.']);
+        if (empty($forumId) || empty($forumName) || empty($bio)) {
+            echo json_encode(['success' => false, 'message' => 'Data tidak boleh kosong.']);
             exit;
         }
 
-        if (empty($forumName) || empty($bio)) {
-            echo json_encode(['success' => false, 'message' => 'Nama Forum dan Bio tidak boleh kosong.']);
-            exit;
-        }
-
-
-
-        $oldForum = Forum::findById($forumId);
+        $oldForum = $this->forumModel->findById($forumId);
         if (!$oldForum) {
             echo json_encode(['success' => false, 'message' => 'Forum tidak ditemukan.']);
             exit;
@@ -144,14 +135,11 @@ class ForumsController
         }
 
         $photoPath = $oldForum['PATH_PHOTO'];
-
         if (!empty($_FILES['forumPhoto']['name'])) {
             $targetDir = __DIR__ . '/../../storage/forums/photos/';
             if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
-
             $fileName = uniqid() . "_" . basename($_FILES['forumPhoto']['name']);
             $targetFile = $targetDir . $fileName;
-
             if (move_uploaded_file($_FILES['forumPhoto']['tmp_name'], $targetFile)) {
                 if (!empty($oldForum['PATH_PHOTO']) && $oldForum['PATH_PHOTO'] !== 'default.png') {
                     $oldFile = $targetDir . $oldForum['PATH_PHOTO'];
@@ -159,128 +147,87 @@ class ForumsController
                         unlink($oldFile);
                     }
                 }
-
                 $photoPath = $fileName;
             }
         }
 
         $data = [
-            'NAME'       => $forumName,
-            'ABOUT'      => $bio,
+            'NAME' => $forumName,
+            'ABOUT' => $bio,
             'IS_PRIVATE' => $isPrivate,
             'ACCESS_KEY' => $isPrivate ? $keyForum : null,
             'PATH_PHOTO' => $photoPath,
         ];
 
-        $updated = Forum::edit($forumId, $data);
-
-        if ($updated) {
-            $response = [
-                'success' => true,
-                'message' => 'Forum berhasil diperbarui!',
-                'redirectUrl' => BASEURL . "/forums/chat/" . $forumId
-            ];
+        if ($this->forumModel->edit($forumId, $data)) {
+            $response = ['success' => true, 'message' => 'Forum berhasil diperbarui!', 'redirectUrl' => BASEURL . "/forums/chat/" . $forumId];
         } else {
             $response = ['success' => false, 'message' => 'Gagal memperbarui forum.'];
         }
-
         echo json_encode($response);
         exit;
     }
 
     public function delete()
     {
+        header('Content-Type: application/json');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
             exit;
         }
 
-        header('Content-Type: application/json');
-
         $forumId = $_POST['forum_id'] ?? null;
-
         if (empty($forumId)) {
             echo json_encode(['success' => false, 'message' => 'Forum ID tidak ditemukan.']);
             exit;
         }
 
-        $forumToDelete = Forum::findById($forumId);
-        if (!$forumToDelete) {
-            echo json_encode(['success' => false, 'message' => 'Forum yang akan dihapus tidak ditemukan.']);
-            exit;
-        }
-
-        if ($forumToDelete['OWNER_ID'] != $_SESSION['user_id']) {
+        $forumToDelete = $this->forumModel->findById($forumId);
+        if (!$forumToDelete || $forumToDelete['OWNER_ID'] != $_SESSION['user_id']) {
             http_response_code(403);
-            echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki izin untuk mengedit forum ini.']);
+            echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki izin atau forum tidak ditemukan.']);
             exit;
         }
 
-        $deleted = Forum::delete($forumId);
-
-        if ($deleted) {
+        if ($this->forumModel->delete($forumId)) {
             $photoPath = $forumToDelete['PATH_PHOTO'] ?? null;
-
             if (!empty($photoPath) && $photoPath !== 'default.png') {
-                $targetDir = __DIR__ . '/../../storage/forums/photos/';
-                $fullPath = $targetDir . $photoPath;
-
+                $fullPath = __DIR__ . '/../../storage/forums/photos/' . $photoPath;
                 if (file_exists($fullPath)) {
                     unlink($fullPath);
                 }
             }
-
-            $response = [
-                'success' => true,
-                'message' => 'Forum berhasil dihapus!',
-                'redirectUrl' => BASEURL . "/forums"
-            ];
+            $response = ['success' => true, 'message' => 'Forum berhasil dihapus!', 'redirectUrl' => BASEURL . "/forums"];
         } else {
             $response = ['success' => false, 'message' => 'Gagal menghapus forum.'];
         }
-
         echo json_encode($response);
         exit;
     }
 
-
     public function exit()
     {
+        header('Content-Type: application/json');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
             exit;
         }
 
-        header('Content-Type: application/json');
-
         $userId = $_SESSION['user_id'] ?? null;
-        if (empty($userId)) {
-            http_response_code(401);
-            echo json_encode(['success' => false, 'message' => 'Anda harus login untuk keluar dari forum.']);
-            exit;
-        }
-
         $forumId = $_POST['forum_id'] ?? null;
-        if (empty($forumId)) {
+        if (empty($userId) || empty($forumId)) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Forum ID tidak ditemukan.']);
+            echo json_encode(['success' => false, 'message' => 'Data tidak lengkap.']);
             exit;
         }
 
-        $exited = Forum::exitForum($forumId, $userId);
-
-        if ($exited) {
-            $response = [
-                'success'     => true,
-                'message'     => 'Anda berhasil keluar dari forum!',
-                'redirectUrl' => BASEURL . "/forums"
-            ];
+        if ($this->forumModel->exitForum($forumId, $userId)) {
+            $response = ['success' => true, 'message' => 'Anda berhasil keluar dari forum!', 'redirectUrl' => BASEURL . "/forums"];
         } else {
-            $response = ['success' => false, 'message' => 'Gagal keluar dari forum. Silakan coba lagi.'];
+            $response = ['success' => false, 'message' => 'Gagal keluar dari forum.'];
         }
-
         echo json_encode($response);
         exit;
     }
@@ -288,31 +235,25 @@ class ForumsController
     public function search()
     {
         header('Content-Type: application/json');
-
         $keyword = $_GET['q'] ?? '';
         $userId = $_SESSION['user_id'] ?? null;
-
         if (trim($keyword) === '') {
             echo json_encode([]);
             exit;
         }
-
-        $forums = Forum::searchByName($keyword, $userId);
-
+        $forums = $this->forumModel->searchByName($keyword, $userId);
         echo json_encode($forums);
         exit;
     }
 
-
     public function join()
     {
+        header('Content-Type: application/json');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method Not Allowed.']);
             exit;
         }
-
-        header('Content-Type: application/json');
 
         $forumId = $_POST['forum_id'] ?? null;
         $userId = $_SESSION['user_id'] ?? null;
@@ -324,16 +265,9 @@ class ForumsController
             exit;
         }
 
-        $result = Forum::joinForum($forumId, $userId, $accessKey);
-
+        $result = $this->forumModel->joinForum($forumId, $userId, $accessKey);
         if ($result['success']) {
-            echo json_encode(
-                [
-                    'success' => true,
-                    'message' => $result['message'],
-                    'redirectUrl' => BASEURL . '/forums/chat/' . $forumId
-                ]
-            );
+            echo json_encode(['success' => true, 'message' => $result['message'], 'redirectUrl' => BASEURL . '/forums/chat/' . $forumId]);
         } else {
             http_response_code(409);
             echo json_encode(['success' => false, 'message' => $result['message']]);
@@ -344,206 +278,50 @@ class ForumsController
     public function reportForumOrPost()
     {
         header('Content-Type: application/json');
-
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['error' => 'Metode request tidak valid.']);
             return;
         }
-
         if (!isset($_SESSION['user_id'])) {
             http_response_code(401);
             echo json_encode(['error' => 'Pengguna tidak terautentikasi.']);
             return;
         }
 
-        $userId = $_SESSION['user_id'];
-        $targetId = isset($_POST['target_id']) ? $_POST['target_id'] : null;
-        $targetType = $_POST['target_type'] ?? null;
-        $reason = isset($_POST['reason']) ? trim($_POST['reason']) : null;
-        $otherReasonText = isset($_POST['other_reason_text']) ? trim($_POST['other_reason_text']) : null;
-
-        if (empty($targetId) || empty($reason)) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Data tidak lengkap. ID Forum dan alasan wajib diisi.']);
-            return;
-        }
-
-        if ($reason === 'other' && empty($otherReasonText)) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Silakan jelaskan alasan Anda jika memilih "Lainnya".']);
-            return;
-        }
-
-        $reportDescription = $reason;
-        if ($reason === 'other') {
-            $reportDescription = "Lainnya: " . htmlspecialchars($otherReasonText);
-        }
-
         $data = [
-            'user_id' => $userId,
-            'target_id' => $targetId,
-            'target_type' => $targetType,
+            'user_id' => $_SESSION['user_id'],
+            'target_id' => $_POST['target_id'] ?? null,
+            'target_type' => $_POST['target_type'] ?? null,
+            'reason' => $_POST['reason'] ?? null,
+            'other_reason_text' => $_POST['other_reason_text'] ?? null,
+        ];
+
+
+        $reportDescription = $data['reason'];
+        if ($data['reason'] === 'other') {
+            $reportDescription = "Lainnya: " . htmlspecialchars($data['other_reason_text']);
+        }
+
+        $reportData = [
+            'user_id' => $data['user_id'],
+            'target_id' => $data['target_id'],
+            'target_type' => $data['target_type'],
             'reason' => $reportDescription,
         ];
 
-        $reportForum = Forum::createReport($data);
-
         try {
-            if ($reportForum['success']) {
-                http_response_code(200);
+            if ($this->forumModel->createReport($reportData)['success']) {
                 echo json_encode(['success' => true, 'message' => 'Laporan Anda telah berhasil dikirim.']);
             } else {
                 http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'Gagal menyimpan laporan ke database.']);
+                echo json_encode(['success' => false, 'message' => 'Gagal menyimpan laporan.']);
             }
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan pada server.']);
+            echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan server.']);
         }
     }
 }
 
-class ChatMessages
-{
-    public function sendMessage()
-    {
-        header('Content-Type: application/json');
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
-            echo json_encode(['error' => 'Metode request tidak valid.']);
-            return;
-        }
-
-        if (!isset($_SESSION['user_id'])) {
-            http_response_code(401);
-            echo json_encode(['error' => 'Pengguna tidak terautentikasi.']);
-            return;
-        }
-
-        $forum_id = $_POST['forum_id'] ?? null;
-        $user_id  = $_SESSION['user_id'];
-        $message  = trim($_POST['message'] ?? '');
-
-        $hasFile = isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK;
-
-        if (empty($message) && !$hasFile) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Pesan atau file tidak boleh kosong.']);
-            return;
-        }
-
-        $data = [
-            'forum_id'          => $forum_id,
-            'sender_id'         => $user_id,
-            'content'           => $message,
-            'path_media'        => null,
-            'original_filename' => null,
-            'type'              => 'TEXT'
-        ];
-
-        if ($hasFile) {
-            $uploadStart = microtime(true);
-
-            $uploadDir = __DIR__ . '/../../storage/forums/attachment/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-
-            $originalName = basename($_FILES['attachment']['name']);
-            $fileName = uniqid('', true) . '-' . preg_replace("/[^a-zA-Z0-9.\-_]/", "", $originalName);
-            $targetPath = $uploadDir . $fileName;
-
-            if (move_uploaded_file($_FILES['attachment']['tmp_name'], $targetPath)) {
-                $mime = mime_content_type($targetPath);
-
-                $fileType = 'FILE';
-                if (strpos($mime, 'image/') === 0) $fileType = 'IMAGE';
-                elseif (strpos($mime, 'video/') === 0) $fileType = 'VIDEO';
-
-                $data['path_media'] = 'storage/forums/attachment/' . $fileName;
-                $data['original_filename'] = $originalName;
-                $data['type'] = $fileType;
-            } else {
-                http_response_code(500);
-                echo json_encode(['error' => 'Gagal memproses file.']);
-                return;
-            }
-
-            $uploadEnd = microtime(true);
-            error_log("File upload took: " . ($uploadEnd - $uploadStart) . " seconds");
-        }
-
-        $dbStart = microtime(true);
-        $result = ChatMessage::createMessage($data);
-        $dbEnd = microtime(true);
-        error_log("Database insert took: " . ($dbEnd - $dbStart) . " seconds");
-
-        if (is_array($result) && isset($result['ID'])) {
-
-            echo json_encode([
-                'success'    => true,
-                'message_id' => $result['ID']
-            ]);
-        } else {
-            http_response_code(500);
-            echo json_encode(['error' => 'Gagal menyimpan pesan.']);
-        }
-    }
-
-    public function getNewMessages()
-    {
-        header('Content-Type: application/json');
-
-        try {
-            $forumId = $_GET['forum_id'] ?? 0;
-            $lastTimestamp = $_GET['since'] ?? null;
-
-            if (!isset($_SESSION['user_id'])) {
-                http_response_code(401);
-                echo json_encode(['error' => 'Tidak terautentikasi']);
-                return;
-            }
-
-            session_write_close();
-
-            if (!$forumId) {
-                echo json_encode([]);
-                return;
-            }
-
-            set_time_limit(60);
-
-            $startTime = time();
-
-            while ((time() - $startTime) < 55) {
-                $messages = ChatMessage::getMessagesSince($forumId, $lastTimestamp);
-
-                if (!empty($messages)) {
-                    echo json_encode($messages);
-                    return;
-                }
-
-                sleep(1);
-            }
-
-            echo json_encode([]);
-        } catch (\Throwable $e) {
-            error_log('Error in getNewMessages: ' . $e->getMessage());
-            http_response_code(500);
-            echo json_encode(['error' => 'Terjadi kesalahan pada server.']);
-        }
-    }
-
-    public function getInitialMessages($forum_id)
-    {
-        header('Content-Type: application/json');
-
-        $messages = ChatMessage::getMessagesByForumId($forum_id);
-
-        echo json_encode($messages ?? []);
-
-        exit();
-    }
-}

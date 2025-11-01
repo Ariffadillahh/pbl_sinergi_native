@@ -87,7 +87,7 @@ function loadLobSafe($data)
 
                             <div class="hidden reply-form">
                                 <form method="POST" class="reply-form-data bg-white text-black border-t border-gray-200 p-3 sm:p-4 rounded-2xl my-2">
-                                    <input type="hidden" name="comment_id" value="<?= htmlspecialchars($comment['ID'] ?? $comment['COMMENT_ID']) ?>">
+                                    <input type="text" name="comment_id" value="<?= htmlspecialchars($comment['ID'] ?? $comment['COMMENT_ID']) ?>">
                                     <div class="flex flex-col sm:flex-row items-start space-y-3 sm:space-y-0 sm:space-x-3 relative">
                                         <div class="flex-shrink-0">
                                             <img src="<?= !empty($_SESSION['path_photo'])
@@ -132,12 +132,24 @@ function loadLobSafe($data)
                                                                 <svg class="w-3 h-3 text-blue-700 rotate-180 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                                                                 </svg>
+                                                                <?php
+                                                                $replyToUsername = htmlspecialchars($reply['REPLY_TO_USERNAME']);
+                                                                $currentUsername = $_SESSION['username'];
+
+                                                                if ($replyToUsername === $currentUsername) {
+                                                                    $profileUrl = BASEURL . '/profile';
+                                                                } else {
+                                                                    $profileUrl = BASEURL . '/homepage/user/profile/' . urlencode($replyToUsername);
+                                                                }
+                                                                ?>
+
                                                                 <span class="text-blue-600">
-                                                                    <a href="<?= BASEURL ?>/profile/<?= htmlspecialchars($reply['REPLY_TO_USERNAME']) ?>"
+                                                                    <a href="<?= $profileUrl ?>"
                                                                         class="hover:underline hover:text-blue-700 transition-colors">
-                                                                        @<?= htmlspecialchars($reply['REPLY_TO_USERNAME']) ?>
+                                                                        @<?= $replyToUsername ?>
                                                                     </a>
                                                                 </span>
+
                                                             </div>
                                                         <?php endif; ?>
                                                     </div>
@@ -169,7 +181,7 @@ function loadLobSafe($data)
 
                                             <div class="hidden reply-form ml-1 pl-8 sm:pl-12">
                                                 <form method="POST" class="reply-form-data bg-white text-black border-t border-gray-200 p-3 sm:p-4 rounded-2xl my-2">
-                                                    <input type="hidden" name="comment_id" value="<?= trim(htmlspecialchars($comment['COMMENT_ID'])) ?>">
+                                                    <input type="text" name="comment_id" value="<?= trim(htmlspecialchars($comment['COMMENT_ID'])) ?>">
                                                     <input type="hidden" name="parent_id" value="<?= isset($reply['REPLY_ID']) ? trim(htmlspecialchars($reply['REPLY_ID'])) : '' ?>">
 
                                                     <div class="flex flex-col sm:flex-row items-start space-y-3 sm:space-y-0 sm:space-x-3 relative">
@@ -208,7 +220,7 @@ function loadLobSafe($data)
 
         async function fetchUsers() {
             try {
-                const response = await fetch('<?= BASEURL ?>/getAllUsers');
+                const response = await fetch('<?= BASEURL ?>/get-all-user');
                 if (!response.ok) throw new Error(`Server responded with ${response.status}`);
 
                 const contentType = response.headers.get("content-type");
@@ -398,8 +410,8 @@ function loadLobSafe($data)
                     const textarea = form.querySelector('textarea[name="message"]');
                     const replyTo = textarea.dataset.replyTo;
 
-                    if (replyTo && !textarea.value.startsWith(`@${replyTo}`)) {
-                        textarea.value = `@${replyTo} ${textarea.value}`;
+                    if (replyTo && !textarea.placeholder.startsWith(`@${replyTo}`)) {
+                        textarea.placeholder = `@${replyTo} ${textarea.value}`;
                     }
 
                     const formData = new FormData(form);

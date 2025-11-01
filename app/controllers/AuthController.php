@@ -6,34 +6,40 @@ require_once __DIR__ . '/../models/Auth/SignUp.php';
 require_once __DIR__ . '/../models/Auth/SignIn.php';
 require_once __DIR__ . '/../models/Forums/Forum.php';
 
-
-
-class SigninController
+class AuthController
 {
+    private $userModel;
+    private $loginModel;
+
     public function __construct()
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        $this->userModel = new User();
+        $this->loginModel  = new SignInModel();
     }
 
-    public function index()
+    public function signIn()
     {
         include __DIR__ . '/../views/sign-in/index.php';
     }
 
+    public function signUp()
+    {
+        include __DIR__ . '/../views/sign-up/index.php';
+    }
+
+    public function forgetPassword()
+    {
+        include __DIR__ . '/../views/forget-password/index.php';
+    }
+
     public function setUp()
     {
+        header('Content-Type: application/json');
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
             exit;
-        }
-
-        header('Content-Type: application/json');
-
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
         }
 
         if (empty($_SESSION['user_id'])) {
@@ -59,16 +65,13 @@ class SigninController
         $email  = $_SESSION['email'];
 
         try {
-            $userModel = new User();
-            $isUpdated = $userModel->updateProfile($userId, $dataToUpdate);
+            $isUpdated = $this->userModel->updateProfile($userId, $dataToUpdate);
 
             if ($isUpdated) {
-                $loginModel  = new SignInModel();
-                $updatedUser = $loginModel->getUserByUsernameOrEmail($email);
+                $updatedUser = $this->loginModel->getUserByUsernameOrEmail($email);
 
                 if ($updatedUser) {
                     $this->createSession($updatedUser);
-
                     echo json_encode([
                         'status'  => 'success',
                         'message' => 'Profil berhasil diperbarui dan sesi diperbarui!'
@@ -92,19 +95,15 @@ class SigninController
                 'message' => 'Terjadi kesalahan pada server.'
             ]);
         }
-
         exit;
     }
-
 
     public function signInAction()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $identifier = $_POST['username_or_email'];
             $password = $_POST['password'];
-
-            $loginModel = new SignInModel();
-            $user = $loginModel->getUserByUsernameOrEmail($identifier);
+            $user = $this->loginModel->getUserByUsernameOrEmail($identifier);
 
             if ($user && password_verify($password, $user['PASSWORD'])) {
                 if ($user['ROLE'] == 'MAHASISWA') {
@@ -113,7 +112,6 @@ class SigninController
                     $userId = $user['ID'];
 
                     if ($tahunMasuk > 0 && !empty($jenjangStudi)) {
-
                         $durasiStudi = 0;
                         if ($jenjangStudi == 'D4') {
                             $durasiStudi = 4;
@@ -123,19 +121,14 @@ class SigninController
 
                         if ($durasiStudi > 0) {
                             $tahunLulus = $tahunMasuk + $durasiStudi;
-                            $bulanLulus = 10; // Oktober, sesuai permintaan
-
+                            $bulanLulus = 10;
                             $tahunSekarang = (int)date('Y');
                             $bulanSekarang = (int)date('m');
 
                             if ($tahunSekarang > $tahunLulus || ($tahunSekarang == $tahunLulus && $bulanSekarang >= $bulanLulus)) {
-
-                                $loginModel->updateUserRole($userId, 'ALUMNI');
-
+                                $this->loginModel->updateUserRole($userId, 'ALUMNI');
                                 $user['ROLE'] = 'ALUMNI';
-
                                 $this->createSession($user);
-
                                 header('Location: ' . BASEURL . '/forums');
                                 exit();
                             }
@@ -174,7 +167,6 @@ class SigninController
         exit();
     }
 
-
     private function createSession($user)
     {
         $_SESSION['user_id'] = $user['ID'];
@@ -193,20 +185,10 @@ class SigninController
     public function getAllUsers()
     {
         header('Content-Type: application/json');
-
         $userModel = new User();
         $users = $userModel->getAllUsers();
-
         echo json_encode(['success' => true, 'data' => $users]);
         exit;
-    }
-}
-
-class SignupController
-{
-    public function  index()
-    {
-        include __DIR__ . '/../views/sign-up/index.php';
     }
 
     public function register()
@@ -248,32 +230,24 @@ class SignupController
             exit;
         }
 
-        $loginModel = new SignInModel();
         $username = $_POST['username'];
         $email = $_POST['email'];
         $personalNumber = $_POST['personal_number'];
-
-        $user = $loginModel->getUserByUsernameOrEmail($username);
-
+        $user = $this->loginModel->getUserByUsernameOrEmail($username);
         if ($user) {
             echo json_encode(['success' => false, 'message' => 'Username sudah ada']);
             exit;
         }
-
-        $user = $loginModel->getUserByUsernameOrEmail($email);
-
+        $user = $this->loginModel->getUserByUsernameOrEmail($email);
         if ($user) {
             echo json_encode(['success' => false, 'message' => 'Email sudah ada']);
             exit;
         }
-
-        $user = $loginModel->getUserByUsernameOrEmail($personalNumber);
-
+        $user = $this->loginModel->getUserByUsernameOrEmail($personalNumber);
         if ($user) {
             echo json_encode(['success' => false, 'message' => 'NIM/NIP sudah ada']);
             exit;
         }
-
 
         $tempPhotoPath = null;
         if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
@@ -281,10 +255,8 @@ class SignupController
             if (!is_dir($tempUploadDir)) {
                 mkdir($tempUploadDir, 0777, true);
             }
-
             $tempFileName = uniqid('temp_', true) . '-' . basename($_FILES['photo']['name']);
             $tempPhotoPath = $tempUploadDir . $tempFileName;
-
             if (!move_uploaded_file($_FILES['photo']['tmp_name'], $tempPhotoPath)) {
                 echo json_encode(['success' => false, 'message' => 'Gagal memproses file upload.']);
                 exit;
@@ -308,13 +280,11 @@ class SignupController
             'otp_expiry'      => time() + 300,
             'temp_photo_path' => $tempPhotoPath
         ];
-
         $_SESSION['registration_data'] = $registrationData;
 
         try {
             require_once __DIR__ . '/../../vendor/autoload.php';
             $mailConfig = require __DIR__ . '/../../config/mail.php';
-
             $mail = new PHPMailer(true);
             $mail->isSMTP();
             $mail->Host       = $mailConfig['host'];
@@ -323,17 +293,13 @@ class SignupController
             $mail->Password   = $mailConfig['password'];
             $mail->SMTPSecure = $mailConfig['encryption'];
             $mail->Port       = $mailConfig['port'];
-
             $mail->setFrom($mailConfig['from_address'], $mailConfig['from_name']);
             $mail->addAddress($email, $registrationData['FULL_NAME']);
-
             $mail->isHTML(true);
             $mail->Subject = 'Kode Verifikasi Registrasi Akun SINERGI';
             $mail->Body    = "Halo <b>{$registrationData['FULL_NAME']}</b>,<br><br>Terima kasih telah mendaftar. Gunakan kode OTP di bawah ini untuk menyelesaikan proses registrasi Anda. Kode ini hanya berlaku 5 menit.<br><br>Kode OTP Anda adalah: <h2><b>{$otp}</b></h2>";
             $mail->AltBody = "Kode OTP Anda adalah: {$otp}";
-
             $mail->send();
-
             echo json_encode([
                 'success' => true,
                 'message' => 'OTP berhasil dikirim. Silakan periksa email Anda.',
@@ -345,7 +311,6 @@ class SignupController
                 'message' => 'Gagal mengirim email verifikasi. Silakan coba lagi.'
             ]);
         }
-
         exit;
     }
 
@@ -365,13 +330,10 @@ class SignupController
         }
 
         $sessionData = $_SESSION['registration_data'];
-
         $newOtp = rand(1000, 9999);
         $newExpiry = time() + (5 * 60);
-
         $_SESSION['registration_data']['otp'] = $newOtp;
         $_SESSION['registration_data']['otp_expiry'] = $newExpiry;
-
         $userEmail = $sessionData['EMAIL'];
         $userName = $sessionData['FULL_NAME'];
 
@@ -379,7 +341,6 @@ class SignupController
             require_once __DIR__ . '/../../vendor/autoload.php';
             $mailConfig = require __DIR__ . '/../../config/mail.php';
             $mail = new PHPMailer(true);
-
             $mail->isSMTP();
             $mail->Host       = $mailConfig['host'];
             $mail->SMTPAuth   = true;
@@ -387,20 +348,16 @@ class SignupController
             $mail->Password   = $mailConfig['password'];
             $mail->SMTPSecure = $mailConfig['encryption'];
             $mail->Port       = $mailConfig['port'];
-
             $mail->setFrom($mailConfig['from_address'], $mailConfig['from_name']);
             $mail->addAddress($userEmail, $userName);
             $mail->isHTML(true);
             $mail->Subject = 'Kode Verifikasi Registrasi Baru Anda';
             $mail->Body    = "Gunakan kode OTP baru di bawah ini untuk menyelesaikan registrasi. Kode ini hanya berlaku 5 menit.<br><br>Kode OTP Anda adalah: <h2><b>{$newOtp}</b></h2>";
-
             $mail->send();
-
             echo json_encode(['success' => true, 'message' => 'Kode OTP baru telah berhasil dikirim.']);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => "Gagal mengirim email verifikasi. Mailer Error: {$mail->ErrorInfo}"]);
         }
-
         exit;
     }
 
@@ -430,7 +387,6 @@ class SignupController
         error_log("Submitted OTP: " . $submittedOtp);
         error_log("Session Data: " . print_r($sessionData, true));
 
-
         if (time() > $sessionData['otp_expiry']) {
             unset($_SESSION['registration_data']);
             echo json_encode(['success' => false, 'message' => 'Kode OTP telah kadaluarsa. Silakan daftar ulang.']);
@@ -444,19 +400,15 @@ class SignupController
 
         if (!empty($sessionData['temp_photo_path']) && file_exists($sessionData['temp_photo_path'])) {
             $tempPath = $sessionData['temp_photo_path'];
-
             $uploadDir = __DIR__ . '/../../storage/users/photos/';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
-
             $finalPhotoName = basename($tempPath);
             if (strpos($finalPhotoName, 'temp_') === 0) {
                 $finalPhotoName = substr($finalPhotoName, strlen('temp_'));
             }
-
             $finalPhotoPath = $uploadDir . $finalPhotoName;
-
             if (!rename($tempPath, $finalPhotoPath)) {
                 echo json_encode(['success' => false, 'message' => 'Gagal menyimpan foto profil (permission error).']);
                 exit;
@@ -468,10 +420,7 @@ class SignupController
         unset($sessionData['temp_photo']);
 
         try {
-            $userModel = new User();
-
-            $isCreated = $userModel->create($sessionData);
-
+            $isCreated = $this->userModel->create($sessionData);
             if ($isCreated) {
                 unset($_SESSION['registration_data']);
                 echo json_encode(['success' => true, 'message' => 'Registrasi berhasil!']);
@@ -487,35 +436,22 @@ class SignupController
             }
             echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
         }
-
         exit;
     }
-}
 
-class forgetPassword
-{
-    public function index()
+    public function sendPasswordResetOtp()
     {
-        include __DIR__ . '/../views/forget-password/index.php';
-    }
+        header('Content-Type: application/json');
 
-    public function forgetPassword()
-    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
             exit;
         }
 
-        header('Content-Type: application/json');
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
         $identifier = $_POST['username_or_email'];
         $newPassword = $_POST['password'];
-        $loginModel = new SignInModel();
-        $user = $loginModel->getUserByUsernameOrEmail($identifier);
+        $user = $this->loginModel->getUserByUsernameOrEmail($identifier);
 
         if (!$user) {
             echo json_encode(['success' => false, 'message' => 'Pengguna dengan username atau email tersebut tidak ditemukan.']);
@@ -539,9 +475,7 @@ class forgetPassword
         try {
             require_once __DIR__ . '/../../vendor/autoload.php';
             $mailConfig = require __DIR__ . '/../../config/mail.php';
-
             $mail = new PHPMailer(true);
-
             $mail->isSMTP();
             $mail->Host       = $mailConfig['host'];
             $mail->SMTPAuth   = true;
@@ -549,17 +483,13 @@ class forgetPassword
             $mail->Password   = $mailConfig['password'];
             $mail->SMTPSecure = $mailConfig['encryption'];
             $mail->Port       = $mailConfig['port'];
-
             $mail->setFrom($mailConfig['from_address'], $mailConfig['from_name']);
             $mail->addAddress($user['EMAIL'], $user['FULL_NAME']);
-
             $mail->isHTML(true);
             $mail->Subject = 'Kode Verifikasi Pengaturan Ulang Kata Sandi';
             $mail->Body    = "Halo <b>{$user['FULL_NAME']}</b>,<br><br>Seseorang meminta untuk mengatur ulang kata sandi Anda. Gunakan kode OTP di bawah ini untuk melanjutkan. Kode ini hanya berlaku 5 menit.<br><br>Kode OTP Anda adalah: <h2><b>{$otp}</b></h2>";
             $mail->AltBody = "Kode OTP Anda adalah: {$otp}";
-
             $mail->send();
-
             echo json_encode([
                 'success' => true,
                 'message' => 'OTP berhasil dikirim. Silakan periksa email Anda.'
@@ -570,21 +500,17 @@ class forgetPassword
                 'message' => "Gagal mengirim email verifikasi. Mailer Error: {$mail->ErrorInfo}"
             ]);
         }
-
         exit;
     }
 
     public function verifyOtpForgetPassword()
     {
+        header('Content-Type: application/json');
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
             exit;
-        }
-
-        header('Content-Type: application/json');
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
         }
 
         if (!isset($_SESSION['forget-password'])) {
@@ -607,13 +533,9 @@ class forgetPassword
         }
 
         try {
-            $userModel = new User();
-
             $userId = $sessionData['user_id'];
             $hashedPassword = $sessionData['new_password'];
-
-            $isUpdated = $userModel->updatePassword($userId, $hashedPassword);
-
+            $isUpdated = $this->userModel->updatePassword($userId, $hashedPassword);
             if ($isUpdated) {
                 unset($_SESSION['forget-password']);
                 echo json_encode(['success' => true, 'message' => 'Password berhasil diubah! Silakan login.']);
@@ -623,21 +545,17 @@ class forgetPassword
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
         }
-
         exit;
     }
 
     public function resendOtpForgetPassword()
     {
+        header('Content-Type: application/json');
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
             exit;
-        }
-
-        header('Content-Type: application/json');
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
         }
 
         if (!isset($_SESSION['forget-password']) || !isset($_SESSION['forget-password']['user_id'])) {
@@ -646,10 +564,7 @@ class forgetPassword
         }
 
         $sessionData = $_SESSION['forget-password'];
-
-        $userModel = new SignInModel();
-        $user = $userModel->getUserByUsernameOrEmail($sessionData['user_id']);
-
+        $user = $this->loginModel->getUserByUsernameOrEmail($sessionData['user_id']);
         if (!$user) {
             echo json_encode(['success' => false, 'message' => 'Pengguna tidak dapat ditemukan.']);
             exit;
@@ -657,16 +572,13 @@ class forgetPassword
 
         $newOtp = rand(1000, 9999);
         $newExpiry = time() + (5 * 60);
-
         $_SESSION['forget-password']['otp'] = $newOtp;
         $_SESSION['forget-password']['otp_expiry'] = $newExpiry;
 
         try {
             require_once __DIR__ . '/../../vendor/autoload.php';
             $mailConfig = require __DIR__ . '/../../config/mail.php';
-
             $mail = new PHPMailer(true);
-
             $mail->isSMTP();
             $mail->Host       = $mailConfig['host'];
             $mail->SMTPAuth   = true;
@@ -674,16 +586,12 @@ class forgetPassword
             $mail->Password   = $mailConfig['password'];
             $mail->SMTPSecure = $mailConfig['encryption'];
             $mail->Port       = $mailConfig['port'];
-
             $mail->setFrom($mailConfig['from_address'], $mailConfig['from_name']);
             $mail->addAddress($user['EMAIL'], $user['FULL_NAME']);
-
             $mail->isHTML(true);
             $mail->Subject = 'Kode Verifikasi Baru Anda';
             $mail->Body    = "Gunakan kode OTP baru di bawah ini. Kode ini hanya berlaku 5 menit.<br><br>Kode OTP Anda adalah: <h2><b>{$newOtp}</b></h2>";
-
             $mail->send();
-
             echo json_encode(['success' => true, 'message' => 'Kode OTP baru telah berhasil dikirim.']);
         } catch (Exception $e) {
             echo json_encode([
@@ -691,7 +599,6 @@ class forgetPassword
                 'message' => "Gagal mengirim email verifikasi. Mailer Error: {$mail->ErrorInfo}"
             ]);
         }
-
         exit;
     }
 }

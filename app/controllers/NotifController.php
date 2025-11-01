@@ -112,7 +112,7 @@ class NotifController
         }
 
         $input = json_decode(file_get_contents('php://input'), true);
-        $notifId = $input['notifId'] ?? null; 
+        $notifId = $input['notifId'] ?? null;
 
         if (!$notifId) {
             http_response_code(400);
@@ -127,8 +127,35 @@ class NotifController
         if ($result) {
             echo json_encode(['success' => true]);
         } else {
-            // Jika result false, mungkin notif tidak ditemukan
             echo json_encode(['success' => false, 'message' => 'Notification not found or already read.']);
+        }
+        exit;
+    }
+
+    public function deleteAllRead()
+    {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+            exit;
+        }
+
+        if (empty($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            exit;
+        }
+
+        $userId = $_SESSION['user_id'];
+
+        $result = $this->notificationModel->deleteAllRead($userId);
+
+        if ($result) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Notification gagal di hapus.']);
         }
         exit;
     }

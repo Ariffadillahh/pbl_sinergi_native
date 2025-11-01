@@ -20,6 +20,12 @@ switch (true) {
         $notifController->markAllRead();
         break;
 
+    case $route === 'notifications/deleteAllRead':
+        requireLogin();
+        $notifController = new NotifController();
+        $notifController->deleteAllRead();
+        break;
+
     case $route === 'notifications/markAsRead':
         requireLogin();
         $notifController = new NotifController();

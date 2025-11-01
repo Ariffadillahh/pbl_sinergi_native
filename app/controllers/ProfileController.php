@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../models/Users/UserModel.php';
 require_once __DIR__ . '/../models/Posts/PostModel.php';
+require_once __DIR__ . '/../helpers/mentionHelper.php';
 
 class ProfileController
 {
@@ -15,12 +16,13 @@ class ProfileController
 
         $postModel = new PostModel();
         $posts = $postModel->getPostsByUser($userId);
+        foreach ($posts as &$post) {
+            $post['CONTENT_FORMATTED'] = mentionHelper::formatMentions($post['CONTENT']);
+        }
 
         $contentViewProfile = __DIR__ . '/../views/profile/index.php';
         require_once __DIR__ . '/../views/profile/layout.php';
     }
-
-    public function getProfileById($id) {}
 
     public function updateProfile()
     {

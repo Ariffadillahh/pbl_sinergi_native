@@ -1,13 +1,16 @@
 <?php
 require_once __DIR__ . '/../models/Posts/PostModel.php';
+require_once __DIR__ . '/../models/Notif/NotificationModel.php';
 
 class PostController
 {
     private $postModel;
+    private $notificationModel;
 
     public function __construct()
     {
         $this->postModel = new PostModel();
+        $this->notificationModel = new NotificationModel();
     }
 
     public function index()
@@ -76,7 +79,6 @@ class PostController
             for ($i = 0; $i < $totalFiles; $i++) {
                 $fileName = uniqid('post_', true) . '-' . basename($_FILES['images']['name'][$i]);
                 $targetFile = $uploadDir . $fileName;
-
                 $fileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
                 $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
 
@@ -84,18 +86,37 @@ class PostController
                     echo json_encode(['success' => false, 'message' => 'Hanya file gambar (JPG, JPEG, PNG, GIF) yang diperbolehkan.']);
                     exit;
                 }
-
                 if (!move_uploaded_file($_FILES['images']['tmp_name'][$i], $targetFile)) {
                     echo json_encode(['success' => false, 'message' => 'Gagal mengunggah file gambar.']);
                     exit;
                 }
-
                 $uploadedPaths[] = 'storage/posts/images/' . $fileName;
             }
         }
 
-        $success = $this->postModel->createPost($user['ID'], $caption, $uploadedPaths);
-        if ($success) {
+        $newPost = $this->postModel->createPost($user['ID'], $caption, $uploadedPaths);
+
+        if ($newPost && isset($newPost['success']) && $newPost['success'] === true) {
+            $newPostId = $newPost['ID'];
+
+            preg_match_all('/@(\w+)/', $caption, $matches);
+            $mentionedUsernames = !empty($matches[1]) ? array_unique($matches[1]) : [];
+
+            if (!empty($mentionedUsernames)) {
+                $mentionedUsers = $this->postModel->getUsersByUsernames($mentionedUsernames);
+
+                foreach ($mentionedUsers as $mentionedUser) {
+                    if ($mentionedUser['ID'] !== $user['ID']) {
+                        $this->notificationModel->addNotification(
+                            $mentionedUser['ID'],
+                            $user['ID'],
+                            $newPostId,
+                            'MENTION'
+                        );
+                    }
+                }
+            }
+
             echo json_encode(['success' => true, 'message' => 'Postingan berhasil dibuat.']);
             exit;
         } else {

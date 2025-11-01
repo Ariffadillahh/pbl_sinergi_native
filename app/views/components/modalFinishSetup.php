@@ -26,7 +26,7 @@ $showModal = (isset($_SESSION['role']) && $_SESSION['role'] === 'MAHASISWA') &&
                 <p id="modal-error-message"
                     class="bg-red-600 p-2 text-white text-center rounded-lg hidden mb-4"></p>
 
-                <form id="setup-form" action="<?php echo BASEURL ?>/profile/setup" method="POST" class="my-5">
+                <form id="setup-form" action="<?php echo BASEURL ?>/user-setup" method="POST" class="my-5">
                     <div class="my-6 max-w-md mx-auto">
                         <div class="relative mb-5">
                             <select id="jenjang-studi" name="jenjang_studi"

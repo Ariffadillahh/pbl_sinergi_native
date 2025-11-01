@@ -21,7 +21,7 @@
                         <img src="<?php echo BASEURL; ?>/src/asset/icons/logo-icon.svg" class="flex w-11 h-9 shrink-0 md:hidden" alt="logo">
                     </div>
 
-                    <form class="flex-1 max-w-2xl">
+                    <form id="searchForm" class="flex-1 max-w-2xl" onsubmit="return handleSearch(event)">
                         <div class="relative group">
                             <input
                                 type="search"
@@ -37,14 +37,14 @@
 
                             <button type="submit"
                                 class="text-white absolute right-1.5 top-1/2 -translate-y-1/2 
-                                       bg-gradient-to-r from-blue-500 to-blue-600 
-                                       hover:from-blue-600 hover:to-blue-700
-                                       focus:ring-4 focus:outline-none focus:ring-blue-300 
-                                       rounded-full p-2.5 w-10 h-10 
-                                       flex items-center justify-center
-                                       shadow-sm hover:shadow-md
-                                       transition-all duration-200
-                                       active:scale-95">
+                                    bg-gradient-to-r from-blue-500 to-blue-600 
+                                    hover:from-blue-600 hover:to-blue-700
+                                    focus:ring-4 focus:outline-none focus:ring-blue-300 
+                                    rounded-full p-2.5 w-10 h-10 
+                                    flex items-center justify-center
+                                    shadow-sm hover:shadow-md
+                                    transition-all duration-200
+                                    active:scale-95">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 20 20">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
@@ -81,5 +81,18 @@
 
     </main>
 </body>
+<script>
+    const BASEURL = '<?= BASEURL ?>';
+
+    function handleSearch(e) {
+        e.preventDefault();
+        const input = document.getElementById('default-search');
+        const keyword = input.value.trim();
+        if (!keyword) return;
+
+        // Arahkan ke halaman pencarian
+        window.location.href = `${BASEURL}/homepage/search?keyword=${encodeURIComponent(keyword)}`;
+    }
+</script>
 
 </html>

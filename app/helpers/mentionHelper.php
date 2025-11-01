@@ -30,7 +30,16 @@ class mentionHelper
         foreach ($usersData as $username => $userData) {
             $id = htmlspecialchars($userData['ID']);
             $username_safe = htmlspecialchars($username);
-            $link = '<a href="' . BASEURL . '/user/profile/' . $id . '" class="text-blue-500 hover:underline">@' . $username_safe . '</a>';
+            $currentId = $_SESSION['user_id'];
+
+            if ($id == $currentId) {
+                $profileLink = BASEURL . '/profile';
+            } else {
+                $profileLink = BASEURL . '/homepage/user/profile/' . $id;
+            }
+
+            $link = '<a href="' . $profileLink . '" class="text-blue-500 hover:underline">@' . $username_safe . '</a>';
+
             $text = preg_replace('/@' . preg_quote($username, '/') . '\b/', $link, $text);
         }
 
@@ -47,7 +56,7 @@ class mentionHelper
             return '';
         }
 
-        $originalText = $text; 
+        $originalText = $text;
 
         if (!preg_match_all('/@(\w+)/', $text, $matches)) {
             return $originalText;
@@ -55,7 +64,7 @@ class mentionHelper
 
         $mentionedUsernames = array_unique($matches[1]);
         if (empty($mentionedUsernames)) {
-            return $originalText; 
+            return $originalText;
         }
 
         $postModel = new PostModel();
@@ -64,9 +73,17 @@ class mentionHelper
         foreach ($usersData as $username => $userData) {
             $id = htmlspecialchars($userData['ID']);
             $username_safe = htmlspecialchars($username);
-            $link = '<a href="' . BASEURL . '/user/profile/' . $id . '" class="text-blue-500 hover:underline">@' . $username_safe . '</a>';
+            $currentId = $_SESSION['user_id'];
+
+            $profileLink = ($id == $currentId)
+                ? BASEURL . '/profile'
+                : BASEURL . '/homepage/user/profile/' . $id;
+
+            $link = '<a href="' . $profileLink . '" class="text-blue-500 hover:underline">@' . $username_safe . '</a>';
+
             $text = preg_replace('/@' . preg_quote($username, '/') . '\b/', $link, $text);
         }
+
 
         return $text;
     }

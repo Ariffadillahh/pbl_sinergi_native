@@ -173,7 +173,7 @@
 
     async function fetchUsers() {
         try {
-            const response = await fetch('<?= BASEURL ?>/getAllUsers');
+            const response = await fetch('<?= BASEURL ?>/get-all-user');
 
             if (!response.ok) throw new Error(`Server responded with ${response.status}`);
 
