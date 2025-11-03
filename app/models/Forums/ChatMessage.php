@@ -81,7 +81,7 @@ class ChatMessage extends BaseModel
 
         $baseQuery = "SELECT m.ID, m.FORUM_ID, m.SENDER_ID, m.CONTENT,m.ORIGINAL_FILENAME, m.PATH_MEDIA, m.TYPE, 
                          TO_CHAR(m.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT,
-                         u.FULL_NAME AS SENDER_NAME, u.PATH_PHOTO AS SENDER_PHOTO
+                         u.FULL_NAME AS SENDER_NAME, u.PATH_PHOTO AS SENDER_PHOTO, u.ROLE
                   FROM FORUM_MESSAGES m
                   JOIN USERS u ON m.SENDER_ID = u.ID
                   WHERE m.FORUM_ID = :forum_id";

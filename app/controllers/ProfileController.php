@@ -5,6 +5,18 @@ require_once __DIR__ . '/../helpers/mentionHelper.php';
 
 class ProfileController
 {
+    private $postModel;
+    private $userModel;
+    private $signInModel;
+
+    public function __construct()
+    {
+        $this->postModel = new PostModel();
+        $this->userModel = new UserModel();
+        $this->signInModel = new SignInModel();
+    }
+
+
     public function index()
     {
         $userId = $_SESSION['user_id'];
@@ -14,11 +26,11 @@ class ProfileController
             exit;
         }
 
-        $postModel = new PostModel();
-        $posts = $postModel->getPostsByUser($userId);
+        $posts = $this->postModel->getPostsByUser($userId);
         foreach ($posts as &$post) {
             $post['CONTENT_FORMATTED'] = mentionHelper::formatMentions($post['CONTENT']);
         }
+        unset($post);
 
         $contentViewProfile = __DIR__ . '/../views/profile/index.php';
         require_once __DIR__ . '/../views/profile/layout.php';
@@ -34,15 +46,15 @@ class ProfileController
             $jenjangStudi = $_POST['jenjang_studi'] ?? '';
             $tahunMasuk = $_POST['tahun_masuk'] ?? '';
 
-            $userModel = new UserModel();
-            $oldUserData = $userModel->getUserById($userId);
+            $oldUserData = $this->userModel->getUserById($userId);
 
-            $userData = new SignInModel();
-            $user = $userData->getUserByUsernameOrEmail($personalNumber);
+            $user = $this->signInModel->getUserByUsernameOrEmail($personalNumber);
 
-            if ($user) {
-                echo json_encode(['success' => false, 'message' => 'NIM/NIP sudah ada']);
-                exit;
+            if ($_SESSION['personal_number'] != $personalNumber) {
+                if ($user) {
+                    echo json_encode(['success' => false, 'message' => 'NIM/NIP sudah ada']);
+                    exit;
+                }
             }
 
             $photoPath = $oldUserData['PATH_PHOTO'] ?? '';
@@ -73,7 +85,7 @@ class ProfileController
                 }
             }
 
-            $result = $userModel->updateProfile(
+            $result = $this->userModel->updateProfile(
                 $userId,
                 $fullName,
                 $personalNumber,
@@ -103,6 +115,8 @@ class ProfileController
 
     public function updatePassword()
     {
+        header('Content-Type: application/json');
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userId = $_SESSION['user_id'];
             $currentPassword = $_POST['current_password'] ?? '';
@@ -118,8 +132,7 @@ class ProfileController
                 exit;
             }
 
-            $userModel = new UserModel();
-            $userData = $userModel->getUserById($userId);
+            $userData = $this->userModel->getUserById($userId);
 
             if (!$userData) {
                 echo json_encode(['success' => false, 'message' => 'User tidak ditemukan.']);
@@ -140,7 +153,7 @@ class ProfileController
 
             $newHashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
 
-            $result = $userModel->updatePassword($userId, $newHashedPassword);
+            $result = $this->userModel->updatePassword($userId, $newHashedPassword);
 
             if ($result['success']) {
                 echo json_encode(['success' => true, 'message' => 'Password berhasil diubah.']);

@@ -216,6 +216,7 @@ function loadLobSafe($data)
     </main>
 
     <script>
+        console.log(<?= json_encode($comments) ?>);
         let users = [];
 
         async function fetchUsers() {

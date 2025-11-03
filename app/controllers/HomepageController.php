@@ -42,6 +42,7 @@ class HomepageController
         foreach ($posts as &$post) {
             $post['CONTENT_FORMATTED'] = mentionHelper::formatMentions($post['CONTENT']);
         }
+        unset($post);
 
         $contentViewPost = __DIR__ . '/../views/homePage/index.php';
         require_once __DIR__ . '/../views/homePage/layout.php';
@@ -54,21 +55,26 @@ class HomepageController
             header("Location: " . BASEURL . "/homepage");
             exit();
         }
+
         $post['CONTENT_FORMATTED'] = mentionHelper::extractMentions($post['CONTENT']);
 
         $comments = $this->commentModel->getCommentsByPostId($id);
+
         foreach ($comments as &$comment) {
             if (isset($comment['MESSAGE'])) {
                 $comment['MESSAGE_FORMATTED'] = mentionHelper::extractMentions($comment['MESSAGE']);
             }
+
             if (isset($comment['REPLIES']) && is_array($comment['REPLIES'])) {
                 foreach ($comment['REPLIES'] as &$reply) {
                     if (isset($reply['MESSAGE'])) {
                         $reply['MESSAGE_FORMATTED'] = mentionHelper::extractMentions($reply['MESSAGE']);
                     }
                 }
+                unset($reply); 
             }
         }
+        unset($comment); 
 
         $sidebarData = $this->getSidebarData();
         extract($sidebarData);
@@ -76,6 +82,7 @@ class HomepageController
         $contentViewPost = __DIR__ . '/../views/homePage/reply/index.php';
         require_once __DIR__ . '/../views/homePage/layout.php';
     }
+
 
     public function profile($id)
     {

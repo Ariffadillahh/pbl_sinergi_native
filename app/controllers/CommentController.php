@@ -26,7 +26,10 @@ class CommentController
     {
         $comments = $this->commentModel->getCommentsByPostId($postId);
 
-        header('Content-Type: application/json');
+        echo "<pre>";
+        print_r($comments);
+        echo "</pre>";
+
 
         echo json_encode([
             'success' => true,

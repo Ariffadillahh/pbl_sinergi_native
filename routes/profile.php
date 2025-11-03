@@ -6,20 +6,17 @@ switch (true) {
         requireLogin();
         $controller = new ProfileController();
         $controller->index();
-        $routeFound = true;
         break;
 
     case $route === 'profile/update':
         requireLogin();
         $controller = new ProfileController();
         $controller->updateProfile();
-        $routeFound = true;
         break;
 
     case $route === 'profile/updatePassword':
         requireLogin();
         $controller = new ProfileController();
         $controller->updatePassword();
-        $routeFound = true;
         break;
 }

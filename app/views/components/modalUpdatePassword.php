@@ -24,7 +24,7 @@
                 <p id="update-password-success"
                     class="bg-green-600 p-2 text-white text-center rounded-lg hidden mb-4"></p>
 
-                <form id="update-password-form" action="<?php echo BASEURL ?>/profile/updatePassword" method="POST"
+                <form id="update-password-form" action="<?php echo BASEURL ?>/profile/updatePassword"
                     class="my-5 space-y-4">
 
                     <div class="relative">
