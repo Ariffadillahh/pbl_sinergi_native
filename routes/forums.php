@@ -79,4 +79,10 @@ switch (true) {
         $controller = new ForumsController();
         $controller->reportForumOrPost();
         break;
+
+    case $route === 'forums/pollCounts':
+        requireLogin();
+        $controller = new ChatMessagesController();
+        $controller->pollCounts();
+        break;
 }

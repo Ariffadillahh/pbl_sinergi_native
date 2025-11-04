@@ -18,24 +18,70 @@ class Forum extends BaseModel
     {
         $conn = self::getConnection();
 
-        $sql = "SELECT f.ID, f.NAME, f.PATH_PHOTO, f.ABOUT, f.CREATED_AT
-            FROM FORUMS f
-            JOIN FORUM_MEMBERS fm ON f.ID = fm.FORUM_ID
-            WHERE fm.USER_ID = :user_id_bv
-            ORDER BY f.CREATED_AT DESC";
+        if (!$conn) {
+            error_log(" Gagal terhubung ke database.");
+            return [];
+        }
+
+        $sql = "
+                SELECT 
+                    f.ID, 
+                    f.NAME, 
+                    f.PATH_PHOTO, 
+                    f.CREATED_AT,
+                    f.ABOUT,
+                    (
+                        SELECT COUNT(msg_count.ID)
+                        FROM FORUM_MESSAGES msg_count
+                        WHERE msg_count.FORUM_ID = fm.FORUM_ID
+                        AND msg_count.CREATED_AT > fm.LAST_READ_AT
+                        AND msg_count.SENDER_ID != fm.USER_ID
+                    ) AS UNREAD_COUNT,
+
+                    lm.CONTENT AS LAST_MESSAGE_CONTENT,
+                    lm.CREATED_AT AS LAST_MESSAGE_AT
+                    
+                FROM 
+                    FORUMS f
+                JOIN 
+                    FORUM_MEMBERS fm ON f.ID = fm.FORUM_ID
+                
+                OUTER APPLY (
+                    SELECT msg.CONTENT, msg.CREATED_AT
+                    FROM FORUM_MESSAGES msg
+                    WHERE msg.FORUM_ID = f.ID -- Korelasi ke tabel 'f'
+                    ORDER BY msg.CREATED_AT DESC
+                    FETCH FIRST 1 ROWS ONLY -- Ambil hanya 1 baris teratas
+                ) lm
+                    
+                WHERE 
+                    fm.USER_ID = :user_id_bv
+                ORDER BY 
+                    lm.CREATED_AT DESC NULLS LAST";
 
         $stmt = oci_parse($conn, $sql);
 
-        oci_bind_by_name($stmt, ':user_id_bv', $userId);
-
-        oci_execute($stmt);
-
-        $forums = [];
-        while ($row = oci_fetch_assoc($stmt)) {
-            $forums[] = $row;
+        if (!$stmt) {
+            $e = oci_error($conn);
+            error_log("Gagal parse query: " . $e['message']);
+            oci_close($conn);
+            return [];
         }
 
+        oci_bind_by_name($stmt, ':user_id_bv', $userId);
+
+        if (!oci_execute($stmt)) {
+            $e = oci_error($stmt);
+            error_log("Gagal execute query: " . $e['message']);
+            oci_free_statement($stmt);
+            oci_close($conn);
+            return [];
+        }
+
+        $forums = [];
+        oci_fetch_all($stmt, $forums, 0, -1, OCI_FETCHSTATEMENT_BY_ROW | OCI_ASSOC);
         oci_free_statement($stmt);
+        oci_close($conn);
 
         return $forums;
     }
@@ -331,12 +377,12 @@ class Forum extends BaseModel
             return ['success' => false, 'message' => 'Gagal terhubung ke database.'];
         }
 
-        $stmt_insert = null; 
+        $stmt_insert = null;
         try {
             $insertData = [
-                'id' => uniqid(), 
+                'id' => uniqid(),
                 'target_id' => $data['target_id'],
-                'target_type' => $data['target_type'], 
+                'target_type' => $data['target_type'],
                 'user_id' => $data['user_id'],
                 'reason' => $data['reason']
             ];
@@ -361,7 +407,7 @@ class Forum extends BaseModel
             if ($result) {
                 return ['success' => true, 'message' => 'Laporan Anda berhasil dikirim. Terima kasih.'];
             } else {
-                $error = oci_error($stmt_insert); 
+                $error = oci_error($stmt_insert);
                 return ['success' => false, 'message' => 'Gagal mengirim laporan: ' . htmlspecialchars($error['message'])];
             }
         } finally {
@@ -369,5 +415,97 @@ class Forum extends BaseModel
                 oci_free_statement($stmt_insert);
             }
         }
+    }
+
+    public function getUnreadCount($forumId, $userId)
+    {
+        $conn = self::getConnection();
+
+        if (!$conn) {
+            error_log("Gagal terhubung ke database.");
+            return 0;
+        }
+
+        $sql = "
+            SELECT COUNT(m.ID) AS UNREAD_COUNT
+            FROM FORUM_MESSAGES m
+            JOIN FORUM_MEMBERS fm ON m.FORUM_ID = fm.FORUM_ID
+            WHERE
+                m.FORUM_ID = :forumId
+                AND fm.USER_ID = :userId
+                AND m.CREATED_AT > fm.LAST_READ_AT
+                AND m.SENDER_ID != :userId
+        ";
+
+        $stmt = oci_parse($conn, $sql);
+
+        oci_bind_by_name($stmt, ':forumId', $forumId);
+        oci_bind_by_name($stmt, ':userId', $userId);
+
+        if (!oci_execute($stmt)) {
+            $e = oci_error($stmt);
+            error_log("Gagal menjalankan query: " . $e['message']);
+            oci_free_statement($stmt);
+            oci_close($conn);
+            return 0;
+        }
+
+        $row = oci_fetch_assoc($stmt);
+        oci_free_statement($stmt);
+        oci_close($conn);
+
+        $unreadCount = isset($row['UNREAD_COUNT']) ? (int)$row['UNREAD_COUNT'] : 0;
+
+        error_log("[getUnreadCount] Forum ID={$forumId}, User ID={$userId}, Unread={$unreadCount}");
+
+        return $unreadCount;
+    }
+
+    public function updateLastReadAt($forumId, $userId)
+    {
+        $conn = self::getConnection();
+
+        if (!$conn) {
+            error_log("Gagal terhubung ke database.");
+            return;
+        }
+
+        $sql = "
+            UPDATE FORUM_MEMBERS
+            SET LAST_READ_AT = CURRENT_TIMESTAMP
+            WHERE FORUM_ID = :forumId
+            AND USER_ID = :userId
+        ";
+
+        $stmt = oci_parse($conn, $sql);
+
+        if (!$stmt) {
+            $e = oci_error($conn);
+            error_log("Gagal parse query: " . $e['message']);
+            oci_close($conn);
+            return;
+        }
+
+        oci_bind_by_name($stmt, ':forumId', $forumId);
+        oci_bind_by_name($stmt, ':userId', $userId);
+
+        if (!oci_execute($stmt, OCI_COMMIT_ON_SUCCESS)) {
+            $e = oci_error($stmt);
+            error_log("Gagal menjalankan query: " . $e['message']);
+            oci_free_statement($stmt);
+            oci_close($conn);
+            return;
+        }
+
+        $rowsAffected = oci_num_rows($stmt);
+
+        if ($rowsAffected > 0) {
+            error_log("Update berhasil untuk FORUM_ID={$forumId}, USER_ID={$userId}");
+        } else {
+            error_log("Tidak ada baris diperbarui untuk FORUM_ID={$forumId}, USER_ID={$userId}.");
+        }
+
+        oci_free_statement($stmt);
+        oci_close($conn);
     }
 }

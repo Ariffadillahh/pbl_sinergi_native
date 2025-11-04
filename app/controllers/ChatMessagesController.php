@@ -4,10 +4,12 @@ require_once __DIR__ . '/../models/Forums/ChatMessage.php';
 class ChatMessagesController
 {
     private $chatMessageModel;
+    private $forumModel;
 
     public function __construct()
     {
         $this->chatMessageModel = new ChatMessage();
+        $this->forumModel = new Forum();
     }
 
     public function sendMessage()
@@ -149,5 +151,80 @@ class ChatMessagesController
         echo json_encode($messages ?? []);
 
         exit();
+    }
+
+    public function markAsRead($id)
+    {
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(403);
+            exit;
+        }
+
+        $currentUserId = $_SESSION['user_id'];
+        $this->forumModel->updateLastReadAt($id, $currentUserId);
+        http_response_code(204);
+        exit;
+    }
+
+    public function pollCounts()
+    {
+        header('Content-Type: application/json');
+
+        set_time_limit(40);
+
+        try {
+            if (!isset($_SESSION['user_id'])) {
+                http_response_code(403);
+                echo json_encode(['error' => 'Unauthorized']);
+                exit;
+            }
+            $userId = $_SESSION['user_id'];
+
+            session_write_close();
+
+            $lastHash = $_GET['lastHash'] ?? '';
+
+            $startTime = time();
+
+            while (time() - $startTime < 35) {
+
+                $forumsData = $this->forumModel->getForumsByUserId($userId);
+
+                $payload = [];
+                foreach ($forumsData as $forum) {
+
+                    $lastMessage = $forum['LAST_MESSAGE_CONTENT'] ?? null;
+
+                    $lastTime = $forum['LAST_MESSAGE_AT'] ?? $forum['CREATED_AT'];
+
+                    $payload[] = [
+                        'forumId' => $forum['ID'],
+                        'count' => (int) $forum['UNREAD_COUNT'],
+                        'lastMessage' => $lastMessage, 
+                        'lastTime' => $lastTime       
+                    ];
+                }
+
+                $newHash = md5(json_encode($payload));
+
+                if ($newHash != $lastHash) {
+                    http_response_code(200);
+                    echo json_encode([
+                        'hash' => $newHash,
+                        'data' => $payload 
+                    ]);
+                    exit;
+                }
+
+                sleep(2);
+            }
+
+            http_response_code(204);
+            exit;
+        } catch (\Throwable $e) {
+            error_log('Error in pollCounts: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['error' => 'Terjadi kesalahan pada server.']);
+        }
     }
 }

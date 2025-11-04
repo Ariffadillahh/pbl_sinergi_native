@@ -33,6 +33,7 @@ class ForumsController
         }
 
         $membersForum = $this->forumMemberModel->findByForumId($id);
+
         $isMember = false;
         foreach ($membersForum as $member) {
             if ($member['USER_ID'] == $_SESSION['user_id']) {
@@ -46,7 +47,15 @@ class ForumsController
             exit;
         }
 
-        $joinedForums = $this->forumModel->getForumsByUserId($_SESSION['user_id']);
+        $currentUserId = $_SESSION['user_id'];
+
+        $unreadCount = $this->forumModel->getUnreadCount($id, $currentUserId);
+
+        if ($unreadCount > 0) {
+            $this->forumModel->updateLastReadAt($id, $currentUserId);
+        }
+
+        $joinedForums = $this->forumModel->getForumsByUserId($currentUserId);
         $activeChatId = $id;
 
         $contentView = __DIR__ . '/../views/forums/chat/index.php';
@@ -323,5 +332,3 @@ class ForumsController
         }
     }
 }
-
-

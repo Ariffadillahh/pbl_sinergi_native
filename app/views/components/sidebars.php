@@ -153,7 +153,7 @@ $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
     const menu = document.getElementById('menu-profile-signout');
 
     btnMenu.addEventListener('click', (e) => {
-        e.stopPropagation(); 
+        e.stopPropagation();
         menu.classList.toggle('hidden');
     });
 
