@@ -61,6 +61,8 @@ class CommentModel extends BaseModel
                         cu.FULL_NAME AS COMMENT_FULL_NAME,
                         pu.USERNAME AS PARENT_USERNAME,
                         pu.FULL_NAME AS PARENT_FULL_NAME,
+                        pu.ID AS PARENT_USER_ID,
+                        cu.ID AS COMMENT_USER_ID,
                         TO_CHAR(rc.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT
                     FROM REPLY_COMMENTAR rc
                     JOIN COMMENTAR c 
@@ -98,6 +100,7 @@ class CommentModel extends BaseModel
                         ?? $row['COMMENT_USERNAME'],
                     'REPLY_TO_FULLNAME' => $row['PARENT_FULL_NAME']
                         ?? $row['COMMENT_FULL_NAME'],
+                    'REPLY_TO_ID'       => $row['PARENT_USER_ID'] ?? $row['COMMENT_USER_ID'],
                 ];
             }
         }

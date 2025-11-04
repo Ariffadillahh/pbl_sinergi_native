@@ -71,10 +71,10 @@ class HomepageController
                         $reply['MESSAGE_FORMATTED'] = mentionHelper::extractMentions($reply['MESSAGE']);
                     }
                 }
-                unset($reply); 
+                unset($reply);
             }
         }
-        unset($comment); 
+        unset($comment);
 
         $sidebarData = $this->getSidebarData();
         extract($sidebarData);

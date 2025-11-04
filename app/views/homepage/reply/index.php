@@ -135,12 +135,13 @@ function loadLobSafe($data)
                                                                 </svg>
                                                                 <?php
                                                                 $replyToUsername = htmlspecialchars($reply['REPLY_TO_USERNAME']);
+                                                                $replyToID = htmlspecialchars($reply['REPLY_TO_ID']);
                                                                 $currentUsername = $_SESSION['username'];
 
                                                                 if ($replyToUsername === $currentUsername) {
                                                                     $profileUrl = BASEURL . '/profile';
                                                                 } else {
-                                                                    $profileUrl = BASEURL . '/homepage/user/profile/' . urlencode($replyToUsername);
+                                                                    $profileUrl = BASEURL . '/homepage/user/profile/' . urlencode($replyToID);
                                                                 }
                                                                 ?>
 
