@@ -87,7 +87,8 @@ function loadLobSafe($data)
 
                             <div class="hidden reply-form">
                                 <form method="POST" class="reply-form-data bg-white text-black border-t border-gray-200 p-3 sm:p-4 rounded-2xl my-2">
-                                    <input type="text" name="comment_id" value="<?= htmlspecialchars($comment['ID'] ?? $comment['COMMENT_ID']) ?>">
+                                    <input type="hidden" name="comment_id" value="<?= htmlspecialchars($comment['ID'] ?? $comment['COMMENT_ID']) ?>">
+                                    <input type="hidden" name="post_id" value="<?= htmlspecialchars($post['POST_ID']) ?>">
                                     <div class="flex flex-col sm:flex-row items-start space-y-3 sm:space-y-0 sm:space-x-3 relative">
                                         <div class="flex-shrink-0">
                                             <img src="<?= !empty($_SESSION['path_photo'])
@@ -181,8 +182,10 @@ function loadLobSafe($data)
 
                                             <div class="hidden reply-form ml-1 pl-8 sm:pl-12">
                                                 <form method="POST" class="reply-form-data bg-white text-black border-t border-gray-200 p-3 sm:p-4 rounded-2xl my-2">
-                                                    <input type="text" name="comment_id" value="<?= trim(htmlspecialchars($comment['COMMENT_ID'])) ?>">
+                                                    <input type="hidden" name="comment_id" value="<?= trim(htmlspecialchars($comment['COMMENT_ID'])) ?>">
                                                     <input type="hidden" name="parent_id" value="<?= isset($reply['REPLY_ID']) ? trim(htmlspecialchars($reply['REPLY_ID'])) : '' ?>">
+                                                    <input type="hidden" name="post_id" value="<?= htmlspecialchars($post['POST_ID']) ?>">
+
 
                                                     <div class="flex flex-col sm:flex-row items-start space-y-3 sm:space-y-0 sm:space-x-3 relative">
                                                         <div class="flex-shrink-0">

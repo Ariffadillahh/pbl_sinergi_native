@@ -26,11 +26,6 @@ class CommentController
     {
         $comments = $this->commentModel->getCommentsByPostId($postId);
 
-        echo "<pre>";
-        print_r($comments);
-        echo "</pre>";
-
-
         echo json_encode([
             'success' => true,
             'comments' => $comments
@@ -112,6 +107,7 @@ class CommentController
         $userId = $_SESSION['user_id'] ?? null;
         $commentId = $_POST['comment_id'] ?? null;
         $message = trim($_POST['message'] ?? '');
+        $postId = $_POST['post_id'] ?? null;
         $parentId = empty($_POST['parent_id']) ? null : $_POST['parent_id'];
 
         if (!$userId || !$commentId || $message === '') {
@@ -126,29 +122,51 @@ class CommentController
 
         if ($newReplyId) {
 
-            // 1. Dapatkan detail dari komentar yang dibalas (pemiliknya & ID post)
             $commentDetails = $this->commentModel->getCommentDetails($commentId);
 
-            if ($commentDetails) {
-                $commentOwnerId = $commentDetails['USER_ID'];
-                $postId = $commentDetails['POST_ID'];
+            if ($commentDetails['success']) {
+                $commentOwnerId = $commentDetails['details']['USER_ID'];
+                $postId = $commentDetails['details']['POST_ID'];
 
                 error_log("=== DEBUG REPLY ===");
                 error_log("Comment Owner ID: " . $commentOwnerId);
                 error_log("Post ID: " . $postId);
                 error_log("Current User ID: " . $userId);
 
-                if ($commentOwnerId !== $userId) {
-                    error_log("➡️ Menambahkan notifikasi REPLY_COMMENT untuk user ID: {$commentOwnerId}");
-                    $this->notificationModel->addNotification(
-                        $commentOwnerId,
-                        $userId,
-                        $postId,
-                        'REPLY_COMMENT'
-                    );
+                if (!$parentId) {
+                    // Notif untuk Yang punya Post 
+                    $owner = $this->commentModel->getPostOwner($postId);
+                    if ($owner && $owner['ID'] !== $userId) {
+                        $this->notificationModel->addNotification(
+                            $owner['ID'],
+                            $userId,
+                            $postId,
+                            'REPLY_POST'
+                        );
+                    }
                 } else {
-                    error_log("❌ Tidak menambahkan notifikasi karena user membalas komentarnya sendiri (User ID: {$userId})");
+                    // Notif untuk Yang punya Post 
+                    $owner = $this->commentModel->getPostOwner($postId);
+                    if ($owner && $owner['ID'] !== $userId) {
+                        $this->notificationModel->addNotification(
+                            $owner['ID'],
+                            $userId,
+                            $postId,
+                            'REPLY_POST'
+                        );
+                    }
+                    // Notif untuk yang di reply / Perentnya
+                    $ownerReply = $this->commentModel->getReplyDetails($parentId);
+                    if ($ownerReply && $ownerReply['ID'] !== $userId) {
+                        $this->notificationModel->addNotification(
+                            $ownerReply['ID'],
+                            $userId,
+                            $postId,
+                            'REPLY_POST'
+                        );
+                    }
                 }
+
 
                 preg_match_all('/@(\w+)/', $message, $matches);
                 $mentionedUsernames = !empty($matches[1]) ? array_unique($matches[1]) : [];

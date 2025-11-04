@@ -95,6 +95,7 @@ class HomepageController
         foreach ($posts as &$post) {
             $post['CONTENT_FORMATTED'] = mentionHelper::formatMentions($post['CONTENT']);
         }
+        unset($post);
 
         $userById = $this->signInModel->getUserByUsernameOrEmail($id);
 

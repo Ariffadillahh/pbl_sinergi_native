@@ -77,8 +77,6 @@ class CommentModel extends BaseModel
                     ORDER BY rc.CREATED_AT ASC
             ";
 
-
-
         $stmtReply = oci_parse($conn, $sqlReply);
         oci_bind_by_name($stmtReply, ":post_id", $postId);
         oci_execute($stmtReply);
@@ -172,7 +170,7 @@ class CommentModel extends BaseModel
 
         if (oci_execute($stmt)) {
             error_log("✅ SUKSES: Reply ditambahkan dengan ID: $replyId");
-            return $replyId;
+            return true;
         } else {
             $e = oci_error($stmt);
             error_log("❌ GAGAL INSERT REPLY: " . $e['message']);
@@ -195,7 +193,7 @@ class CommentModel extends BaseModel
 
     public function getCommentDetails($commentId)
     {
-        $conn = self::getConnection(); 
+        $conn = self::getConnection();
 
         $sql = "SELECT USER_ID, POST_ID 
             FROM COMMENTAR 
@@ -207,10 +205,32 @@ class CommentModel extends BaseModel
         if (oci_execute($stmt)) {
             $details = oci_fetch_assoc($stmt);
             oci_free_statement($stmt);
-            return $details; 
+
+            if ($details) {
+                return [
+                    'success' => true,
+                    'details' => $details
+                ];
+            }
         }
 
         oci_free_statement($stmt);
-        return false;
+        return [
+            'success' => false,
+            'details' => null
+        ];
+    }
+
+    public function getReplyDetails($replyId)
+    {
+        $conn = self::getConnection();
+        $sql = "SELECT U.ID, U.FULL_NAME
+                FROM REPLY_COMMENTAR P 
+                JOIN USERS U ON P.USER_ID = U.ID
+                WHERE P.ID = :reply_id";
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ':reply_id', $replyId);
+        oci_execute($stmt);
+        return oci_fetch_assoc($stmt);
     }
 }

@@ -119,6 +119,7 @@ class NotificationModel extends BaseModel
         oci_free_statement($stmt);
         return $result;
     }
+    
     public function addNotification($targetUserId, $senderId, $postId, $type)
     {
         $conn = self::getConnection();
