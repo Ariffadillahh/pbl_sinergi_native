@@ -13,6 +13,7 @@
 
         <?php require_once 'app/views/components/sidebars.php'; ?>
         <?php require_once 'app/views/components/forums/forumsList.php'; ?>
+        <?php require_once 'app/views/components/forums/modalSearchForum.php'; ?>
 
         <div id="Main-Content-Container" class="flex-1 overflow-y-auto pb-[70px] lg:pb-0 relative">
             <div class="flex h-[100vh] items-center justify-center text-center">
@@ -32,7 +33,36 @@
             </div>
         </div>
     </div>
-    
-</body>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const keyword = params.get("keyword");
 
+        if (keyword) {
+            const modal = document.getElementById("searchModal");
+            const input = document.getElementById("searchLive");
+
+            // Tunggu modal JS dari modalSearchForum siap
+            setTimeout(() => {
+            if (modal && input) {
+                // Buka modal
+                modal.classList.remove("hidden");
+                modal.classList.add("flex");
+                input.value = keyword;
+
+                // Jalankan pencarian otomatis
+                if (typeof performSearch === "function") {
+                performSearch(keyword);
+                } else {
+                console.warn("performSearch() belum terdefinisi");
+                }
+            } else {
+                console.warn("Modal search forum belum ditemukan di halaman /forums");
+            }
+            }, 300);
+        }
+        });
+    </script>
+</body>
 </html>
+

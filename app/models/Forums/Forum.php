@@ -40,7 +40,6 @@ class Forum extends BaseModel
         return $forums;
     }
 
-
     public static function findById($id)
     {
         $conn = self::getConnection();

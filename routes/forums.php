@@ -3,6 +3,14 @@ require_once __DIR__ . '/../app/controllers/ForumsController.php';
 require_once __DIR__ . '/../app/controllers/ChatMessagesController.php';
 
 switch (true) {
+
+        case ($route === 'forums/checkMembership'):
+        requireLogin();
+        checkRoleAccess(['MAHASISWA', 'DOSEN', 'ADMIN']);
+        $controller = new ForumsController();
+        $controller->checkMembership();
+        break;
+
     case $route === 'forums':
         requireLogin();
         $controller = new ForumsController();

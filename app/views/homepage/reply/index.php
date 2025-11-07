@@ -1,3 +1,4 @@
+
 <?php
 function loadLobSafe($data)
 {

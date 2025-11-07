@@ -60,6 +60,14 @@ switch (true) {
         exit;
         break;
 
+        // case $route === 'comment/loadMoreReplies':
+        // requireLogin();
+        // header('Content-Type: application/json');
+        // $commentController = new CommentController();
+        // $commentController->loadMoreReplies();
+        // exit;
+        // break;
+
     // case $route === 'like/get':
     //     requireLogin();
     //     header('Content-Type: application/json');

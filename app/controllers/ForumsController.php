@@ -322,6 +322,22 @@ class ForumsController
             echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan server.']);
         }
     }
+
+        public function checkMembership()
+    {
+        header('Content-Type: application/json');
+        $forumId = $_GET['forum_id'] ?? null;
+        $userId = $_SESSION['user_id'] ?? null;
+
+        if (!$forumId || !$userId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid request.']);
+            return;
+        }
+
+        $isMember = $this->forumMemberModel->isMember($forumId, $userId);
+        echo json_encode(['is_member' => $isMember]);
+    }
 }
 
 

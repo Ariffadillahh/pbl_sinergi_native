@@ -33,17 +33,16 @@ if (!isset($new)) $new = [];
     <div class="mt-8">
       <h1 class="font-semibold font-sans">Hot Forums 🔥</h1>
       <?php foreach ($hot as $forum): ?>
-        <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 mt-2 cursor-pointer"
-             onclick="window.location.href='<?= BASEURL ?>/forums/chat/<?= $forum['ID'] ?>'">
-          <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
-            <img src="<?= $forum['PATH_PHOTO'] ? BASEURL.'/storage/forums/photos/'.$forum['PATH_PHOTO'] : BASEURL.'/src/asset/image/default.png' ?>" class="w-full h-full object-cover">
-          </div>
+          <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 mt-2 cursor-pointer" onclick="handleForumClick('<?= $forum['ID'] ?>', '<?= htmlspecialchars($forum['NAME'], ENT_QUOTES) ?>')">
+            <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
+                <img src="<?= $forum['PATH_PHOTO'] ? BASEURL . '/storage/forums/photos/'. $forum['PATH_PHOTO'] : BASEURL .'/src/asset/image/default.png' ?>" class="w-full h-full object-cover">
+            </div>
           <div class="flex flex-col flex-1 min-w-0 gap-[6px]">
             <div class="flex items-center gap-2">
               <p class="font-semibold truncate"><?= htmlspecialchars($forum['NAME']) ?></p>
               <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Trending</span>
             </div>
-            <p class="text-sm text-gray-500"><?= $forum['MEMBER_COUNT'] ?> Members</p>
+            <p class="text-sm text-gray-500"><?= $forum['MEMBER_COUNT'] ?? 0 ?> Members</p>
           </div>
         </div>
       <?php endforeach; ?>
@@ -52,8 +51,7 @@ if (!isset($new)) $new = [];
     <div class="mt-8">
       <h1 class="font-semibold font-sans">New Forums</h1>
       <?php foreach ($new as $forum): ?>
-        <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 mt-2 cursor-pointer"
-             onclick="window.location.href='<?= BASEURL ?>/forums/chat/<?= $forum['ID'] ?>'">
+        <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 mt-2 cursor-pointer" onclick="handleForumClick('<?= $forum['ID'] ?>', '<?= htmlspecialchars($forum['NAME'], ENT_QUOTES) ?>')">
           <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
             <img src="<?= $forum['PATH_PHOTO'] ? BASEURL . '/storage/forums/photos/'. $forum['PATH_PHOTO'] : BASEURL .'/src/asset/image/default.png' ?>" class="w-full h-full object-cover">
           </div>
@@ -70,3 +68,40 @@ if (!isset($new)) $new = [];
 
   </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  window.BASEURL = '<?= BASEURL ?>';
+
+  window.handleForumClick = async function handleForumClick(forumId, forumName) {
+  try {
+    const res = await fetch(`${BASEURL}/forums/checkMembership?forum_id=${forumId}`, {
+      credentials: 'same-origin'
+    });
+    const data = await res.json();
+
+    if (data.is_member) {
+      window.location.href = `${BASEURL}/forums/chat/${forumId}`;
+    } else {
+      // belum join → arahkan ke forum + keyword
+      window.location.href = `${BASEURL}/forums?keyword=${encodeURIComponent(forumName)}`;
+    }
+  } catch (err) {
+    console.error('Gagal memeriksa membership forum:', err);
+  }
+}
+
+  window.openForumSearchModal = function(keyword) {
+    const modal = document.querySelector('#searchForumModal');
+    const input = document.querySelector('#forumSearchInput');
+    if (input) input.value = keyword;
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    } else {
+      alert(`Forum "${keyword}" belum kamu ikuti. Silakan cari dan join di menu Forum.`);
+    }
+  };
+});
+</script>
+
