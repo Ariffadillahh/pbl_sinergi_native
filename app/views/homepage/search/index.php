@@ -177,15 +177,29 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
 
         if (data.type === 'users') {
           if (!data.data.length) {
-            resultsDiv.innerHTML = `<div class="flex flex-col items-center justify-center py-12">...</div>`; // Pesan "Pengguna Tidak Ditemukan"
+            resultsDiv.innerHTML = `
+              <div class="flex flex-col items-center justify-center py-12 text-center">
+                <svg class="w-24 h-24 mb-4 text-gray-400" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+                  <title>Search not found</title>
+                  <g stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="27" cy="27" r="14" fill="none" />
+                    <path d="M38.5 38.5 L52 52" />
+                    <path d="M22 22 L32 32 M32 22 L22 32" />
+                  </g>
+                </svg>
+
+                <p class="text-gray-500">
+                  Tidak ada user yang cocok dengan pencarian
+                  <span class="font-medium text-gray-700">"${escapeHtml(keyword)}"</span>
+                </p>
+              </div>`;
             return;
           }
 
           resultsDiv.innerHTML = data.data.map(u => {
             const profileUrl = (LOGGED_IN_USER_ID && u.ID === LOGGED_IN_USER_ID) ?
-              `${BASEURL}/profile` 
-              :
-              `${BASEURL}/homepage/user/profile/${u.ID}`; 
+              `${BASEURL}/profile` :
+              `${BASEURL}/homepage/user/profile/${u.ID}`;
 
             return `<div onclick="window.location.href='${profileUrl}'" class="bg-white rounded-xl p-4 shadow-sm flex items-center gap-3 border border-gray-100 hover:shadow-md hover:border-blue-200 transition-all duration-200 cursor-pointer">
                     <img src="${u.PATH_PHOTO ? BASEURL + '/storage/users/photos/' + u.PATH_PHOTO : BASEURL + '/src/asset/image/default.png'}" class="w-12 h-12 rounded-full object-cover">
@@ -200,7 +214,14 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
         }
 
         if (!data.data.length) {
-          resultsDiv.innerHTML = `<div class="flex flex-col items-center justify-center py-12"><div class="bg-gray-100 rounded-full p-6 mb-4"><svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div><h3 class="text-lg font-semibold text-gray-800 mb-2">Postingan Tidak Ditemukan</h3><p class="text-gray-500 text-center text-sm max-w-sm">Tidak ada postingan yang cocok dengan pencarian "${escapeHtml(keyword)}"</p></div>`;
+          resultsDiv.innerHTML = `
+          <div class="flex flex-col items-center justify-center py-12">
+            <div class="bg-gray-100 rounded-full p-6 mb-4">
+                <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Postingan Tidak Ditemukan</h3>
+            <p class="text-gray-500 text-center text-sm max-w-sm">Tidak ada postingan yang cocok dengan pencarian "${escapeHtml(keyword)}"</p>
+          </div>`;
           return;
         }
 
@@ -312,7 +333,14 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
 
       } catch (err) {
         console.error(err);
-        resultsDiv.innerHTML = `<div class="flex flex-col items-center justify-center py-12"><div class="bg-red-100 rounded-full p-6 mb-4"><svg class="w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><h3 class="text-lg font-semibold text-gray-800 mb-2">Terjadi Kesalahan</h3><p class="text-gray-500 text-center text-sm">Tidak dapat memuat hasil pencarian. Silakan coba lagi.</p></div>`;
+        resultsDiv.innerHTML = `
+          <div class="flex flex-col items-center justify-center py-12">
+              <div class="bg-red-100 rounded-full p-6 mb-4">
+                <svg class="w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">Terjadi Kesalahan</h3>
+              <p class="text-gray-500 text-center text-sm">Tidak dapat memuat hasil pencarian. Silakan coba lagi.</p>
+          </div>`;
       }
     }
 

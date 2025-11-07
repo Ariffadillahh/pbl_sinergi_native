@@ -9,6 +9,12 @@ switch (true) {
         $controller->signIn();
         break;
 
+    case $route === 'refresh-captcha':
+        guestOnly();
+        $controller = new AuthController();
+        $controller->refreshCaptcha();
+        break;
+
     case $route === 'sign-in/action':
         guestOnly();
         $controller = new AuthController();

@@ -19,7 +19,27 @@ class AuthController
 
     public function signIn()
     {
+        $this->generateAndStoreCaptcha();
         include __DIR__ . '/../views/sign-in/index.php';
+    }
+
+    public function refreshCaptcha()
+    {
+        $this->generateAndStoreCaptcha();
+
+        header('Content-Type: application/json');
+        echo json_encode(['status' => 'success']);
+    }
+
+    private function generateAndStoreCaptcha()
+    {
+        $length = 6;
+        $charset = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghizklmnopqrstuvwxyz123456789_#!";
+        $captchaText = '';
+        for ($i = 0, $n = strlen($charset); $i < $length; ++$i) {
+            $captchaText .= $charset[random_int(0, $n - 1)];
+        }
+        $_SESSION['captcha'] = $captchaText;
     }
 
     public function signUp()
@@ -101,11 +121,33 @@ class AuthController
     public function signInAction()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $identifier = $_POST['username_or_email'];
-            $password = $_POST['password'];
+            $identifier = $_POST['username_or_email'] ?? '';
+            $password = $_POST['password'] ?? '';
+            $captchaInput = $_POST['captcha'] ?? '';
+
+            if (empty($identifier) || empty($password) || empty($captchaInput)) {
+                $_SESSION['login_error'] = "Semua field wajib diisi!";
+                header('Location: ' . BASEURL . '/sign-in');
+                exit();
+            }
+
+            $sessionCaptcha = $_SESSION['captcha'] ?? '';
+
+            if (empty($sessionCaptcha) || $captchaInput !== $sessionCaptcha) {
+                $_SESSION['login_error'] = "Captcha yang Anda masukkan salah!";
+
+                unset($_SESSION['captcha']);
+
+                header('Location: ' . BASEURL . '/sign-in');
+                exit();
+            }
+
+            unset($_SESSION['captcha']);
+
             $user = $this->loginModel->getUserByUsernameOrEmail($identifier);
 
             if ($user && password_verify($password, $user['PASSWORD'])) {
+
                 if ($user['ROLE'] == 'MAHASISWA') {
                     $tahunMasuk = (int)$user['TAHUN_MASUK'];
                     $jenjangStudi = $user['JENJANG_STUDI'];
@@ -121,7 +163,7 @@ class AuthController
 
                         if ($durasiStudi > 0) {
                             $tahunLulus = $tahunMasuk + $durasiStudi;
-                            $bulanLulus = 10;
+                            $bulanLulus = 10; 
                             $tahunSekarang = (int)date('Y');
                             $bulanSekarang = (int)date('m');
 

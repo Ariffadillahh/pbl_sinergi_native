@@ -22,7 +22,6 @@
                     class="bg-red-600 p-2 text-white text-center rounded-lg hidden mb-4"></p>
 
                 <form id="edit-profile-form" action="<?php echo BASEURL ?>/profile/update" method="POST" class="my-5">
-
                     <div class="my-6 max-w-3xl mx-auto">
                         <section class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
                             <div class="flex-shrink-0 size-[100px] rounded-full overflow-hidden border-2 border-gray-200">
@@ -47,10 +46,10 @@
                             <div class="relative">
                                 <input type="text" id="edit-profile-username" name="username"
                                     value="<?= htmlspecialchars($_SESSION['username'] ?? '') ?>"
-                                    class="cursor-not-allowed block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 rounded-lg border border-gray-300 appearance-none focus:ring-0 focus:border-blue-600 peer"
+                                    class="bg-gray-200 border border-gray-300 text-gray-900cursor-not-allowed block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 rounded-lg appearance-none focus:ring-0 focus:border-blue-600 peer"
                                     placeholder=" " disabled required />
                                 <label for="edit-profile-username"
-                                    class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600">
+                                    class="bg-gray-200 border-t border-l border-gray-300 text-gray-900  absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] rounded-t-lg px-2 peer-focus:text-blue-600">
                                     Username
                                 </label>
                             </div>
@@ -58,10 +57,10 @@
                             <div class="relative">
                                 <input type="email" id="edit-profile-email" name="email"
                                     value="<?= htmlspecialchars($_SESSION['email'] ?? '') ?>"
-                                    class="cursor-not-allowed block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 rounded-lg border border-gray-300 appearance-none focus:ring-0 focus:border-blue-600 peer"
+                                    class="bg-gray-200 border cursor-not-allowed block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 rounded-lg border-gray-300 appearance-none focus:ring-0 focus:border-blue-600 peer"
                                     placeholder=" " disabled required />
                                 <label for="edit-profile-email"
-                                    class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600">
+                                    class="bg-gray-200 border-t border-l border-gray-300 text-gray-900  absolute text-sm duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] rounded-t-lg px-2 peer-focus:text-blue-600">
                                     Email
                                 </label>
                             </div>
@@ -100,43 +99,47 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="grid grid-cols-3 gap-4 mb-5">
-                            <div class="relative">
-                                <input type="text" id="edit-profile-prodi" name="prodi"
-                                    value="<?= htmlspecialchars($_SESSION['prodi'] ?? '') ?>"
-                                    class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:ring-0 focus:border-blue-600 peer"
-                                    placeholder=" " required />
-                                <label for="edit-profile-prodi"
-                                    class="absolute text-xs md:text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600">
-                                    Program Studi
-                                </label>
-                            </div>
+                        <?php
+                        if ($_SESSION['role'] !== 'MITRA' && $_SESSION['role'] !== 'ALUMNI') :
+                        ?>
+                            <div class="grid grid-cols-3 gap-4 mb-5">
+                                <div class="relative">
+                                    <input type="text" id="edit-profile-prodi" name="prodi"
+                                        value="<?= htmlspecialchars($_SESSION['prodi'] ?? '') ?>"
+                                        class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:ring-0 focus:border-blue-600 peer"
+                                        placeholder=" " required />
+                                    <label for="edit-profile-prodi"
+                                        class="absolute text-xs md:text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600">
+                                        Program Studi
+                                    </label>
+                                </div>
 
-                            <div class="relative">
-                                <select id="edit-profile-jenjang" name="jenjang_studi"
-                                    class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                                    required>
-                                    <option value="" disabled selected>-- Pilih --</option>
-                                    <option value="D3" <?= (($_SESSION['jenjang_studi'] ?? '') === 'D3') ? 'selected' : '' ?>>D3</option>
-                                    <option value="D4" <?= (($_SESSION['jenjang_studi'] ?? '') === 'D4') ? 'selected' : '' ?>>D4</option>
-                                </select>
-                                <label for="edit-profile-jenjang"
-                                    class="absolute text-xs md:text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600">
-                                    Jenjang Studi
-                                </label>
-                            </div>
+                                <div class="relative">
+                                    <select id="edit-profile-jenjang" name="jenjang_studi"
+                                        class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                        required>
+                                        <option value="" disabled selected>-- Pilih --</option>
+                                        <option value="D3" <?= (($_SESSION['jenjang_studi'] ?? '') === 'D3') ? 'selected' : '' ?>>D3</option>
+                                        <option value="D4" <?= (($_SESSION['jenjang_studi'] ?? '') === 'D4') ? 'selected' : '' ?>>D4</option>
+                                    </select>
+                                    <label for="edit-profile-jenjang"
+                                        class="absolute text-xs md:text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600">
+                                        Jenjang Studi
+                                    </label>
+                                </div>
 
-                            <div class="relative">
-                                <input type="text" id="edit-profile-tahun" name="tahun_masuk"
-                                    value="<?= htmlspecialchars($_SESSION['tahun_masuk'] ?? '') ?>"
-                                    class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:ring-0 focus:border-blue-600 peer"
-                                    placeholder=" " required />
-                                <label for="edit-profile-tahun"
-                                    class="absolute text-xs md:text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600">
-                                    Tahun Masuk
-                                </label>
+                                <div class="relative">
+                                    <input type="text" id="edit-profile-tahun" name="tahun_masuk"
+                                        value="<?= htmlspecialchars($_SESSION['tahun_masuk'] ?? '') ?>"
+                                        class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:ring-0 focus:border-blue-600 peer"
+                                        placeholder=" " required />
+                                    <label for="edit-profile-tahun"
+                                        class="absolute text-xs md:text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600">
+                                        Tahun Masuk
+                                    </label>
+                                </div>
                             </div>
-                        </div>
+                        <?php endif ?>
                         <button type="submit" id="edit-profile-submit"
                             class="w-full px-6 py-3.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors">
                             Save Changes
@@ -147,7 +150,6 @@
         </div>
     </div>
 </div>
-
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -207,13 +209,13 @@
 
                 if (result.success) {
                     modal.classList.add('hidden');
-                    window.location.reload(); 
+                    window.location.reload();
                 } else {
                     errorBox.textContent = result.message || 'An unknown error occurred.';
                     errorBox.classList.remove('hidden');
                 }
             } catch (error) {
-                console.error('Fetch Error:', error); 
+                console.error('Fetch Error:', error);
                 errorBox.textContent = 'Cannot connect to server. Please check your connection.';
                 errorBox.classList.remove('hidden');
             } finally {
