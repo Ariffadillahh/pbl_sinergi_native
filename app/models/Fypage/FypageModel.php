@@ -6,23 +6,23 @@ class FypageModel extends BaseModel
     public function getTrendingPosts()
     {
         $conn = self::getConnection();
-
-        $cacheFile = __DIR__ . '/../../../storage/cache_trending.json';
-        if (file_exists($cacheFile)) {
-            $cache = json_decode(file_get_contents($cacheFile), true);
-            if ($cache && time() - $cache['timestamp'] < 432000) { 
-                return $cache['data'];
-            }
-        }
-
         $sql = "
-            SELECT P.ID AS POST_ID, P.CONTENT, U.USERNAME, U.FULL_NAME, U.PATH_PHOTO,
-                   (SELECT COUNT(*) FROM LIKE_POST L WHERE L.POST_ID = P.ID) AS TOTAL_LIKES,
-                   (SELECT COUNT(*) FROM COMMENTAR C WHERE C.POST_ID = P.ID) AS TOTAL_COMMENTS
-            FROM POSTS P
-            JOIN USERS U ON U.ID = P.USER_ID
+            SELECT * FROM (
+                SELECT 
+                    P.ID AS POST_ID,
+                    P.CONTENT,
+                    U.USERNAME,
+                    U.FULL_NAME,
+                    U.PATH_PHOTO,
+                    NVL((SELECT COUNT(*) FROM LIKE_POST L WHERE L.POST_ID = P.ID), 0) AS TOTAL_LIKES,
+                    NVL((SELECT COUNT(*) FROM COMMENTAR C WHERE C.POST_ID = P.ID), 0) AS TOTAL_COMMENTS,
+                    (NVL((SELECT COUNT(*) FROM LIKE_POST L WHERE L.POST_ID = P.ID), 0) +
+                    NVL((SELECT COUNT(*) FROM COMMENTAR C WHERE C.POST_ID = P.ID), 0)) AS POPULAR_SCORE
+                FROM POSTS P
+                JOIN USERS U ON U.ID = P.USER_ID
+                ORDER BY POPULAR_SCORE DESC, P.CREATED_AT DESC
+            )
             WHERE ROWNUM <= 3
-            ORDER BY (TOTAL_LIKES + TOTAL_COMMENTS) DESC
         ";
 
         $stmt = oci_parse($conn, $sql);
@@ -30,17 +30,11 @@ class FypageModel extends BaseModel
 
         $posts = [];
         while ($row = oci_fetch_assoc($stmt)) {
-            if ($row['CONTENT'] instanceof OCILob) {
+            if (isset($row['CONTENT']) && $row['CONTENT'] instanceof OCILob) {
                 $row['CONTENT'] = $row['CONTENT']->load();
             }
             $posts[] = $row;
         }
-
-        // simpan cache
-        file_put_contents($cacheFile, json_encode([
-            'timestamp' => time(),
-            'data' => $posts
-        ]));
 
         return $posts;
     }

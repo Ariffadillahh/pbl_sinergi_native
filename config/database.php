@@ -4,7 +4,7 @@ define('DB_PORT', '1521');
 define('DB_SERVICE_NAME', 'FREEPDB1');
 define('DB_USERNAME', 'sinergi');
 define('DB_PASSWORD', 'arif123');
-define('DB_CHARSET', 'AL32UTF8'); 
+define('DB_CHARSET', 'AL32UTF8');
 
 $connection_string = DB_HOST . ':' . DB_PORT . '/' . DB_SERVICE_NAME;
 
@@ -16,7 +16,7 @@ $conn = @oci_connect(
 );
 
 if (!$conn) {
-    $e = oci_error(); 
+    $e = oci_error();
     trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
     die("Koneksi ke database Oracle gagal!");
 }

@@ -65,8 +65,9 @@
 
 
 <script>
-    const BASEURL = '<?php echo BASEURL; ?>'
-
+    if (typeof BASEURL === 'undefined') {
+    var BASEURL = '<?php echo BASEURL; ?>';
+}
     function debounce(func, delay = 300) {
         let timeout;
         return (...args) => {
