@@ -9,16 +9,24 @@ class NotificationModel extends BaseModel
         $conn = self::getConnection();
 
         $sql = "SELECT ID, USER_ID, TYPE, DATA, IS_READ, 
-                   TO_CHAR(CREATED_AT, 'YYYY-MM-DD\"T\"HH24:MI:SS.FF3\"Z\"') AS CREATED_AT
+                   -- DIPERBAIKI: Hapus .FF3 karena DATE tidak memilikinya
+                   TO_CHAR(CREATED_AT, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') AS CREATED_AT
             FROM NOTIFICATIONS
             WHERE USER_ID = :user_id 
-              AND FROM_TZ(CAST(CREATED_AT AS TIMESTAMP), DBTIMEZONE) > TO_TIMESTAMP_TZ(:last_timestamp, 'YYYY-MM-DD\"T\"HH24:MI:SS.FFTZH:TZM')
+              -- DIPERBAIKI: 
+              -- 1. Jangan ubah CREATED_AT (biarkan sebagai DATE)
+              -- 2. Ubah string input :last_timestamp Anda (yang kompleks) menjadi DATE sederhana untuk perbandingan
+              AND CREATED_AT > CAST(TO_TIMESTAMP_TZ(:last_timestamp, 'YYYY-MM-DD\"T\"HH24:MI:SS.FFTZH:TZM') AS DATE)
             ORDER BY CREATED_AT ASC";
 
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ':user_id', $userId);
         oci_bind_by_name($stmt, ':last_timestamp', $lastTimestamp);
-        oci_execute($stmt);
+
+        if (!oci_execute($stmt)) {
+            error_log("Gagal getNewNotifications: " . oci_error($stmt)['message']);
+            return [];
+        }
 
         $notifications = [];
         while ($row = oci_fetch_assoc($stmt)) {
@@ -41,11 +49,11 @@ class NotificationModel extends BaseModel
         $conn = self::getConnection();
 
         $sql = "SELECT ID, USER_ID, TYPE, DATA, IS_READ, 
-                       TO_CHAR(CREATED_AT, 'YYYY-MM-DD\"T\"HH24:MI:SS.FF3\"Z\"') AS CREATED_AT
-                FROM NOTIFICATIONS
-                WHERE USER_ID = :user_id 
-                ORDER BY CREATED_AT DESC
-                FETCH FIRST :limit ROWS ONLY";
+                   TO_CHAR(CREATED_AT, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') AS CREATED_AT
+            FROM NOTIFICATIONS
+            WHERE USER_ID = :user_id 
+            ORDER BY CREATED_AT DESC
+            FETCH FIRST :limit ROWS ONLY";
 
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ':user_id', $userId);
@@ -119,19 +127,36 @@ class NotificationModel extends BaseModel
         oci_free_statement($stmt);
         return $result;
     }
-    
-    public function addNotification($targetUserId, $senderId, $postId, $type)
+
+    public function addNotification($targetUserId, $senderId, $postId, $type, $targetTypeNotif)
     {
         $conn = self::getConnection();
 
         $id = uniqid('notif_');
-        $senderName = $_SESSION['full_name'] ?? 'Someone';
+
+        $senderName = '';
+        if ($_SESSION['role'] == 'ADMIN') {
+            $senderName = 'ADMIN';
+        } else {
+            $senderName = $_SESSION['full_name'] ?? 'Someone';
+        }
+
         $notifData = [
             'sender_name' => $senderName,
             'sender_id' => $senderId,
             'target_id' => $postId,
-            'link' => "homepage/reply/$postId"
         ];
+
+        $targetType = $targetTypeNotif ?? 'POST';
+
+        if ($targetType === 'POST') {
+            $notifData['link'] = "homepage/reply/$postId";
+        } elseif ($targetType === 'FORUM') {
+            $notifData['link'] = "forums/chat/$postId";
+        } else {
+            $notifData['link'] = "#";
+        }
+
 
         $jsonData = json_encode($notifData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
@@ -159,12 +184,12 @@ class NotificationModel extends BaseModel
 
         if ($result) {
             oci_free_statement($stmt);
-            return true; 
+            return true;
         } else {
             $error = oci_error($stmt);
             error_log("Gagal menghapus notifikasi: " . $error['message']);
             oci_free_statement($stmt);
-            return false; 
+            return false;
         }
     }
 }

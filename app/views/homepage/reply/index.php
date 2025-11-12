@@ -298,7 +298,6 @@ function loadLobSafe($data)
                 initMentionFeature(textarea);
             });
 
-            // Show More Replies Handler
             document.addEventListener('click', function(e) {
                 if (e.target.closest('.show-more-replies')) {
                     const button = e.target.closest('.show-more-replies');

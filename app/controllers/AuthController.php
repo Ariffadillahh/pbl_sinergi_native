@@ -643,4 +643,5 @@ class AuthController
         }
         exit;
     }
+    
 }

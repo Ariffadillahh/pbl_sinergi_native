@@ -30,6 +30,7 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
                      placeholder:text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 outline-none"
                 placeholder="Cari sesuatu atau ketik @username..."
                 value="<?= htmlspecialchars($keyword) ?>"
+                minlength="3"
                 autocomplete="off" />
               <button type="submit"
                 class="text-white absolute right-1.5 top-1/2 -translate-y-1/2 

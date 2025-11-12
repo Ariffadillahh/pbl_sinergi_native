@@ -45,7 +45,7 @@ class LikeController
         if ($result['action'] === 'liked') {
             $owner = $this->likeModel->getPostOwner($postId);
             if ($owner && $owner['ID'] !== $userId) {
-                $this->notificationModel->addNotification($owner['ID'], $userId, $postId, $type);
+                $this->notificationModel->addNotification($owner['ID'], $userId, $postId, $type, 'POST');
             }
         }
 

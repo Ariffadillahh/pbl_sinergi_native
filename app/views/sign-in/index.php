@@ -85,7 +85,7 @@
                                 type="submit"
                                 id="login-button"
                                 class="w-full bg-blue-800 text-white font-bold py-4 rounded-full hover:bg-blue-700 transition-all flex justify-center items-center gap-2">
-                                Sign In Now
+                                Sign In Now 
                             </button>
 
                             <p class="font-medium text-center text-gray-700">

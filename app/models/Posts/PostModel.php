@@ -193,20 +193,29 @@ class PostModel extends BaseModel
     public function deletePost($postId, $userId)
     {
         $conn = self::getConnection();
+
         $checkSql = "SELECT USER_ID FROM POSTS WHERE ID = :id";
         $checkStmt = oci_parse($conn, $checkSql);
         oci_bind_by_name($checkStmt, ":id", $postId);
-        oci_execute($checkStmt);
+
+        if (!oci_execute($checkStmt)) {
+            error_log("Gagal cek kepemilikan post: " . oci_error($checkStmt)['message']);
+            return false;
+        }
         $row = oci_fetch_assoc($checkStmt);
 
         if (!$row || $row['USER_ID'] !== $userId) {
-            return false;
+            return false; 
         }
 
         $mediaSql = "SELECT MEDIA_PATH FROM POST_MEDIA WHERE POST_ID = :post_id";
         $stmtMedia = oci_parse($conn, $mediaSql);
         oci_bind_by_name($stmtMedia, ":post_id", $postId);
-        oci_execute($stmtMedia);
+
+        if (!oci_execute($stmtMedia)) {
+            error_log("Gagal get media path: " . oci_error($stmtMedia)['message']);
+            return false;
+        }
 
         $mediaPaths = [];
         while ($mediaRow = oci_fetch_assoc($stmtMedia)) {
@@ -214,16 +223,36 @@ class PostModel extends BaseModel
         }
 
         foreach ($mediaPaths as $path) {
-            $filePath = __DIR__ . '/../../../' . $path;
-            if (file_exists($filePath)) {
+            $filePath = realpath(__DIR__ . '/../../../' . $path);
+
+            if ($filePath && file_exists($filePath)) {
                 @unlink($filePath);
             }
         }
 
-        $deleteMediaSql = "DELETE FROM POST_MEDIA WHERE POST_ID = :post_id";
-        $stmtDelMedia = oci_parse($conn, $deleteMediaSql);
-        oci_bind_by_name($stmtDelMedia, ":post_id", $postId);
-        oci_execute($stmtDelMedia);
+        $deleteReplySql = "
+        DELETE FROM REPLY_COMMENTAR 
+        WHERE COMMENTAR_ID IN (
+            SELECT ID FROM COMMENTAR WHERE POST_ID = :post_id
+        )";
+        
+        $stmtReply = oci_parse($conn, $deleteReplySql);
+        oci_bind_by_name($stmtReply, ":post_id", $postId);
+
+        if (!oci_execute($stmtReply)) {
+            error_log("Gagal delete REPLY_COMMENTAR: " . oci_error($stmtReply)['message']);
+            return false;
+        }
+
+        $deleteCommentSql = "DELETE FROM COMMENTAR WHERE POST_ID = :post_id";
+        $stmtComment = oci_parse($conn, $deleteCommentSql);
+        oci_bind_by_name($stmtComment, ":post_id", $postId);
+
+        if (!oci_execute($stmtComment)) {
+            error_log("Gagal delete COMMENTAR: " . oci_error($stmtComment)['message']);
+            return false;
+        }
+
 
         $deletePostSql = "DELETE FROM POSTS WHERE ID = :id";
         $stmtDelPost = oci_parse($conn, $deletePostSql);
@@ -235,7 +264,8 @@ class PostModel extends BaseModel
             return false;
         }
 
-        return true;
+
+        return true; 
     }
 
     public function getPostsByUser($userId)
