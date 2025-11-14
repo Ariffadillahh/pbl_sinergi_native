@@ -347,4 +347,20 @@ class ForumsController
         $isMember = $this->forumMemberModel->isMember($forumId, $userId);
         echo json_encode(['is_member' => $isMember]);
     }
+
+        public function handleKickMember()
+    {
+        $forumId = $_POST['forum_id'];
+        $userId = $_POST['user_id'];
+
+        // pastikan hanya owner yang bisa kick
+        $forum = $this->forumModel->findById($forumId);
+        if ($_SESSION['user_id'] != $forum['OWNER_ID']) {
+            die("Unauthorized");
+        }
+
+        $this->forumModel->kickMember($forumId, $userId);
+        header("Location: " . BASEURL . "/forum/view/" . $forumId);
+    }
+
 }

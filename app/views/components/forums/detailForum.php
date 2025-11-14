@@ -71,13 +71,37 @@
             <div class="p-6">
                 <div id="About" class="flex  gap-3 flex-col">
                     <p class="font-semibold leading-5">About Forum</p>
-                    <p class="font-semibold leading-8"><?= $forumByid["ABOUT"] ?></p>
+                    <p class="leading-8"><?= $forumByid["ABOUT"] ?></p>
                 </div>
                 <div>
+                    <div id="Owner" class="flex flex-col gap-3 mt-6">
+                        <p class="font-semibold leading-5">Owner</p>
+                        <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 min-w-0">
+                            <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
+                                <img src="<?= !empty($forumByid['PATH_PHOTO_OWNER'])
+                                                ? BASEURL . '/storage/users/photos/' . $forumByid['PATH_PHOTO_OWNER']
+                                                : BASEURL . '/src/asset/image/default.png' ?>" class="w-full h-full object-cover" alt="photo">
+                            </div>
+                            <div class="flex flex-col flex-1 gap-[6px] min-w-0">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-semibold truncate"><?= $forumByid["OWNER_NAME"] ?></p>
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm"><?= $member["ROLE"] ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div id="Members" class="flex flex-col gap-3 mt-6">
-                        <p class="font-semibold leading-5">Members (<?= count($membersForum) ?>)</p>
+                        <?php
+                        $membersForumFiltered = array_filter($membersForum, function($m) use ($forumByid) {return $m['USER_ID'] !== $forumByid['OWNER_ID'];});?>
+                        <p class="font-semibold leading-5">Members (<?= count($membersForumFiltered) ?>)</p>
+
                         <div class="flex flex-col gap-3">
-                            <?php foreach ($membersForum as $member): ?>
+                            <?php foreach ($membersForumFiltered as $member): ?>
+                                <?php if ($member['USER_ID'] == $forumByid['OWNER_ID']) continue; ?>
                                 <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 min-w-0">
                                     <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
                                         <img src="<?= !empty($member['PATH_PHOTO'])

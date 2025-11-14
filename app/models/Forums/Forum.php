@@ -30,6 +30,13 @@ class Forum extends BaseModel
                     f.PATH_PHOTO, 
                     f.CREATED_AT,
                     f.ABOUT,
+                    f.OWNER_ID,
+                    (
+                        SELECT COUNT(*) 
+                        FROM FORUM_MEMBERS fm2
+                        WHERE fm2.FORUM_ID = f.ID
+                        AND fm2.USER_ID != f.OWNER_ID
+                    ) AS MEMBER_COUNT,
                     (
                         SELECT COUNT(msg_count.ID)
                         FROM FORUM_MESSAGES msg_count
@@ -49,9 +56,9 @@ class Forum extends BaseModel
                 OUTER APPLY (
                     SELECT msg.CONTENT, msg.CREATED_AT
                     FROM FORUM_MESSAGES msg
-                    WHERE msg.FORUM_ID = f.ID -- Korelasi ke tabel 'f'
+                    WHERE msg.FORUM_ID = f.ID 
                     ORDER BY msg.CREATED_AT DESC
-                    FETCH FIRST 1 ROWS ONLY -- Ambil hanya 1 baris teratas
+                    FETCH FIRST 1 ROWS ONLY
                 ) lm
                     
                 WHERE 
@@ -89,16 +96,31 @@ class Forum extends BaseModel
     public static function findById($id)
     {
         $conn = self::getConnection();
-        $sql = "SELECT ID, NAME, ABOUT, IS_PRIVATE, ACCESS_KEY, PATH_PHOTO, OWNER_ID, CREATED_AT FROM FORUMS WHERE ID = :id_bv";
+        $sql = "
+            SELECT 
+                f.ID, 
+                f.NAME, 
+                f.ABOUT, 
+                f.IS_PRIVATE, 
+                f.ACCESS_KEY, 
+                f.PATH_PHOTO, 
+                f.OWNER_ID, 
+                f.CREATED_AT,
+                u.FULL_NAME AS OWNER_NAME,
+                u.PATH_PHOTO AS PATH_PHOTO_OWNER
+            FROM FORUMS f
+            LEFT JOIN USERS u ON f.OWNER_ID = u.ID
+            WHERE f.ID = :id_bv
+        ";
 
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ':id_bv', $id);
-
         oci_execute($stmt);
 
         $forum = oci_fetch_assoc($stmt);
 
         oci_free_statement($stmt);
+        oci_close($conn);
 
         return $forum;
     }
@@ -507,4 +529,13 @@ class Forum extends BaseModel
         oci_free_statement($stmt);
         oci_close($conn);
     }
+
+    public function kickMember($forumId, $userId) {
+    $sql = "DELETE FROM FORUM_MEMBERS WHERE FORUM_ID = :forum_id AND USER_ID = :user_id";
+    $stmt = oci_parse($this->conn, $sql);
+    oci_bind_by_name($stmt, ":forum_id", $forumId);
+    oci_bind_by_name($stmt, ":user_id", $userId);
+    return oci_execute($stmt);
+}
+
 }

@@ -26,7 +26,7 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
         <div class="sticky top-0 z-10 bg-white w-full px-5 py-3 border-b border-gray-200">
             <button onclick="window.history.back()" class="flex items-center gap-3 text-black font-semibold cursor-pointer">
                 <img src="<?php echo BASEURL . '/src/asset/icons/left-arrow-svgrepo-com.svg'; ?>" alt="icon" class="w-6 h-6">
-                <h1 class="text-xl">Post</h1>
+                <h1 class="text-xl">Profile <span class="text-blue-600">@<?= $userById['USERNAME']?></span></h1>
             </button>
         </div>
         <div class="max-w-xl mx-auto px-5 md:p-0 mb-20 md:mb-10">
@@ -118,21 +118,12 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                                                 <div
                                                     id="dropdown-<?= $post['POST_ID'] ?>"
                                                     class="hidden absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
-                                                    <?php if ($isOwner): ?>
-                                                        <button
-                                                            type="button"
-                                                            class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
-                                                            onclick="openDeletePostModal('<?= $post['POST_ID'] ?>')">
-                                                            Hapus
-                                                        </button>
-                                                    <?php else: ?>
-                                                        <button
+                                                       <button
                                                             type="button"
                                                             class="report-btn w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-100"
                                                             data-post-id="<?= $post['POST_ID']; ?>">
                                                             Report
                                                         </button>
-                                                    <?php endif; ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -181,6 +172,7 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
+                    <?php include __DIR__ . '/../../components/postingan/modalReportPost.php'; ?>
                 </div>
             </main>
 
@@ -232,6 +224,50 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                 swiperEl.initialize();
             });
         });
+
+        document.querySelectorAll('.like-btn').forEach(button => {
+            button.addEventListener('click', async () => {
+                const postId = button.getAttribute('data-post-id');
+                const countSpan = button.querySelector('.like-count');
+                const icon = button.querySelector('svg');
+
+                try {
+                    const res = await fetch('<?= BASEURL ?>/like/toggle', {
+                        method: 'POST',
+                        body: new URLSearchParams({
+                            post_id: postId
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (data.success) {
+                        const isLiked = data.action === 'liked';
+                        button.setAttribute('data-liked', isLiked ? 'true' : 'false');
+                        countSpan.textContent = data.total_likes;
+
+                        if (isLiked) {
+                            icon.classList.add('text-red-500', 'fill-red-500');
+                        } else {
+                            icon.classList.remove('text-red-500', 'fill-red-500');
+                        }
+                    } else {
+                        alert(data.message || 'Gagal update like.');
+                    }
+                } catch (err) {
+                    console.error('Error:', err);
+                }
+            });
+        });
+
+        function toggleDropdown(id) {
+            document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
+                if (d.id !== id) d.classList.add('hidden');
+            });
+            const dropdown = document.getElementById(id);
+            dropdown.classList.toggle('hidden');
+            
+        }
     </script>
 
 </body>
