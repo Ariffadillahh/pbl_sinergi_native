@@ -4,17 +4,184 @@ require_once __DIR__ . "/../BaseModel.php";
 
 class Forum extends BaseModel
 {
-    public $id;
-    public $name;
-    public $about;
-    public $is_private;
-    public $access_key;
-    public $path_photo;
-    public $owner_id;
-    public $created_at;
+    public function allForums()
+    {
+        $conn = self::getConnection();
+
+        if (!$conn) {
+            error_log("Gagal terhubung ke database.");
+            return [];
+        }
+
+        $sql = "SELECT ID, NAME, IS_PRIVATE FROM FORUMS ORDER BY NAME ASC";
+
+        $stmt = oci_parse($conn, $sql);
+
+        if (!oci_execute($stmt)) {
+            return [];
+        }
+
+        $forums = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $forums[] = $row;
+        }
+
+        oci_free_statement($stmt);
+
+        return $forums;
+    }
 
 
-    public static function getForumsByUserId($userId)
+    public function getAllForumsPagination($search = '', $limit = 6, $offset = 0)
+    {
+        $conn = self::getConnection();
+        if (!$conn) return ['data' => [], 'total' => 0];
+
+        $currentUser = $_SESSION['user_id'];
+        $searchParam = '%' . strtolower($search) . '%';
+
+        $sqlCount = "
+            SELECT COUNT(f.ID) AS TOTAL_ROWS
+            FROM FORUMS f
+            WHERE f.OWNER_ID != :currentUser
+        ";
+        if (!empty($search)) {
+            $sqlCount .= " AND LOWER(f.NAME) LIKE :search";
+        }
+
+        $stmtCount = oci_parse($conn, $sqlCount);
+        oci_bind_by_name($stmtCount, ":currentUser", $currentUser);
+        if (!empty($search)) {
+            oci_bind_by_name($stmtCount, ":search", $searchParam);
+        }
+        oci_execute($stmtCount);
+        $totalRows = oci_fetch_assoc($stmtCount)['TOTAL_ROWS'] ?? 0;
+        oci_free_statement($stmtCount);
+
+        $sqlData = "
+            SELECT * FROM (
+                SELECT 
+                    f.ID,
+                    f.NAME,
+                    f.IS_PRIVATE,
+                    u.FULL_NAME AS OWNER_NAME,
+                    COUNT(m.USER_ID) AS TOTAL_MEMBERS,
+                    f.PATH_PHOTO,
+                    f.CREATED_AT
+                FROM FORUMS f
+                JOIN USERS u ON u.ID = f.OWNER_ID
+                LEFT JOIN FORUM_MEMBERS m ON m.FORUM_ID = f.ID
+                WHERE f.OWNER_ID != :currentUser
+        ";
+
+        if (!empty($search)) {
+            $sqlData .= " AND LOWER(f.NAME) LIKE :search";
+        }
+
+        $sqlData .= "
+                GROUP BY 
+                    f.ID, f.NAME, f.IS_PRIVATE, u.FULL_NAME, f.CREATED_AT, f.PATH_PHOTO
+                ORDER BY f.CREATED_AT DESC
+            )
+            OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
+        ";
+
+        $stmtData = oci_parse($conn, $sqlData);
+        oci_bind_by_name($stmtData, ":currentUser", $currentUser);
+        oci_bind_by_name($stmtData, ":offset", $offset);
+        oci_bind_by_name($stmtData, ":limit", $limit);
+
+        if (!empty($search)) {
+            oci_bind_by_name($stmtData, ":search", $searchParam);
+        }
+
+        if (!oci_execute($stmtData)) return ['data' => [], 'total' => 0];
+
+        $forums = [];
+        while ($row = oci_fetch_assoc($stmtData)) {
+            $forums[] = $row;
+        }
+        oci_free_statement($stmtData);
+
+        return ['data' => $forums, 'total' => $totalRows];
+    }
+
+    public function getMyForum($search = '', $limit = 6, $offset = 0)
+    {
+        $conn = self::getConnection();
+        if (!$conn) return ['data' => [], 'total' => 0];
+
+        $currentUser = $_SESSION['user_id'];
+        $searchParam = '%' . strtolower($search) . '%';
+
+        $sqlCount = "
+            SELECT COUNT(f.ID) AS TOTAL_ROWS
+            FROM FORUMS f
+            WHERE f.OWNER_ID = :currentUser
+        ";
+        if (!empty($search)) {
+            $sqlCount .= " AND LOWER(f.NAME) LIKE :search";
+        }
+
+        $stmtCount = oci_parse($conn, $sqlCount);
+        oci_bind_by_name($stmtCount, ":currentUser", $currentUser);
+        if (!empty($search)) {
+            oci_bind_by_name($stmtCount, ":search", $searchParam);
+        }
+        oci_execute($stmtCount);
+        $totalRows = oci_fetch_assoc($stmtCount)['TOTAL_ROWS'] ?? 0;
+        oci_free_statement($stmtCount);
+
+        $sqlData = "
+            SELECT * FROM (
+                SELECT 
+                    f.ID,
+                    f.NAME,
+                    f.IS_PRIVATE,
+                    u.FULL_NAME AS OWNER_NAME,
+                    COUNT(m.USER_ID) AS TOTAL_MEMBERS,
+                    f.PATH_PHOTO,
+                    f.ACCESS_KEY,
+                    f.CREATED_AT
+                FROM FORUMS f
+                JOIN USERS u ON u.ID = f.OWNER_ID
+                LEFT JOIN FORUM_MEMBERS m ON m.FORUM_ID = f.ID
+                WHERE f.OWNER_ID = :currentUser
+            ";
+
+        if (!empty($search)) {
+            $sqlData .= " AND LOWER(f.NAME) LIKE :search";
+        }
+
+        $sqlData .= "
+                GROUP BY 
+                    f.ID, f.NAME, f.IS_PRIVATE, u.FULL_NAME, f.CREATED_AT, f.ACCESS_KEY, f.PATH_PHOTO
+                ORDER BY f.CREATED_AT DESC
+            )
+            OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
+        ";
+
+        $stmtData = oci_parse($conn, $sqlData);
+        oci_bind_by_name($stmtData, ":currentUser", $currentUser);
+        oci_bind_by_name($stmtData, ":offset", $offset);
+        oci_bind_by_name($stmtData, ":limit", $limit);
+        if (!empty($search)) {
+            oci_bind_by_name($stmtData, ":search", $searchParam);
+        }
+
+        if (!oci_execute($stmtData)) return ['data' => [], 'total' => 0];
+
+        $forums = [];
+        while ($row = oci_fetch_assoc($stmtData)) {
+            $forums[] = $row;
+        }
+        oci_free_statement($stmtData);
+
+        return ['data' => $forums, 'total' => $totalRows];
+    }
+
+
+    public function getForumsByUserId($userId)
     {
         $conn = self::getConnection();
 
@@ -86,7 +253,7 @@ class Forum extends BaseModel
         return $forums;
     }
 
-    public static function findById($id)
+    public function findById($id)
     {
         $conn = self::getConnection();
         $sql = "SELECT ID, NAME, ABOUT, IS_PRIVATE, ACCESS_KEY, PATH_PHOTO, OWNER_ID, CREATED_AT FROM FORUMS WHERE ID = :id_bv";
@@ -103,7 +270,7 @@ class Forum extends BaseModel
         return $forum;
     }
 
-    public static function create($data)
+    public function create($data)
     {
         $conn = self::getConnection();
         $stmt = null;
@@ -159,7 +326,7 @@ class Forum extends BaseModel
     }
 
 
-    public static function edit($id, $data)
+    public function edit($id, $data)
     {
         $conn = self::getConnection();
         $stmt = null;
@@ -208,7 +375,7 @@ class Forum extends BaseModel
     }
 
 
-    public static function delete($id)
+    public function delete($id)
     {
         $conn = self::getConnection();
         $stmt_messages = null;
@@ -244,7 +411,7 @@ class Forum extends BaseModel
         }
     }
 
-    public static function exitForum($forumId, $userId)
+    public function exitForum($forumId, $userId)
     {
         $conn = self::getConnection();
         $stmt = null;
@@ -270,7 +437,7 @@ class Forum extends BaseModel
         }
     }
 
-    public static function searchByName($keyword, $userId)
+    public function searchByName($keyword, $userId)
     {
         $conn = self::getConnection();
         $stmt = null;
@@ -307,7 +474,7 @@ class Forum extends BaseModel
         }
     }
 
-    public static function joinForum($forumId, $userId, $accessKey = null)
+    public function joinForum($forumId, $userId, $accessKey = null)
     {
         $conn = self::getConnection();
 
@@ -340,7 +507,7 @@ class Forum extends BaseModel
         oci_free_statement($stmt_check);
 
         if ($row['COUNT'] > 0) {
-            return ['success' => false, 'message' => 'Anda sudah bergabung dengan forum ini.'];
+            return ['success' => false, 'message' => 'Pengguna ini sudah tercatat sebagai anggota forum.'];
         }
 
         $stmt_insert = null;
@@ -369,7 +536,7 @@ class Forum extends BaseModel
         }
     }
 
-    public static function createReport($data)
+    public function createReport($data)
     {
         $conn = self::getConnection();
         if (!$conn) {

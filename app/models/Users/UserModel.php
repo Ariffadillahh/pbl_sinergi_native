@@ -7,7 +7,7 @@ class UserModel extends BaseModel
     {
         $conn = self::getConnection();
 
-        $sql = "SELECT ID, PASSWORD FROM USERS WHERE ID = :id";
+        $sql = "SELECT ID, PASSWORD, PATH_PHOTO FROM USERS WHERE ID = :id";
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ':id', $userId);
         oci_execute($stmt);

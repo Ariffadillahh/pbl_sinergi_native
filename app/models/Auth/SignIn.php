@@ -24,6 +24,7 @@ class SignInModel extends BaseModel
         oci_bind_by_name($stmt, ':identifier_bv', $identifier);
 
         $executed = oci_execute($stmt);
+        
         if (!$executed) {
             $e = oci_error($stmt);
             die('Oracle execute error: ' . htmlentities($e['message']));
