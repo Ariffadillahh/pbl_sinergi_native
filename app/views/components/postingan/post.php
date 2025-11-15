@@ -80,7 +80,7 @@
 
                 <div class="mt-3 flex items-center justify-between text-gray-500 text-sm border-t border-gray-100 pt-3">
                     <div class="flex items-center space-x-6">
-                        <button class="like-btn flex items-center hover:text-red-500 transition-colors group cursor-pointer" data-post-id="<?= $post['POST_ID'] ?>" data-liked="<?= $post['IS_LIKED'] ?'true' : 'false' ?>">
+                        <button class="like-btn flex items-center hover:text-red-500 transition-colors group cursor-pointer" data-post-id="<?= $post['POST_ID'] ?>" data-liked="<?= $post['IS_LIKED'] ? 'true' : 'false' ?>">
                             <div class="p-2">
                                 <svg class="w-5 h-5 <?= $post['IS_LIKED'] ? 'text-red-500 fill-red-500' : '' ?>" fill="<?= $post['IS_LIKED'] ? 'currentColor' : 'none' ?>" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -163,7 +163,9 @@
             try {
                 const res = await fetch('<?= BASEURL ?>/like/toggle', {
                     method: 'POST',
-                    body: new URLSearchParams({ post_id: postId })
+                    body: new URLSearchParams({
+                        post_id: postId
+                    })
                 });
 
                 const data = await res.json();
@@ -193,7 +195,7 @@
         });
         const dropdown = document.getElementById(id);
         dropdown.classList.toggle('hidden');
-        
+
     }
 
     function openEditPostModal(postId, content, mediaPaths = []) {
@@ -234,9 +236,5 @@
         modal.classList.remove("hidden");
         modal.classList.add("flex");
         document.getElementById("delete-post-id").value = postId;
-    }
-
-    function reportPost(postId) {
-        alert("Report post: " + postId);
     }
 </script>

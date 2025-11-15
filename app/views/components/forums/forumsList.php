@@ -3,7 +3,7 @@
         <p class="text-2xl font-semibold">Your Forums</p>
         <?php
 
-        if ($_SESSION['role'] === 'MAHASISWA' || $_SESSION['role'] === 'DOSEN') {
+        if ($_SESSION['role'] === 'MAHASISWA' || $_SESSION['role'] === 'DOSEN' || $_SESSION['role'] === 'ADMIN') {
         ?>
             <ul class="flex gap-3">
                 <li>

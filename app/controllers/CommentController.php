@@ -35,13 +35,12 @@ class CommentController
     public function addComment()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            ob_clean();
             header('Content-Type: application/json');
+            ob_clean();
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method not allowed']);
             return;
         }
-
 
         $userId = $_SESSION['user_id'] ?? null;
         $postId = $_POST['post_id'] ?? null;
@@ -50,6 +49,7 @@ class CommentController
         if (!$userId || !$postId || $message === '') {
             ob_clean();
             header('Content-Type: application/json');
+            http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Data tidak lengkap']);
             return;
         }
@@ -63,7 +63,8 @@ class CommentController
                     $owner['ID'],
                     $userId,
                     $postId,
-                    'REPLY_POST'
+                    'REPLY_POST',
+                    'POST'
                 );
             }
 
@@ -82,7 +83,8 @@ class CommentController
                             $mentionedUser['ID'],
                             $userId,
                             $postId,
-                            'MENTION'
+                            'MENTION',
+                            'POST'
                         );
                     }
                 }
@@ -134,35 +136,35 @@ class CommentController
                 error_log("Current User ID: " . $userId);
 
                 if (!$parentId) {
-                    // Notif untuk Yang punya Post 
                     $owner = $this->commentModel->getPostOwner($postId);
                     if ($owner && $owner['ID'] !== $userId) {
                         $this->notificationModel->addNotification(
                             $owner['ID'],
                             $userId,
                             $postId,
-                            'REPLY_POST'
+                            'REPLY_POST',
+                            'POST'
                         );
                     }
                 } else {
-                    // Notif untuk Yang punya Post 
                     $owner = $this->commentModel->getPostOwner($postId);
                     if ($owner && $owner['ID'] !== $userId) {
                         $this->notificationModel->addNotification(
                             $owner['ID'],
                             $userId,
                             $postId,
-                            'REPLY_POST'
+                            'REPLY_POST',
+                            'POST'
                         );
                     }
-                    // Notif untuk yang di reply / Perentnya
                     $ownerReply = $this->commentModel->getReplyDetails($parentId);
                     if ($ownerReply && $ownerReply['ID'] !== $userId) {
                         $this->notificationModel->addNotification(
                             $ownerReply['ID'],
                             $userId,
                             $postId,
-                            'REPLY_POST'
+                            'REPLY_POST',
+                            'POST'
                         );
                     }
                 }
@@ -186,7 +188,8 @@ class CommentController
                                 $mentionedUser['ID'],
                                 $userId,
                                 $postId,
-                                'MENTION'
+                                'MENTION',
+                                'POST'
                             );
                         }
                     }

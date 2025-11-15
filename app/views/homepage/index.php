@@ -32,6 +32,7 @@
                                         transition-all duration-200 outline-none"
                                 placeholder="Search somethings..."
                                 autocomplete="off"
+                                minlength="3"
                                 required />
 
 
@@ -90,7 +91,6 @@
         const keyword = input.value.trim();
         if (!keyword) return;
 
-        // Arahkan ke halaman pencarian
         window.location.href = `${BASEURL}/homepage/search?keyword=${encodeURIComponent(keyword)}`;
     }
 </script>

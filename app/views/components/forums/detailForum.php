@@ -59,13 +59,19 @@
                     <div class="flex items-center justify-center gap-[6px]">
                         <p class="font-semibold text-lg"> <?= $forumByid["NAME"] ?></p>
                     </div>
+                    <?php if ($forumByid['OWNER_ID'] == $_SESSION['user_id'] && !empty($forumByid['ACCESS_KEY'])): ?>
+                        <div class="flex items-center gap-[6px]">
+                            <span class="text-xs font-medium text-violet-700 bg-violet-100 px-2 py-0.5 rounded-md">
+                                Private Key: <?= $forumByid['ACCESS_KEY'] ?>
+                            </span>
+                        </div>
+                    <?php endif; ?>
                     <div class="flex items-center gap-[6px] font-semibold text-sm">
                         <p class="flex items-center gap-1">
                             <img src="<?php echo BASEURL; ?>/src/asset/icons/profile-2user-grey.svg" class="flex size-4 shrink-0" alt="icon">
                             <span class="text-gray-500"><?= count($membersForum) ?> Members</span>
                         </p>
                     </div>
-
                 </div>
             </div>
             <div class="p-6">
@@ -128,7 +134,16 @@
                     </div>
                 </div>
 
+                
                 <?php if ($forumByid['OWNER_ID'] == $_SESSION['user_id']): ?>
+                    <div class="my-5 flex">
+                        <button type="button" id="btn-open-manage-members"
+                            class="text-gray-700 border border-gray-400 hover:bg-gray-300
+                            focus:ring-2 focus:outline-none focus:ring-gray-300
+                            font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 w-full">
+                            Manage Members
+                        </button>
+                    </div>
                     <div class="my-5 flex gap-3">
                         <button type="button" id="btn-open-edit-forum"
                             class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 
@@ -156,3 +171,4 @@
 <?php require_once 'app/views/components/forums/modalDeleteForum.php'; ?>
 <?php require_once 'app/views/components/forums/modalExitForum.php'; ?>
 <?php require_once 'app/views/components/forums/modalReportForum.php'; ?>
+<?php require_once 'app/views/components/forums/modalManageMember.php'; ?>

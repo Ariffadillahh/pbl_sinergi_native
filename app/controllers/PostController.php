@@ -13,22 +13,11 @@ class PostController
         $this->notificationModel = new NotificationModel();
     }
 
-    public function index()
+    public function fetchPosts()
     {
-        header('Content-Type: application/json');
-
-        try {
-            $posts = $this->postModel->getAllPosts();
-            echo json_encode(['success' => true, 'data' => $posts]);
-        } catch (Exception $e) {
-            echo json_encode(['success' => false, 'message' => 'Gagal mengambil data postingan.']);
-        }
         $posts = $this->postModel->getAllPosts();
-        foreach ($posts as &$post) {
-            $post['MEDIA_PATHS'] = $this->postModel->getMediaByPostId($post['POST_ID']);
-        }
 
-        include __DIR__ . '/../views/components/postingan/post.php';
+        return $posts;
     }
 
     public function create()
@@ -52,7 +41,7 @@ class PostController
             'USERNAME' => $_SESSION['username'],
         ];
 
-        if (!in_array($user['ROLE'], ['MAHASISWA', 'DOSEN'])) {
+        if (!in_array($user['ROLE'], ['MAHASISWA', 'DOSEN', 'ADMIN'])) {
             echo json_encode(['success' => false, 'message' => 'Role Anda tidak diizinkan membuat postingan.']);
             exit;
         }
@@ -216,10 +205,6 @@ class PostController
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method not allowed']);
             exit;
-        }
-
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
         }
 
         if (empty($_SESSION['logged_in']) || !isset($_SESSION['user_id'])) {

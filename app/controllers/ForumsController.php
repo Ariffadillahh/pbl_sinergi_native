@@ -2,16 +2,25 @@
 require_once __DIR__ . '/../models/Forums/Forum.php';
 require_once __DIR__ . '/../models/Forums/ForumMember.php';
 require_once __DIR__ . '/../models/Forums/ChatMessage.php';
+require_once __DIR__ . '/../models/Notif/NotificationModel.php';
+require_once __DIR__ . '/../models/Posts/PostModel.php';
+require_once __DIR__ . '/../models/Users/UserModel.php';
 
 class ForumsController
 {
     private $forumModel;
     private $forumMemberModel;
+    private $notificationModel;
+    private $postModel;
+    private $userModel;
 
     public function __construct()
     {
         $this->forumModel = new Forum();
         $this->forumMemberModel = new ForumMember();
+        $this->notificationModel = new NotificationModel();
+        $this->postModel = new PostModel();
+        $this->userModel = new UserModel();
     }
 
     public function index()
@@ -284,6 +293,44 @@ class ForumsController
         exit;
     }
 
+    public function joinViaInvite()
+    {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            exit;
+        }
+
+        $forumId = $_POST['forum_id'] ?? null;
+        $userId = $_SESSION['user_id'] ?? null;
+
+        if (!$forumId || !$userId) {
+            echo json_encode(['success' => false, 'message' => 'Missing parameters']);
+            exit;
+        }
+
+        // Cek apakah sudah jadi member
+        if ($this->forumMemberModel->isMember($forumId, $userId)) {
+            echo json_encode(['success' => true, 'message' => 'Already a member']);
+            exit;
+        }
+
+        // Langsung insert tanpa access key
+        $insert = $this->forumMemberModel->insertMember($forumId, $userId);
+
+        if ($insert) {
+            echo json_encode([
+                'success' => true,
+                'redirect' => BASEURL . "/forums/chat/" . $forumId
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to join forum']);
+        }
+    }
+
+
     public function reportForumOrPost()
     {
         header('Content-Type: application/json');
@@ -348,19 +395,182 @@ class ForumsController
         echo json_encode(['is_member' => $isMember]);
     }
 
-        public function handleKickMember()
+    public function kickMember()
     {
-        $forumId = $_POST['forum_id'];
-        $userId = $_POST['user_id'];
+        header('Content-Type: application/json');
 
-        // pastikan hanya owner yang bisa kick
-        $forum = $this->forumModel->findById($forumId);
-        if ($_SESSION['user_id'] != $forum['OWNER_ID']) {
-            die("Unauthorized");
+        // Method check
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+            exit;
         }
 
-        $this->forumModel->kickMember($forumId, $userId);
-        header("Location: " . BASEURL . "/forum/view/" . $forumId);
+        // Auth check
+        if (empty($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            exit;
+        }
+
+        $currentUserId = $_SESSION['user_id'];
+        $forumId = $_POST['forum_id'] ?? null;
+        $targetUserId = $_POST['user_id'] ?? null;
+
+        // Input check
+        if (!$forumId || !$targetUserId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing parameters']);
+            exit;
+        }
+
+        // Check forum exists
+        $forum = $this->forumModel->findById($forumId);
+        if (!$forum) {
+            echo json_encode(['success' => false, 'message' => 'Forum not found']);
+            exit;
+        }
+
+        // Check if current user is owner
+        if ($forum['OWNER_ID'] !== $currentUserId) {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+            exit;
+        }
+
+        // Execute kick
+        $removed = $this->forumMemberModel->removeMember($forumId, $targetUserId);
+
+        if (!$removed) {
+            echo json_encode(['success' => false, 'message' => 'Failed to remove member']);
+            exit;
+        }
+
+        // Add notification: TYPE = KICKED
+        $this->notificationModel->addNotification(
+            $targetUserId,     // user yg dikick
+            $currentUserId,    // siapa yang kick
+            $forumId,          // target id
+            "KICKED",          // type notif
+            ""            // category (optional)
+        );
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Member kicked successfully'
+        ]);
+        exit;
     }
+
+    public function searchUser()
+{
+    header('Content-Type: application/json');
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['error' => 'Method not allowed']);
+        exit;
+    }
+
+    $keyword = $_POST['keyword'] ?? '';
+
+    if (strlen($keyword) < 2) {
+        echo json_encode([]);
+        exit;
+    }
+
+    $users = $this->postModel->searchUsers($keyword);
+
+    echo json_encode($users);
+}
+
+public function addMember()
+{
+    header('Content-Type: application/json');
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['error' => 'Method not allowed']);
+        exit;
+    }
+
+    if (empty($_SESSION['user_id'])) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        exit;
+    }
+
+    $ownerId = $_SESSION['user_id'];
+    $forumId = $_POST['id'] ?? null;
+    $targetUserId = $_POST['user_id'] ?? null;
+
+    if (!$forumId || !$targetUserId) {
+        echo json_encode(['success' => false, 'message' => 'Missing parameters']);
+        exit;
+    }
+
+    // check forum
+    $forum = $this->forumModel->findById($forumId);
+    if (!$forum) {
+        echo json_encode(['success' => false, 'message' => 'Forum not found']);
+        exit;
+    }
+
+    // only owner can add
+    if ($forum['OWNER_ID'] != $ownerId) {
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+        exit;
+    }
+
+    // check if already member
+    if ($this->forumMemberModel->isMember($forumId, $targetUserId)) {
+        echo json_encode(['success' => false, 'message' => 'User already a member']);
+        exit;
+    }
+
+    // create notification
+    $this->notificationModel->addNotification(
+        $targetUserId,
+        $ownerId,
+        $forumId,
+        "INVITE_FORUM",
+        "INVITE_FORUM"
+    );
+
+    echo json_encode(['success' => true, 'message' => 'Member invited successfully']);
+    exit;
+}
+
+public function getForumInfo()
+{
+    $id = $_GET['id'] ?? null;
+
+    if (!$id) {
+        echo json_encode(['error' => 'Missing id']);
+        return;
+    }
+
+    $forum = $this->forumModel->findById($id);
+    $owner = $this->userModel->getUsersById($forum['OWNER_ID']);
+    $members = $this->forumMemberModel->findByForumId($id);
+
+    echo json_encode([
+        "ID" => $forum['ID'],
+        "NAME" => $forum['NAME'],
+        "ABOUT" => $forum['ABOUT'],
+        "PHOTO" => $forum['PATH_PHOTO'],
+        "OWNER" => [
+            "ID" => $owner['ID'],
+            "NAME" => $owner['FULL_NAME'],
+            "PHOTO" => $owner['PATH_PHOTO']
+        ],
+        "MEMBERS" => array_map(function($m) {
+            return [
+                "ID" => $m["USER_ID"],
+                "NAME" => $m["NAME"],
+                "PHOTO" => $m["PATH_PHOTO"]
+            ];
+        }, $members)
+    ]);
+}
 
 }

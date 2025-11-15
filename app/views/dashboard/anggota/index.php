@@ -68,9 +68,37 @@
                                     ?>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <?= htmlspecialchars($user['ROLE'])
+                                    <?php
+                                    $role = htmlspecialchars($user['ROLE']);
+                                    $badgeClass = '';
+
+                                    switch ($role) {
+                                        case 'MAHASISWA':
+                                            $badgeClass = 'bg-blue-100 text-blue-800';
+                                            break;
+                                        case 'DOSEN':
+                                            $badgeClass = 'bg-green-100 text-green-800';
+                                            break;
+                                        case 'ADMIN':
+                                            $badgeClass = 'bg-red-100 text-red-800';
+                                            break;
+                                        case 'ALUMNI':
+                                            $badgeClass = 'bg-yellow-100 text-yellow-800';
+                                            break;
+                                        case 'MITRA':
+                                            $badgeClass = 'bg-gray-100 text-gray-800';
+                                            break;
+                                        default:
+                                            $badgeClass = 'bg-slate-100 text-slate-800';
+                                            break;
+                                    }
                                     ?>
+
+                                    <span class="px-3 py-1 text-sm font-semibold rounded-full <?= $badgeClass ?>">
+                                        <?= $role ?>
+                                    </span>
                                 </td>
+
                                 <td class="px-6 py-4">
                                     <button type="button"
                                         class="btn-edit-user"

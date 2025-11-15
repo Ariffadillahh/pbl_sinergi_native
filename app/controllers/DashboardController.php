@@ -1,6 +1,9 @@
 <?php
 
 require_once __DIR__ . '/../models/Auth/SignIn.php';
+require_once __DIR__ . '/DashboardOverview.php';
+require_once __DIR__ . '/ReportController.php';
+
 
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -9,26 +12,36 @@ class DashboardController
 {
     private $userModel;
     private $loginModel;
+    private $overviewCount;
+    private $reportController;
 
     public function __construct()
     {
         $this->userModel = new User();
         $this->loginModel  = new SignInModel();
+        $this->overviewCount = new overviewCount();
+        $this->reportController = new ReportController();
     }
     public function index()
     {
+        $anggotaCount = $this->overviewCount->countAnggota();
+        $postCount = $this->overviewCount->countPost();
+        $forumCount = $this->overviewCount->countForum();
+        $laporanCount = $this->overviewCount->countLaporan();
         $contentViewDashboard =  __DIR__ . '/../views/dashboard/index.php';
         require_once __DIR__ . '/../views/dashboard/layout.php';
     }
 
     public function laporanForum()
     {
+        $report = $this->reportController->getReportForums();
         $contentViewDashboard =  __DIR__ . '/../views/dashboard/laporan/laporanForum.php';
         require_once __DIR__ . '/../views/dashboard/layout.php';
     }
 
     public function laporanPost()
     {
+        $report = $this->reportController->getReportPost();
         $contentViewDashboard =  __DIR__ . '/../views/dashboard/laporan/laporanPost.php';
         require_once __DIR__ . '/../views/dashboard/layout.php';
     }
@@ -187,13 +200,13 @@ class DashboardController
         header('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405); 
+            http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Metode tidak diizinkan.']);
             exit;
         }
 
         if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'ADMIN') {
-            http_response_code(403); 
+            http_response_code(403);
             echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki hak akses untuk aksi ini.']);
             exit;
         }
@@ -227,10 +240,8 @@ class DashboardController
             }
         } catch (Exception $e) {
             error_log("Update Role Error: " . $e->getMessage());
-            http_response_code(500); 
+            http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan pada server.']);
         }
     }
-
-   
 }

@@ -88,7 +88,7 @@ class Forum extends BaseModel
         $forums = [];
         oci_fetch_all($stmt, $forums, 0, -1, OCI_FETCHSTATEMENT_BY_ROW | OCI_ASSOC);
         oci_free_statement($stmt);
-        oci_close($conn);
+        oci_close($conn);   
 
         return $forums;
     }
@@ -529,13 +529,4 @@ class Forum extends BaseModel
         oci_free_statement($stmt);
         oci_close($conn);
     }
-
-    public function kickMember($forumId, $userId) {
-    $sql = "DELETE FROM FORUM_MEMBERS WHERE FORUM_ID = :forum_id AND USER_ID = :user_id";
-    $stmt = oci_parse($this->conn, $sql);
-    oci_bind_by_name($stmt, ":forum_id", $forumId);
-    oci_bind_by_name($stmt, ":user_id", $userId);
-    return oci_execute($stmt);
-}
-
 }

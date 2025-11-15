@@ -50,6 +50,18 @@ $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
             </li>
         </ul>
         <ul class="flex flex-col gap-5">
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'ADMIN'): ?>
+                <li class="group relative flex items-center">
+                    <a href="<?php echo BASEURL ?>/dashboard" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 hover:ring-1 hover:ring-blue-600">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                        </svg>
+                    </a>
+                    <h1 class="absolute left-full ml-4 whitespace-nowrap rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white border border-gray-200 border-l-4 border-l-blue-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100 invisible group-hover:visible pointer-events-none z-[9999]">
+                        Dashboard Admin
+                    </h1>
+                </li>
+            <?php endif ?>
             <li class="group relative flex items-center">
                 <a href="<?php echo BASEURL ?>/logout" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 hover:ring-1 hover:ring-blue-600">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/Logout.svg" class="size-6" alt="icon">
@@ -130,6 +142,22 @@ $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
 
             <div class="absolute bottom-full right-0.5 mb-4 hidden" id="menu-profile-signout">
                 <ul class="bg-white shadow-lg rounded-lg py-2 w-32 text-sm text-gray-700 border border-gray-200">
+                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'ADMIN'): ?>
+                        <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                            <a href="<?= BASEURL ?>/dashboard" class="flex gap-2 items-center">
+                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6z
+                                            M14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z
+                                            M4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z
+                                            M14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                                    </path>
+                                </svg>
+                                Dashboard
+                            </a>
+                        </li>
+                    <?php endif; ?>
+
                     <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">
                         <a href="<?php echo BASEURL ?>/profile" class="flex gap-2 items-center">
                             <img src="<?php echo BASEURL; ?>/src/asset/icons/profile-2user-grey.svg" class="size-5" alt="icon">

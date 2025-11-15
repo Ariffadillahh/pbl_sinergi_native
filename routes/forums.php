@@ -64,10 +64,40 @@ switch (true) {
         $controller->search();
         break;
 
+    case $route === 'forums/searchUser':
+        requireLogin();
+        $controller = new ForumsController();
+        $controller->searchUser();
+        break;
+
     case $route === 'forums/join':
         requireLogin();
         $controller = new ForumsController();
         $controller->join();
+        break;
+
+    case $route === 'forums/joinViaInvite':
+        requireLogin();
+        $controller = new ForumsController();
+        $controller->joinViaInvite();
+        break;
+
+    case $route === 'forums/kickMember':
+        requireLogin();
+        $controller = new ForumsController();
+        $controller->kickMember();
+        break;
+
+    case $route === 'forums/getForumInfo':
+        requireLogin();
+        $controller = new ForumsController();
+        $controller->getForumInfo();
+        break;
+
+    case $route === 'forums/addMember':
+        requireLogin();
+        $controller = new ForumsController();
+        $controller->addMember();
         break;
 
     case $route === 'forums/send-message':
@@ -93,4 +123,5 @@ switch (true) {
         $controller = new ChatMessagesController();
         $controller->pollCounts();
         break;
+
 }

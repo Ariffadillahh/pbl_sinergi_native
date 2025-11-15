@@ -63,7 +63,6 @@
 
 <?php require_once 'app/views/components/forums/modalAccsesKey.php'; ?>
 
-
 <script>
     if (typeof BASEURL === 'undefined') {
     var BASEURL = '<?php echo BASEURL; ?>';

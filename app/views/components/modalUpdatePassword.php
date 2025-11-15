@@ -2,7 +2,6 @@
     class="hidden inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50 fixed top-0">
     <div class="relative p-4 w-full max-w-md max-h-full">
         <div class="relative bg-white rounded-lg shadow-sm">
-            <!-- Header -->
             <div class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t">
                 <h3 class="text-xl font-semibold text-gray-900">
                     Ubah Password

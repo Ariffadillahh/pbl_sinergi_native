@@ -5,6 +5,7 @@ require_once __DIR__ . '/../models/Users/UserModel.php';
 require_once __DIR__ . '/../models/Auth/SignIn.php';
 require_once __DIR__ . '/../models/Fypage/FypageModel.php';
 require_once __DIR__ . '/../helpers/mentionHelper.php';
+require_once __DIR__ . '/PostController.php';
 
 class HomepageController
 {
@@ -13,6 +14,7 @@ class HomepageController
     private $userModel;
     private $signInModel;
     private $fypageModel;
+    private $postController;
 
     public function __construct()
     {
@@ -21,6 +23,7 @@ class HomepageController
         $this->userModel = new UserModel();
         $this->signInModel = new SignInModel();
         $this->fypageModel = new FypageModel();
+        $this->postController = new PostController();
     }
 
     private function getSidebarData()
@@ -35,7 +38,8 @@ class HomepageController
 
     public function home()
     {
-        $posts = $this->postModel->getAllPosts();
+        $posts = $this->postController->fetchPosts();
+
         $sidebarData = $this->getSidebarData();
         extract($sidebarData);
 
@@ -135,24 +139,3 @@ class HomepageController
     }
 }
 
-class landingPageController
-{
-    public function index()
-    {
-        include __DIR__ . '/../views/landingPage/index.php';
-    }
-
-    public function con()
-    {
-        include __DIR__ . '/../../config/database.php';
-    }
-}
-
-class NotFoundPageController
-{
-    public function index()
-    {
-        http_response_code(404);
-        include __DIR__ . '/../views/404/index.php';
-    }
-}
