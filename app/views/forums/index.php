@@ -42,15 +42,12 @@
             const modal = document.getElementById("searchModal");
             const input = document.getElementById("searchLive");
 
-            // Tunggu modal JS dari modalSearchForum siap
             setTimeout(() => {
             if (modal && input) {
-                // Buka modal
                 modal.classList.remove("hidden");
                 modal.classList.add("flex");
                 input.value = keyword;
 
-                // Jalankan pencarian otomatis
                 if (typeof performSearch === "function") {
                 performSearch(keyword);
                 } else {

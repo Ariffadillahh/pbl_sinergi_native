@@ -167,7 +167,7 @@ class User extends BaseModel
 
         $userId = $_SESSION['user_id'];
 
-        $sql = "SELECT USERNAME, FULL_NAME, PATH_PHOTO, ROLE 
+        $sql = "SELECT ID, USERNAME, FULL_NAME, PATH_PHOTO, ROLE 
             FROM USERS 
             WHERE ROLE NOT IN ('MITRA', 'ALUMNI') 
             AND ID != :id";

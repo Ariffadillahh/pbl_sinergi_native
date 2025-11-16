@@ -11,6 +11,7 @@ if (strlen($route) > 1) {
 
 switch (true) {
     case $route === '':
+        guestOnly();
         $controller = new LandingPageController();
         $controller->landingPage();
         break;

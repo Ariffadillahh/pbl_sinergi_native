@@ -42,7 +42,7 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <button
-                                        class="reason-modal-btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm transition"
+                                        class="reason-modal-btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm transition text-xs"
                                         data-id="<?= htmlspecialchars($data['FORUM_ID']) ?>">
                                         See Reason
                                     </button>

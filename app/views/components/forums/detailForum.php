@@ -1,11 +1,20 @@
 <div id="Chat-Navigation" class="flex items-center justify-between w-full border-b border-gray-200 p-5 gap-3 bg-white flex-shrink-0">
     <div id="Group-Title" class="flex items-center flex-1 gap-3">
-        <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
-            <img src="<?php echo !empty($forumByid['PATH_PHOTO'])
-                            ? BASEURL . '/storage/forums/photos/' . $forumByid['PATH_PHOTO']
-                            : BASEURL . '/src/asset/image/default.png'; ?>"
-                class="w-full h-full object-cover" alt="photo">
+        <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden items-center justify-center">
+
+            <?php if (!empty($forumByid['PATH_PHOTO'])): ?>
+                <img
+                    src="<?= BASEURL . '/storage/forums/photos/' . $forumByid['PATH_PHOTO'] ?>"
+                    class="w-full h-full object-cover"
+                    alt="photo">
+            <?php else: ?>
+                <span class="w-full h-full flex items-center justify-center bg-pink-500 text-white font-bold text-lg">
+                    <?= strtoupper(substr($forumByid['NAME'], 0, 2)) ?>
+                </span>
+            <?php endif; ?>
+
         </div>
+
         <div class="flex flex-col gap-1">
             <div class="flex items-center gap-[6px]">
                 <h1 class="font-semibold text-lg truncate overflow-hidden whitespace-nowrap">
@@ -50,11 +59,21 @@
 
         <div class="flex-1 overflow-y-auto hide-scrollbar">
             <div class="flex flex-col items-center py-8 px-6 gap-4 border-b border-gray-200">
-                <div class="flex size-[120px] rounded-full overflow-hidden">
-                    <img src="<?php echo !empty($forumByid['PATH_PHOTO'])
-                                    ? BASEURL . '/storage/forums/photos/' . $forumByid['PATH_PHOTO']
-                                    : BASEURL . '/src/asset/image/default.png'; ?>" class="w-full h-full object-cover" alt="photo">
+                <div class="flex size-[120px] rounded-full overflow-hidden items-center justify-center bg-gray-200">
+
+                    <?php if (!empty($forumByid['PATH_PHOTO'])): ?>
+                        <img
+                            src="<?= BASEURL . '/storage/forums/photos/' . $forumByid['PATH_PHOTO'] ?>"
+                            class="w-full h-full object-cover"
+                            alt="photo">
+                    <?php else: ?>
+                        <div class="w-full h-full flex items-center justify-center bg-pink-500 text-white text-3xl font-bold">
+                            <?= strtoupper(substr($forumByid['NAME'], 0, 2)) ?>
+                        </div>
+                    <?php endif; ?>
+
                 </div>
+
                 <div class="flex flex-col items-center gap-2">
                     <div class="flex items-center justify-center gap-[6px]">
                         <p class="font-semibold text-lg"> <?= $forumByid["NAME"] ?></p>

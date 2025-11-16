@@ -101,7 +101,8 @@ class ReportManage extends BaseModel
         $sql = "
             SELECT 
                 R.REASON,
-                U.FULL_NAME AS REPORTER_NAME
+                U.FULL_NAME AS REPORTER_NAME,
+                U.PATH_PHOTO
             FROM REPORT R
             JOIN USERS U ON R.USER_ID = U.ID
             WHERE R.TARGET_TYPE = 'FORUM' AND R.TARGET_ID = :forumId
@@ -130,7 +131,8 @@ class ReportManage extends BaseModel
         $sql = "
             SELECT 
                 R.REASON,
-                U.FULL_NAME AS REPORTER_NAME
+                U.FULL_NAME AS REPORTER_NAME,
+                U.PATH_PHOTO
             FROM REPORT R
             JOIN USERS U ON R.USER_ID = U.ID
             WHERE R.TARGET_TYPE = 'POSTINGAN' AND R.TARGET_ID = :postId

@@ -37,14 +37,21 @@
                                     <a href="<?php echo BASEURL; ?>/forums/chat/<?php echo $forum['ID']; ?>" class="chats-card group <?php echo $isActive; ?> last:pb-8">
                                         <div class="flex items-center rounded-2xl p-4 gap-3 group-[.active]:bg-gray-100 hover:bg-gray-100 transition-all duration-300">
 
-                                            <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
-                                                <img
-                                                    src="<?php echo !empty($forum['PATH_PHOTO'])
-                                                                ? BASEURL . '/storage/forums/photos/' . $forum['PATH_PHOTO']
-                                                                : BASEURL . '/src/asset/image/default.png'; ?>"
-                                                    class="w-full h-full object-cover"
-                                                    alt="photo">
+                                            <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden items-center justify-center bg-gray-200">
+
+                                                <?php if (!empty($forum['PATH_PHOTO'])): ?>
+                                                    <img
+                                                        src="<?= BASEURL . '/storage/forums/photos/' . $forum['PATH_PHOTO'] ?>"
+                                                        class="w-full h-full object-cover"
+                                                        alt="photo">
+                                                <?php else: ?>
+                                                    <span class="text-white font-bold text-lg bg-pink-500 w-full h-full flex items-center justify-center">
+                                                        <?= strtoupper(substr($forum['NAME'], 0, 2)) ?>
+                                                    </span>
+                                                <?php endif; ?>
+
                                             </div>
+
 
                                             <div class="flex flex-col w-full gap-1">
 
