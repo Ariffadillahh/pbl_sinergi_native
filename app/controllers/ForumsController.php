@@ -533,7 +533,7 @@ public function addMember()
         $ownerId,
         $forumId,
         "INVITE_FORUM",
-        "INVITE_FORUM"
+        "FORUM"
     );
 
     echo json_encode(['success' => true, 'message' => 'Member invited successfully']);
