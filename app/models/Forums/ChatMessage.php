@@ -166,4 +166,113 @@ class ChatMessage extends BaseModel
 
         return $messages;
     }
+
+public static function getForumMediaPreview($forumId, $limit = 8)
+{
+    $conn = self::getConnection();
+    
+    if (!$conn) {
+        return [];
+    }
+
+    try {
+        $sql = "SELECT 
+                    fm.ID,
+                    fm.PATH_MEDIA,
+                    fm.ORIGINAL_FILENAME,
+                    fm.TYPE,
+                    TO_CHAR(fm.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT
+                FROM 
+                    FORUM_MESSAGES fm
+                WHERE 
+                    fm.FORUM_ID = :forum_id
+                    AND fm.PATH_MEDIA IS NOT NULL
+                    AND fm.TYPE IN ('IMAGE', 'VIDEO', 'FILE')
+                ORDER BY 
+                    fm.CREATED_AT DESC
+                FETCH FIRST :limit ROWS ONLY";
+
+        $stmt = oci_parse($conn, $sql);
+        
+        oci_bind_by_name($stmt, ':forum_id', $forumId);
+        oci_bind_by_name($stmt, ':limit', $limit);
+        
+        oci_execute($stmt);
+
+        $media = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $media[] = [
+                'file' => basename($row['PATH_MEDIA']),
+                'type' => strtolower($row['TYPE']), // image, video, file
+                'path' => $row['PATH_MEDIA'],
+                'original_name' => $row['ORIGINAL_FILENAME'],
+                'created_at' => $row['CREATED_AT']
+            ];
+        }
+
+        oci_free_statement($stmt);
+        return $media;
+
+    } catch (\Exception $e) {
+        error_log('Error in getForumMediaPreview: ' . $e->getMessage());
+        return [];
+    } finally {
+        oci_close($conn);
+    }
+}
+
+public static function getAllForumMedia($forumId)
+{
+    $conn = self::getConnection();
+    
+    if (!$conn) {
+        return [];
+    }
+
+    try {
+        $sql = "SELECT 
+                    fm.ID,
+                    fm.PATH_MEDIA,
+                    fm.ORIGINAL_FILENAME,
+                    fm.TYPE,
+                    u.FULL_NAME AS SENDER_NAME,
+                    TO_CHAR(fm.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT
+                FROM 
+                    FORUM_MESSAGES fm
+                JOIN 
+                    USERS u ON fm.SENDER_ID = u.ID
+                WHERE 
+                    fm.FORUM_ID = :forum_id
+                    AND fm.PATH_MEDIA IS NOT NULL
+                    AND fm.TYPE IN ('IMAGE', 'VIDEO', 'FILE')
+                ORDER BY 
+                    fm.CREATED_AT DESC";
+
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ':forum_id', $forumId);
+        oci_execute($stmt);
+
+        $media = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $media[] = [
+                'file' => basename($row['PATH_MEDIA']),
+                'type' => strtolower($row['TYPE']),
+                'path' => $row['PATH_MEDIA'],
+                'original_name' => $row['ORIGINAL_FILENAME'],
+                'sender_name' => $row['SENDER_NAME'],
+                'created_at' => $row['CREATED_AT']
+            ];
+        }
+
+        oci_free_statement($stmt);
+        return $media;
+
+    } catch (\Exception $e) {
+        error_log('Error in getAllForumMedia: ' . $e->getMessage());
+        return [];
+    } finally {
+        oci_close($conn);
+    }
+}
+
 }

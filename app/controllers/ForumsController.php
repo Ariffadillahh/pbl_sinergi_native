@@ -583,4 +583,41 @@ class ForumsController
             }, $members)
         ]);
     }
+
+    // In your Forum controller or wherever you render the detail page
+
+public function detail($forumId)
+{
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: ' . BASEURL . '/login');
+        exit;
+    }
+    
+    // Get forum details
+    $forum = $this->forumModel->findById($forumId);
+    
+    if (!$forum) {
+        // Handle not found
+        header('Location: ' . BASEURL . '/forums');
+        exit;
+    }
+    
+    // Get messages
+    $chatMessageModel = new ChatMessage();
+    $messages = $chatMessageModel->getMessagesByForumId($forumId);
+    
+    // Get media preview (8 most recent)
+    $mediaPreview = $chatMessageModel->getForumMediaPreview($forumId, 8);
+    
+    $data = [
+        'title' => 'Forum - ' . $forum['TITLE'],
+        'forum' => $forum,
+        'messages' => $messages,
+        'mediaPreview' => $mediaPreview
+    ];
+    
+    // Load view
+    require_once __DIR__ . '/../views/forums/detail.php';
+}
+
 }

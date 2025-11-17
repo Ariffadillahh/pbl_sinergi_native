@@ -47,8 +47,16 @@ class PostController
         }
 
         $caption = trim($_POST['content'] ?? '');
-        if (empty($caption) && empty($_FILES['images']['name'][0])) {
-            echo json_encode(['success' => false, 'message' => 'Tuliskan caption atau tambahkan gambar terlebih dahulu.']);
+        $hasImages = isset($_FILES['images'])
+            && isset($_FILES['images']['name'])
+            && is_array($_FILES['images']['name'])
+            && !empty($_FILES['images']['name'][0]);
+
+        if (empty($caption) && !$hasImages) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Tuliskan caption atau tambahkan gambar terlebih dahulu.'
+            ]);
             exit;
         }
 
