@@ -78,25 +78,99 @@
                     <div class="flex items-center justify-center gap-[6px]">
                         <p class="font-semibold text-lg"> <?= $forumByid["NAME"] ?></p>
                     </div>
+                    <?php if ($forumByid['OWNER_ID'] == $_SESSION['user_id'] && !empty($forumByid['ACCESS_KEY'])): ?>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-medium text-violet-700 bg-violet-100 px-2 py-0.5 rounded-md flex items-center gap-1.5">
+                                <span>Private Key:</span>
+                                <span id="access-key-text" class="font-mono"><?= $forumByid['ACCESS_KEY'] ?></span>
+                            </span>
+
+                            <button
+                                id="copy-key-btn"
+                                onclick="copyAccessKey('<?= $forumByid['ACCESS_KEY'] ?>')"
+                                class="group relative flex items-center justify-center p-1.5 rounded-md bg-violet-100 hover:bg-violet-200 text-violet-700 transition-all duration-200 active:scale-95"
+                                title="Copy Access Key">
+                                <svg id="clipboard-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                <svg id="check-icon" class="w-4 h-4 hidden text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    <?php endif; ?>
                     <div class="flex items-center gap-[6px] font-semibold text-sm">
                         <p class="flex items-center gap-1">
                             <img src="<?php echo BASEURL; ?>/src/asset/icons/profile-2user-grey.svg" class="flex size-4 shrink-0" alt="icon">
                             <span class="text-gray-500"><?= count($membersForum) ?> Members</span>
                         </p>
                     </div>
-
                 </div>
             </div>
             <div class="p-6">
-                <div id="About" class="flex  gap-3 flex-col">
-                    <p class="font-semibold leading-5">About Forum</p>
-                    <p class="font-semibold leading-8"><?= $forumByid["ABOUT"] ?></p>
+                <div id="About" class="flex flex-col gap-1 mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <p class="text-lg font-semibold text-gray-800">About Forum</p>
+
+                    <p class="text-gray-700">
+                        <?= htmlspecialchars($forumByid["ABOUT"]) ?>
+                    </p>
+
+                    <p class="text-sm text-gray-500 mt-2">
+                        Created at:
+                        <span class="font-medium text-gray-700">
+                            <?= formatDatePretty($forumByid["CREATED_AT"]) ?>
+                        </span>
+                    </p>
                 </div>
+
                 <div>
+                    <div id="Owner" class="flex flex-col gap-3 mt-6">
+                        <p class="font-semibold leading-5">Owner</p>
+                        <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 min-w-0">
+                            <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
+                                <img src="<?= !empty($forumByid['PATH_PHOTO_OWNER'])
+                                                ? BASEURL . '/storage/users/photos/' . $forumByid['PATH_PHOTO_OWNER']
+                                                : BASEURL . '/src/asset/image/default.png' ?>" class="w-full h-full object-cover" alt="photo">
+                            </div>
+                            <div class="flex flex-col flex-1 gap-[6px] min-w-0">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-semibold truncate"><?= $forumByid["OWNER_NAME"] ?></p>
+                                    </div>
+                                    <?php
+                                    $role = $forumByid["ROLE_OWNER"];
+
+                                    $roleClasses = [
+                                        "MAHASISWA" => "bg-blue-100 text-blue-800",
+                                        "ADMIN"     => "bg-red-100 text-red-800",
+                                        "DOSEN"     => "bg-green-100 text-green-800",
+                                        "MITRA"     => "bg-gray-100 text-gray-800",
+                                        "ALUMNI"    => "bg-yellow-100 text-yellow-800"
+                                    ];
+
+                                    $colorClass = $roleClasses[$role] ?? "bg-gray-100 text-gray-800";
+                                    ?>
+
+                                    <div class="flex-shrink-0">
+                                        <span class="<?= $colorClass ?> text-xs font-medium px-2.5 py-0.5 rounded-sm">
+                                            <?= htmlspecialchars($role) ?>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div id="Members" class="flex flex-col gap-3 mt-6">
-                        <p class="font-semibold leading-5">Members (<?= count($membersForum) ?>)</p>
+                        <?php
+                        $membersForumFiltered = array_filter($membersForum, function ($m) use ($forumByid) {
+                            return $m['USER_ID'] !== $forumByid['OWNER_ID'];
+                        }); ?>
+                        <p class="font-semibold leading-5">Members (<?= count($membersForumFiltered) ?>)</p>
+
                         <div class="flex flex-col gap-3">
-                            <?php foreach ($membersForum as $member): ?>
+                            <?php foreach ($membersForumFiltered as $member): ?>
+                                <?php if ($member['USER_ID'] == $forumByid['OWNER_ID']) continue; ?>
                                 <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 min-w-0">
                                     <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
                                         <img src="<?= !empty($member['PATH_PHOTO'])
@@ -108,9 +182,26 @@
                                             <div class="flex-1 min-w-0">
                                                 <p class="font-semibold truncate"><?= $member["NAME"] ?></p>
                                             </div>
+                                            <?php
+                                            $role = $member["ROLE"];
+
+                                            $roleClasses = [
+                                                "MAHASISWA" => "bg-blue-100 text-blue-800",
+                                                "ADMIN"     => "bg-red-100 text-red-800",
+                                                "DOSEN"     => "bg-green-100 text-green-800",
+                                                "MITRA"     => "bg-gray-100 text-gray-800",
+                                                "ALUMNI"    => "bg-yellow-100 text-yellow-800"
+                                            ];
+
+                                            $colorClass = $roleClasses[$role] ?? "bg-gray-100 text-gray-800";
+                                            ?>
+
                                             <div class="flex-shrink-0">
-                                                <span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm"><?= $member["ROLE"] ?></span>
+                                                <span class="<?= $colorClass ?> text-xs font-medium px-2.5 py-0.5 rounded-sm">
+                                                    <?= htmlspecialchars($role) ?>
+                                                </span>
                                             </div>
+
                                         </div>
                                         <div class="flex font-medium text-sm text-heyhao-secondary gap-0.5 items-center">
                                             <p>Joined: </p>
@@ -123,19 +214,25 @@
                     </div>
                 </div>
 
+
                 <?php if ($forumByid['OWNER_ID'] == $_SESSION['user_id']): ?>
+                    <div class="my-5 flex">
+                        <button
+                            type="button"
+                            id="btn-open-manage-members"
+                            class="w-full px-5 py-2.5 mb-2text-sm font-semibold text-gray-700 bg-white border border-gray-300rounded-xl shadow-sm hover:bg-gray-100 hover:border-gray-400 active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 rounded-lg">
+                            Manage Members
+                        </button>
+
+                    </div>
                     <div class="my-5 flex gap-3">
                         <button type="button" id="btn-open-edit-forum"
-                            class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 
-                   hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 
-                   font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 w-full">
+                            class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 w-full">
                             Edit Forum
                         </button>
 
                         <button type="button" id="btn-open-delete-forum"
-                            class="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 
-                   focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg 
-                   text-sm px-5 py-2.5 text-center me-2 mb-2 w-full">
+                            class="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 w-full">
                             Delete Forum
                         </button>
                     </div>
@@ -147,7 +244,56 @@
     </div>
 </div>
 
+<script>
+    function copyAccessKey(key) {
+        const clipboardIcon = document.getElementById('clipboard-icon');
+        const checkIcon = document.getElementById('check-icon');
+        const button = document.getElementById('copy-key-btn');
+
+        navigator.clipboard.writeText(key).then(() => {
+            clipboardIcon.classList.add('hidden');
+            checkIcon.classList.remove('hidden');
+            button.classList.add('bg-green-100');
+            button.classList.remove('bg-violet-100');
+
+            setTimeout(() => {
+                clipboardIcon.classList.remove('hidden');
+                checkIcon.classList.add('hidden');
+                button.classList.remove('bg-green-100');
+                button.classList.add('bg-violet-100');
+            }, 1500);
+        }).catch(err => {
+            const textArea = document.createElement('textarea');
+            textArea.value = key;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+
+            try {
+                document.execCommand('copy');
+                clipboardIcon.classList.add('hidden');
+                checkIcon.classList.remove('hidden');
+                button.classList.add('bg-green-100');
+                button.classList.remove('bg-violet-100');
+
+                setTimeout(() => {
+                    clipboardIcon.classList.remove('hidden');
+                    checkIcon.classList.add('hidden');
+                    button.classList.remove('bg-green-100');
+                    button.classList.add('bg-violet-100');
+                }, 1500);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+
+            document.body.removeChild(textArea);
+        });
+    }
+</script>
+
 <?php require_once 'app/views/components/forums/modalEditForum.php'; ?>
 <?php require_once 'app/views/components/forums/modalDeleteForum.php'; ?>
 <?php require_once 'app/views/components/forums/modalExitForum.php'; ?>
 <?php require_once 'app/views/components/forums/modalReportForum.php'; ?>
+<?php require_once 'app/views/components/forums/modalManageMember.php'; ?>

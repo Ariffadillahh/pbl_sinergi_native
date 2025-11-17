@@ -84,7 +84,9 @@
 
             </div>
         </main>
+        <?php require_once 'app/views/components/modalInvite.php'; ?>
     </div>
+
 
 
     <script>

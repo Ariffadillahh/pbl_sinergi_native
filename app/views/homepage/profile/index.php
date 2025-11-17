@@ -70,6 +70,7 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                         <?= count($posts) ?>
                     </span>
                 </div>
+                <?php require_once 'app/views/components/modalInvite.php'; ?>
             </div>
 
             <main class="w-full min-h-screen overflow-y-auto border-gray-200 hide-scrollbar">
@@ -118,21 +119,12 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                                                 <div
                                                     id="dropdown-<?= $post['POST_ID'] ?>"
                                                     class="hidden absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
-                                                    <?php if ($isOwner): ?>
-                                                        <button
-                                                            type="button"
-                                                            class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
-                                                            onclick="openDeletePostModal('<?= $post['POST_ID'] ?>')">
-                                                            Hapus
-                                                        </button>
-                                                    <?php else: ?>
-                                                        <button
+                                                       <button
                                                             type="button"
                                                             class="report-btn w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-100"
                                                             data-post-id="<?= $post['POST_ID']; ?>">
                                                             Report
                                                         </button>
-                                                    <?php endif; ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -181,6 +173,7 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
+                    <?php include __DIR__ . '/../../components/postingan/modalReportPost.php'; ?>
                 </div>
             </main>
 
@@ -232,6 +225,50 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                 swiperEl.initialize();
             });
         });
+
+        document.querySelectorAll('.like-btn').forEach(button => {
+            button.addEventListener('click', async () => {
+                const postId = button.getAttribute('data-post-id');
+                const countSpan = button.querySelector('.like-count');
+                const icon = button.querySelector('svg');
+
+                try {
+                    const res = await fetch('<?= BASEURL ?>/like/toggle', {
+                        method: 'POST',
+                        body: new URLSearchParams({
+                            post_id: postId
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (data.success) {
+                        const isLiked = data.action === 'liked';
+                        button.setAttribute('data-liked', isLiked ? 'true' : 'false');
+                        countSpan.textContent = data.total_likes;
+
+                        if (isLiked) {
+                            icon.classList.add('text-red-500', 'fill-red-500');
+                        } else {
+                            icon.classList.remove('text-red-500', 'fill-red-500');
+                        }
+                    } else {
+                        alert(data.message || 'Gagal update like.');
+                    }
+                } catch (err) {
+                    console.error('Error:', err);
+                }
+            });
+        });
+
+        function toggleDropdown(id) {
+            document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
+                if (d.id !== id) d.classList.add('hidden');
+            });
+            const dropdown = document.getElementById(id);
+            dropdown.classList.toggle('hidden');
+            
+        }
     </script>
 
 </body>

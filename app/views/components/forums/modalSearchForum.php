@@ -1,5 +1,5 @@
 <div id="searchModal" class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50">
-    <div class="lg:w-[50%] md:w-[60%] w-[80%]  bg-white h-[80%] rounded-3xl p-4">
+    <div class="lg:w-[50%] md:w-[60%] w-[90%]  bg-white h-[80%] rounded-3xl p-4">
         <div class="flex justify-between">
             <h1 class="font-semibold text-xl">Search Forum</h1>
             <button class="cursor-pointer" id="closeModalBtn">
@@ -34,22 +34,51 @@
                     <?php if (!empty($joinedForums)): ?>
                         <?php foreach ($joinedForums as $forum): ?>
                             <?php
-                            $isActive = ($activeChatId === $forum['ID']) ? 'active' : '';
+                            $isActive = ($activeChatId === $forum['ID'])
+                                ? 'border-2 border-blue-600 bg-blue-50'
+                                : 'border border-gray-200';
+
+                            $isOwner = ($forum['OWNER_ID'] == $_SESSION['user_id']);
                             ?>
-                            <a href="<?php echo BASEURL; ?>/forums/chat/<?php echo $forum['ID']; ?>" class="chats-card group <?php echo $isActive; ?> last:pb-8">
-                                <div class="flex items-start gap-3 my-3 border border-gray-200 rounded-2xl p-3 hover:bg-gray-50 cursor-pointer">
-                                    <img src="<?php echo !empty($forum['PATH_PHOTO'])
-                                                    ? BASEURL . '/storage/forums/photos/' . $forum['PATH_PHOTO']
-                                                    : BASEURL . '/src/asset/image/default.png'; ?>"
-                                        alt="" class="w-16 h-16 rounded-xl object-cover flex-shrink-0">
+
+                            <a href="<?= BASEURL; ?>/forums/chat/<?= $forum['ID']; ?>"
+                                class="chats-card group last:pb-8">
+                                <div class="flex items-start gap-3 my-3 rounded-2xl p-3 hover:bg-gray-50 cursor-pointer <?= $isActive; ?>">
+
+                                    <div class="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center bg-gray-200 flex-shrink-0">
+                                        <?php if (!empty($forum['PATH_PHOTO'])): ?>
+                                            <img src="<?= BASEURL . '/storage/forums/photos/' . $forum['PATH_PHOTO']; ?>"
+                                                alt="Forum Photo"
+                                                class="w-full h-full object-cover">
+                                        <?php else: ?>
+                                            <span class="text-white font-bold text-lg w-full h-full flex items-center justify-center"
+                                                style="background-color: #EF5DA8;">
+                                                <?= strtoupper(substr($forum['NAME'], 0, 2)); ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-black font-bold mb-1 truncate"><?php echo htmlspecialchars($forum['NAME']); ?></p>
-                                        <p class="text-gray-600 text-sm truncate"> <?php echo htmlspecialchars($forum['ABOUT'] ?? 'No description yet'); ?>
+                                        <div class="md:flex md:justify-between">
+                                            <p class="text-black font-bold mb-1 truncate flex items-center gap-2">
+                                                <?= htmlspecialchars($forum['NAME']); ?>
+                                            </p>
+                                            <?php if ($isOwner): ?>
+                                                <span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm border border-blue-400">
+                                                    My Forum
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <p class="text-gray-600 text-sm truncate">
+                                            <?= htmlspecialchars($forum['ABOUT'] ?? 'No description yet'); ?>
                                         </p>
                                     </div>
+
                                 </div>
                             </a>
                         <?php endforeach; ?>
+
                     <?php else: ?>
                         <div class="h-full">
                             <p class="text-sm text-gray-900 text-center font-semibold h-[50vh] flex justify-center items-center">No forums found.</p>
@@ -63,11 +92,11 @@
 
 <?php require_once 'app/views/components/forums/modalAccsesKey.php'; ?>
 
-
 <script>
     if (typeof BASEURL === 'undefined') {
-    var BASEURL = '<?php echo BASEURL; ?>';
-}
+        var BASEURL = '<?php echo BASEURL; ?>';
+    }
+
     function debounce(func, delay = 300) {
         let timeout;
         return (...args) => {

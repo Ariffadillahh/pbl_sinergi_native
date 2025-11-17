@@ -15,7 +15,7 @@
         </main>
 
     </div>
-
+    <?php require_once 'app/views/components/modalInvite.php'; ?>
     <?php require_once __DIR__ . '/../components/forums/modalCreateForum.php'; ?>
     <?php require_once 'app/views/components/modalFinishSetup.php'; ?>
 

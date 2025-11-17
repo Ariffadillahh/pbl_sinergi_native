@@ -35,15 +35,16 @@ class DashboardOverview
         return $count;
     }
 
-    public function getForumsActivityData()
+    public function getForumEngagementData()
     {
-        $rawActivityTrend = $this->overviewCountModel->getMonthlyActivityTrend();
-        $activityChart = $this->formatChartData($rawActivityTrend, 'ACTIVITY_MONTH', 'TOTAL_ACTIVITY');
-        $activityStats = $this->overviewCountModel->getActivityStats();
+        // Ambil data forum trend (hanya forum yang dibuat)
+        $rawForumTrend = $this->overviewCountModel->getMonthlyForumTrend();
+        $forumChart = $this->formatChartData($rawForumTrend, 'FORUM_MONTH', 'TOTAL_FORUMS');
+        $forumStats = $this->overviewCountModel->getForumStats();
 
         return [
-            'summary' => $activityStats,
-            'chart' => $activityChart
+            'summary' => $forumStats,
+            'chart' => $forumChart
         ];
     }
 
@@ -71,14 +72,15 @@ class DashboardOverview
                 'laporan' => $this->countLaporan()
             ];
 
-            $forumData = $this->getForumsActivityData();
+            // Ubah dari getForumsActivityData() menjadi getForumEngagementData()
+            $forumData = $this->getForumEngagementData();
 
             $postData = $this->getContentEngagementData();
 
             $output = [
                 'success' => true,
                 'overview_counts' => $overviewCounts,
-                'platform_activity' => $forumData,
+                'forum_engagement' => $forumData,  // Ubah key dari 'platform_activity' menjadi 'forum_engagement'
                 'content_engagement' => $postData
             ];
 
@@ -131,10 +133,9 @@ class DashboardOverview
             }
         }
 
-      
         return [
-            'labels' => array_keys($months), 
-            'data' => array_values($months)  
+            'labels' => array_keys($months),
+            'data' => array_values($months)
         ];
     }
 }

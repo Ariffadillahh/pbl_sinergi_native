@@ -483,4 +483,29 @@ class PostModel extends BaseModel
         oci_free_statement($stmt);
         return $results;
     }
+
+    public function searchUsers($keyword)
+{
+    $conn = self::getConnection();
+
+    $sql = "SELECT ID, USERNAME, FULL_NAME, PATH_PHOTO
+            FROM USERS
+            WHERE LOWER(USERNAME) LIKE LOWER(:kw)
+               OR LOWER(FULL_NAME) LIKE LOWER(:kw)
+            FETCH FIRST 10 ROWS ONLY";
+
+    $stmt = oci_parse($conn, $sql);
+    $like = "%$keyword%";
+    oci_bind_by_name($stmt, ':kw', $like);
+
+    oci_execute($stmt);
+
+    $results = [];
+    while ($row = oci_fetch_assoc($stmt)) {
+        $results[] = $row;
+    }
+
+    return $results;
+}
+
 }

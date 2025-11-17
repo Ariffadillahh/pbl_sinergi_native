@@ -194,31 +194,135 @@ class overviewCount extends BaseModel
         return $results;
     }
 
+    // ========== FORUM ENGAGEMENT (HANYA FORUM) ==========
+
+    public function getMonthlyForumTrend()
+    {
+        $sql = "
+        SELECT 
+            TO_CHAR(CREATED_AT, 'MM') AS FORUM_MONTH, 
+            COUNT(*) AS TOTAL_FORUMS
+        FROM FORUMS
+        WHERE TO_CHAR(CREATED_AT, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
+        GROUP BY TO_CHAR(CREATED_AT, 'MM')
+        ORDER BY FORUM_MONTH ASC
+    ";
+
+        return $this->executeQuery($sql);
+    }
+
+    public function getForumStats()
+    {
+        // Total forum bulan ini
+        $sql_current = "
+        SELECT COUNT(*) 
+        FROM FORUMS
+        WHERE TO_CHAR(CREATED_AT, 'YYYY-MM') = TO_CHAR(SYSDATE, 'YYYY-MM')
+    ";
+        $current_count = $this->fetchSingleValue($sql_current);
+
+        // Total forum bulan lalu
+        $sql_previous = "
+        SELECT COUNT(*) 
+        FROM FORUMS
+        WHERE TO_CHAR(CREATED_AT, 'YYYY-MM') = TO_CHAR(ADD_MONTHS(SYSDATE, -1), 'YYYY-MM')
+    ";
+        $previous_count = $this->fetchSingleValue($sql_previous);
+
+        // Hitung persentase perubahan
+        $percentage_change = 0;
+        if ($previous_count > 0) {
+            $percentage_change = (($current_count - $previous_count) / $previous_count) * 100;
+        } elseif ($current_count > 0) {
+            // Jika bulan lalu 0 tapi bulan ini ada, maka 100% increase
+            $percentage_change = 100;
+        }
+
+        return [
+            'total_this_month' => $current_count,
+            'total_last_month' => $previous_count,
+            'percentage_change' => round($percentage_change, 1)
+        ];
+    }
+
+    // ========== POSTS ENGAGEMENT (TETAP SAMA) ==========
+
+    public function getMonthlyPostTrend()
+    {
+        $sql = "
+        SELECT 
+            TO_CHAR(CREATED_AT, 'MM') AS POST_MONTH, 
+            COUNT(*) AS TOTAL_POSTS
+        FROM POSTS
+        WHERE TO_CHAR(CREATED_AT, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
+        GROUP BY TO_CHAR(CREATED_AT, 'MM')
+        ORDER BY POST_MONTH ASC
+    ";
+
+        return $this->executeQuery($sql);
+    }
+
+    public function getPostStats()
+    {
+        // Total posts bulan ini
+        $sql_current = "
+        SELECT COUNT(*) 
+        FROM POSTS
+        WHERE TO_CHAR(CREATED_AT, 'YYYY-MM') = TO_CHAR(SYSDATE, 'YYYY-MM')
+    ";
+        $current_count = $this->fetchSingleValue($sql_current);
+
+        // Total posts bulan lalu
+        $sql_previous = "
+        SELECT COUNT(*) 
+        FROM POSTS
+        WHERE TO_CHAR(CREATED_AT, 'YYYY-MM') = TO_CHAR(ADD_MONTHS(SYSDATE, -1), 'YYYY-MM')
+    ";
+        $previous_count = $this->fetchSingleValue($sql_previous);
+
+        // Hitung persentase perubahan
+        $percentage_change = 0;
+        if ($previous_count > 0) {
+            $percentage_change = (($current_count - $previous_count) / $previous_count) * 100;
+        } elseif ($current_count > 0) {
+            // Jika bulan lalu 0 tapi bulan ini ada, maka 100% increase
+            $percentage_change = 100;
+        }
+
+        return [
+            'total_this_month' => $current_count,
+            'total_last_month' => $previous_count,
+            'percentage_change' => round($percentage_change, 1)
+        ];
+    }
+
+    // ========== AKTIVITAS FORUM (SEMUA - OPSIONAL, BISA DIHAPUS JIKA TIDAK DIPAKAI) ==========
+
     public function getMonthlyActivityTrend()
     {
         $sql = "
-            WITH all_forum_activities AS (
-                -- 1. Aktivitas: Forum baru dibuat
-                SELECT CREATED_AT FROM FORUMS
-                
-                UNION ALL
-                
-                -- 2. Aktivitas: Member baru join forum
-                SELECT JOINED_AT AS CREATED_AT FROM FORUM_MEMBERS
-                
-                UNION ALL
-                
-                -- 3. Aktivitas: Pesan baru dikirim di forum
-                SELECT CREATED_AT FROM FORUM_MESSAGES
-            )
-            SELECT 
-                TO_CHAR(CREATED_AT, 'MM') AS ACTIVITY_MONTH, 
-                COUNT(*) AS TOTAL_ACTIVITY
-            FROM all_forum_activities
-            WHERE TO_CHAR(CREATED_AT, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
-            GROUP BY TO_CHAR(CREATED_AT, 'MM')
-            ORDER BY ACTIVITY_MONTH ASC
-        ";
+        WITH all_forum_activities AS (
+            -- 1. Aktivitas: Forum baru dibuat
+            SELECT CREATED_AT FROM FORUMS
+            
+            UNION ALL
+            
+            -- 2. Aktivitas: Member baru join forum
+            SELECT JOINED_AT AS CREATED_AT FROM FORUM_MEMBERS
+            
+            UNION ALL
+            
+            -- 3. Aktivitas: Pesan baru dikirim di forum
+            SELECT CREATED_AT FROM FORUM_MESSAGES
+        )
+        SELECT 
+            TO_CHAR(CREATED_AT, 'MM') AS ACTIVITY_MONTH, 
+            COUNT(*) AS TOTAL_ACTIVITY
+        FROM all_forum_activities
+        WHERE TO_CHAR(CREATED_AT, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
+        GROUP BY TO_CHAR(CREATED_AT, 'MM')
+        ORDER BY ACTIVITY_MONTH ASC
+    ";
 
         return $this->executeQuery($sql);
     }
@@ -227,77 +331,31 @@ class overviewCount extends BaseModel
     {
         // Query untuk data gabungan (akan kita pakai 2x)
         $union_sql = "
-            (
-                SELECT CREATED_AT FROM FORUMS
-                UNION ALL
-                SELECT JOINED_AT AS CREATED_AT FROM FORUM_MEMBERS
-                UNION ALL
-                SELECT CREATED_AT FROM FORUM_MESSAGES
-            )
-        ";
+        (
+            SELECT CREATED_AT FROM FORUMS
+            UNION ALL
+            SELECT JOINED_AT AS CREATED_AT FROM FORUM_MEMBERS
+            UNION ALL
+            SELECT CREATED_AT FROM FORUM_MESSAGES
+        )
+    ";
 
         // 1. Total 30 hari terakhir
         $sql_current = "
-            SELECT COUNT(*) FROM $union_sql
-            WHERE CREATED_AT >= SYSDATE - 30
-        ";
+        SELECT COUNT(*) FROM $union_sql
+        WHERE CREATED_AT >= SYSDATE - 30
+    ";
         $current_count = $this->fetchSingleValue($sql_current);
 
         // 2. Total 30 hari SEBELUMNYA
         $sql_previous = "
-            SELECT COUNT(*) FROM $union_sql
-            WHERE CREATED_AT >= SYSDATE - 60 
-              AND CREATED_AT < SYSDATE - 30    
-        ";
+        SELECT COUNT(*) FROM $union_sql
+        WHERE CREATED_AT >= SYSDATE - 60 
+          AND CREATED_AT < SYSDATE - 30    
+    ";
         $previous_count = $this->fetchSingleValue($sql_previous);
 
         // 3. Hitung persentase
-        $percentage_change = 0;
-        if ($previous_count > 0) {
-            $percentage_change = (($current_count - $previous_count) / $previous_count) * 100;
-        }
-
-        return [
-            'total_last_30_days' => $current_count,
-            'percentage_change' => round($percentage_change, 1)
-        ];
-    }
-
-    public function getMonthlyPostTrend()
-    {
-        $sql = "
-            SELECT 
-                TO_CHAR(CREATED_AT, 'MM') AS POST_MONTH, 
-                COUNT(*) AS TOTAL_POSTS
-            FROM POSTS
-            WHERE TO_CHAR(CREATED_AT, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
-            GROUP BY TO_CHAR(CREATED_AT, 'MM')
-            ORDER BY POST_MONTH ASC
-        ";
-
-        return $this->executeQuery($sql);
-    }
-
-    public function getPostStats()
-    {
-        // Total posts 30 hari terakhir
-        $sql_current = "
-            SELECT COUNT(*) 
-            FROM POSTS
-            WHERE CREATED_AT >= SYSDATE - 30
-        ";
-        $current_count = $this->fetchSingleValue($sql_current);
-
-        // Total posts 30 hari sebelumnya (hari 31-60)
-        $sql_previous = "
-            SELECT COUNT(*) 
-            FROM POSTS
-            WHERE CREATED_AT >= SYSDATE - 60 
-              AND CREATED_AT < SYSDATE - 30
-        ";
-        $previous_count = $this->fetchSingleValue($sql_previous);
-
-        // Hitung persentase perubahan
         $percentage_change = 0;
         if ($previous_count > 0) {
             $percentage_change = (($current_count - $previous_count) / $previous_count) * 100;

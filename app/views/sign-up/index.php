@@ -126,6 +126,7 @@
                     </svg>
                 `;
                 submitButton.disabled = true;
+                submitButton.classList.add("cursor-not-allowed")
                 errorNotif.classList.add("hidden");
 
                 const formData = new FormData(formRegist);
@@ -176,6 +177,7 @@
                 } finally {
                     submitButton.innerHTML = originalButtonText;
                     submitButton.disabled = false;
+                    submitButton.classList.remove("cursor-not-allowed")
                 }
             });
         }

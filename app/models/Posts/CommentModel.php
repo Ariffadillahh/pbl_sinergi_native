@@ -228,12 +228,53 @@ class CommentModel extends BaseModel
     {
         $conn = self::getConnection();
         $sql = "SELECT U.ID, U.FULL_NAME
-                FROM REPLY_COMMENTAR P 
-                JOIN USERS U ON P.USER_ID = U.ID
-                WHERE P.ID = :reply_id";
+            FROM REPLY_COMMENTAR P 
+            JOIN USERS U ON P.USER_ID = U.ID
+            WHERE P.ID = :reply_id";
+
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ':reply_id', $replyId);
         oci_execute($stmt);
-        return oci_fetch_assoc($stmt);
+
+        $data = oci_fetch_assoc($stmt);
+
+        if ($data) {
+            return [
+                'success' => true,
+                'data' => $data
+            ];
+        } else {
+            return [
+                'success' => false,
+                'data' => null
+            ];
+        }
+    }
+
+    public function getCommentOwner($post_id)
+    {
+        $conn = self::getConnection();
+        $sql = "SELECT U.ID, U.FULL_NAME
+            FROM COMMENTAR C 
+            JOIN USERS U ON C.USER_ID = U.ID
+            WHERE C.POST_ID = :post_id";
+
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ':post_id', $post_id);
+        oci_execute($stmt);
+
+        $data = oci_fetch_assoc($stmt);
+
+        if ($data) {
+            return [
+                'success' => true,
+                'data' => $data
+            ];
+        } else {
+            return [
+                'success' => false,
+                'data' => null
+            ];
+        }
     }
 }

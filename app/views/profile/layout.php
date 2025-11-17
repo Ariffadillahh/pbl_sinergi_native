@@ -17,7 +17,7 @@
         </main>
 
     </div>
-
+    <?php require_once 'app/views/components/modalInvite.php'; ?>
     <script src="<?php echo BASEURL; ?>/src/js/main.js"></script>
 </body>
 

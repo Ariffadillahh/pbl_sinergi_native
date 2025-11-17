@@ -53,7 +53,7 @@
                                             placeholder=" " required />
                                         <label for="password"
                                             class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">
-                                            Password
+                                            New Password
                                         </label>
                                         <img src="src/asset/icons/lock-grey.svg" alt="Password icon"
                                             class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
@@ -178,7 +178,7 @@
                 `;
 
                 submitButton.disabled = true;
-
+                submitButton.classList.add("cursor-not-allowed")
                 try {
                     const formData = new FormData(form);
                     const actionUrl = "<?php echo BASEURL; ?>/forget-password/action";
@@ -199,8 +199,8 @@
                         modalOtp.classList.add("flex");
                         const userEmail = document.getElementById("username_or_email").value;
                         const emailDisplayElement = document.getElementById("otp-email-display");
-                        if (emailDisplayElement) {
-                            emailDisplayElement.textContent = userEmail;
+                        if (emailDisplayElement && result.email) {
+                            emailDisplayElement.textContent = maskEmail(result.email);
                         }
 
                         if (typeof startCooldown === 'function') {
@@ -217,9 +217,17 @@
                 } finally {
                     submitButton.textContent = "Submit";
                     submitButton.disabled = false;
+                    submitButton.classList.remove("cursor-not-allowed")
                 }
             });
         }
+
+        function maskEmail(email) {
+            const [username, domain] = email.split("@");
+            const maskedUsername = username.substring(0, 3) + "***";
+            return maskedUsername + "@" + domain;
+        }
+
 
         function setupOtpModal() {
             const otpModal = document.getElementById("modal-otp");

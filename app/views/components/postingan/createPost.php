@@ -131,6 +131,10 @@
         const form = document.getElementById('createPostForm');
         const submitButton = document.getElementById('submit-post-btn');
         const sendIcon = submitButton.querySelector('img');
+        const successDiv = document.getElementById("successDiv");
+        const errorDiv = document.getElementById("errorDiv");
+        const textarea = document.getElementById("content");
+        const teximagePreviewtarea = document.getElementById("image-preview-container");
 
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -145,23 +149,69 @@
                     method: 'POST',
                     body: formData
                 });
+
                 if (!response.ok) throw new Error(`Server responded with ${response.status}`);
 
                 const result = await response.json();
+
                 if (result.success) {
-                    alert('✅ ' + result.message);
-                    window.location.reload();
+                    textarea.value = "";
+
+                    teximagePreviewtarea.innerHTML = "";
+
+                    successDiv.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            ${result.message}
+                        </div>
+                    `;
+                    successDiv.classList.remove("hidden");
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1200);
+
                 } else {
-                    alert('❌ ' + result.message);
+                    errorDiv.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            ${result.message}
+                        </div>
+                    `;
+                    errorDiv.classList.remove("hidden");
+
+                    setTimeout(() => {
+                        errorDiv.classList.add("hidden");
+                    }, 2500);
                 }
+
             } catch (err) {
-                alert('⚠ Gagal terhubung ke server. Silakan coba lagi.');
+                errorDiv.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        ${result.message}
+                    </div>
+                `;
+                errorDiv.classList.remove("hidden");
+
+                setTimeout(() => {
+                    errorDiv.classList.add("hidden");
+                }, 2500);
+
                 console.error(err);
+
             } finally {
                 submitButton.disabled = false;
                 submitButton.innerHTML = `Posting <img src="<?= BASEURL; ?>/src/asset/image/send.png" class="size-4 mt-1" alt="icon">`;
             }
         });
+
     });
 </script>
 

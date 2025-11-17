@@ -35,7 +35,6 @@
                                 minlength="3"
                                 required />
 
-
                             <button type="submit"
                                 class="text-white absolute right-1.5 top-1/2 -translate-y-1/2 
                                     bg-gradient-to-r from-blue-500 to-blue-600 
@@ -79,6 +78,11 @@
 
         <?php require_once 'app/views/components/quotes.php' ?>
 
+        <div class="fixed right-5 top-24 z-[9999] space-y-3">
+            <div id="successDiv" class="hidden bg-green-500 text-white text-center drop-shadow-lg rounded-lg px-4 py-3 min-w-[200px] animate-slide-in-right"></div>
+
+            <div id="errorDiv" class="hidden bg-red-500 text-white text-center drop-shadow-lg rounded-lg px-4 py-3 min-w-[200px] animate-slide-in-right"></div>
+        </div>
 
     </main>
 </body>

@@ -15,6 +15,22 @@ class UserModel extends BaseModel
         return oci_fetch_assoc($stmt);
     }
 
+    public function getUsersById($id)
+    {
+        $conn = self::getConnection();
+
+        $sql = "SELECT * FROM USERS WHERE ID = :id";
+        $stmt = oci_parse($conn, $sql);
+
+        oci_bind_by_name($stmt, ':id', $id);
+        oci_execute($stmt);
+
+        $row = oci_fetch_assoc($stmt);
+        oci_free_statement($stmt);
+
+        return $row;
+    }
+
     public function updateProfile($userId, $fullName, $personalNumber, $programStudi, $jenjangStudi, $tahunMasuk, $photoPath)
     {
         $conn = self::getConnection();

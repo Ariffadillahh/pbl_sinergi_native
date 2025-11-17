@@ -63,7 +63,7 @@ class ReportController
         $forumId = $_POST['forum_id'] ?? null;
         $reportIdsString = $_POST['report_ids'] ?? null;
         $ownerId = $_POST['owner_id'] ?? null;
-        $type = 'WARNING';
+        $type = "DELETE";
         $userId = $_SESSION['user_id'];
 
         if (empty($forumId)) {
@@ -162,7 +162,7 @@ class ReportController
         $postId = $_POST['post_id'] ?? null;
         $reportIdsString = $_POST['report_ids'] ?? null;
         $ownerId = $_POST['owner_id'] ?? null;
-        $type = 'WARNING';
+        $type = "DELETE";
         $userId = $_SESSION['user_id'];
 
         if (empty($postId) || empty($ownerId)) {

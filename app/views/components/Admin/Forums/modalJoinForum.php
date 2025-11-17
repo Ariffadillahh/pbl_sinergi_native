@@ -12,6 +12,7 @@
             </div>
 
             <div class="bg-red-600 w-full text-white text-center rounded-lg mb-3 p-2 hidden" id="errorDiv"></div>
+            <div class="bg-green-600 w-full text-white text-center rounded-lg mb-3 p-2 hidden" id="successDiv"></div>
 
             <form id="form-join-forum">
                 <div class="mb-4">
@@ -25,19 +26,24 @@
                     </select>
                 </div>
 
+
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Forum</label>
                     <select id="forumSelect" name="forum_id" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
                         <?php foreach ($allForums as $forums): ?>
                             <option
                                 value="<?= $forums['ID']; ?>"
-                                data-private="<?= $forums['IS_PRIVATE']; ?>">
+                                data-private="<?= $forums['IS_PRIVATE']; ?>"
+                                data-owner="<?= $forums['OWNER_ID']; ?>">
                                 <?= htmlspecialchars($forums['NAME']); ?>
                                 <?= $forums['IS_PRIVATE'] == 1 ? '🔒' : '' ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
+
+                <input type="hidden" id="ownerIdInput" name="owner_id">
+
 
                 <div id="privateKeyContainer" class="mb-6 hidden">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Masukkan Private Key</label>
@@ -75,9 +81,15 @@
             width: '100%'
         });
 
-        function checkPrivateStatus() {
-            const selected = $('#forumSelect').find(':selected');
-            const isPrivate = Number(selected.data('private'));
+        function updateOwnerAndPrivateStatus() {
+            const data = $('#forumSelect').select2('data')[0];
+
+            if (!data) return;
+
+            const isPrivate = Number($(data.element).data('private'));
+            const ownerId = $(data.element).data('owner');
+
+            $('#ownerIdInput').val(ownerId);
 
             if (isPrivate === 1) {
                 $('#privateKeyContainer').removeClass('hidden');
@@ -87,14 +99,16 @@
             }
         }
 
-        $('#forumSelect').on('change', checkPrivateStatus);
+        $('#forumSelect').on('change', updateOwnerAndPrivateStatus);
 
-        checkPrivateStatus();
+        updateOwnerAndPrivateStatus();
     });
+
 
 
     const form = document.getElementById("form-join-forum");
     const errorDiv = document.getElementById("errorDiv");
+    const successDiv = document.getElementById("successDiv");
     const btnInvite = document.getElementById("btn-inv");
 
     form.addEventListener("submit", async (e) => {
@@ -106,7 +120,7 @@
         const formData = new FormData(form);
 
         try {
-            const response = await fetch(`<?= BASEURL ?>/forums/join`, {
+            const response = await fetch(`<?= BASEURL ?>/join-forum-admin`, {
                 method: "POST",
                 body: formData,
             });
@@ -114,7 +128,7 @@
             const result = await response.json();
 
             if (result.success) {
-                alert("Berhasil menambahkan anggota!");
+                ShowSuccsess("Berhasil menambahkan anggota!")
                 window.location.reload();
             } else {
                 showError(result.message);
@@ -135,6 +149,15 @@
 
         setTimeout(() => {
             errorDiv.classList.add("hidden");
+        }, 2000);
+    }
+
+    function ShowSuccsess(message) {
+        successDiv.classList.remove("hidden");
+        successDiv.innerHTML = message;
+
+        setTimeout(() => {
+            successDiv.classList.add("hidden");
         }, 2000);
     }
 </script>

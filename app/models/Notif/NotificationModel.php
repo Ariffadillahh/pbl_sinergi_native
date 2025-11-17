@@ -128,7 +128,7 @@ class NotificationModel extends BaseModel
         return $result;
     }
 
-    public function addNotification($targetUserId, $senderId, $postId, $type, $targetTypeNotif)
+    public function addNotification($targetUserId, $senderId, $targetId, $type, $targetTypeNotif)
     {
         $conn = self::getConnection();
 
@@ -144,15 +144,18 @@ class NotificationModel extends BaseModel
         $notifData = [
             'sender_name' => $senderName,
             'sender_id' => $senderId,
-            'target_id' => $postId,
+            'target_id' => $targetId,
+            'content_type' => $targetTypeNotif
         ];
 
         $targetType = $targetTypeNotif ?? 'POST';
 
         if ($targetType === 'POST') {
-            $notifData['link'] = "homepage/reply/$postId";
+            $notifData['link'] = "homepage/reply/$targetId";
         } elseif ($targetType === 'FORUM') {
-            $notifData['link'] = "forums/chat/$postId";
+            $notifData['link'] = "forums/chat/$targetId";
+        } elseif ($targetType === 'INVITE_FORUM') {
+            $notifData['link'] = "#";
         } else {
             $notifData['link'] = "#";
         }

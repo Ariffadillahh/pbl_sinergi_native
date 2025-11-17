@@ -62,5 +62,52 @@ public function isMember($forumId, $userId)
     return $row && intval($row['CNT']) > 0;
 }
 
+public function removeMember($forumId, $userId)
+{
+    $conn = self::getConnection();
+
+    $sql = "DELETE FROM FORUM_MEMBERS 
+            WHERE FORUM_ID = :forum_id_bv 
+            AND USER_ID = :user_id_bv";
+
+    $stmt = oci_parse($conn, $sql);
+
+    // bind variabel
+    oci_bind_by_name($stmt, ":forum_id_bv", $forumId);
+    oci_bind_by_name($stmt, ":user_id_bv", $userId);
+
+    $exec = oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
+
+    if (!$exec) {
+        $e = oci_error($stmt);
+        error_log("❌ Oracle Execute Error (removeMember): " . $e['message']);
+        oci_free_statement($stmt);
+        return false;
+    }
+
+    oci_free_statement($stmt);
+    return true;
+}
+
+public function insertMember($forumId, $userId)
+{
+    $conn = self::getConnection();
+
+    $id = uniqid('fm_');
+
+    $sql = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, JOINED_AT)
+            VALUES (:id, :forum_id, :user_id, CURRENT_TIMESTAMP)";
+
+    $stmt = oci_parse($conn, $sql);
+    oci_bind_by_name($stmt, ':id', $id);
+    oci_bind_by_name($stmt, ':forum_id', $forumId);
+    oci_bind_by_name($stmt, ':user_id', $userId);
+
+    $result = oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
+    oci_free_statement($stmt);
+
+    return $result;
+}
+
 
 }

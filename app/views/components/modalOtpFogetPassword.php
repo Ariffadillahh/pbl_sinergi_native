@@ -10,9 +10,9 @@
         </div>
 
         <h1 class="text-2xl font-bold text-gray-900 mb-2">Check your email</h1>
-        <p class="text-sm text-gray-500 mb-8">
-            Enter the verification code sent to <br> <span class="font-medium text-gray-700" id="otp-email-display"></span>
-        </p>
+            <p class="text-sm text-gray-500 mb-8">
+                Enter the verification code sent to <br> <span class="font-medium text-gray-700" id="otp-email-display"></span>
+            </p>
 
         <form id="otp-form" action="<?php echo BASEURL ?>/forget-password/verif-otp" method="POST">
             <div id="otp-container" class="flex justify-center gap-3 mb-8">

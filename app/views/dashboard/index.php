@@ -45,12 +45,12 @@
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:mt-10 mt-4">
         <div class="bg-white drop-shadow rounded-xl p-4 w-full">
-            <p class="text-gray-700">Forums Activity Trends</p>
+            <p class="text-gray-700">Forum Engagement</p>
             <h1 id="activity-total" class="text-2xl font-bold mt-2">
                 <span class="loading-skeleton">...</span>
             </h1>
             <p class="text-md text-gray-500 mb-4">
-                Last 30 Days
+                This Month
                 <span id="activity-percentage" class="text-green-500">
                     <span class="loading-skeleton">...</span>
                 </span>
@@ -63,7 +63,7 @@
                 <span class="loading-skeleton">...</span>
             </h1>
             <p class="text-md text-gray-500 mb-4">
-                Last 30 Days
+                This Month
                 <span id="content-percentage" class="text-red-500">
                     <span class="loading-skeleton">...</span>
                 </span>
@@ -93,7 +93,6 @@
         // ====== Fetch Data dari API ======
         async function loadDashboardData() {
             try {
-                // Ganti dengan URL API Anda yang sebenarnya
                 const response = await fetch('<?php echo BASEURL ?>/getDashboardDataApi');
 
                 if (!response.ok) {
@@ -102,16 +101,16 @@
 
                 const data = await response.json();
 
-                console.log('Data from API:', data); // Untuk debugging
+                console.log('Data from API:', data);
 
                 if (data.success) {
                     // Update overview counts
                     updateOverviewCounts(data.overview_counts);
 
-                    // Update Platform Activity Chart (Biru)
-                    updateActivityChart(data.platform_activity);
+                    // Update Forum Engagement Chart (Biru)
+                    updateActivityChart(data.forum_engagement);
 
-                    // Update Content Engagement Chart (Pink/Red)
+                    // Update Posts Engagement Chart (Pink/Red)
                     updateContentChart(data.content_engagement);
                 } else {
                     console.error('API Error:', data.error);
@@ -134,23 +133,37 @@
             }
         }
 
-        // Update Platform Activity Chart
+        // Update Forum Engagement Chart
         function updateActivityChart(activityData) {
             if (!activityData || !activityData.summary || !activityData.chart) {
-                console.error('Invalid activity data');
+                console.error('Invalid activity data:', activityData);
                 return;
             }
 
             const summary = activityData.summary;
             const chartData = activityData.chart;
 
-            // Update angka dan persentase
-            document.getElementById('activity-total').textContent = formatNumber(summary.total_last_30_days);
+            // Log untuk debugging
+            console.log('Forum Summary:', summary);
+
+            // Update angka dan persentase (dengan default value)
+            const totalThisMonth = summary.total_this_month ?? 0;
+            document.getElementById('activity-total').textContent = formatNumber(totalThisMonth) + ' Forums';
 
             const percentageEl = document.getElementById('activity-percentage');
-            const percentage = summary.percentage_change;
-            percentageEl.textContent = `${percentage > 0 ? '+' : ''}${percentage}%`;
-            percentageEl.className = percentage >= 0 ? 'text-green-500' : 'text-red-500';
+            const percentage = summary.percentage_change ?? 0;
+
+            // Format persentase dengan + atau - dan "vs last month"
+            if (percentage > 0) {
+                percentageEl.textContent = `+${percentage}% vs last month`;
+                percentageEl.className = 'text-green-500 font-medium';
+            } else if (percentage < 0) {
+                percentageEl.textContent = `${percentage}% vs last month`;
+                percentageEl.className = 'text-red-500 font-medium';
+            } else {
+                percentageEl.textContent = `${percentage}% vs last month`;
+                percentageEl.className = 'text-gray-500 font-medium';
+            }
 
             // Destroy previous chart if exists
             if (activityChart) {
@@ -164,7 +177,7 @@
                 data: {
                     labels: chartData.labels,
                     datasets: [{
-                        label: 'Platform Activity',
+                        label: 'Forum Engagement',
                         data: chartData.data,
                         borderColor: Utils.CHART_COLORS.blue,
                         backgroundColor: Utils.transparentize(Utils.CHART_COLORS.blue, 0.6),
@@ -174,7 +187,6 @@
                 },
                 options: {
                     responsive: true,
-                    // maintainAspectRatio: false,
                     plugins: {
                         legend: {
                             display: false
@@ -197,23 +209,37 @@
             });
         }
 
-        // Update Content Engagement Chart
+        // Update Posts Engagement Chart
         function updateContentChart(contentData) {
             if (!contentData || !contentData.summary || !contentData.chart) {
-                console.error('Invalid content data');
+                console.error('Invalid content data:', contentData);
                 return;
             }
 
             const summary = contentData.summary;
             const chartData = contentData.chart;
 
-            // Update angka dan persentase
-            document.getElementById('content-total').textContent = formatNumber(summary.total_last_30_days) + ' Posts';
+            // Log untuk debugging
+            console.log('Posts Summary:', summary);
+
+            // Update angka dan persentase (dengan default value)
+            const totalThisMonth = summary.total_this_month ?? 0;
+            document.getElementById('content-total').textContent = formatNumber(totalThisMonth) + ' Posts';
 
             const percentageEl = document.getElementById('content-percentage');
-            const percentage = summary.percentage_change;
-            percentageEl.textContent = `${percentage > 0 ? '+' : ''}${percentage}%`;
-            percentageEl.className = percentage >= 0 ? 'text-green-500' : 'text-red-500';
+            const percentage = summary.percentage_change ?? 0;
+
+            // Format persentase dengan + atau - dan "vs last month"
+            if (percentage > 0) {
+                percentageEl.textContent = `+${percentage}% vs last month`;
+                percentageEl.className = 'text-green-500 font-medium';
+            } else if (percentage < 0) {
+                percentageEl.textContent = `${percentage}% vs last month`;
+                percentageEl.className = 'text-red-500 font-medium';
+            } else {
+                percentageEl.textContent = `${percentage}% vs last month`;
+                percentageEl.className = 'text-gray-500 font-medium';
+            }
 
             // Destroy previous chart if exists
             if (contentChart) {
@@ -227,7 +253,7 @@
                 data: {
                     labels: chartData.labels,
                     datasets: [{
-                        label: 'Content Engagement',
+                        label: 'Posts Engagement',
                         data: chartData.data,
                         backgroundColor: Utils.transparentize(Utils.CHART_COLORS.red, 0.6),
                         borderColor: Utils.CHART_COLORS.red,
@@ -237,7 +263,6 @@
                 },
                 options: {
                     responsive: true,
-                    // maintainAspectRatio: false,
                     plugins: {
                         legend: {
                             display: false
@@ -262,13 +287,16 @@
 
         // Helper function untuk format angka dengan koma
         function formatNumber(num) {
+            // Handle undefined, null, atau bukan angka
+            if (num === undefined || num === null || isNaN(num)) {
+                return '0';
+            }
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
         // Show error message
         function showError(message) {
             console.error(message);
-            // Anda bisa tambahkan notifikasi UI di sini
         }
 
         // Panggil saat halaman load
@@ -276,7 +304,7 @@
             loadDashboardData();
 
             // Optional: Refresh data setiap 5 menit
-            setInterval(loadDashboardData, 300000); // 300000ms = 5 menit
+            setInterval(loadDashboardData, 300000);
         });
     </script>
 </body>

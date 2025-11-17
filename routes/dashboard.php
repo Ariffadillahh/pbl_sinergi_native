@@ -88,4 +88,11 @@
             $controller = new DashboardController();
             $controller->updateRoleByAdmin();
             break;
+
+        case $route === 'join-forum-admin':
+            requireLogin();
+            checkRoleAccess(['ADMIN']);
+            $controller = new DashboardController();
+            $controller->joinByAdmin();
+            break;
     }

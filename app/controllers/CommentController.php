@@ -130,11 +130,6 @@ class CommentController
                 $commentOwnerId = $commentDetails['details']['USER_ID'];
                 $postId = $commentDetails['details']['POST_ID'];
 
-                error_log("=== DEBUG REPLY ===");
-                error_log("Comment Owner ID: " . $commentOwnerId);
-                error_log("Post ID: " . $postId);
-                error_log("Current User ID: " . $userId);
-
                 if (!$parentId) {
                     $owner = $this->commentModel->getPostOwner($postId);
                     if ($owner && $owner['ID'] !== $userId) {
@@ -145,6 +140,24 @@ class CommentController
                             'REPLY_POST',
                             'POST'
                         );
+                    }
+
+                    $ownerComment = $this->commentModel->getCommentOwner($postId);
+                    $commentData = $ownerComment['data'];
+                    error_log('id' . $commentData['ID']);
+                    error_log('user_id' . $userId);
+                    if ($ownerComment['success']) {
+                        $commentData = $ownerComment['data'];
+
+                        if ($commentData['ID'] !== $userId) {
+                            $this->notificationModel->addNotification(
+                                $commentData['ID'],
+                                $userId,
+                                $postId,
+                                'REPLY_COMMENT',
+                                'POST'
+                            );
+                        }
                     }
                 } else {
                     $owner = $this->commentModel->getPostOwner($postId);
@@ -157,18 +170,37 @@ class CommentController
                             'POST'
                         );
                     }
+
+                    $ownerComment = $this->commentModel->getCommentOwner($postId);
+                    if ($ownerComment['success']) {
+                        $commentData = $ownerComment['data'];
+
+                        if ($commentData['ID'] !== $userId) {
+                            $this->notificationModel->addNotification(
+                                $commentData['ID'],
+                                $userId,
+                                $postId,
+                                'REPLY_COMMENT',
+                                'POST'
+                            );
+                        }
+                    }
+
+
                     $ownerReply = $this->commentModel->getReplyDetails($parentId);
-                    if ($ownerReply && $ownerReply['ID'] !== $userId) {
-                        $this->notificationModel->addNotification(
-                            $ownerReply['ID'],
-                            $userId,
-                            $postId,
-                            'REPLY_POST',
-                            'POST'
-                        );
+                    if ($ownerReply['success']) {
+                        $replyData = $ownerReply['data'];
+                        if ($replyData['ID'] !== $userId) {
+                            $this->notificationModel->addNotification(
+                                $replyData['ID'],
+                                $userId,
+                                $postId,
+                                'REPLY_COMMENT',
+                                'POST'
+                            );
+                        }
                     }
                 }
-
 
                 preg_match_all('/@(\w+)/', $message, $matches);
                 $mentionedUsernames = !empty($matches[1]) ? array_unique($matches[1]) : [];

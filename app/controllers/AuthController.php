@@ -163,7 +163,7 @@ class AuthController
 
                         if ($durasiStudi > 0) {
                             $tahunLulus = $tahunMasuk + $durasiStudi;
-                            $bulanLulus = 10; 
+                            $bulanLulus = 10;
                             $tahunSekarang = (int)date('Y');
                             $bulanSekarang = (int)date('m');
 
@@ -263,12 +263,16 @@ class AuthController
         }
 
         $role = null;
-        if (str_ends_with($email, '@stu.pnj.ac.id')) {
+
+        if (preg_match('/\.tik\d+@stu\.pnj\.ac\.id$/', $email)) {
             $role = 'MAHASISWA';
         } elseif (str_ends_with($email, '@tik.pnj.ac.id')) {
             $role = 'DOSEN';
         } else {
-            echo json_encode(['success' => false, 'message' => 'Domain email tidak valid. Gunakan email PNJ yang sesuai.']);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Domain email tidak valid. Gunakan email PNJ yang sesuai.'
+            ]);
             exit;
         }
 
@@ -276,6 +280,7 @@ class AuthController
         $email = $_POST['email'];
         $personalNumber = $_POST['personal_number'];
         $user = $this->loginModel->getUserByUsernameOrEmail($username);
+
         if ($user) {
             echo json_encode(['success' => false, 'message' => 'Username sudah ada']);
             exit;
@@ -534,7 +539,8 @@ class AuthController
             $mail->send();
             echo json_encode([
                 'success' => true,
-                'message' => 'OTP berhasil dikirim. Silakan periksa email Anda.'
+                'message' => 'OTP berhasil dikirim. Silakan periksa email Anda.',
+                'email'   => $user['EMAIL']
             ]);
         } catch (Exception $e) {
             echo json_encode([
@@ -643,5 +649,4 @@ class AuthController
         }
         exit;
     }
-    
 }
