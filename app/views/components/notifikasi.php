@@ -157,6 +157,7 @@
             const link = DATA.link || '#';
 
             const bgColorClass = {
+                red: 'bg-gradient-to-br from-red-400 to-red-500',
                 blue: 'bg-gradient-to-br from-blue-500 to-blue-600',
                 green: 'bg-gradient-to-br from-green-500 to-green-600',
                 purple: 'bg-gradient-to-br from-purple-500 to-purple-600',
@@ -177,7 +178,7 @@
 
             const dotColorClass = {
                 blue: 'bg-blue-500',
-                green: 'bg-green-500',
+                green: 'bg-green-500',  
                 purple: 'bg-purple-500',
                 yellow: 'bg-yellow-500',
                 red: 'bg-red-500',

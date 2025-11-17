@@ -154,8 +154,6 @@ class NotificationModel extends BaseModel
             $notifData['link'] = "homepage/reply/$targetId";
         } elseif ($targetType === 'FORUM') {
             $notifData['link'] = "forums/chat/$targetId";
-        } elseif ($targetType === 'INVITE_FORUM') {
-            $notifData['link'] = "#";
         } else {
             $notifData['link'] = "#";
         }

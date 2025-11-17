@@ -913,6 +913,9 @@
   .max-h-\[90vh\] {
     max-height: 90vh;
   }
+  .max-h-\[120vh\] {
+    max-height: 120vh;
+  }
   .max-h-\[200px\] {
     max-height: 200px;
   }
@@ -1545,9 +1548,12 @@
   }
   .border-red-500 {
     border-color: var(--color-red-500);
+<<<<<<< HEAD
   }
   .border-red-600 {
     border-color: var(--color-red-600);
+=======
+>>>>>>> wowok-dev
   }
   .border-red-700 {
     border-color: var(--color-red-700);
@@ -1813,8 +1819,13 @@
     --tw-gradient-from: var(--color-purple-600);
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
+<<<<<<< HEAD
   .from-red-500 {
     --tw-gradient-from: var(--color-red-500);
+=======
+  .from-red-400 {
+    --tw-gradient-from: var(--color-red-400);
+>>>>>>> wowok-dev
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
   .from-white {
@@ -1901,8 +1912,13 @@
     --tw-gradient-to: var(--color-purple-600);
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
+<<<<<<< HEAD
   .to-red-600 {
     --tw-gradient-to: var(--color-red-600);
+=======
+  .to-red-500 {
+    --tw-gradient-to: var(--color-red-500);
+>>>>>>> wowok-dev
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
   .to-transparent {
