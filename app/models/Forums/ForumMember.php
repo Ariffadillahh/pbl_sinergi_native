@@ -12,6 +12,7 @@ class ForumMember extends BaseModel
                 fm.USER_ID, 
                 TO_CHAR(fm.JOINED_AT, 'DD Mon YYYY', 'NLS_DATE_LANGUAGE = American') AS JOINED_AT, 
                 u.FULL_NAME AS NAME, 
+                U.USERNAME,
                 u.PATH_PHOTO,
                 u.ROLE AS ROLE,
                 u.EMAIL

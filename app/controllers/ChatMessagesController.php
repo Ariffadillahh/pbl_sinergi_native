@@ -169,7 +169,6 @@ class ChatMessagesController
     public function pollCounts()
     {
         header('Content-Type: application/json');
-
         set_time_limit(40);
 
         try {
@@ -179,11 +178,9 @@ class ChatMessagesController
                 exit;
             }
             $userId = $_SESSION['user_id'];
-
             session_write_close();
 
             $lastHash = $_GET['lastHash'] ?? '';
-
             $startTime = time();
 
             while (time() - $startTime < 35) {
@@ -193,15 +190,18 @@ class ChatMessagesController
                 $payload = [];
                 foreach ($forumsData as $forum) {
 
-                    $lastMessage = $forum['LAST_MESSAGE_CONTENT'] ?? null;
+                    $lastMessage = $this->formatLastMessage(
+                        $forum['LAST_MESSAGE_CONTENT'] ?? null,
+                        $forum['LAST_MESSAGE_TYPE'] ?? 'TEXT'
+                    );
 
                     $lastTime = $forum['LAST_MESSAGE_AT'] ?? $forum['CREATED_AT'];
 
                     $payload[] = [
                         'forumId' => $forum['ID'],
                         'count' => (int) $forum['UNREAD_COUNT'],
-                        'lastMessage' => $lastMessage, 
-                        'lastTime' => $lastTime       
+                        'lastMessage' => $lastMessage,
+                        'lastTime' => $lastTime
                     ];
                 }
 
@@ -211,7 +211,7 @@ class ChatMessagesController
                     http_response_code(200);
                     echo json_encode([
                         'hash' => $newHash,
-                        'data' => $payload 
+                        'data' => $payload
                     ]);
                     exit;
                 }
@@ -225,6 +225,21 @@ class ChatMessagesController
             error_log('Error in pollCounts: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['error' => 'Terjadi kesalahan pada server.']);
+        }
+    }
+
+    private function formatLastMessage($content, $type)
+    {
+        switch ($type) {
+            case 'IMAGE':
+                return '📷 Photo';
+            case 'VIDEO':
+                return '🎥 Video';
+            case 'FILE':
+                return '📎 File';
+            case 'TEXT':
+            default:
+                return $content ?: 'No messages yet';
         }
     }
 }

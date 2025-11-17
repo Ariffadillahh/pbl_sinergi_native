@@ -1,3 +1,15 @@
+<?php
+$initial = strtoupper(substr($forumByid['NAME'], 0, 2));
+$placeholder = "data:image/svg+xml;utf8,"
+    . rawurlencode("
+        <svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'>
+            <rect width='100' height='100' fill='#ec4899'/>
+            <text x='50%' y='50%' font-size='36' font-family='Arial' font-weight='bold' dy='.3em' 
+                  text-anchor='middle' fill='white'>$initial</text>
+        </svg>
+    ");
+?>
+
 <div id="modal-edit-forum" class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50">
     <div class="relative p-4 w-full max-w-md max-h-full">
         <div class="relative bg-white rounded-lg shadow-sm">
@@ -22,13 +34,17 @@
                 <form id="form-edit-forum" action="<?php echo BASEURL; ?>/forums/edit" method="post" class="my-5" enctype="multipart/form-data">
                     <section class="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <div class="flex-shrink-0 size-[100px] rounded-full overflow-hidden border-2 border-gray-200">
-                            <img id="edit-forum-photo-preview"
-                                src="<?php echo !empty($forumByid['PATH_PHOTO'])
+                            <img
+                                id="edit-forum-photo-preview"
+                                src="<?=
+                                        !empty($forumByid['PATH_PHOTO'])
                                             ? BASEURL . '/storage/forums/photos/' . $forumByid['PATH_PHOTO']
-                                            : BASEURL . '/src/asset/image/default.png'; ?>"
+                                            : $placeholder
+                                        ?>"
                                 alt="Forum photo"
                                 class="object-cover w-full h-full" />
                         </div>
+
                         <input type="file" id="edit-forum-file-input" name="forumPhoto" class="hidden" accept="image/*" />
                         <button
                             type="button"
@@ -128,7 +144,7 @@
     const closeModalEditForum = () => {
         modalEditForum.classList.add("hidden");
         modalEditForum.classList.remove("flex");
-        photoPreview.src = originalPhotoSrc; 
+        photoPreview.src = originalPhotoSrc;
         fileInput.value = "";
     };
 

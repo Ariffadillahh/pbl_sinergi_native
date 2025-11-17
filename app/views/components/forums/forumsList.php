@@ -118,7 +118,7 @@
             const date = new Date(timestamp);
 
             if (isNaN(date.getTime())) {
-                return timestamp.substring(0, 6).replace('-', ' '); // Misal: "04 Nov"
+                return timestamp.substring(0, 6).replace('-', ' '); 
             }
 
             const day = date.getDate().toString().padStart(2, '0');
@@ -135,9 +135,7 @@
 
 
     function updateSidebarUI(data) {
-
         for (const item of data) {
-
             const dataWrapper = document.getElementById(`forum-data-${item.forumId}`);
             const skeletonWrapper = document.getElementById(`forum-skeleton-${item.forumId}`);
 
@@ -151,7 +149,6 @@
 
             const isChatActive = (activeChatId !== '' && item.forumId === activeChatId);
 
-
             if (item.count > 0 && !isChatActive) {
                 badgeElement.innerText = item.count;
                 badgeElement.classList.add('bg-blue-600');
@@ -160,11 +157,7 @@
                 badgeElement.classList.remove('bg-blue-600');
             }
 
-            if (item.lastMessage) {
-                msgElement.innerText = item.lastMessage;
-            } else {
-                msgElement.innerText = 'No messages yet';
-            }
+            msgElement.innerText = item.lastMessage || 'No messages yet';
 
             timeElement.innerText = formatTime(item.lastTime);
 

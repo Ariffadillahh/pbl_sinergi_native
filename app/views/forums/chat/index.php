@@ -78,7 +78,7 @@
                             </div>
                         </div>
                     </form>
-                    <input type="file" id="imageInput" class="hidden" accept="image/*,.pdf,.doc,.docx" />
+                    <input type="file" id="imageInput" class="hidden" accept="image/*,.pdf,.doc,.docx,video/*" />
                     <input type="hidden" id="message" name="message">
                 </div>
 
@@ -87,9 +87,53 @@
         <?php require_once 'app/views/components/modalInvite.php'; ?>
     </div>
 
+    <div id="imageModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-[9999] backdrop-blur-sm">
+        <div class="relative w-full h-full flex items-center justify-center">
+
+            <div class="absolute top-4 right-4 flex gap-2 z-10">
+                <a id="downloadButton" href="" download
+                    class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full font-bold transition-all w-10 h-10 flex items-center justify-center shadow-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                </a>
+
+                <button onclick="closeImageModal()"
+                    class="bg-white hover:bg-gray-100 text-black p-2 rounded-full font-bold transition-all w-10 h-10 flex items-center justify-center shadow-lg">
+                    ✕
+                </button>
+            </div>
+
+            <div class="relative max-w-[95vw] max-h-[95vh] flex items-center justify-center">
+                <img id="modalImage"
+                    class="rounded-lg max-w-full max-h-[95vh] w-auto h-auto object-contain shadow-2xl"
+                    src=""
+                    alt="Full size image">
+            </div>
+        </div>
+    </div>
+
+
 
 
     <script>
+        function openImageModal(src) {
+            document.getElementById("modalImage").src = src;
+            document.getElementById("downloadButton").href = src; 
+
+            const modal = document.getElementById("imageModal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById("imageModal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+            document.body.style.overflow = "auto";
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             const BASEURL = '<?php echo BASEURL; ?>';
             const FORUM_ID = '<?= $forumByid['ID'] ?? '1' ?>';
@@ -154,7 +198,7 @@
                             'ADMIN': 'bg-red-100 text-red-800',
                             'DOSEN': 'bg-green-100 text-green-800',
                             'MAHASISWA': 'bg-blue-100 text-blue-800',
-                            'ALUMNI': 'bg-yellow-100 text-yelloe-800',
+                            'ALUMNI': 'bg-yellow-100 text-yellow-800',
                             'default': 'bg-gray-100 text-gray-800'
                         };
 
@@ -183,7 +227,20 @@
                 if (msg.PATH_MEDIA) {
                     const mediaSrc = msg.status === 'pending' ? msg.PATH_MEDIA : `${BASEURL}/${msg.PATH_MEDIA}`;
                     if (msg.TYPE === 'IMAGE') {
-                        contentHtml += `<img src="${mediaSrc}" class="rounded-lg w-full md:max-w-xl h-auto object-cover" alt="Image" loading="lazy">`;
+                        contentHtml += `
+                            <div class="relative group w-full md:max-w-xl cursor-pointer" onclick="openImageModal('${mediaSrc}')">
+                                <img src="${mediaSrc}" 
+                                    class="rounded-lg w-full h-auto object-cover" 
+                                    alt="Image" loading="lazy">
+
+                                <!-- Hover Button -->
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 
+                                        flex items-center justify-center text-white font-semibold 
+                                        transition-all rounded-lg pointer-events-none">
+                                    Lihat
+                                </div>
+                            </div>
+                        `;
                     } else if (msg.TYPE === 'VIDEO') {
                         contentHtml += `<video controls class="rounded-lg w-full md:max-w-xl h-auto"><source src="${mediaSrc}"></video>`;
                     } else if (msg.TYPE === 'FILE') {
@@ -193,16 +250,16 @@
                         const buttonBgColor = isOutgoing ? 'bg-blue-700 hover:bg-blue-600' : 'bg-white hover:bg-gray-100';
                         const buttonTextColor = isOutgoing ? 'text-white' : 'text-gray-900';
                         contentHtml += `
-                        <div class="w-full max-w-[280px] sm:max-w-sm ${cardBgColor} rounded-lg p-3 flex flex-col gap-2">
-                            <div class="flex items-center gap-2 min-w-0">
-                                <img src="${fileIconUrl}" class="w-7 h-7" >
-                                <span class="font-medium ${textColor} truncate text-sm sm:text-base">${fileName}</span>
+                            <div class="w-full max-w-[280px] sm:max-w-sm ${cardBgColor} rounded-lg p-3 flex flex-col gap-2">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <img src="${fileIconUrl}" class="w-7 h-7" >
+                                    <span class="font-medium ${textColor} truncate text-sm sm:text-base">${fileName}</span>
+                                </div>
+                                <a href="${mediaSrc}" download="${fileName}" target="_blank" class="w-full ${buttonBgColor} ${buttonTextColor} font-semibold py-2 px-4 rounded-lg transition-all active:scale-95 text-center text-sm sm:text-base">
+                                    Download
+                                </a>
                             </div>
-                            <a href="${mediaSrc}" download="${fileName}" target="_blank" class="w-full ${buttonBgColor} ${buttonTextColor} font-semibold py-2 px-4 rounded-lg transition-all active:scale-95 text-center text-sm sm:text-base">
-                                Download
-                            </a>
-                        </div>
-                    `;
+                        `;
                     }
                 }
 
@@ -233,19 +290,19 @@
                 });
 
                 const messageCardHtml = `
-                <div class="message-card relative ${isOutgoing ? 'mr-8 sm:mr-12' : 'ml-8 sm:ml-12'}">
-                    <div class="w-fit max-w-[280px] sm:max-w-sm md:max-w-md rounded-2xl py-2 px-3 sm:py-2.5 sm:px-3.5 leading-relaxed shadow ${roundedClass}">
-                        
-                        <div>${contentHtml}</div>
+                    <div class="message-card relative ${isOutgoing ? 'mr-8 sm:mr-12' : 'ml-8 sm:ml-12'}">
+                        <div class="w-fit max-w-[280px] sm:max-w-sm md:max-w-md rounded-2xl py-2 px-3 sm:py-2.5 sm:px-3.5 leading-relaxed shadow ${roundedClass}">
+                            
+                            <div>${contentHtml}</div>
 
-                        <div class="flex items-center justify-end gap-1.5 mt-1 text-xs ${isOutgoing ? 'text-blue-100 opacity-80' : 'text-gray-500'}">
-                            <span class="message-timestamp">${time}</span>
-                            <span class="message-status-indicator">${getStatusIcon(msg.status)}</span>
+                            <div class="flex items-center justify-end gap-1.5 mt-1 text-xs ${isOutgoing ? 'text-blue-100 opacity-80' : 'text-gray-500'}">
+                                <span class="message-timestamp">${time}</span>
+                                <span class="message-status-indicator">${getStatusIcon(msg.status)}</span>
+                            </div>
+
                         </div>
-
                     </div>
-                </div>
-            `;
+                `;
 
                 const messageRow = document.createElement('div');
                 messageRow.id = `message-${messageId}`;
@@ -446,6 +503,12 @@
                     year: 'numeric'
                 });
             }
+
+            document.getElementById("imageModal").addEventListener("click", function(e) {
+                if (e.target === this || e.target.tagName === 'BUTTON') {
+                    closeImageModal();
+                }
+            });
 
             setupChatForm();
             loadInitialMessages();

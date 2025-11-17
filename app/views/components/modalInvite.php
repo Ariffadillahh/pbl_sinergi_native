@@ -1,16 +1,29 @@
 <div id="modal-preview-forum"
-    class="hidden fixed inset-0 z-[9999] bg-black/40 backdrop-blur-sm flex items-center justify-center">
+    class="hidden fixed inset-0 z-[999999] bg-black/40 backdrop-blur-sm flex items-center justify-center">
 
     <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md animate-fadeIn scale-95">
-        
+
         <!-- HEADER -->
         <div class="mb-4">
             <div class="w-full flex justify-center">
-                <img id="invite-forum-photo" class="w-17 h-17 rounded-full object-cover">
+
+                <!-- WRAPPER FOTO/INITIAL -->
+                <div id="invite-forum-photo-wrapper"
+                    class="w-36 h-36 rounded-full overflow-hidden bg-pink-500 flex items-center justify-center text-white text-2xl font-bold select-none">
+
+                    <img id="invite-forum-photo"
+                        class="w-full h-full object-cover hidden">
+
+                    <span id="invite-forum-initials" class="uppercase"></span>
+
+                </div>
+
             </div>
 
-            <h2 id="invite-forum-name" class="text-xl font-bold text-gray-900"></h2>
-            <p id="invite-forum-desc" class="text-gray-600 mt-1"></p>
+            <div class="my-3">
+                <h2 id="invite-forum-name" class="text-xl font-bold text-gray-900 text-center"></h2>
+                <p id="invite-forum-desc" class="text-gray-600 mt-1 text-center"></p>
+            </div>
         </div>
 
         <!-- OWNER -->
@@ -44,86 +57,118 @@
 </div>
 
 <style>
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-}
-.animate-fadeIn { animation: fadeIn .2s ease-out; }
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn .2s ease-out;
+    }
 </style>
 
 <script>
-const modalInvite = document.getElementById('modal-preview-forum');
-const inviteForumPhoto = document.getElementById('invite-forum-photo');
-const inviteForumName = document.getElementById('invite-forum-name');
-const inviteForumDesc = document.getElementById('invite-forum-desc');
-const inviteForumJoin = document.getElementById('invite-forum-join');
-const inviteForumDecline = document.getElementById('invite-forum-decline');
+    const modalInvite = document.getElementById('modal-preview-forum');
+    const inviteForumPhoto = document.getElementById('invite-forum-photo');
+    const inviteForumInitials = document.getElementById('invite-forum-initials');
+    const inviteForumName = document.getElementById('invite-forum-name');
+    const inviteForumDesc = document.getElementById('invite-forum-desc');
+    const inviteForumJoin = document.getElementById('invite-forum-join');
+    const inviteForumDecline = document.getElementById('invite-forum-decline');
 
-const inviteOwner = document.getElementById('invite-owner');
-const inviteOwnerName = document.getElementById('invite-owner-name');
-const inviteOwnerPhoto = document.getElementById('invite-owner-photo');
-const inviteMembers = document.getElementById('invite-members');
+    const inviteOwner = document.getElementById('invite-owner');
+    const inviteOwnerName = document.getElementById('invite-owner-name');
+    const inviteOwnerPhoto = document.getElementById('invite-owner-photo');
+    const inviteMembers = document.getElementById('invite-members');
 
-function openPreviewForum(forumId) {
-    fetch(`${BASEURL}/forums/getForumInfo?id=${forumId}`)
-    .then(r => r.json())
-    .then(data => {
+    function openPreviewForum(forumId) {
+        fetch(`${BASEURL}/forums/getForumInfo?id=${forumId}`)
+            .then(r => r.json())
+            .then(data => {
 
-        // Set forum details
-        inviteForumPhoto.src = data.PHOTO 
-            ? `${BASEURL}/storage/forums/photos/${data.PHOTO}`
-            : `${BASEURL}/src/asset/image/default.png`;
-        inviteForumName.textContent = data.NAME;
-        inviteForumDesc.textContent = data.ABOUT || "Tanpa deskripsi";
+                /**
+                 * FOTO ATAU HURUF
+                 */
+                if (data.PHOTO) {
+                    // Foto ada
+                    inviteForumPhoto.src = `${BASEURL}/storage/forums/photos/${data.PHOTO}`;
+                    inviteForumPhoto.classList.remove("hidden");
+                    inviteForumInitials.classList.add("hidden");
+                } else {
+                    // Tidak ada foto → pakai huruf
+                    const initials = data.NAME ?
+                        data.NAME.substring(0, 2).toUpperCase() :
+                        "FM";
 
-        // Set owner
-        inviteOwnerName.textContent = data.OWNER.NAME;
-        inviteOwnerPhoto.src = data.OWNER.PHOTO 
-            ? `${BASEURL}/storage/users/photos/${data.OWNER.PHOTO}`
-            : `${BASEURL}/src/asset/image/default.png`;
+                    inviteForumInitials.textContent = initials;
 
-        // Members list thumbnails
-        inviteMembers.innerHTML = data.MEMBERS.map(m => `
-            <img src="${
-                m.PHOTO ? BASEURL + '/storage/users/photos/' + m.PHOTO
-                : BASEURL + '/src/asset/image/default.png'
-            }"
-            class="w-10 h-10 rounded-full border-2 border-white object-cover">
-        `).join('');
+                    inviteForumPhoto.classList.add("hidden");
+                    inviteForumInitials.classList.remove("hidden");
+                }
 
-        // For join action later
-        inviteForumJoin.dataset.forumId = forumId;
+                // Set forum name & desc
+                inviteForumName.textContent = data.NAME;
+                inviteForumDesc.textContent = data.ABOUT || "Tanpa deskripsi";
 
-        modalInvite.classList.remove("hidden");
-    })
-    .catch(err => {
-        console.error(err);
-        alert("Gagal memuat info forum.");
-    });
-}
+                // Owner
+                inviteOwnerName.textContent = data.OWNER.NAME;
+                inviteOwnerPhoto.src = data.OWNER.PHOTO ?
+                    `${BASEURL}/storage/users/photos/${data.OWNER.PHOTO}` :
+                    `${BASEURL}/src/asset/image/default.png`;
 
-// JOIN BUTTON
-inviteForumJoin.addEventListener('click', async () => {
-    const id = inviteForumJoin.dataset.forumId;
+                // Members preview
+                inviteMembers.innerHTML = data.MEMBERS.map(m => `
+                    <img src="${
+                        m.PHOTO
+                        ? BASEURL + '/storage/users/photos/' + m.PHOTO
+                        : BASEURL + '/src/asset/image/default.png'
+                    }"
+                    class="w-10 h-10 rounded-full border-2 border-white object-cover">
+                `).join('');
 
-    const res = await fetch(`${BASEURL}/forums/joinViaInvite`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ forum_id: id })
-    });
+                // For join action later
+                inviteForumJoin.dataset.forumId = forumId;
 
-    const json = await res.json();
-
-    if (json.success) {
-        window.location.href = json.redirect;
-    } else {
-        alert(json.message || "Gagal join forum.");
+                modalInvite.classList.remove("hidden");
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Gagal memuat info forum.");
+            });
     }
-});
 
-// CLOSE BUTTON
-inviteForumDecline.addEventListener("click", () => {
-    modalInvite.classList.add("hidden");
-});
+    // JOIN BUTTON
+    inviteForumJoin.addEventListener('click', async () => {
+        const id = inviteForumJoin.dataset.forumId;
 
+        const res = await fetch(`${BASEURL}/forums/joinViaInvite`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({
+                forum_id: id
+            })
+        });
+
+        const json = await res.json();
+
+        if (json.success) {
+            window.location.href = json.redirect;
+        } else {
+            alert(json.message || "Gagal join forum.");
+        }
+    });
+
+    // CLOSE BUTTON
+    inviteForumDecline.addEventListener("click", () => {
+        modalInvite.classList.add("hidden");
+    });
 </script>

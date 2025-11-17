@@ -191,47 +191,48 @@ class Forum extends BaseModel
         }
 
         $sql = "
-                SELECT 
-                    f.ID, 
-                    f.NAME, 
-                    f.PATH_PHOTO, 
-                    f.CREATED_AT,
-                    f.ABOUT,
-                    f.OWNER_ID,
-                    (
-                        SELECT COUNT(*) 
-                        FROM FORUM_MEMBERS fm2
-                        WHERE fm2.FORUM_ID = f.ID
-                        AND fm2.USER_ID != f.OWNER_ID
-                    ) AS MEMBER_COUNT,
-                    (
-                        SELECT COUNT(msg_count.ID)
-                        FROM FORUM_MESSAGES msg_count
-                        WHERE msg_count.FORUM_ID = fm.FORUM_ID
-                        AND msg_count.CREATED_AT > fm.LAST_READ_AT
-                        AND msg_count.SENDER_ID != fm.USER_ID
-                    ) AS UNREAD_COUNT,
+            SELECT 
+                f.ID, 
+                f.NAME, 
+                f.PATH_PHOTO, 
+                f.CREATED_AT,
+                f.ABOUT,
+                f.OWNER_ID,
+                (
+                    SELECT COUNT(*) 
+                    FROM FORUM_MEMBERS fm2
+                    WHERE fm2.FORUM_ID = f.ID
+                    AND fm2.USER_ID != f.OWNER_ID
+                ) AS MEMBER_COUNT,
+                (
+                    SELECT COUNT(msg_count.ID)
+                    FROM FORUM_MESSAGES msg_count
+                    WHERE msg_count.FORUM_ID = fm.FORUM_ID
+                    AND msg_count.CREATED_AT > fm.LAST_READ_AT
+                    AND msg_count.SENDER_ID != fm.USER_ID
+                ) AS UNREAD_COUNT,
 
-                    lm.CONTENT AS LAST_MESSAGE_CONTENT,
-                    lm.CREATED_AT AS LAST_MESSAGE_AT
-                    
-                FROM 
-                    FORUMS f
-                JOIN 
-                    FORUM_MEMBERS fm ON f.ID = fm.FORUM_ID
+                lm.CONTENT AS LAST_MESSAGE_CONTENT,
+                lm.TYPE AS LAST_MESSAGE_TYPE,
+                lm.CREATED_AT AS LAST_MESSAGE_AT
                 
-                OUTER APPLY (
-                    SELECT msg.CONTENT, msg.CREATED_AT
-                    FROM FORUM_MESSAGES msg
-                    WHERE msg.FORUM_ID = f.ID 
-                    ORDER BY msg.CREATED_AT DESC
-                    FETCH FIRST 1 ROWS ONLY
-                ) lm
-                    
-                WHERE 
-                    fm.USER_ID = :user_id_bv
-                ORDER BY 
-                    lm.CREATED_AT DESC NULLS LAST";
+            FROM 
+                FORUMS f
+            JOIN 
+                FORUM_MEMBERS fm ON f.ID = fm.FORUM_ID
+            
+            OUTER APPLY (
+                SELECT msg.CONTENT, msg.TYPE, msg.CREATED_AT
+                FROM FORUM_MESSAGES msg
+                WHERE msg.FORUM_ID = f.ID 
+                ORDER BY msg.CREATED_AT DESC
+                FETCH FIRST 1 ROWS ONLY
+            ) lm
+                
+            WHERE 
+                fm.USER_ID = :user_id_bv
+            ORDER BY 
+                lm.CREATED_AT DESC NULLS LAST";
 
         $stmt = oci_parse($conn, $sql);
 
@@ -255,7 +256,7 @@ class Forum extends BaseModel
         $forums = [];
         oci_fetch_all($stmt, $forums, 0, -1, OCI_FETCHSTATEMENT_BY_ROW | OCI_ASSOC);
         oci_free_statement($stmt);
-        oci_close($conn);   
+        oci_close($conn);
 
         return $forums;
     }
@@ -401,11 +402,40 @@ class Forum extends BaseModel
     public function delete($id)
     {
         $conn = self::getConnection();
+        $stmt_get_messages = null;
         $stmt_messages = null;
         $stmt_members = null;
         $stmt_forum = null;
 
         try {
+            $sql_get_messages = "SELECT PATH_MEDIA FROM FORUM_MESSAGES 
+                             WHERE FORUM_ID = :forum_id";
+
+            $stmt_get_messages = oci_parse($conn, $sql_get_messages);
+            oci_bind_by_name($stmt_get_messages, ':forum_id', $id);
+            oci_execute($stmt_get_messages);
+
+            $filesToDelete = [];
+            while ($row = oci_fetch_assoc($stmt_get_messages)) {
+                if (!empty($row['PATH_MEDIA'])) {
+                    $filesToDelete[] = $row['PATH_MEDIA'];
+                }
+            }
+            oci_free_statement($stmt_get_messages);
+
+            $projectRoot = realpath(__DIR__ . '/../../../');
+
+            foreach ($filesToDelete as $filePath) {
+
+                $fullPath = $projectRoot . '/' . $filePath;
+
+                if (file_exists($fullPath)) {
+                    unlink($fullPath);
+                } else {
+                    error_log("File tidak ditemukan: " . $fullPath);
+                }
+            }
+
             $sql_messages = "DELETE FROM FORUM_MESSAGES WHERE FORUM_ID = :forum_id";
             $stmt_messages = oci_parse($conn, $sql_messages);
             oci_bind_by_name($stmt_messages, ':forum_id', $id);
@@ -422,12 +452,15 @@ class Forum extends BaseModel
             oci_execute($stmt_forum, OCI_NO_AUTO_COMMIT);
 
             oci_commit($conn);
+
             return true;
         } catch (Exception $e) {
+
             oci_rollback($conn);
             error_log($e->getMessage());
             return false;
         } finally {
+
             if ($stmt_messages) oci_free_statement($stmt_messages);
             if ($stmt_members) oci_free_statement($stmt_members);
             if ($stmt_forum) oci_free_statement($stmt_forum);
