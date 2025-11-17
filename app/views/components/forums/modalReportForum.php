@@ -93,12 +93,18 @@
     const successClasses = ['bg-green-100', 'border', 'border-green-400', 'text-green-800'];
     const errorClasses = ['bg-red-100', 'border', 'border-red-400', 'text-red-700'];
 
+    otherReasonText.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+        }
+    });
+
     const showMessage = (message, type) => {
         messageReportForum.classList.remove(...successClasses, ...errorClasses);
 
         if (type === 'success') {
             messageReportForum.classList.add(...successClasses);
-        } else { 
+        } else {
             messageReportForum.classList.add(...errorClasses);
         }
         messageReportForum.textContent = message;
@@ -114,7 +120,7 @@
         modalReportForum.classList.add("hidden");
         modalReportForum.classList.remove("flex");
         formReportForum.reset();
-        messageReportForum.classList.add("hidden"); 
+        messageReportForum.classList.add("hidden");
         otherReasonContainer.classList.add("hidden");
     };
 
@@ -130,6 +136,7 @@
     });
 
     btnConfirmReportForum.addEventListener("click", async () => {
+
         const formData = new FormData(formReportForum);
         const actionUrl = formReportForum.getAttribute("action");
         const selectedReason = formData.get("reason");

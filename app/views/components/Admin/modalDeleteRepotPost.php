@@ -87,18 +87,18 @@
 
                 if (result.success) {
                     divSucc.classList.remove("hidden");
-                    divSucc.textContent = "Forum dan report berhasil dihapus";
+                    divSucc.textContent = "Postingan dan report berhasil dihapus";
 
                     setTimeout(() => {
                         closeDelete();
                         location.reload();
                     }, 1000);
                 } else {
-                    console.error("Error deleting forum:", result.message);
-                    alert("❌ Gagal menghapus forum: " + (result.message || "Terjadi kesalahan."));
+                    console.error("Error deleting postingan:", result.message);
+                    alert("❌ Gagal menghapus postingan: " + (result.message || "Terjadi kesalahan."));
                 }
             } catch (error) {
-                console.error("Error deleting forum:", error);
+                console.error("Error deleting postingan:", error);
             }
         });
 

@@ -139,53 +139,53 @@
 
         if (data.length > 0) {
             data.forEach(forum => {
-                const defaultPhoto = `${BASEURL}/src/asset/image/default.png`;
-                const photoUrl = forum.PATH_PHOTO ? `${BASEURL}/storage/forums/photos/${forum.PATH_PHOTO}` : defaultPhoto;
+                const defaultPhotoHTML = `<span class="text-white font-bold text-lg w-16 h-16 flex items-center justify-center rounded-xl" style="background-color: #EF5DA8;">
+                                            ${forum.NAME.substring(0, 2).toUpperCase()}
+                                          </span>`;
+
+                const photoContent = forum.PATH_PHOTO ?
+                    `<img src="${BASEURL}/storage/forums/photos/${forum.PATH_PHOTO}" alt="Forum Photo" class="w-16 h-16 rounded-xl object-cover flex-shrink-0" />` :
+                    defaultPhotoHTML;
+
+
                 const isJoined = forum.IS_MEMBER;
 
                 const cardContentHTML = `
-                <div class="flex items-start gap-3">
-                    <img src="${photoUrl}" alt="Forum Photo" class="w-16 h-16 rounded-xl object-cover flex-shrink-0">
-                    <div class="flex-1 min-w-0">
-                        <p class="text-black font-bold mb-1 truncate">${forum.NAME}</p>
-                        <p class="text-gray-600 text-sm truncate">${forum.ABOUT || ''}</p>
-                    </div>
-                    ${!isJoined ? `
-                        <button 
-                            class="join-forum-btn bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 self-center flex-shrink-0"
-                            data-forum-id="${forum.ID}"
-                            data-is-private="${forum.IS_PRIVATE}">
-                            Join
-                            ${forum.IS_PRIVATE  ? `
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 mb-1.5 inline-block ml-1">
-                                    <path fill-rule="evenodd" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7V4.5A3.5 3.5 0 0 0 8 1Zm2 3.5V7h-4V4.5a2 2 0 1 1 4 0Z" clip-rule="evenodd" />
-                                </svg>
-                            ` : ''}
-                        </button>
-                    ` : ''}
-                </div>
-            `;
+                    <div class="flex items-start gap-3">
+                        ${photoContent}
+                        <div class="flex-1 min-w-0">
+                            <p class="text-black font-bold mb-1 truncate">${forum.NAME}</p>
+                            <p class="text-gray-600 text-sm truncate">${forum.ABOUT || ''}</p>
+                        </div>
+                        ${!isJoined ? `
+                            <button 
+                                class="join-forum-btn bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 self-center flex-shrink-0"
+                                data-forum-id="${forum.ID}"
+                                data-is-private="${forum.IS_PRIVATE}">
+                                Join
+                                ${forum.IS_PRIVATE  ? `
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 mb-1.5 inline-block ml-1">
+                                        <path fill-rule="evenodd" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7V4.5A3.5 3.5 0 0 0 8 1Zm2 3.5V7h-4V4.5a2 2 0 1 1 4 0Z" clip-rule="evenodd" />
+                                    </svg>
+                                ` : ''}
+                            </button>
+                        ` : ''}
+                    </div>`;
 
-                let finalElementHTML = '';
-                if (isJoined) {
-                    finalElementHTML = `
-                    <a href="${BASEURL}/forums/chat/${forum.ID}" class="block my-3 border border-gray-200 rounded-2xl p-3 hover:bg-gray-50 cursor-pointer">
+                const finalElementHTML = isJoined ?
+                    `<a href="${BASEURL}/forums/chat/${forum.ID}" class="block my-3 border border-gray-200 rounded-2xl p-3 hover:bg-gray-50 cursor-pointer">
                         ${cardContentHTML}
-                    </a>
-                `;
-                } else {
-                    finalElementHTML = `
-                    <div class="my-3 border border-gray-200 rounded-2xl p-3">
+                    </a>` :
+                    `<div class="my-3 border border-gray-200 rounded-2xl p-3">
                         ${cardContentHTML}
-                    </div>
-                `;
-                }
+                    </div>`;
 
                 forumListContainer.innerHTML += finalElementHTML;
             });
         } else {
             forumListContainer.innerHTML = '<p class="text-gray-500 text-center mt-8">Forum tidak ditemukan.</p>';
         }
+
     }
 
     function performSearch(query) {

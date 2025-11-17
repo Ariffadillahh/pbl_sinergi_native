@@ -27,11 +27,13 @@
         </div>
     </div>
     <ul class="flex gap-3">
-        <li class="group">
-            <button id="reportForumButton" class="size-11 flex shrink-0 bg-white rounded-xl p-[10px] items-center justify-center ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300">
-                <img src="<?php echo BASEURL; ?>/src/asset/icons/report.png" class="size-6" alt="icon">
-            </button>
-        </li>
+        <?php if ($forumByid['OWNER_ID'] !== $_SESSION['user_id']) : ?>
+            <li class="group">
+                <button id="reportForumButton" class="size-11 flex shrink-0 bg-white rounded-xl p-[10px] items-center justify-center ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300">
+                    <img src="<?php echo BASEURL; ?>/src/asset/icons/report.png" class="size-6" alt="icon">
+                </button>
+            </li>
+        <?php endif ?>
         <li class="group">
             <button id="infoForum" class="size-11 flex shrink-0 bg-white rounded-xl p-[10px] items-center justify-center ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300">
                 <img src="<?php echo BASEURL; ?>/src/asset/icons/more.svg" class="size-6" alt="icon">

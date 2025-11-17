@@ -128,7 +128,7 @@ class ReportController
         $targetId = $_POST['target_id'] ?? null;
         $ownerId  = $_POST['owner_id'] ?? null;
         $userId   = $_SESSION['user_id'] ?? null;
-        $type     = 'WARNING';
+        $type     = $_POST['type_target'] ?? null;
 
         if (empty($targetId) || empty($ownerId) || empty($userId)) {
             echo json_encode([
@@ -138,7 +138,7 @@ class ReportController
             return;
         }
 
-        $this->notificationModel->addNotification($ownerId, $userId, $targetId, $type, 'FORUM');
+        $this->notificationModel->addNotification($ownerId, $userId, $targetId, 'WARNING', $type);
 
         echo json_encode([
             'success' => true,

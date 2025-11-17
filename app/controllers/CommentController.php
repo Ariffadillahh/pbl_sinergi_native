@@ -143,9 +143,6 @@ class CommentController
                     }
 
                     $ownerComment = $this->commentModel->getCommentOwner($postId);
-                    $commentData = $ownerComment['data'];
-                    error_log('id' . $commentData['ID']);
-                    error_log('user_id' . $userId);
                     if ($ownerComment['success']) {
                         $commentData = $ownerComment['data'];
 

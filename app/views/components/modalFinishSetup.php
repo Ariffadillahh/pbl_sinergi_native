@@ -26,6 +26,9 @@ $showModal = (isset($_SESSION['role']) && $_SESSION['role'] === 'MAHASISWA') &&
                 <p id="modal-error-message"
                     class="bg-red-600 p-2 text-white text-center rounded-lg hidden mb-4"></p>
 
+                <p id="edit-profile-succses"
+                    class="bg-green-600 p-2 text-white text-center rounded-lg hidden mb-4"></p>
+
                 <form id="setup-form" action="<?php echo BASEURL ?>/user-setup" method="POST" class="my-5">
                     <div class="my-6 max-w-md mx-auto">
                         <div class="relative mb-5">
@@ -42,12 +45,19 @@ $showModal = (isset($_SESSION['role']) && $_SESSION['role'] === 'MAHASISWA') &&
                         </div>
 
                         <div class="relative mb-5">
-                            <input type="text" id="prodi" name="prodi"
+                            <select id="prodi" name="prodi"
                                 class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:ring-0 focus:border-blue-600 peer"
-                                placeholder=" " required />
+                                required>
+                                <option value="" disabled selected>--- Program Studi ---</option>
+                                <option value="TI">TI</option>
+                                <option value="TMD">TMD</option>
+                                <option value="TMJ">TMJ</option>
+                            </select>
+
                             <label for="prodi"
-                                class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600">Program
-                                Studi</label>
+                                class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600">
+                                Program Studi
+                            </label>
                         </div>
 
                         <div class="relative mb-5">
@@ -76,6 +86,7 @@ $showModal = (isset($_SESSION['role']) && $_SESSION['role'] === 'MAHASISWA') &&
         const setupForm = document.getElementById('setup-form');
         const submitButton = document.getElementById('setup-submit-button');
         const errorMessage = document.getElementById('modal-error-message');
+        const succsesBox = document.getElementById('edit-profile-succses');
 
         if (closeSetupModalButton) {
             closeSetupModalButton.addEventListener('click', () => {
@@ -100,8 +111,11 @@ $showModal = (isset($_SESSION['role']) && $_SESSION['role'] === 'MAHASISWA') &&
                 const result = await response.json();
 
                 if (result.status === 'success') {
-                    setupModal.classList.add('hidden');
-                    window.location.reload();
+                    succsesBox.classList.remove('hidden')
+                    succsesBox.innerHTML = "Data berhasil diperbarui."
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500)
                 } else {
                     errorMessage.textContent = result.message || 'An unknown error occurred.';
                     errorMessage.classList.remove('hidden');

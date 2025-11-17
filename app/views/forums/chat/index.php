@@ -16,6 +16,17 @@
         <?php require_once 'app/views/components/forums/forumsList.php'; ?>
 
         <main id="Main-Content-Container" class="relative flex flex-1">
+            <div class="absolute right-5 top-26 z-[9999] flex flex-col gap-2 pointer-events-none">
+
+                <div id="errorDiv" class="bg-red-500 rounded-lg text-white p-3 text-left drop-shadow hidden pointer-events-auto">
+
+                </div>
+
+                <div id="error-message" class="bg-red-500 rounded-lg text-white p-3 text-left drop-shadow hidden pointer-events-auto">
+
+                </div>
+
+            </div>
             <div id="Chat-Container" class="flex flex-col flex-1 h-full overflow-hidden">
 
                 <?php require_once 'app/views/components/forums/detailForum.php'; ?>
@@ -34,6 +45,8 @@
                     <article class="relative flex flex-col gap-5 p-5 z-0 mb-[30px] md:mb-0">
                     </article>
                 </div>
+
+
 
 
                 <div class="relative flex w-full z-10 bottom-14 lg:bottom-0">
@@ -119,7 +132,7 @@
     <script>
         function openImageModal(src) {
             document.getElementById("modalImage").src = src;
-            document.getElementById("downloadButton").href = src; 
+            document.getElementById("downloadButton").href = src;
 
             const modal = document.getElementById("imageModal");
             modal.classList.remove("hidden");
@@ -151,6 +164,7 @@
             const previewContainer = document.getElementById("preview-container");
             const previewImage = document.getElementById("preview-image");
             const previewFilename = document.getElementById("preview-filename");
+            const errorDiv = document.getElementById("errorDiv");
             const removePreviewButton = document.getElementById("remove-preview");
 
             let lastSenderId = null;
@@ -213,11 +227,15 @@
                             <div class="flex size-8 sm:size-10 shrink-0 overflow-hidden rounded-full">
                                 <img src="${avatarSrc}" class="w-full h-full object-cover" alt="photo">
                             </div>
-                            <div>
-                                <div class="block text-xs sm:text-sm ${isOutgoing ? 'flex-row-reverse' : ''}">
-                                    <span class="font-bold text-black truncate max-w-[120px] sm:max-w-none">${senderName} </span>
-                                    ${roleHtml} 
-                                </div>
+                           <div class="flex items-center gap-1 text-xs sm:text-sm ${isOutgoing ? 'flex-row-reverse' : ''} min-w-0">
+                                <span class="font-bold text-black truncate 
+                                            max-w-[90px] 
+                                            sm:max-w-[160px] 
+                                            md:max-w-[240px] 
+                                            lg:max-w-none">
+                                    ${senderName}
+                                </span>
+                                ${roleHtml}
                             </div>
                         </div>
                     `;
@@ -232,8 +250,6 @@
                                 <img src="${mediaSrc}" 
                                     class="rounded-lg w-full h-auto object-cover" 
                                     alt="Image" loading="lazy">
-
-                                <!-- Hover Button -->
                                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 
                                         flex items-center justify-center text-white font-semibold 
                                         transition-all rounded-lg pointer-events-none">
@@ -383,9 +399,21 @@
                         method: "POST",
                         body: formData,
                     });
+
                     const result = await response.json();
+
+                    if (response.status === 403) {
+                        errorDiv.classList.remove('hidden')
+                        errorDiv.innerHTML = result.error || "Error"
+                        updateMessageStatus(tempId, 'failed');
+                        return;
+                    }
+
                     if (!response.ok) {
-                        throw new Error(result.error || 'Server mengalami masalah.');
+                        errorDiv.classList.remove('hidden')
+                        errorDiv.innerHTML = result.error || "Server mengalami masalah."
+                        updateMessageStatus(tempId, 'failed');
+                        return;
                     }
                     updateMessageStatus(tempId, 'sent', result);
                 } catch (error) {
@@ -428,12 +456,30 @@
             async function longPoll() {
                 try {
                     const response = await fetch(`${BASEURL}/forums/get-new-messages?forum_id=${FORUM_ID}&since=${encodeURIComponent(lastTimestamp)}`);
+
+                    if (response.status === 403) {
+                        const errorData = await response.json();
+
+                        console.warn("User di-kick/bukan member. Stop Polling.");
+
+                        const errorMessage = document.getElementById('error-message');
+                        if (errorMessage) {
+                            errorMessage.classList.remove('hidden');
+                            errorMessage.innerHTML = errorData.error || "Anda telah dikeluarkan dari forum.";
+                        }
+
+                        return;
+                    }
+
                     if (!response.ok) {
                         console.error(`Polling request failed with status: ${response.status}`);
                         await new Promise(resolve => setTimeout(resolve, 10000));
+                        longPoll();
                         return;
                     }
+
                     const messages = await response.json();
+
                     if (messages.length > 0) {
                         messages.forEach(msg => {
                             if (msg.SENDER_ID == CURRENT_USER_ID) {
@@ -442,17 +488,21 @@
                             const existingMessage = document.getElementById(`message-${msg.ID}`);
                             if (!existingMessage) {
                                 msg.status = 'sent';
-                                renderMessage(msg);
+                                if (typeof renderMessage === 'function') renderMessage(msg);
                             }
                         });
                         lastTimestamp = messages[messages.length - 1].CREATED_AT;
                     }
+
+
+                    longPoll();
+
                 } catch (error) {
-                    console.error('Long polling error:', error);
+                    console.error('Long polling error (Network/Script):', error);
                     await new Promise(resolve => setTimeout(resolve, 5000));
-                } finally {
                     longPoll();
                 }
+
             }
 
             async function loadInitialMessages() {
@@ -475,6 +525,7 @@
                         });
                         lastTimestamp = messages[messages.length - 1].CREATED_AT;
                     }
+
                 } catch (error) {
                     console.error('Gagal memuat pesan awal:', error);
                     loadingIndicator.innerHTML = '<p class="text-red-500">Gagal memuat pesan. Coba muat ulang halaman.</p>';

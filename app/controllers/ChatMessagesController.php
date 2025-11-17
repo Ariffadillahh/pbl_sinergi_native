@@ -22,15 +22,27 @@ class ChatMessagesController
             return;
         }
 
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
         if (!isset($_SESSION['user_id'])) {
             http_response_code(401);
             echo json_encode(['error' => 'Pengguna tidak terautentikasi.']);
             return;
         }
 
-        $forum_id = $_POST['forum_id'] ?? null;
         $user_id  = $_SESSION['user_id'];
+
+        $forum_id = isset($_POST['forum_id']) ? trim($_POST['forum_id']) : null;
         $message  = trim($_POST['message'] ?? '');
+
+       
+        if (!$forum_id || !$this->chatMessageModel->isUserInForum($user_id, $forum_id)) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Anda bukan anggota forum ini.']);
+            return;
+        }
 
         $hasFile = isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK;
 
@@ -58,15 +70,16 @@ class ChatMessagesController
             }
 
             $originalName = basename($_FILES['attachment']['name']);
-            $fileName = uniqid('', true) . '-' . preg_replace("/[^a-zA-Z0-9.\-_]/", "", $originalName);
+            $cleanName = preg_replace("/[^a-zA-Z0-9.\-_]/", "", $originalName);
+            $fileName = uniqid('', true) . '-' . $cleanName;
             $targetPath = $uploadDir . $fileName;
 
             if (move_uploaded_file($_FILES['attachment']['tmp_name'], $targetPath)) {
                 $mime = mime_content_type($targetPath);
 
-                $fileType = 'FILE';
                 if (strpos($mime, 'image/') === 0) $fileType = 'IMAGE';
                 elseif (strpos($mime, 'video/') === 0) $fileType = 'VIDEO';
+                else $fileType = 'FILE';
 
                 $data['path_media'] = 'storage/forums/attachment/' . $fileName;
                 $data['original_filename'] = $originalName;
@@ -78,23 +91,20 @@ class ChatMessagesController
             }
 
             $uploadEnd = microtime(true);
-            error_log("File upload took: " . ($uploadEnd - $uploadStart) . " seconds");
         }
 
         $dbStart = microtime(true);
         $result = $this->chatMessageModel->createMessage($data);
         $dbEnd = microtime(true);
-        error_log("Database insert took: " . ($dbEnd - $dbStart) . " seconds");
 
         if (is_array($result) && isset($result['ID'])) {
-
             echo json_encode([
                 'success'    => true,
                 'message_id' => $result['ID']
             ]);
         } else {
             http_response_code(500);
-            echo json_encode(['error' => 'Gagal menyimpan pesan.']);
+            echo json_encode(['error' => 'Gagal menyimpan pesan ke database.']);
         }
     }
 
@@ -103,8 +113,9 @@ class ChatMessagesController
         header('Content-Type: application/json');
 
         try {
-            $forumId = $_GET['forum_id'] ?? 0;
-            $lastTimestamp = $_GET['since'] ?? null;
+            if (session_status() == PHP_SESSION_NONE) {
+                session_start();
+            }
 
             if (!isset($_SESSION['user_id'])) {
                 http_response_code(401);
@@ -112,18 +123,34 @@ class ChatMessagesController
                 return;
             }
 
+            $userId = $_SESSION['user_id'];
+            $forumId = isset($_GET['forum_id']) ? trim($_GET['forum_id']) : '';
+            $lastTimestamp = $_GET['since'] ?? null;
+
             session_write_close();
 
-            if (!$forumId) {
+            if (empty($forumId)) {
                 echo json_encode([]);
                 return;
             }
 
-            set_time_limit(60);
+            if (!$this->chatMessageModel->isUserInForum($userId, $forumId)) {
+                http_response_code(403);
+                echo json_encode(['error' => 'Anda bukan member forum ini.']);
+                return;
+            }
 
+            set_time_limit(60);
             $startTime = time();
 
             while ((time() - $startTime) < 55) {
+
+                if (!$this->chatMessageModel->isUserInForum($userId, $forumId)) {
+                    http_response_code(403);
+                    echo json_encode(['error' => 'Anda telah dikeluarkan dari forum.']);
+                    return;
+                }
+
                 $messages = $this->chatMessageModel->getMessagesSince($forumId, $lastTimestamp);
 
                 if (!empty($messages)) {
@@ -136,9 +163,9 @@ class ChatMessagesController
 
             echo json_encode([]);
         } catch (\Throwable $e) {
-            error_log('Error in getNewMessages: ' . $e->getMessage());
+            error_log('Error: ' . $e->getMessage());
             http_response_code(500);
-            echo json_encode(['error' => 'Terjadi kesalahan pada server.']);
+            echo json_encode(['error' => $e->getMessage()]);
         }
     }
 

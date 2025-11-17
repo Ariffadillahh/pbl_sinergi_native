@@ -1,4 +1,4 @@
-<div id="accessKeyModal" class="hidden fixed inset-0 z-[99999] justify-center items-center w-full h-full bg-black/60">
+<div id="accessKeyModal" class="hidden fixed inset-0 z-[99999] backdrop-blur justify-center items-center w-full h-full bg-black/60">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm">
         <div class="bg-red-600 p-2 text-center hidden text-white rounded-lg mb-3" id="keyWrongNotif"></div>
         <h2 class="text-xl font-bold mb-4">Forum Privat</h2>

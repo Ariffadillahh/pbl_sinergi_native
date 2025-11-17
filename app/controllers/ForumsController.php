@@ -93,7 +93,7 @@ class ForumsController
 
         $forumName = trim($_POST['forumName'] ?? '');
         $bio = trim($_POST['bio'] ?? '');
-        $isPrivate = isset($_POST['']) ? 1 : 0;
+        $isPrivate = isset($_POST['isPrivate']) ? 1 : 0;
 
         if (empty($forumName) || empty($bio)) {
             echo json_encode(['success' => false, 'message' => 'Nama Forum dan Bio tidak boleh kosong.']);

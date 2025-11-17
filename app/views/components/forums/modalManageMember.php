@@ -51,7 +51,7 @@
                                                     : BASEURL . '/src/asset/image/default.png' ?>"
                                         class="w-10 h-10 rounded-full object-cover">
 
-                                    <div>
+                                    <div class="min-w-0">
                                         <p class="font-medium truncate"><?= $member["NAME"] ?></p>
                                         <p class="text-sm truncate">@<?= $member["USERNAME"] ?></p>
                                     </div>
@@ -76,21 +76,80 @@
     </div>
 </div>
 
+<div id="globalSuccessDiv"
+    class="hidden fixed top-10 right-4 md:right-1/2 md:translate-x-1/2 sm:translate-x-0 sm:right-10 z-[100000] bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 transform scale-100">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+    </svg>
+    <span id="globalSuccessText" class="font-medium">Success!</span>
+</div>
+
+<div id="globalErrorDiv"
+    class="hidden fixed top-10 right-4 md:right-1/2 md:translate-x-1/2 sm:translate-x-0 sm:right-10 z-[100000] bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 transform scale-100">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    <span id="globalErrorText" class="font-medium">Error!</span>
+</div>
+
 <!-- CONFIRM ADD MEMBER -->
 <div id="modal-confirm-add"
-    class="hidden fixed inset-0 bg-black/40 z-[99999] flex justify-center items-center">
-    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm text-center">
-        <h3 class="font-semibold text-gray-800 text-lg mb-3">Add this member?</h3>
-        <p id="confirm-user-name" class="text-gray-600 mb-5">User name here...</p>
+    class="hidden fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 transition-all duration-300">
 
-        <div class="flex justify-end gap-3">
-            <button id="cancel-add"
-                class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition">
-                Cancel
-            </button>
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform scale-100 transition-all">
+
+        <div class="p-6 text-center">
+            <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
+                <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+            </div>
+
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Tambahkan Anggota?</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">
+                Apakah Anda yakin ingin menambahkan <span id="confirm-user-name" class="font-semibold text-slate-700">User Name</span> ke dalam tim? Tindakan ini akan memberikan akses segera.
+            </p>
+        </div>
+
+        <div class="flex justify-center mb-5 gap-4">
             <button id="confirm-add"
-                class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition">
-                Add
+                class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 text-white font-medium rounded-lg transition-colors duration-200">
+                Ya, Tambahkan
+            </button>
+            <button id="cancel-add"
+                class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-lg transition-colors duration-200">
+                Batal
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-confirm-kick"
+    class="hidden fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 transition-all duration-300">
+
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform scale-100 transition-all">
+        <div class="p-6 text-center">
+            <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                <svg class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Keluarkan Anggota?</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">
+                Apakah Anda yakin ingin mengeluarkan <span class="font-semibold text-slate-700">anggota ini</span>? <br>
+            </p>
+        </div>
+
+        <div class="flex justify-center mb-5 gap-4">
+            <button id="confirm-kick"
+                class="w-auto inline-flex justify-center items-center px-5 py-2.5 bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-200 text-white font-medium rounded-lg transition-colors duration-200">
+                Ya, Keluarkan
+            </button>
+
+            <button id="cancel-kick"
+                class="w-auto inline-flex justify-center items-center px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-lg transition-colors duration-200">
+                Batal
             </button>
         </div>
     </div>
@@ -99,49 +158,64 @@
 <script>
     const FORUM_ID = "<?= $forumByid['ID'] ?>";
 
-    // TAB LOGIC
+    // --- DEFINISI VARIABEL BARU (GLOBAL NOTIF) ---
+    const globalSuccessDiv = document.getElementById("globalSuccessDiv");
+    const globalSuccessText = document.getElementById("globalSuccessText");
+    const globalErrorDiv = document.getElementById("globalErrorDiv");
+    const globalErrorText = document.getElementById("globalErrorText");
+
+    // Helper Function untuk menampilkan notif
+    function showToast(type, message) {
+        if (type === 'success') {
+            globalSuccessText.innerText = message;
+            globalSuccessDiv.classList.remove("hidden");
+            // Auto hide setelah 3 detik
+            setTimeout(() => {
+                globalSuccessDiv.classList.add("hidden");
+            }, 3000);
+        } else {
+            globalErrorText.innerText = message;
+            globalErrorDiv.classList.remove("hidden");
+            setTimeout(() => {
+                globalErrorDiv.classList.add("hidden");
+            }, 3000);
+        }
+    }
+
+    // ... (Kode Tab Add/Kick Anda tetap sama) ...
     const tabAdd = document.getElementById("tab-add");
     const tabKick = document.getElementById("tab-kick");
     const pageAdd = document.getElementById("page-add");
     const pageKick = document.getElementById("page-kick");
 
-    // RESET TAB UI
     function resetTabs() {
         tabAdd.classList.remove("text-blue-600", "border-blue-600");
         tabAdd.classList.add("text-gray-500");
-
         tabKick.classList.remove("text-blue-600", "border-blue-600");
         tabKick.classList.add("text-gray-500");
     }
 
-    // SHOW TAB ADD
     function showAdd() {
         resetTabs();
-
         tabAdd.classList.add("text-blue-600", "border-blue-600");
         tabAdd.classList.remove("text-gray-500");
-
         pageAdd.classList.remove("hidden");
         pageKick.classList.add("hidden");
     }
 
-    // SHOW TAB KICK
     function showKick() {
         resetTabs();
-
         tabKick.classList.add("text-blue-600", "border-blue-600");
         tabKick.classList.remove("text-gray-500");
-
         pageKick.classList.remove("hidden");
         pageAdd.classList.add("hidden");
     }
 
     tabAdd.onclick = showAdd;
     tabKick.onclick = showKick;
+    showAdd();
 
-    showAdd(); // default
-
-    // MODAL LOGIC
+    // ... (Kode Modal Manage Members Anda tetap sama) ...
     const modalManageMembers = document.getElementById("modal-manage-members");
     const btnOpenManageMembers = document.getElementById("btn-open-manage-members");
     const btnCloseManageMembers = document.getElementById("btn-close-manage-members");
@@ -157,39 +231,27 @@
     };
 
     btnCloseManageMembers.addEventListener("click", closeManageModal);
-
     modalManageMembers.addEventListener("click", e => {
         if (e.target === modalManageMembers) closeManageModal();
     });
 
-    // AJAX SEARCH USER
+    // ... (Search Logic tetap sama) ...
     const searchInput = document.getElementById("search-user");
     const searchResults = document.getElementById("search-results");
-
-    let selectedUserId = null; // untuk confirm modal
     let searchTimeout = null;
 
-    // EVENT LISTENER — INI WAJIB ADA
     searchInput.addEventListener("input", () => {
         const keyword = searchInput.value.trim();
-
         if (keyword.length < 2) {
-            searchResults.innerHTML = `
-            <p class="text-center text-gray-400 text-sm">
-                Type at least 2 characters...
-            </p>`;
+            searchResults.innerHTML = `<p class="text-center text-gray-400 text-sm">Type at least 2 characters...</p>`;
             return;
         }
-
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => searchUser(keyword), 300);
     });
 
     async function searchUser(keyword) {
-        searchResults.innerHTML = `
-        <p class="text-center text-gray-400 text-sm">Searching...</p>
-    `;
-
+        searchResults.innerHTML = `<p class="text-center text-gray-400 text-sm">Searching...</p>`;
         const res = await fetch(`${BASEURL}/forums/searchUser`, {
             method: "POST",
             headers: {
@@ -199,39 +261,29 @@
                 keyword
             })
         });
-
         const users = await res.json();
 
         if (users.length < 1) {
-            searchResults.innerHTML = `
-            <p class="text-center text-gray-400 text-sm">No users found.</p>
-        `;
+            searchResults.innerHTML = `<p class="text-center text-gray-400 text-sm">No users found.</p>`;
             return;
         }
 
         searchResults.innerHTML = users.map(u => `
             <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-200 hover:border-blue-500 hover:bg-gray-100 transition">
-
                 <div class="flex items-center gap-3">
-                    <img src="${u.PATH_PHOTO 
-                        ? BASEURL + '/storage/users/photos/' + u.PATH_PHOTO 
-                        : BASEURL + '/src/asset/image/default.png'}"
-                        class="w-10 h-10 rounded-full object-cover">
-
+                    <img src="${u.PATH_PHOTO ? BASEURL + '/storage/users/photos/' + u.PATH_PHOTO : BASEURL + '/src/asset/image/default.png'}" class="w-10 h-10 rounded-full object-cover">
                     <div>
                         <p class="font-semibold text-gray-800">${u.FULL_NAME}</p>
                         <p class="text-xs text-gray-500">@${u.USERNAME}</p>
                     </div>
                 </div>
-
-                <button onclick="openAddConfirm('${u.ID}', '${u.FULL_NAME}')"
-                    class="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                    Add
-                </button>
+                <button onclick="openAddConfirm('${u.ID}', '${u.FULL_NAME}')" class="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Add</button>
             </div>
         `).join("");
     }
 
+    // --- LOGIKA ADD MEMBER (UPDATED) ---
+    let selectedUserId = null;
     const modalConfirmAdd = document.getElementById("modal-confirm-add");
     const confirmUserName = document.getElementById("confirm-user-name");
     const cancelAdd = document.getElementById("cancel-add");
@@ -251,75 +303,103 @@
     confirmAdd.onclick = async () => {
         if (!selectedUserId) return;
 
-        const res = await fetch(`${BASEURL}/forums/addMember`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: new URLSearchParams({
-                id: FORUM_ID,
-                user_id: selectedUserId
-            })
-        });
+        // Button Loading
+        const originalText = confirmAdd.innerText;
+        confirmAdd.innerText = "Adding...";
+        confirmAdd.disabled = true;
 
-        const result = await res.json();
-        modalConfirmAdd.classList.add("hidden");
+        try {
+            const res = await fetch(`${BASEURL}/forums/addMember`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: new URLSearchParams({
+                    id: FORUM_ID,
+                    user_id: selectedUserId
+                })
+            });
+            const result = await res.json();
 
-        if (result.success) {
-            alert("Member added!");
-            searchResults.innerHTML = "";
-            searchInput.value = "";
-        } else {
-            alert(result.message || "Failed to add member.");
+            if (result.success) {
+                // GANTI DISINI: Pakai Helper Function
+                showToast('success', 'Member successfully added!');
+
+                modalConfirmAdd.classList.add("hidden"); // Tutup modal confirm
+
+                // Bersihkan search
+                searchResults.innerHTML = "";
+                searchInput.value = "";
+            } else {
+                showToast('error', result.message || "Failed to add.");
+            }
+        } catch (err) {
+            showToast('error', "Connection Error");
+        } finally {
+            confirmAdd.innerText = originalText;
+            confirmAdd.disabled = false;
         }
     };
 
-    // ADD MEMBER AJAX
-    async function addMember(userId) {
-        const res = await fetch(`${BASEURL}/forums/addMember`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: new URLSearchParams({
-                id: FORUM_ID,
-                user_id: userId
-            })
-        });
+    // --- LOGIKA KICK MEMBER (UPDATED) ---
+    const kickModal = document.getElementById("modal-confirm-kick");
+    const cancelKickBtn = document.getElementById("cancel-kick");
+    const confirmKickBtn = document.getElementById("confirm-kick");
+    let targetForumId = null;
+    let targetUserId = null;
 
-        const result = await res.json();
-
-        if (result.success) {
-            alert("Member added!");
-            searchResults.innerHTML = "";
-            searchInput.value = "";
-        } else {
-            alert(result.message || "Failed to add member.");
-        }
+    function kickMember(forumId, userId) {
+        targetForumId = forumId;
+        targetUserId = userId;
+        kickModal.classList.remove("hidden");
     }
 
-    // KICK MEMBER AJAX
-    async function kickMember(forumId, userId) {
-        if (!confirm("Kick this member?")) return;
-
-        const res = await fetch(`${BASEURL}/forums/kickMember`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: new URLSearchParams({
-                forum_id: forumId,
-                user_id: userId
-            })
-        });
-
-        const result = await res.json();
-
-        if (result.success) {
-            alert("Member kicked.");
-            location.reload();
-        } else {
-            alert(result.message || "Cannot kick this member.");
-        }
+    function closeKickModal() {
+        kickModal.classList.add("hidden");
+        targetForumId = null;
+        targetUserId = null;
     }
+
+    cancelKickBtn.addEventListener("click", closeKickModal);
+
+    confirmKickBtn.addEventListener("click", async function() {
+        if (!targetForumId || !targetUserId) return;
+
+        const originalText = confirmKickBtn.innerText;
+        confirmKickBtn.innerText = "Processing...";
+        confirmKickBtn.disabled = true;
+
+        try {
+            const res = await fetch(`${BASEURL}/forums/kickMember`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: new URLSearchParams({
+                    forum_id: targetForumId,
+                    user_id: targetUserId
+                })
+            });
+            const result = await res.json();
+
+            if (result.success) {
+                closeKickModal();
+
+                showToast('success', 'Member kicked successfully!');
+
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showToast('error', result.message || "Cannot kick member.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            showToast('error', "Network Error");
+        } finally {
+            confirmKickBtn.innerText = originalText;
+            confirmKickBtn.disabled = false;
+            closeKickModal()
+        }
+    });
 </script>

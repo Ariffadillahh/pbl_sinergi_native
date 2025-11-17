@@ -47,7 +47,7 @@
 
         const notifToggleBtn = document.getElementById('notif-toggle-btn');
         const notifDropdown = document.getElementById('notif-dropdown');
-        const notifBadge = document.getElementById('notif-badge'); 
+        const notifBadge = document.getElementById('notif-badge');
 
         const unreadContainer = document.getElementById('unread-container');
         const readContainer = document.getElementById('read-container');
@@ -57,7 +57,7 @@
         const deleteAllReadBtn = document.getElementById('delete-all-read-btn');
         const tabUnread = document.getElementById('tab-unread');
         const tabRead = document.getElementById('tab-read');
-        const unreadTabCount = document.getElementById('unread-tab-count'); 
+        const unreadTabCount = document.getElementById('unread-tab-count');
 
         let lastTimestamp = new Date().toISOString();
         let isPolling = false;
@@ -114,56 +114,90 @@
                 CREATED_AT,
                 IS_READ
             } = notif;
+
             const colorMap = {
                 LIKE_POST: 'blue',
                 REPLY_POST: 'green',
+                REPLY_COMMENT: 'green',
                 MENTION: 'purple',
                 WARNING: 'yellow',
+                KICKED: 'red',
+                DELETE: 'red',
+                INVITE_FORUM: 'indigo',
+                ADMIN_INVITE_FORUM: 'indigo',
                 DEFAULT: 'gray'
             };
+
             const baseColor = colorMap[TYPE] || colorMap.DEFAULT;
             const color = IS_READ == 0 || IS_READ === false ? baseColor : 'gray';
 
             const messageMap = {
                 LIKE_POST: `<strong>${DATA.sender_name || 'Someone'}</strong> menyukai postingan Anda.`,
                 REPLY_POST: `<strong>${DATA.sender_name || 'Someone'}</strong> mengomentari postingan Anda.`,
+                REPLY_COMMENT: `<strong>${DATA.sender_name || 'Someone'}</strong> membalas komentar Anda.`,
                 MENTION: `<strong>${DATA.sender_name || 'Someone'}</strong> menyebut Anda dalam sebuah postingan.`,
-                WARNING: `<strong>Admin</strong> memperingatkan Anda terkait ${DATA.content_type === 'forum' ? 'forum' : 'postingan'} Anda${DATA.reason ? ': ' + DATA.reason : '.'}`,
+                KICKED: `<strong>${DATA.sender_name || 'Someone'}</strong> mengeluarkan Anda dari forumnya.`,
+                DELETE: `<strong>ADMIN</strong> menghapus ${DATA?.content_type === 'FORUM' ? 'forum' : 'postingan'}.`,
+                INVITE_FORUM: `<strong>${DATA.sender_name || 'Someone'}</strong> mengundang Anda untuk bergabung ke forumnya.`,
+                ADMIN_INVITE_FORUM: `<strong>ADMIN</strong> menambahkan Anda ke dalam forum.`,
+                WARNING: `<strong>ADMIN</strong> memperingatkan Anda terkait ${DATA.content_type === 'FORUM' ? 'forum' : 'postingan'}.`,
                 DEFAULT: `Notifikasi baru`
             };
 
             const iconMap = {
-                LIKE_POST: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682 a4.5 4.5 0 00-6.364-6.364L12 7.636 l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>`,
+                LIKE_POST: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>`,
+
                 REPLY_POST: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>`,
-                MENTION: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.85 M7 20H2v-2a3 3 0 015.356-1.857 M7 20v-2c0-.656.126-1.283.356-1.857 m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z m6 3a2 2 0 11-4 0 2 2 0 014 0z M7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>`,
-                WARNING: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`
+
+                REPLY_COMMENT: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>`,
+
+                MENTION: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>`,
+
+                WARNING: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`,
+
+                KICKED: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6" /></svg>`,
+
+                DELETE: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>`,
+
+                INVITE_FORUM: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>`,
+
+                ADMIN_INVITE_FORUM: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>`
             };
 
             const isUnread = IS_READ == 0 || IS_READ === false;
             const link = DATA.link || '#';
+
             const bgColorClass = {
+                red: 'bg-gradient-to-br from-red-400 to-red-500',
                 blue: 'bg-gradient-to-br from-blue-500 to-blue-600',
                 green: 'bg-gradient-to-br from-green-500 to-green-600',
                 purple: 'bg-gradient-to-br from-purple-500 to-purple-600',
                 yellow: 'bg-gradient-to-br from-yellow-500 to-yellow-600',
+                red: 'bg-gradient-to-br from-red-500 to-red-600',
+                indigo: 'bg-gradient-to-br from-indigo-500 to-indigo-600',
                 gray: 'bg-gradient-to-br from-gray-400 to-gray-500'
             } [color];
+
             const borderColorClass = isUnread ? {
                 blue: 'border-blue-500 bg-blue-50',
                 green: 'border-green-500 bg-green-50',
                 purple: 'border-purple-500 bg-purple-50',
-                yellow: 'border-yellow-500 bg-yellow-50'
+                yellow: 'border-yellow-500 bg-yellow-50',
+                red: 'border-red-500 bg-red-50',
+                indigo: 'border-indigo-500 bg-indigo-50'
             } [color] : 'border-transparent bg-white';
+
             const dotColorClass = {
                 blue: 'bg-blue-500',
                 green: 'bg-green-500',
                 purple: 'bg-purple-500',
-                yellow: 'bg-yellow-500'
+                yellow: 'bg-yellow-500',
+                red: 'bg-red-500',
+                indigo: 'bg-indigo-500'
             } [color];
 
             return `
-                <div data-notif-id="${ID}" data-link="${link}" data-is-read="${IS_READ}" 
-                     class="notification-item flex items-start gap-3 px-4 py-3 hover:bg-gray-100 transition-colors cursor-pointer border-l-4 ${borderColorClass}">
+                <div data-notif-id="${ID}" data-link="${link}" data-is-read="${IS_READ}" data-type="${TYPE}" data-target-id="${DATA && DATA.target_id ? DATA.target_id : ''}" class="notification-item flex items-start gap-3 px-4 py-3 hover:bg-gray-100 transition-colors cursor-pointer border-l-4 ${borderColorClass}">
                     
                     <div class="flex-shrink-0 w-10 h-10 rounded-full ${bgColorClass} flex items-center justify-center">
                         ${iconMap[TYPE] || iconMap.LIKE_POST}
@@ -173,34 +207,39 @@
                         <p class="text-sm text-gray-800 font-medium line-clamp-2">
                             ${messageMap[TYPE] || messageMap.DEFAULT}
                         </p>
-                         <p class="text-xs text-gray-500 mt-1">
+                        <p class="text-xs text-gray-500 mt-1">
                             ${
                             (() => {
                                 const date = new Date(CREATED_AT);
                                 date.setHours(date.getHours() - 7);
+
                                 const formattedDate = date.toLocaleString('id-ID', {
-                                day: '2-digit', month: 'short', year: 'numeric',
-                                hour: '2-digit', minute: '2-digit', hour12: false
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false
                                 });
+
                                 return formattedDate.replace('.', ':').replace(',', '') + ' WIB';
                             })()
                             }
                         </p>
                     </div>
 
-                ${isUnread ? `
+                    ${isUnread ? `
                     <div class="unread-indicator flex-shrink-0">
                         <span class="w-2 h-2 ${dotColorClass} rounded-full block"></span>
                     </div>
                     ` : ''}
-                </div>
-            `;
+                </div>`;
         }
 
         function updateNotificationCount(newUnreadCount) {
             unreadTabCount.textContent = newUnreadCount;
 
-            if (notifBadge) { 
+            if (notifBadge) {
                 if (newUnreadCount > 0) {
                     notifBadge.classList.remove('hidden');
                 } else {

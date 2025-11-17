@@ -67,6 +67,12 @@
     const successClasses = ['bg-green-100', 'border', 'border-green-400', 'text-green-800'];
     const errorClasses = ['bg-red-100', 'border', 'border-red-400', 'text-red-700'];
 
+    otherReasonText.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+        }
+    });
+
     const showMessage = (message, type) => {
         messageReportPost.classList.remove(...successClasses, ...errorClasses);
         messageReportPost.classList.add(...(type === 'success' ? successClasses : errorClasses));

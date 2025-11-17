@@ -4,7 +4,7 @@ require_once __DIR__ . "/../BaseModel.php";
 
 class ChatMessage extends BaseModel
 {
-    public static function createMessage($data)
+    public function createMessage($data)
     {
         $conn = self::getConnection();
         $uuid = uniqid();
@@ -74,7 +74,7 @@ class ChatMessage extends BaseModel
         return false;
     }
 
-    public static function getMessagesSince($forumId, $timestamp = null)
+    public function getMessagesSince($forumId, $timestamp = null)
     {
         $conn = self::getConnection();
         if (!$conn) return [];
@@ -113,7 +113,7 @@ class ChatMessage extends BaseModel
         return $messages;
     }
 
-    public static function getMessagesByForumId($forum_id)
+    public function getMessagesByForumId($forum_id)
     {
         $conn = self::getConnection();
         $messages = [];
@@ -165,5 +165,35 @@ class ChatMessage extends BaseModel
         }
 
         return $messages;
+    }
+
+    public function isUserInForum($userId, $forumId)
+    {
+        $conn = self::getConnection();
+
+        $sql = "SELECT COUNT(1) AS CNT FROM FORUM_MEMBERS 
+            WHERE FORUM_ID = :forum_id AND USER_ID = :user_id";
+
+        $stid = oci_parse($conn, $sql);
+
+        $clean_uid = trim($userId);
+        $clean_fid = trim($forumId);
+
+        oci_bind_by_name($stid, ':forum_id', $clean_fid);
+        oci_bind_by_name($stid, ':user_id', $clean_uid);
+
+        if (!oci_execute($stid)) {
+            $e = oci_error($stid);
+            error_log("SQL Error: " . $e['message']);
+            return false;
+        }
+
+        $row = oci_fetch_assoc($stid);
+
+        if ($row && isset($row['CNT']) && $row['CNT'] > 0) {
+            return true;
+        }
+
+        return false;
     }
 }

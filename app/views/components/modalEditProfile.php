@@ -21,6 +21,9 @@
                 <p id="edit-profile-error"
                     class="bg-red-600 p-2 text-white text-center rounded-lg hidden mb-4"></p>
 
+                <p id="edit-profile-succses"
+                    class="bg-green-600 p-2 text-white text-center rounded-lg hidden mb-4"></p>
+
                 <form id="edit-profile-form" action="<?php echo BASEURL ?>/profile/update" method="POST" class="my-5">
                     <div class="my-6 max-w-3xl mx-auto">
                         <section class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
@@ -100,19 +103,25 @@
                             </div>
                         </div>
                         <?php
-                        if ($_SESSION['role'] !== 'MITRA' && $_SESSION['role'] !== 'ALUMNI') :
+                        if ($_SESSION['role'] === 'MAHASISWA') :
                         ?>
                             <div class="grid grid-cols-3 gap-4 mb-5">
                                 <div class="relative">
-                                    <input type="text" id="edit-profile-prodi" name="prodi"
-                                        value="<?= htmlspecialchars($_SESSION['prodi'] ?? '') ?>"
-                                        class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:ring-0 focus:border-blue-600 peer"
-                                        placeholder=" " required />
+                                    <select id="edit-profile-prodi" name="prodi"
+                                        class="block px-2.5 pb-2.5 pt-5 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:ring-0 focus:border-blue-600 peer"
+                                        required>
+                                        <option value="" disabled selected>--- Program Studi ---</option>
+                                        <option value="TI" <?= (($_SESSION['prodi'] ?? '') === 'TI') ? 'selected' : '' ?>>TI</option>
+                                        <option value="TMD" <?= (($_SESSION['prodi'] ?? '') === 'TMD') ? 'selected' : '' ?>>TMD</option>
+                                        <option value="TMJ" <?= (($_SESSION['prodi'] ?? '') === 'TMJ') ? 'selected' : '' ?>>TMJ</option>
+                                    </select>
+
                                     <label for="edit-profile-prodi"
                                         class="absolute text-xs md:text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600">
                                         Program Studi
                                     </label>
                                 </div>
+
 
                                 <div class="relative">
                                     <select id="edit-profile-jenjang" name="jenjang_studi"
@@ -159,6 +168,7 @@
         const form = document.getElementById('edit-profile-form');
         const btnSubmit = document.getElementById('edit-profile-submit');
         const errorBox = document.getElementById('edit-profile-error');
+        const succsesBox = document.getElementById('edit-profile-succses');
 
         const fileInput = document.getElementById("edit-forum-file-input");
         const changePhotoBtn = document.getElementById("btn-edit-forum-change-photo");
@@ -208,8 +218,11 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    modal.classList.add('hidden');
-                    window.location.reload();
+                    succsesBox.classList.remove('hidden')
+                    succsesBox.innerHTML = "Profil berhasil diperbarui."
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500)
                 } else {
                     errorBox.textContent = result.message || 'An unknown error occurred.';
                     errorBox.classList.remove('hidden');

@@ -44,17 +44,11 @@ $replyMsg = $reply['MESSAGE_FORMATTED'];
 if ($replyMsg instanceof OCILob) {
     $replyMsg = $replyMsg->load();
 }
-
-if (preg_match('/^@(\w+)/', trim($replyMsg), $matches)) {
-    $cleanMsg = preg_replace('/^@\w+\s*/', '', $replyMsg);
-} else {
-    $cleanMsg = $replyMsg;
-}
 ?>
 
 <div class="ml-3.5 md:ml-0">
     <div class="mt-2 ml-1 pl-8 sm:pl-12 text-gray-800 text-sm sm:text-base break-words">
-        <p><?= nl2br($cleanMsg ?? '') ?></p>
+        <p><?= nl2br($replyMsg ?? '') ?></p>
     </div>
 
     <div class="mt-3 ml-1 pl-8 sm:pl-12 flex items-center text-gray-500 text-xs sm:text-sm gap-3 sm:gap-4">

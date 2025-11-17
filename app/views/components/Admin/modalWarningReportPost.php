@@ -17,6 +17,7 @@
         <form method="post" id="formWarning">
             <input type="hidden" id="warningId" name="target_id">
             <input type="hidden" id="owner-Id" name="owner_id">
+            <input type="hidden" name="type_target" value="POST">
 
             <div class="flex gap-3">
                 <button type="button" id="cancelWarning" class="flex-1 px-6 py-3 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition">

@@ -100,7 +100,8 @@ class PostController
                             $mentionedUser['ID'],
                             $user['ID'],
                             $newPostId,
-                            'MENTION'
+                            'MENTION',
+                            'POST'
                         );
                     }
                 }

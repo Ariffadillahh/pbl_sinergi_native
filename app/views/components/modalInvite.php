@@ -93,16 +93,11 @@
             .then(r => r.json())
             .then(data => {
 
-                /**
-                 * FOTO ATAU HURUF
-                 */
                 if (data.PHOTO) {
-                    // Foto ada
                     inviteForumPhoto.src = `${BASEURL}/storage/forums/photos/${data.PHOTO}`;
                     inviteForumPhoto.classList.remove("hidden");
                     inviteForumInitials.classList.add("hidden");
                 } else {
-                    // Tidak ada foto → pakai huruf
                     const initials = data.NAME ?
                         data.NAME.substring(0, 2).toUpperCase() :
                         "FM";
@@ -113,27 +108,28 @@
                     inviteForumInitials.classList.remove("hidden");
                 }
 
-                // Set forum name & desc
                 inviteForumName.textContent = data.NAME;
                 inviteForumDesc.textContent = data.ABOUT || "Tanpa deskripsi";
 
-                // Owner
                 inviteOwnerName.textContent = data.OWNER.NAME;
                 inviteOwnerPhoto.src = data.OWNER.PHOTO ?
                     `${BASEURL}/storage/users/photos/${data.OWNER.PHOTO}` :
                     `${BASEURL}/src/asset/image/default.png`;
 
-                // Members preview
-                inviteMembers.innerHTML = data.MEMBERS.map(m => `
-                    <img src="${
-                        m.PHOTO
-                        ? BASEURL + '/storage/users/photos/' + m.PHOTO
-                        : BASEURL + '/src/asset/image/default.png'
-                    }"
-                    class="w-10 h-10 rounded-full border-2 border-white object-cover">
-                `).join('');
+                inviteMembers.innerHTML = data.MEMBERS.slice(0,7).map(m => {
+                    const isDefault = !m.PHOTO;
 
-                // For join action later
+                    return `
+                        <img src="${
+                            isDefault
+                            ? BASEURL + '/src/asset/image/default.png'
+                            : BASEURL + '/storage/users/photos/' + m.PHOTO
+                        }"
+                        class="w-10 h-10 rounded-full border-2 border-white object-cover
+                        ${isDefault ? 'bg-gray-100' : ''}">
+                    `;
+                }).join('');
+
                 inviteForumJoin.dataset.forumId = forumId;
 
                 modalInvite.classList.remove("hidden");
