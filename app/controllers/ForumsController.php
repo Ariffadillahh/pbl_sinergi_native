@@ -82,7 +82,7 @@ class ForumsController
 
         $forumName = trim($_POST['forumName'] ?? '');
         $bio = trim($_POST['bio'] ?? '');
-        $isPrivate = isset($_POST['isPrivate']) ? 1 : 0;
+        $isPrivate = isset($_POST['']) ? 1 : 0;
 
         if (empty($forumName) || empty($bio)) {
             echo json_encode(['success' => false, 'message' => 'Nama Forum dan Bio tidak boleh kosong.']);
@@ -379,7 +379,7 @@ class ForumsController
         }
     }
 
-        public function checkMembership()
+    public function checkMembership()
     {
         header('Content-Type: application/json');
         $forumId = $_GET['forum_id'] ?? null;
@@ -533,7 +533,7 @@ public function addMember()
         $ownerId,
         $forumId,
         "INVITE_FORUM",
-        "INVITE_FORUM"
+        "FORUM"
     );
 
     echo json_encode(['success' => true, 'message' => 'Member invited successfully']);

@@ -1,4 +1,3 @@
-<!-- MODAL EXIT FORUM -->
 <div id="modal-exit-forum" class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50">
     <div class="relative p-4 w-full max-w-md max-h-full">
         <div class="relative bg-white rounded-lg shadow-sm">
@@ -48,13 +47,11 @@
     const formExitForum = document.getElementById("form-exit-forum");
     const errorExitForum = document.getElementById("exit-forum-error");
 
-    // buka modal
     btnOpenExitForum?.addEventListener("click", () => {
         modalExitForum.classList.remove("hidden");
         modalExitForum.classList.add("flex");
     });
 
-    // tutup modal
     const closeModalExitForum = () => {
         modalExitForum.classList.add("hidden");
         modalExitForum.classList.remove("flex");
@@ -67,7 +64,6 @@
         if (e.target === modalExitForum) closeModalExitForum();
     });
 
-    // konfirmasi keluar forum
     btnConfirmExitForum.addEventListener("click", async () => {
         const formData = new FormData(formExitForum);
         const actionUrl = formExitForum.getAttribute("action");

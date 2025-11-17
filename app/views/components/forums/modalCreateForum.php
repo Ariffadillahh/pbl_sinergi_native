@@ -50,3 +50,59 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        createForum();
+    });
+
+    function createForum() {
+        const form = document.getElementById("create-forum-form");
+        if (!form) return;
+
+        const submitButton = document.getElementById("createForm");
+        const errorMessageDiv = document.getElementById("modal-error-message");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = `
+            <svg class="inline w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        `;
+
+            errorMessageDiv.classList.add("hidden");
+
+            const formData = new FormData(form);
+            const actionUrl = form.getAttribute("action");
+
+            try {
+                const response = await fetch(actionUrl, {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    window.location.href = result.redirectUrl;
+                } else {
+                    errorMessageDiv.textContent = result.message;
+                    errorMessageDiv.classList.remove("hidden");
+                }
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                errorMessageDiv.textContent = "Terjadi kesalahan jaringan. Silakan coba lagi.";
+                errorMessageDiv.classList.remove("hidden");
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            }
+        });
+    }
+</script>

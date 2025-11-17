@@ -37,22 +37,120 @@
   animation: slide-bottom 30s linear infinite;
 }
 
-/* Style untuk placeholder pada contenteditable div */
 [contenteditable]:empty::before {
-    content: attr(data-placeholder);
-    color: #9ca3af; /* Warna abu-abu seperti placeholder asli */
-    pointer-events: none;
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
 }
 
-/* Style untuk tag mention yang berwarna biru */
 #content .mention-tag {
-    color: #1d4ed8; /* Biru tua */
-    background-color: #dbeafe; /* Biru muda */
-    padding: 1px 4px;
-    border-radius: 4px;
-    font-weight: 500;
-    /* Mencegah user mengedit di dalam tag mention */
-    contenteditable: false; 
+  color: #1d4ed8;
+  background-color: #dbeafe;
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-weight: 500;
+  contenteditable: false;
 }
 
+.select2-container .select2-selection--single {
+  height: 48px !important;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db !important;
+  border-radius: 10px !important;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
 
+.select2-container--default
+  .select2-selection--single
+  .select2-selection__rendered {
+  line-height: 32px !important;
+  color: #111827;
+}
+
+.select2-container--default
+  .select2-selection--single
+  .select2-selection__arrow {
+  height: 48px !important;
+  right: 10px;
+}
+
+.select2-container--default .select2-selection--single:hover {
+  border-color: #9ca3af !important;
+}
+
+.select2-container--default.select2-container--open .select2-selection--single,
+.select2-container--default.select2-container--focus
+  .select2-selection--single {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+}
+
+.select2-dropdown {
+  border-radius: 12px !important;
+  border-color: #d1d5db !important;
+  padding-top: 6px;
+}
+
+.select2-results__option {
+  padding: 10px 14px !important;
+  font-size: 14px;
+  border-radius: 8px;
+  margin: 2px 6px;
+}
+
+.select2-results__option--highlighted {
+  background-color: #10b981 !important;
+  color: white !important;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(calc(-380px * 3 - 1.5rem * 3));
+  }
+}
+
+.animate-scroll {
+  display: flex;
+  width: max-content;
+  animation: scroll 30s linear infinite;
+}
+
+.animate-scroll:hover {
+  animation-play-state: paused;
+}
+
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+html {
+  scroll-behavior: smooth;
+}

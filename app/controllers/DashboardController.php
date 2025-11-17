@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../models/Auth/SignIn.php';
+require_once __DIR__ . '/../models/Forums/Forum.php';
 require_once __DIR__ . '/DashboardOverview.php';
 require_once __DIR__ . '/ReportController.php';
 
@@ -14,6 +15,7 @@ class DashboardController
     private $loginModel;
     private $overviewCount;
     private $reportController;
+    private $forumModel;
 
     public function __construct()
     {
@@ -21,7 +23,9 @@ class DashboardController
         $this->loginModel  = new SignInModel();
         $this->overviewCount = new overviewCount();
         $this->reportController = new ReportController();
+        $this->forumModel = new Forum();
     }
+
     public function index()
     {
         $anggotaCount = $this->overviewCount->countAnggota();
@@ -48,6 +52,47 @@ class DashboardController
 
     public function forums()
     {
+        $limit = 6;
+
+        $activeTab = $_GET['tab'] ?? 'my-forums';
+
+        $mySearch = $_GET['my_search'] ?? '';
+        $myPage = isset($_GET['my_page']) ? (int)$_GET['my_page'] : 1;
+        $myOffset = ($myPage - 1) * $limit;
+
+        $allSearch = $_GET['all_search'] ?? '';
+        $allPage = isset($_GET['all_page']) ? (int)$_GET['all_page'] : 1;
+        $allOffset = ($allPage - 1) * $limit;
+
+        $myForumsData = $this->forumModel->getMyForum($mySearch, $limit, $myOffset);
+        $allForumsData = $this->forumModel->getAllForumsPagination($allSearch, $limit, $allOffset);
+
+        $users = $this->userModel->getAllUsers();
+        $allForums = $this->forumModel->allForums();
+
+        $data = [
+            'activeTab' => $activeTab,
+
+            'myForums' => $myForumsData['data'],
+            'myTotal' => $myForumsData['total'],
+            'myPage' => $myPage,
+            'mySearch' => $mySearch,
+            'myTotalPages' => ceil($myForumsData['total'] / $limit),
+            'myStart' => $myForumsData['total'] > 0 ? $myOffset + 1 : 0,
+            'myEnd' => min($myOffset + $limit, $myForumsData['total']),
+            'forums' => $allForumsData['data'],
+            'allTotal' => $allForumsData['total'],
+            'allPage' => $allPage,
+            'allSearch' => $allSearch,
+            'allTotalPages' => ceil($allForumsData['total'] / $limit),
+            'allStart' => $allForumsData['total'] > 0 ? $allOffset + 1 : 0,
+            'allEnd' => min($allOffset + $limit, $allForumsData['total'])
+        ];
+
+        foreach ($data as $key => $value) {
+            $$key = $value;
+        }
+
         $contentViewDashboard =  __DIR__ . '/../views/dashboard/forum/index.php';
         require_once __DIR__ . '/../views/dashboard/layout.php';
     }
