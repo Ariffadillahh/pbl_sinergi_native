@@ -171,7 +171,7 @@
                     const currentMessageDate = msg.CREATED_AT.substring(0, 10);
                     if (currentMessageDate !== lastRenderedDate) {
                         const dateHeader = document.createElement('p');
-                        dateHeader.className = "sticky w-[100px] md:w-[150px] text-center top-4 mt-5 mx-auto rounded-xl py-2 px-4 bg-white text-xs md:text-sm z-30 border border-gray-200";
+                        dateHeader.className = "sticky w-[100px] md:w-[150px] text-center top-4 mt-5 mx-auto rounded-xl py-2 px-4 bg-white text-xs md:text-sm z-30 border border-gray-200 whitespace-nowrap";
                         dateHeader.textContent = formatDateHeader(currentMessageDate);
                         chatMessagesContainer.appendChild(dateHeader);
                         lastRenderedDate = currentMessageDate;
