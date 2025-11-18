@@ -78,23 +78,29 @@ function loadLobSafe($data)
                                 <p><?= nl2br(htmlspecialchars(loadLobSafe($comment['MESSAGE']) ?? '')) ?></p>
                             </div>
 
-                            <div class="mt-4 flex items-center text-gray-500 text-xs sm:text-sm gap-3 sm:gap-4">
-                                <p class="text-gray-400 time-ago" data-time="<?= htmlspecialchars($comment['CREATED_AT']) ?>"></p>
-                                <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold">
-                                    Reply
-                                </button>
-                                <?php 
+                            <div class="mt-4 flex items-center justify-between text-gray-500 text-xs sm:text-sm gap-3 ">
+
+                                <div class="flex gap-3 sm:gap-4 items-center">
+                                    <p class="text-gray-400 time-ago" data-time="<?= htmlspecialchars($comment['CREATED_AT']) ?>"></p>
+                                    <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold">
+                                        Reply
+                                    </button>
+                                </div>
+
+                                <?php
                                 $canDelete = (
-                                    $_SESSION['user_id'] == $comment['USER_ID'] || 
-                                    $_SESSION['user_id'] == $post['USER_ID'] || 
+                                    $_SESSION['user_id'] == $comment['USER_ID'] ||
+                                    $_SESSION['user_id'] == $post['USER_ID'] ||
                                     $_SESSION['role'] == 'ADMIN'
                                 );
-                                
-                                if ($canDelete): 
+
+                                if ($canDelete):
                                 ?>
-                                    <button class="text-red-500 hover:text-red-600 font-semibold transition"
+                                    <button class="text-red-500 hover:text-red-600 font-semibold transition cursor-pointer"
                                         onclick="openDeleteModal('comment', '<?= $comment['COMMENT_ID'] ?>')">
-                                        Delete
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
                                     </button>
                                 <?php endif; ?>
                             </div>
@@ -159,46 +165,46 @@ function loadLobSafe($data)
                 <?php endif; ?>
             </div>
 
-                <div id="deleteModal"
-                    class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
-                    
-                    <div class="bg-white rounded-xl shadow-lg w-80 p-6">
-                        <h2 class="text-lg font-semibold mb-2">Konfirmasi Penghapusan</h2>
-                        <p id="deleteMessage" class="text-sm text-gray-600 mb-4"></p>
+            <div id="deleteModal"
+                class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
 
-                        <div class="flex justify-end gap-3">
-                            <button onclick="closeDeleteModal()"
-                                class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
-                                Batal
-                            </button>
+                <div class="bg-white rounded-xl shadow-lg w-80 p-6">
+                    <h2 class="text-lg font-semibold mb-2">Konfirmasi Penghapusan</h2>
+                    <p id="deleteMessage" class="text-sm text-gray-600 mb-4"></p>
 
-                            <button id="deleteConfirmBtn"
-                                class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
-                                Hapus
-                            </button>
-                        </div>
+                    <div class="flex justify-end gap-3">
+                        <button onclick="closeDeleteModal()"
+                            class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+                            Batal
+                        </button>
+
+                        <button id="deleteConfirmBtn"
+                            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                            Hapus
+                        </button>
                     </div>
                 </div>
+            </div>
 
-                <div id="toastSuccess"
-                    class="fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-all duration-300 z-50">
-                    Berhasil dihapus
-                </div>
+            <div id="toastSuccess"
+                class="fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-all duration-300 z-50">
+                Berhasil dihapus
+            </div>
 
         </div>
     </main>
 
-<script>
-    let deleteTargetId = null;
-    let deleteType = null;
+    <script>
+        let deleteTargetId = null;
+        let deleteType = null;
 
         function openDeleteModal(type, id) {
             deleteTargetId = id;
             deleteType = type;
 
-            const msg = type === "comment"
-                ? "Hapus komentar ini beserta semua balasannya?"
-                : "Hapus balasan ini?";
+            const msg = type === "comment" ?
+                "Hapus komentar ini beserta semua balasannya?" :
+                "Hapus balasan ini?";
 
             document.getElementById("deleteMessage").textContent = msg;
 
@@ -214,7 +220,7 @@ function loadLobSafe($data)
         function showToastSuccess(message = "Berhasil dihapus") {
             const toast = document.getElementById("toastSuccess");
             toast.textContent = message;
-            
+
             toast.classList.remove("opacity-0");
             toast.classList.add("opacity-100");
 
@@ -248,14 +254,14 @@ function loadLobSafe($data)
             }
         }
 
-        document.getElementById("deleteConfirmBtn").onclick = async function () {
+        document.getElementById("deleteConfirmBtn").onclick = async function() {
             if (!deleteTargetId || !deleteType) return;
 
-            const endpoint = deleteType === "comment"
-                ? "<?= BASEURL ?>/comment/deleteComment"
-                : "<?= BASEURL ?>/comment/deleteReply";
+            const endpoint = deleteType === "comment" ?
+                "<?= BASEURL ?>/comment/deleteComment" :
+                "<?= BASEURL ?>/comment/deleteReply";
 
-        const formData = new URLSearchParams();
+            const formData = new URLSearchParams();
 
             if (deleteType === "comment") {
                 formData.append("comment_id", deleteTargetId);
@@ -263,7 +269,7 @@ function loadLobSafe($data)
                 formData.append("reply_id", deleteTargetId);
             }
 
-            const res = await fetch(endpoint, { 
+            const res = await fetch(endpoint, {
                 method: "POST",
                 body: formData
             });
@@ -482,8 +488,8 @@ function loadLobSafe($data)
                     const textarea = form.querySelector('textarea[name="message"]');
                     const replyTo = textarea.dataset.replyTo;
 
-                    if (replyTo && !textarea.value.startsWith(`@${replyTo}`)) {
-                        textarea.value = `@${replyTo} ${textarea.value}`;
+                    if (replyTo && !textarea.placeholder.startsWith(`@${replyTo}`)) {
+                        textarea.placeholder = `@${replyTo} ${textarea.value}`;
                     }
 
                     const formData = new FormData(form);
