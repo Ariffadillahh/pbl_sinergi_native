@@ -359,6 +359,13 @@
                 });
 
                 const clonedItem = notificationElement.cloneNode(true);
+
+                const allBorderClasses = [
+                    'border-blue-500', 'border-green-500', 'border-purple-500', 'border-yellow-500',
+                    'border-red-500', 'border-indigo-500',
+                    'bg-blue-50', 'bg-green-50', 'bg-purple-50', 'bg-yellow-50',
+                    'bg-red-50', 'bg-indigo-50'
+                ];
                 clonedItem.classList.remove(
                     'border-blue-500', 'border-green-500', 'border-purple-500', 'border-yellow-500',
                     'bg-blue-50', 'bg-green-50', 'bg-purple-50', 'bg-yellow-50'
@@ -390,6 +397,7 @@
                 console.error(err);
             }
         }
+
         notifBtn.addEventListener('click', toggleDropdown);
         notifBtnMobile.addEventListener('click', toggleDropdown);
         window.addEventListener('resize', positionDropdown);
