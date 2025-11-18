@@ -62,6 +62,16 @@ if (preg_match('/^@(\w+)/', trim($replyMsg), $matches)) {
         <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold">
             Reply
         </button>
+        <?php if (
+                                                $_SESSION['user_id'] == $reply['USER_ID'] || 
+                                                $_SESSION['user_id'] == $post['USER_ID'] || 
+                                                $_SESSION['role'] == 'ADMIN'
+                                            ): ?>
+                                                <button onclick="openDeleteModal('reply', '<?= $reply['REPLY_ID'] ?>')"
+                                                    class="text-red-500 hover:text-red-600 font-semibold transition">
+                                                    Delete
+                                                </button>
+                                            <?php endif; ?>
     </div>
 
 </div>

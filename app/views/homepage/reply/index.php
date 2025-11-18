@@ -1,4 +1,3 @@
-
 <?php
 function loadLobSafe($data)
 {
@@ -76,7 +75,7 @@ function loadLobSafe($data)
                             </div>
 
                             <div class="mt-4 text-gray-800 text-sm sm:text-base break-words">
-                                <p><?= nl2br($comment['MESSAGE_FORMATTED'] ?? '') ?></p>
+                                <p><?= nl2br(htmlspecialchars(loadLobSafe($comment['MESSAGE']) ?? '')) ?></p>
                             </div>
 
                             <div class="mt-4 flex items-center text-gray-500 text-xs sm:text-sm gap-3 sm:gap-4">
@@ -84,15 +83,28 @@ function loadLobSafe($data)
                                 <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold">
                                     Reply
                                 </button>
+                                <?php 
+                                $canDelete = (
+                                    $_SESSION['user_id'] == $comment['USER_ID'] || 
+                                    $_SESSION['user_id'] == $post['USER_ID'] || 
+                                    $_SESSION['role'] == 'ADMIN'
+                                );
+                                
+                                if ($canDelete): 
+                                ?>
+                                    <button class="text-red-500 hover:text-red-600 font-semibold transition"
+                                        onclick="openDeleteModal('comment', '<?= $comment['COMMENT_ID'] ?>')">
+                                        Delete
+                                    </button>
+                                <?php endif; ?>
                             </div>
 
                             <div class="hidden reply-form">
                                 <form method="POST" class="reply-form-data bg-white text-black border-t border-gray-200 p-3 sm:p-4 rounded-2xl my-2">
-                                    <input type="hidden" name="comment_id" value="<?= htmlspecialchars($comment['ID'] ?? $comment['COMMENT_ID']) ?>">
+                                    <input type="hidden" name="comment_id" value="<?= htmlspecialchars($comment['COMMENT_ID']) ?>">
                                     <input type="hidden" name="post_id" value="<?= htmlspecialchars($post['POST_ID']) ?>">
 
                                     <div class="flex flex-col sm:flex-row sm:items-start space-y-3 sm:space-y-0 sm:space-x-3 relative">
-
                                         <div class="flex items-start space-x-3 w-full sm:flex-1">
                                             <div class="flex-shrink-0">
                                                 <img src="<?= !empty($_SESSION['path_photo'])
@@ -112,7 +124,6 @@ function loadLobSafe($data)
                                                 Reply
                                             </button>
                                         </div>
-
                                     </div>
                                 </form>
                             </div>
@@ -147,10 +158,73 @@ function loadLobSafe($data)
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
+
+                <div id="deleteModal"
+                    class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+                    
+                    <div class="bg-white rounded-xl shadow-lg w-80 p-6">
+                        <h2 class="text-lg font-semibold mb-2">Konfirmasi Penghapusan</h2>
+                        <p id="deleteMessage" class="text-sm text-gray-600 mb-4"></p>
+
+                        <div class="flex justify-end gap-3">
+                            <button onclick="closeDeleteModal()"
+                                class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+                                Batal
+                            </button>
+
+                            <button id="deleteConfirmBtn"
+                                class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                                Hapus
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="toastSuccess"
+                    class="fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-all duration-300 z-50">
+                    Berhasil dihapus
+                </div>
+
+        </div>
     </main>
 
-    <script>
-        console.log(<?= json_encode($comments) ?>);
+<script>
+    let deleteTargetId = null;
+    let deleteType = null;
+
+        function openDeleteModal(type, id) {
+            deleteTargetId = id;
+            deleteType = type;
+
+            const msg = type === "comment"
+                ? "Hapus komentar ini beserta semua balasannya?"
+                : "Hapus balasan ini?";
+
+            document.getElementById("deleteMessage").textContent = msg;
+
+            document.getElementById("deleteModal").classList.remove("hidden");
+        }
+
+        function closeDeleteModal() {
+            deleteTargetId = null;
+            deleteType = null;
+            document.getElementById("deleteModal").classList.add("hidden");
+        }
+
+        function showToastSuccess(message = "Berhasil dihapus") {
+            const toast = document.getElementById("toastSuccess");
+            toast.textContent = message;
+            
+            toast.classList.remove("opacity-0");
+            toast.classList.add("opacity-100");
+
+            setTimeout(() => {
+                toast.classList.add("opacity-0");
+                toast.classList.remove("opacity-100");
+            }, 2000);
+        }
+
+        console.log('Comments data:', <?= json_encode($comments) ?>);
         let users = [];
 
         async function fetchUsers() {
@@ -174,10 +248,44 @@ function loadLobSafe($data)
             }
         }
 
+        document.getElementById("deleteConfirmBtn").onclick = async function () {
+            if (!deleteTargetId || !deleteType) return;
+
+            const endpoint = deleteType === "comment"
+                ? "<?= BASEURL ?>/comment/deleteComment"
+                : "<?= BASEURL ?>/comment/deleteReply";
+
+        const formData = new URLSearchParams();
+
+            if (deleteType === "comment") {
+                formData.append("comment_id", deleteTargetId);
+            } else {
+                formData.append("reply_id", deleteTargetId);
+            }
+
+            const res = await fetch(endpoint, { 
+                method: "POST",
+                body: formData
+            });
+
+            const result = await res.json();
+
+            if (result.success) {
+                closeDeleteModal();
+                showToastSuccess();
+
+                setTimeout(() => {
+                    location.reload();
+                }, 800);
+            } else {
+                alert(result.message);
+            }
+        };
+
         fetchUsers();
 
         function initMentionFeature(textarea) {
-            const mentionDropdown = textarea.closest('.flex').querySelector('.mention-dropdown');
+            const mentionDropdown = textarea.closest('.flex, .flex-1').querySelector('.mention-dropdown');
             if (!mentionDropdown) return;
 
             let mentionStartPos = -1;
@@ -374,8 +482,8 @@ function loadLobSafe($data)
                     const textarea = form.querySelector('textarea[name="message"]');
                     const replyTo = textarea.dataset.replyTo;
 
-                    if (replyTo && !textarea.placeholder.startsWith(`@${replyTo}`)) {
-                        textarea.placeholder = `@${replyTo} ${textarea.value}`;
+                    if (replyTo && !textarea.value.startsWith(`@${replyTo}`)) {
+                        textarea.value = `@${replyTo} ${textarea.value}`;
                     }
 
                     const formData = new FormData(form);
