@@ -224,32 +224,39 @@ class CommentModel extends BaseModel
         ];
     }
 
-    public function getReplyDetails($replyId)
-    {
-        $conn = self::getConnection();
-        $sql = "SELECT U.ID, U.FULL_NAME
-            FROM REPLY_COMMENTAR P 
+public function getReplyDetails($replyId)
+{
+    $conn = self::getConnection();
+    $sql = "SELECT 
+                P.ID,
+                P.USER_ID,
+                P.COMMENTAR_ID,
+                C.POST_ID,
+                U.FULL_NAME
+            FROM REPLY_COMMENTAR P
             JOIN USERS U ON P.USER_ID = U.ID
+            JOIN COMMENTAR C ON P.COMMENTAR_ID = C.ID
             WHERE P.ID = :reply_id";
 
-        $stmt = oci_parse($conn, $sql);
-        oci_bind_by_name($stmt, ':reply_id', $replyId);
-        oci_execute($stmt);
+    $stmt = oci_parse($conn, $sql);
+    oci_bind_by_name($stmt, ':reply_id', $replyId);
+    oci_execute($stmt);
 
-        $data = oci_fetch_assoc($stmt);
+    $data = oci_fetch_assoc($stmt);
 
-        if ($data) {
-            return [
-                'success' => true,
-                'data' => $data
-            ];
-        } else {
-            return [
-                'success' => false,
-                'data' => null
-            ];
-        }
+    if ($data) {
+        return [
+            'success' => true,
+            'data' => $data
+        ];
+    } else {
+        return [
+            'success' => false,
+            'data' => null
+        ];
     }
+}
+
 
     public function getCommentOwner($post_id)
     {
@@ -277,4 +284,49 @@ class CommentModel extends BaseModel
             ];
         }
     }
+
+    public function deleteComment($commentId)
+    {
+        $conn = self::getConnection();
+
+        // 1. Hapus semua replies berdasarkan COMMENTAR_ID
+        $sqlDeleteReplies = "DELETE FROM REPLY_COMMENTAR WHERE COMMENTAR_ID = :cid";
+        $stmt = oci_parse($conn, $sqlDeleteReplies);
+        oci_bind_by_name($stmt, ":cid", $commentId);
+        oci_execute($stmt);
+
+        // 2. Hapus comment utamanya
+        $sqlDeleteComment = "DELETE FROM COMMENTAR WHERE ID = :cid";
+        $stmt2 = oci_parse($conn, $sqlDeleteComment);
+        oci_bind_by_name($stmt2, ":cid", $commentId);
+
+        if (oci_execute($stmt2)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function deleteReply($replyId)
+    {
+        $conn = self::getConnection();
+
+        // 1. Set child reply jadi orphan (PARENT_ID = NULL)
+        $sqlNullChild = "UPDATE REPLY_COMMENTAR SET PARENT_ID = NULL WHERE PARENT_ID = :rid";
+        $stmt0 = oci_parse($conn, $sqlNullChild);
+        oci_bind_by_name($stmt0, ":rid", $replyId);
+        oci_execute($stmt0);
+
+        // 2. Hapus reply utama
+        $sql = "DELETE FROM REPLY_COMMENTAR WHERE ID = :rid";
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ":rid", $replyId);
+
+        if (oci_execute($stmt)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

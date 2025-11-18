@@ -126,6 +126,57 @@
                     </p>
                 </div>
 
+                <!-- MEDIA PREVIEW SECTION -->
+<div id="MediaPreview" 
+     class="flex flex-col gap-3 mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+
+    <div class="flex items-center justify-between">
+        <p class="text-lg font-semibold text-gray-800">Media, Files & Links</p>
+
+        <button id="open-media-full"
+            class="text-sm font-medium text-blue-600 hover:underline">
+            Lihat lainnya →
+        </button>
+    </div>
+
+    <!-- PREVIEW GRID -->
+    <div class="grid grid-cols-4 gap-3">
+
+        <?php if (!empty($mediaPreview)): ?>
+            <?php foreach ($mediaPreview as $m): ?>
+                <div class="relative w-full h-[65px] rounded-lg overflow-hidden bg-gray-200 flex items-center justify-center cursor-pointer group">
+
+                    <!-- FILE TYPE HANDLING -->
+                    <?php if ($m['type'] === 'image'): ?>
+                        <img src="<?= BASEURL . '/' . $m['path'] ?>"
+                             class="w-full h-full object-cover group-hover:scale-105 transition">
+
+                    <?php elseif ($m['type'] === 'video'): ?>
+                        <div class="flex items-center justify-center w-full h-full bg-black/40">
+                            <img src="<?= BASEURL ?>/src/asset/icons/video.svg" class="w-7 h-7 opacity-90">
+                        </div>
+
+                    <?php elseif ($m['type'] === 'file'): ?>
+                        <div class="flex items-center justify-center w-full h-full bg-gray-300">
+                            <img src="<?= BASEURL ?>/src/asset/icons/file.svg" class="w-7 h-7 opacity-80">
+                        </div>
+
+                    <?php else: ?>
+                        <div class="w-full h-full bg-gray-200"></div>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p class="text-gray-500 text-sm col-span-4 text-center">
+                Belum ada media yang dikirim.
+            </p>
+        <?php endif; ?>
+
+    </div>
+
+        </div>
+
+
                 <div>
                     <div id="Owner" class="flex flex-col gap-3 mt-6">
                         <p class="font-semibold leading-5">Owner</p>
@@ -247,6 +298,246 @@
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const openMediaBtn = document.getElementById('open-media-full');
+    const mediaPreviewItems = document.querySelectorAll('#MediaPreview .grid > div.relative');
+    const forumId = '<?= $forum['ID'] ?? '' ?>';
+    
+    if (!openMediaBtn) return;
+
+    // Click "Lihat lainnya" button
+    openMediaBtn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        await loadAndShowAllMedia(0);
+    });
+
+    // Click on individual preview items
+    mediaPreviewItems.forEach((item, index) => {
+        item.addEventListener('click', async function() {
+            await loadAndShowAllMedia(index);
+        });
+    });
+
+    async function loadAndShowAllMedia(startIndex) {
+        try {
+            const response = await fetch(`<?= BASEURL ?>/forums/getAllMedia/${forumId}`);
+            const result = await response.json();
+            
+            if (result.success && result.data && result.data.length > 0) {
+                openMediaModal(result.data, startIndex);
+            } else {
+                alert('Tidak ada media untuk ditampilkan');
+            }
+        } catch (error) {
+            console.error('Error fetching media:', error);
+            alert('Gagal memuat media');
+        }
+    }
+
+    function openMediaModal(mediaItems, startIndex) {
+        let currentIndex = startIndex;
+        
+        // Create modal
+        const modal = document.createElement('div');
+        modal.id = 'media-modal';
+        modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm';
+        modal.innerHTML = `
+            <div class="relative w-full max-w-5xl mx-4">
+                <!-- Close Button -->
+                <button id="close-modal" 
+                    class="absolute -top-12 right-0 text-white hover:text-gray-300 transition">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+
+                <!-- Media Container -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-2xl">
+                    <!-- Media Display Area -->
+                    <div id="media-display" class="relative bg-black flex items-center justify-center min-h-[400px] max-h-[70vh]">
+                        <!-- Content will be inserted here -->
+                    </div>
+
+                    <!-- Navigation & Info -->
+                    <div class="p-4 bg-gray-50">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm text-gray-600">
+                                <span id="current-index">${currentIndex + 1}</span> / ${mediaItems.length}
+                            </span>
+                            <a id="download-btn" download 
+                               class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">
+                                Download
+                            </a>
+                        </div>
+
+                        <!-- Thumbnails -->
+                        <div id="thumbnail-strip" class="flex gap-2 overflow-x-auto pb-2">
+                            <!-- Thumbnails will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Arrows -->
+                ${mediaItems.length > 1 ? `
+                    <button id="prev-btn" 
+                        class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <button id="next-btn" 
+                        class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                ` : ''}
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+
+        // Display initial media
+        displayMedia(currentIndex);
+        createThumbnails();
+
+        // Event listeners
+        document.getElementById('close-modal').addEventListener('click', closeModal);
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) closeModal();
+        });
+
+        if (mediaItems.length > 1) {
+            document.getElementById('prev-btn').addEventListener('click', () => {
+                currentIndex = (currentIndex - 1 + mediaItems.length) % mediaItems.length;
+                displayMedia(currentIndex);
+            });
+            document.getElementById('next-btn').addEventListener('click', () => {
+                currentIndex = (currentIndex + 1) % mediaItems.length;
+                displayMedia(currentIndex);
+            });
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', handleKeyPress);
+
+        function handleKeyPress(e) {
+            if (e.key === 'Escape') closeModal();
+            if (e.key === 'ArrowLeft' && mediaItems.length > 1) {
+                currentIndex = (currentIndex - 1 + mediaItems.length) % mediaItems.length;
+                displayMedia(currentIndex);
+            }
+            if (e.key === 'ArrowRight' && mediaItems.length > 1) {
+                currentIndex = (currentIndex + 1) % mediaItems.length;
+                displayMedia(currentIndex);
+            }
+        }
+
+        function displayMedia(index) {
+            const media = mediaItems[index];
+            const display = document.getElementById('media-display');
+            const downloadBtn = document.getElementById('download-btn');
+            const currentIndexSpan = document.getElementById('current-index');
+
+            currentIndexSpan.textContent = index + 1;
+            const mediaUrl = `<?= BASEURL ?>/${media.path}`;
+            downloadBtn.href = mediaUrl;
+            downloadBtn.download = media.original_name || media.file;
+
+            if (media.type === 'image') {
+                display.innerHTML = `
+                    <img src="${mediaUrl}" 
+                         class="max-w-full max-h-[70vh] object-contain" 
+                         alt="${media.original_name || 'Media'}">
+                `;
+            } else if (media.type === 'video') {
+                display.innerHTML = `
+                    <video controls class="max-w-full max-h-[70vh]">
+                        <source src="${mediaUrl}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                `;
+            } else {
+                display.innerHTML = `
+                    <div class="text-center text-white p-8">
+                        <svg class="w-16 h-16 mx-auto mb-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="text-lg font-medium">${media.original_name || media.file}</p>
+                        <p class="text-sm opacity-70 mt-2">Klik download untuk melihat file</p>
+                    </div>
+                `;
+            }
+
+            updateActiveThumbnail(index);
+        }
+
+        function createThumbnails() {
+            const strip = document.getElementById('thumbnail-strip');
+            strip.innerHTML = mediaItems.map((media, idx) => {
+                const mediaUrl = `<?= BASEURL ?>/${media.path}`;
+                let thumbContent = '';
+                
+                if (media.type === 'image') {
+                    thumbContent = `<img src="${mediaUrl}" class="w-full h-full object-cover">`;
+                } else if (media.type === 'video') {
+                    thumbContent = `
+                        <div class="w-full h-full bg-black/40 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    `;
+                } else {
+                    thumbContent = `
+                        <div class="w-full h-full bg-gray-300 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div data-index="${idx}" 
+                         class="thumbnail flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden cursor-pointer border-2 border-transparent hover:border-blue-400 transition ${idx === currentIndex ? 'border-blue-600' : ''}">
+                        ${thumbContent}
+                    </div>
+                `;
+            }).join('');
+
+            strip.querySelectorAll('.thumbnail').forEach(thumb => {
+                thumb.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    currentIndex = index;
+                    displayMedia(currentIndex);
+                });
+            });
+        }
+
+        function updateActiveThumbnail(index) {
+            document.querySelectorAll('.thumbnail').forEach((thumb, idx) => {
+                if (idx === index) {
+                    thumb.classList.add('border-blue-600');
+                    thumb.classList.remove('border-transparent');
+                    thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                } else {
+                    thumb.classList.remove('border-blue-600');
+                    thumb.classList.add('border-transparent');
+                }
+            });
+        }
+
+        function closeModal() {
+            document.removeEventListener('keydown', handleKeyPress);
+            modal.remove();
+            document.body.style.overflow = '';
+        }
+    }
+});
+
     function copyAccessKey(key) {
         const clipboardIcon = document.getElementById('clipboard-icon');
         const checkIcon = document.getElementById('check-icon');

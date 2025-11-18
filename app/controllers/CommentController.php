@@ -237,4 +237,85 @@ class CommentController
             echo json_encode(['success' => false, 'message' => 'Gagal menambahkan balasan']);
         }
     }
+
+public function deleteComment()
+{
+    if (!isset($_POST['comment_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Comment ID tidak ditemukan']);
+        return;
+    }
+
+    $commentId = $_POST['comment_id'];
+
+    // Ambil detail
+    $details = $this->commentModel->getCommentDetails($commentId);
+
+    if (!$details['success']) {
+        echo json_encode(['success' => false, 'message' => 'Komentar tidak ditemukan']);
+        return;
+    }
+
+    $commentUserId = $details['details']['USER_ID'];
+    $postId        = $details['details']['POST_ID'];
+
+    // Ambil owner post
+    $postOwner = $this->commentModel->getPostOwner($postId);
+
+    // Permission
+    if (
+        $_SESSION['user_id'] !== $commentUserId &&
+        $_SESSION['user_id'] !== $postOwner['ID'] &&
+        ($_SESSION['role'] ?? '') !== 'ADMIN'
+    ) {
+        echo json_encode(['success' => false, 'message' => 'Tidak punya izin menghapus komentar']);
+        return;
+    }
+
+    // Hapus full comment + semua replies
+    $success = $this->commentModel->deleteComment($commentId);
+
+    echo json_encode(['success' => $success]);
+}
+
+public function deleteReply()
+{
+    if (!isset($_POST['reply_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Reply ID tidak ditemukan']);
+        return;
+    }
+
+    $replyId = $_POST['reply_id'];
+
+    // Ambil detail reply
+    $details = $this->commentModel->getReplyDetails($replyId);
+
+    if (!$details['success']) {
+        echo json_encode(['success' => false, 'message' => 'Reply tidak ditemukan']);
+        return;
+    }
+
+    // DATA REPLY
+    $replyUserId = $details['data']['USER_ID'];    // pemilik reply
+    $postId      = $details['data']['POST_ID'];    // ambil post id
+
+    $postOwner = $details['data']['POST_ID']
+    ? $this->commentModel->getPostOwner($details['data']['POST_ID'])
+    : null;
+
+    if (
+        $_SESSION['user_id'] !== $replyUserId && 
+        $_SESSION['user_id'] !== ($postOwner['ID'] ?? null) &&
+        ($_SESSION['role'] ?? '') !== 'ADMIN'
+    ) {
+        echo json_encode(['success' => false, 'message' => 'Tidak punya izin menghapus reply']);
+        return;
+    }
+
+    // Lanjut hapus
+    $success = $this->commentModel->deleteReply($replyId);
+
+    echo json_encode(['success' => $success]);
+}
+
+
 }
