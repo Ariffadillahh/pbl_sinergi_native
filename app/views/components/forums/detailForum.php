@@ -1,7 +1,7 @@
 <div id="Chat-Navigation" class="flex items-center justify-between w-full border-b border-gray-200 p-5 gap-3 bg-white flex-shrink-0">
+    <!-- isi Chat-Navigation tetap sama -->
     <div id="Group-Title" class="flex items-center flex-1 gap-3">
         <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden items-center justify-center">
-
             <?php if (!empty($forumByid['PATH_PHOTO'])): ?>
                 <img
                     src="<?= BASEURL . '/storage/forums/photos/' . $forumByid['PATH_PHOTO'] ?>"
@@ -12,7 +12,6 @@
                     <?= strtoupper(substr($forumByid['NAME'], 0, 2)) ?>
                 </span>
             <?php endif; ?>
-
         </div>
 
         <div class="flex flex-col gap-1">
@@ -62,7 +61,6 @@
         <div class="flex-1 overflow-y-auto hide-scrollbar">
             <div class="flex flex-col items-center py-8 px-6 gap-4 border-b border-gray-200">
                 <div class="flex size-[120px] rounded-full overflow-hidden items-center justify-center bg-gray-200">
-
                     <?php if (!empty($forumByid['PATH_PHOTO'])): ?>
                         <img
                             src="<?= BASEURL . '/storage/forums/photos/' . $forumByid['PATH_PHOTO'] ?>"
@@ -73,7 +71,6 @@
                             <?= strtoupper(substr($forumByid['NAME'], 0, 2)) ?>
                         </div>
                     <?php endif; ?>
-
                 </div>
 
                 <div class="flex flex-col items-center gap-2">
@@ -124,6 +121,61 @@
                             <?= formatDatePretty($forumByid["CREATED_AT"]) ?>
                         </span>
                     </p>
+                </div>
+
+                <div id="MediaPreview"
+                    class="flex flex-col gap-3 mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+
+                    <div class="flex items-center justify-between">
+                        <p class="text-lg font-semibold text-gray-800">Media, Files & Links</p>
+
+                        <button id="open-media-full"
+                            class="text-sm font-medium text-blue-600 hover:underline">
+                            Lihat lainnya →
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-3">
+                        <?php if (!empty($mediaPreview)): ?>
+                            <?php foreach ($mediaPreview as $media): ?>
+                                <div class="relative w-full h-[65px] rounded-lg overflow-hidden bg-gray-200 flex items-center justify-center cursor-pointer group media-item">
+
+                                    <?php if ($media['type'] === 'image'): ?>
+                                        <img src="<?= BASEURL . '/' . $media['path'] ?>"
+                                            class="w-full h-full object-cover group-hover:scale-105 transition"
+                                            alt="Image Preview">
+
+                                    <?php elseif ($media['type'] === 'video'): ?>
+                                        <div class="flex items-center justify-center w-full h-full bg-black/40 relative">
+
+                                            <div class="absolute inset-0 flex items-center justify-center">
+                                                <svg class="w-8 h-8 text-white opacity-80 group-hover:opacity-100 transition duration-300"
+                                                    fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M6 4.5l14 7.5L6 19V4.5z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+
+                                    <?php elseif ($media['type'] === 'file'): ?>
+                                        <div class="flex flex-col items-center justify-center w-full h-full bg-gray-300">
+                                            <img src="<?= BASEURL ?>/src/asset/image/file.png" class="w-7 h-7 opacity-80" alt="File Icon">
+                                        </div>
+
+                                    <?php else: ?>
+                                        <div class="w-full h-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                                            Media
+                                        </div>
+                                    <?php endif; ?>
+
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p class="text-gray-500 text-sm col-span-4 text-center">
+                                Belum ada media yang dikirim.
+                            </p>
+                        <?php endif; ?>
+                    </div>
+
                 </div>
 
                 <div>
@@ -246,6 +298,9 @@
     </div>
 </div>
 
+
+
+
 <script>
     function copyAccessKey(key) {
         const clipboardIcon = document.getElementById('clipboard-icon');
@@ -299,3 +354,4 @@
 <?php require_once 'app/views/components/forums/modalExitForum.php'; ?>
 <?php require_once 'app/views/components/forums/modalReportForum.php'; ?>
 <?php require_once 'app/views/components/forums/modalManageMember.php'; ?>
+<?php require_once 'app/views/components/forums/modalAllMedia.php'; ?>

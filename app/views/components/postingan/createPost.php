@@ -52,81 +52,26 @@
     </div>
 </form>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const imageInput = document.getElementById("image-input");
-        const previewContainer = document.getElementById("image-preview-container");
-        const removeIconUrl = imageInput.dataset.iconUrl;
-        const MAX_FILES = 5;
-        let fileBuffer = [];
+<div id="toast-limit-create" 
+     class="hidden fixed top-5 right-5 z-[99999]">
+  <div class="bg-red-600 text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-fade-in">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+    <span class="font-semibold">Maksimal 5 gambar.</span>
+  </div>
+</div>
 
-        function updateInputFiles() {
-            const dataTransfer = new DataTransfer();
-            fileBuffer.forEach(f => dataTransfer.items.add(f));
-            imageInput.files = dataTransfer.files;
-        }
-
-        function removeFile(fileToRemove) {
-            fileBuffer = fileBuffer.filter(f => f !== fileToRemove);
-            updateInputFiles();
-            renderPreviews();
-        }
-
-        async function renderPreviews() {
-            previewContainer.innerHTML = "";
-
-            const imageSources = await Promise.all(fileBuffer.map(file => new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = e => resolve({
-                    result: e.target.result,
-                    file
-                });
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            })));
-
-            imageSources.forEach(({
-                result,
-                file
-            }) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'relative flex-shrink-0 h-44 w-auto';
-
-                const img = document.createElement("img");
-                img.src = result;
-                img.className = "h-full w-full rounded-lg object-cover";
-
-                const removeBtn = document.createElement('button');
-                removeBtn.type = 'button';
-                removeBtn.className = 'absolute top-1 right-1 size-6 flex items-center justify-center bg-white hover:bg-gray-200 rounded-full transition-colors';
-                removeBtn.innerHTML = `<img src="${removeIconUrl}" class="w-5 h-5" alt="Remove">`;
-
-                removeBtn.addEventListener('click', e => {
-                    e.preventDefault();
-                    removeFile(file);
-                });
-
-                wrapper.appendChild(img);
-                wrapper.appendChild(removeBtn);
-                previewContainer.appendChild(wrapper);
-            });
-        }
-
-        imageInput.addEventListener("change", function() {
-            const selectedFiles = Array.from(this.files);
-            if ((fileBuffer.length + selectedFiles.length) > MAX_FILES) {
-                alert(`Maksimal ${MAX_FILES} gambar.`);
-                this.value = "";
-                return;
-            }
-            fileBuffer.push(...selectedFiles);
-            updateInputFiles();
-            renderPreviews();
-        });
-    });
-</script>
+<style>
+    
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
 
 <script>
+    
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('createPostForm');
         const submitButton = document.getElementById('submit-post-btn');
@@ -135,27 +80,151 @@
         const errorDiv = document.getElementById("errorDiv");
         const textarea = document.getElementById("content");
         const teximagePreviewtarea = document.getElementById("image-preview-container");
+        const imageInput = document.getElementById("image-input");
+        const previewContainer = document.getElementById("image-preview-container");
+        const removeIconUrl = imageInput.dataset.iconUrl;
+        const MAX_FILES = 5;
+        let fileBuffer = [];
+        let fileIdCounter = 0;
 
-        form.addEventListener('submit', async function(e) {
+    function showCreateLimitToast() {
+    const toast = document.getElementById("toast-limit-create");
+    toast.classList.remove("hidden");
+
+    setTimeout(() => {
+        toast.classList.add("hidden");
+    }, 2500);
+    }
+
+function updateInputFiles() {
+    const dt = new DataTransfer();
+    fileBuffer.forEach(file => dt.items.add(file));
+    imageInput.files = dt.files;
+}
+
+function updateImageInputState() {
+    if (fileBuffer.length >= MAX_FILES) {
+        imageInput.disabled = true;
+        imageInput.parentElement.classList.add('opacity-50', 'cursor-not-allowed');
+    } else {
+        imageInput.disabled = false;
+        imageInput.parentElement.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+}
+
+function removeFile(fileToRemove) {
+    fileBuffer = fileBuffer.filter(f => f.name !== fileToRemove.name || f.size !== fileToRemove.size);
+    updateInputFiles();
+    renderPreviews();
+    updateImageInputState();
+}
+
+async function renderPreviews() {
+    previewContainer.innerHTML = "";
+
+    for (const file of fileBuffer) {
+        const reader = new FileReader();
+
+        const base64 = await new Promise((resolve, reject) => {
+            reader.onload = e => resolve(e.target.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'relative flex-shrink-0 h-44 w-auto';
+
+        const img = document.createElement("img");
+        img.src = base64;
+        img.className = "h-full w-full rounded-lg object-cover";
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'absolute top-1 right-1 size-6 flex items-center justify-center bg-white hover:bg-gray-200 rounded-full transition-colors';
+        removeBtn.innerHTML = `<img src="${removeIconUrl}" class="w-5 h-5" alt="Remove">`;
+
+        removeBtn.addEventListener('click', e => {
             e.preventDefault();
+            removeFile(file);
+        });
 
-            submitButton.disabled = true;
-            submitButton.innerHTML = 'Memposting...';
+        wrapper.appendChild(img);
+        wrapper.appendChild(removeBtn);
+        previewContainer.appendChild(wrapper);
+    }
+}
 
-            const formData = new FormData(form);
+imageInput.addEventListener("change", function () {
+    const selectedFiles = Array.from(this.files);
+    const availableSlots = MAX_FILES - fileBuffer.length;
+    
+    if (availableSlots <= 0) {
+        showCreateLimitToast();
+        this.value = "";
+        return;
+    }
+    
+    const filesToAdd = selectedFiles.slice(0, availableSlots);
+    const rejectedCount = selectedFiles.length - filesToAdd.length;
+    
+    const newFiles = filesToAdd.map((file, idx) => {
+        file.uploadOrder = fileBuffer.length + idx;
+        file.uniqueId = fileIdCounter++;
+        return file;
+    });
 
-            try {
-                const response = await fetch(form.action, {
-                    method: 'POST',
-                    body: formData
-                });
+    fileBuffer.push(...newFiles);
+    updateInputFiles();
+    renderPreviews();
+    updateImageInputState(); 
+    
+    if (rejectedCount > 0) {
+        showCreateLimitToast();
+    }
+    
+    this.value = "";
+});
 
-                if (!response.ok) throw new Error(`Server responded with ${response.status}`);
+form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    if (fileBuffer.length === 0 && textarea.value.trim() === "") {
+        showEmptyPostToast();
+        return;
+    }
 
-                const result = await response.json();
+    submitButton.disabled = true;
+    submitButton.innerHTML = 'Memposting...';
 
-                if (result.success) {
-                    textarea.value = "";
+    const formData = new FormData();
+    formData.append("content", textarea.value.trim());
+
+    fileBuffer.forEach((file, index) => {
+        const orderedFilename = `${String(index).padStart(3, '0')}_${file.name}`;
+        formData.append("images[]", file, orderedFilename);
+    });
+
+    const imageOrder = fileBuffer.map((f, i) => ({
+        index: i,
+        originalName: f.name,
+        size: f.size
+    }));
+    formData.append("image_order", JSON.stringify(imageOrder));
+
+
+    try {
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            textarea.value = "";
+            fileBuffer = [];
+            updateInputFiles();
+            renderPreviews();
 
                     teximagePreviewtarea.innerHTML = "";
 
@@ -213,9 +282,7 @@
         });
 
     });
-</script>
 
-<script>
     const textarea = document.getElementById('content');
     const mentionDropdown = document.getElementById('mention');
 

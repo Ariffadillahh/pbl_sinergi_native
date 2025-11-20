@@ -39,6 +39,19 @@
   </div>
 </div>
 
+<div id="toast-limit" class="hidden fixed top-5 right-5 z-[99999]">
+  <div class="bg-red-600 text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-fade-in">
+    <span class="font-semibold">Maksimal 5 foto.</span>
+  </div>
+</div>
+
+<style>
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+
 <script>
   const modalEditPost = document.getElementById("modal-edit-post");
   const btnCloseEditPost = document.getElementById("btn-close-edit-post");
@@ -125,15 +138,34 @@
     }
   });
 
+  function showLimitToast() {
+  const toast = document.getElementById("toast-limit");
+
+  toast.classList.remove("hidden");
+
+  setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 2500);
+  }
+
   btnChangePostPhoto.addEventListener('click', () => fileInputPost.click());
-
+  
   fileInputPost.addEventListener('change', (e) => {
-    const files = Array.from(e.target.files);
-    newMediaFiles.push(...files);
-    renderMediaPreviews();
-    fileInputPost.value = '';
-  });
+  const files = Array.from(e.target.files);
 
+  const totalMedia = existingMedia.length + newMediaFiles.length + files.length;
+
+  if (totalMedia > 5) {
+    showLimitToast();
+    fileInputPost.value = "";
+    return;
+  }
+
+  newMediaFiles.push(...files);
+
+  renderMediaPreviews();
+  fileInputPost.value = "";
+});
 
   formEditPost.addEventListener('submit', async (e) => {
     e.preventDefault();

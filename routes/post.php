@@ -51,6 +51,22 @@ switch (true) {
         exit;
         break;
 
+    case $route === 'comment/deleteComment':
+        requireLogin();
+        header('Content-Type: application/json');
+        $commentController = new CommentController();
+        $commentController->deleteComment();
+        exit;
+        break;
+
+    case $route === 'comment/deleteReply':
+        requireLogin();
+        header('Content-Type: application/json');
+        $commentController = new CommentController();
+        $commentController->deleteReply();
+        exit;
+        break;
+
     case $route === 'like/toggle':
         requireLogin();
         header('Content-Type: application/json');

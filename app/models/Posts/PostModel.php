@@ -72,6 +72,7 @@ class PostModel extends BaseModel
                 P.USER_ID,
                 TO_CHAR(P.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
                 U.USERNAME,
+                U.ID AS USER_ID,
                 U.FULL_NAME,
                 U.PATH_PHOTO,
                 (
@@ -316,8 +317,6 @@ class PostModel extends BaseModel
 
             $commentCount = (int)$row['COMMENT_COUNT'];
             $row['TOTAL_COMMENT'] = $commentCount + $replyCount;
-
-            // Ambil media post
             $row['MEDIA'] = $this->getMediaByPostId($row['POST_ID']);
 
             $posts[] = $row;

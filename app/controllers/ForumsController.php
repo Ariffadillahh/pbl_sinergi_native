@@ -13,6 +13,7 @@ class ForumsController
     private $notificationModel;
     private $postModel;
     private $userModel;
+    private $chatMessageModel;
 
     public function __construct()
     {
@@ -21,6 +22,7 @@ class ForumsController
         $this->notificationModel = new NotificationModel();
         $this->postModel = new PostModel();
         $this->userModel = new UserModel();
+        $this->chatMessageModel = new ChatMessage();
     }
 
     public function index()
@@ -71,10 +73,10 @@ class ForumsController
             $timestamp = strtotime($rawDate);
             if (!$timestamp) return $rawDate;
 
-            return date("d F Y", $timestamp); // contoh: 30 October 2025
+            return date("d F Y", $timestamp); 
         }
 
-
+        $mediaPreview = $this->chatMessageModel->getForumMediaPreview($id, 4);
         $joinedForums = $this->forumModel->getForumsByUserId($currentUserId);
         $activeChatId = $id;
 
@@ -582,5 +584,41 @@ class ForumsController
                 ];
             }, $members)
         ]);
+    }
+
+    // In your Forum controller or wherever you render the detail page
+
+    public function detail($forumId)
+    {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ' . BASEURL . '/login');
+            exit;
+        }
+
+        // Get forum details
+        $forum = $this->forumModel->findById($forumId);
+
+        if (!$forum) {
+            // Handle not found
+            header('Location: ' . BASEURL . '/forums');
+            exit;
+        }
+
+        // Get messages
+        $chatMessageModel = new ChatMessage();
+        $messages = $chatMessageModel->getMessagesByForumId($forumId);
+
+        // Get media preview (8 most recent)
+        $mediaPreview = $chatMessageModel->getForumMediaPreview($forumId, 8);
+
+        $data = [
+            'title' => 'Forum - ' . $forum['TITLE'],
+            'forum' => $forum,
+            'messages' => $messages,
+            'mediaPreview' => $mediaPreview
+        ];
+
+        // Load view
+        require_once __DIR__ . '/../views/forums/detail.php';
     }
 }

@@ -31,6 +31,13 @@ switch (true) {
         $controller->getInitialMessages($chatId);
         break;
 
+    case preg_match('#^forums/getAllMedia/([a-zA-Z0-9\-]+)$#', $route, $matches):
+        $forumId = $matches[1];
+        requireLogin();
+        $controller = new ChatMessagesController();
+        $controller->getAllMedia($forumId);
+        break;
+
     case $route === 'forums/create':
         requireLogin();
         checkRoleAccess(['MAHASISWA', 'DOSEN', 'ADMIN']);
