@@ -316,8 +316,7 @@ class DashboardController
         }
 
         $result = $this->forumModel->joinForum($forumId, $userId, $accessKey);
-
-        if ($ownerId !== $_SESSION['user_id']) {
+        if ($ownerId !== $userId) {
             $this->notificationModel->addNotification(
                 $userId,
                 $_SESSION['user_id'],
@@ -325,10 +324,12 @@ class DashboardController
                 'ADMIN_INVITE_FORUM',
                 'FORUM'
             );
+            error_log("Kekirim ke user" . $userId);
         }
 
         if ($result['success']) {
-            echo json_encode(['success' => true, 'message' => $result['message'], 'redirectUrl' => BASEURL . '/forums/chat/' . $forumId]);
+            echo json_encode(['success' => true, 'message' => $result['message']]);
+            error_log("Succsess menambahkan" . $userId);
         } else {
             http_response_code(409);
             echo json_encode(['success' => false, 'message' => $result['message']]);

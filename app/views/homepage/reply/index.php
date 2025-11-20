@@ -70,7 +70,15 @@ function loadLobSafe($data)
                                     <h1 class="text-black min-w-0 truncate font-semibold">
                                         <?= htmlspecialchars($comment['FULL_NAME']) ?>
                                     </h1>
-                                    <span class="text-gray-500">@<?= htmlspecialchars($comment['USERNAME']) ?></span>
+                                    <?php
+                                    $profileUrl = ($comment['USER_ID'] === $_SESSION['user_id'])
+                                        ? BASEURL . "/profile"
+                                        : BASEURL . "/homepage/user/profile/" . htmlspecialchars($comment['USER_ID']);
+                                    ?>
+
+                                    <a href="<?= $profileUrl ?>">
+                                        <span class="text-gray-500">@<?= htmlspecialchars($comment['USERNAME']) ?></span>
+                                    </a>
                                 </div>
                             </div>
 

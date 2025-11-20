@@ -10,7 +10,15 @@
                  <span class="font-semibold text-gray-700"><?= htmlspecialchars($post['FULL_NAME']) ?></span>
              </div>
              <div class="text-sm">
-                 <span class="text-gray-500">@<?= htmlspecialchars($post['USERNAME']) ?></span>
+                 <?php
+                    $profileUrl = ($post['USER_ID'] === $_SESSION['user_id'])
+                        ? BASEURL . "/profile"
+                        : BASEURL . "/homepage/user/profile/" . htmlspecialchars($post['USER_ID']);
+                    ?>
+
+                 <a href="<?= $profileUrl ?>">
+                     <span class="text-gray-500">@<?= htmlspecialchars($post['USERNAME']) ?></span>
+                 </a>
                  <span class="text-gray-400">· <?= date('d M Y', strtotime($post['CREATED_AT'])) ?></span>
              </div>
          </div>
@@ -68,14 +76,14 @@
 
      <div class="mt-3 flex items-center justify-between text-gray-500 text-sm border-t border-gray-100 pt-3">
          <div class="flex items-center space-x-6">
-            <button class="like-btn flex items-center hover:text-red-500 transition-colors group cursor-pointer" data-post-id="<?= $post['POST_ID'] ?>" data-liked="<?= $post['IS_LIKED'] ?'true' : 'false' ?>">
-                <div class="p-2">
-                    <svg class="w-5 h-5 <?= $post['IS_LIKED'] ? 'text-red-500 fill-red-500' : '' ?>" fill="<?= $post['IS_LIKED'] ? 'currentColor' : 'none' ?>" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                </div>
-                <span class="like-count"><?= htmlspecialchars($post['TOTAL_LIKES'] ?? 0) ?></span>
-            </button>
+             <button class="like-btn flex items-center hover:text-red-500 transition-colors group cursor-pointer" data-post-id="<?= $post['POST_ID'] ?>" data-liked="<?= $post['IS_LIKED'] ? 'true' : 'false' ?>">
+                 <div class="p-2">
+                     <svg class="w-5 h-5 <?= $post['IS_LIKED'] ? 'text-red-500 fill-red-500' : '' ?>" fill="<?= $post['IS_LIKED'] ? 'currentColor' : 'none' ?>" stroke="currentColor" viewBox="0 0 24 24">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                     </svg>
+                 </div>
+                 <span class="like-count"><?= htmlspecialchars($post['TOTAL_LIKES'] ?? 0) ?></span>
+             </button>
          </div>
      </div>
  </div>
@@ -136,38 +144,40 @@
          dropdown.classList.toggle('hidden');
      }
 
-         document.querySelectorAll('.like-btn').forEach(button => {
-        button.addEventListener('click', async () => {
-            const postId = button.getAttribute('data-post-id');
-            const countSpan = button.querySelector('.like-count');
-            const icon = button.querySelector('svg');
+     document.querySelectorAll('.like-btn').forEach(button => {
+         button.addEventListener('click', async () => {
+             const postId = button.getAttribute('data-post-id');
+             const countSpan = button.querySelector('.like-count');
+             const icon = button.querySelector('svg');
 
-            try {
-                const res = await fetch('<?= BASEURL ?>/like/toggle', {
-                    method: 'POST',
-                    body: new URLSearchParams({ post_id: postId })
-                });
+             try {
+                 const res = await fetch('<?= BASEURL ?>/like/toggle', {
+                     method: 'POST',
+                     body: new URLSearchParams({
+                         post_id: postId
+                     })
+                 });
 
-                const data = await res.json();
+                 const data = await res.json();
 
-                if (data.success) {
-                    const isLiked = data.action === 'liked';
-                    button.setAttribute('data-liked', isLiked ? 'true' : 'false');
-                    countSpan.textContent = data.total_likes;
+                 if (data.success) {
+                     const isLiked = data.action === 'liked';
+                     button.setAttribute('data-liked', isLiked ? 'true' : 'false');
+                     countSpan.textContent = data.total_likes;
 
-                    if (isLiked) {
-                        icon.classList.add('text-red-500', 'fill-red-500');
-                    } else {
-                        icon.classList.remove('text-red-500', 'fill-red-500');
-                    }
-                } else {
-                    alert(data.message || 'Gagal update like.');
-                }
-            } catch (err) {
-                console.error('Error:', err);
-            }
-        });
-    });
+                     if (isLiked) {
+                         icon.classList.add('text-red-500', 'fill-red-500');
+                     } else {
+                         icon.classList.remove('text-red-500', 'fill-red-500');
+                     }
+                 } else {
+                     alert(data.message || 'Gagal update like.');
+                 }
+             } catch (err) {
+                 console.error('Error:', err);
+             }
+         });
+     });
 
      function openEditPostModal(postId, content, mediaPaths = []) {
          const container = document.getElementById("media-preview-container");

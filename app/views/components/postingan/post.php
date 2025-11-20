@@ -22,7 +22,16 @@
                             <span class="font-semibold text-gray-700"><?= htmlspecialchars($post['FULL_NAME']) ?></span>
                         </div>
                         <div class="text-sm">
-                            <span class="text-gray-500">@<?= htmlspecialchars($post['USERNAME']) ?></span>
+                            <?php
+                            $profileUrl = ($post['USER_ID'] === $_SESSION['user_id'])
+                                ? BASEURL . "/profile"
+                                : BASEURL . "/homepage/user/profile/" . htmlspecialchars($post['USER_ID']);
+                            ?>
+
+                            <a href="<?= $profileUrl ?>">
+                                <span class="text-gray-500">@<?= htmlspecialchars($post['USERNAME']) ?></span>
+                            </a>
+
                             <span class="text-gray-400">· <?= date('d M Y', strtotime($post['CREATED_AT'])) ?></span>
                         </div>
                     </div>

@@ -37,7 +37,7 @@ class ChatMessagesController
         $forum_id = isset($_POST['forum_id']) ? trim($_POST['forum_id']) : null;
         $message  = trim($_POST['message'] ?? '');
 
-       
+
         if (!$forum_id || !$this->chatMessageModel->isUserInForum($user_id, $forum_id)) {
             http_response_code(403);
             echo json_encode(['error' => 'Anda bukan anggota forum ini.']);
@@ -270,56 +270,27 @@ class ChatMessagesController
         }
     }
 
-    // In app/controllers/ChatMessagesController.php
+    public function getAllMedia($forumId)
+    {
+        header('Content-Type: application/json');
 
-public function getMediaPreview($forumId, $limit = 8)
-{
-    header('Content-Type: application/json');
-    
-    if (!isset($_SESSION['user_id'])) {
-        http_response_code(401);
-        echo json_encode(['error' => 'Tidak terautentikasi']);
-        return;
-    }
-    
-    try {
-        $mediaPreview = $this->chatMessageModel->getForumMediaPreview($forumId, $limit);
-        
-        echo json_encode([
-            'success' => true,
-            'data' => $mediaPreview
-        ]);
-        
-    } catch (\Exception $e) {
-        error_log('Error getting media preview: ' . $e->getMessage());
-        http_response_code(500);
-        echo json_encode(['error' => 'Gagal mengambil media']);
-    }
-}
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Tidak terautentikasi']);
+            return;
+        }
 
-public function getAllMedia($forumId)
-{
-    header('Content-Type: application/json');
-    
-    if (!isset($_SESSION['user_id'])) {
-        http_response_code(401);
-        echo json_encode(['error' => 'Tidak terautentikasi']);
-        return;
-    }
-    
-    try {
-        $allMedia = $this->chatMessageModel->getAllForumMedia($forumId);
-        
-        echo json_encode([
-            'success' => true,
-            'data' => $allMedia
-        ]);
-        
-    } catch (\Exception $e) {
-        error_log('Error getting all media: ' . $e->getMessage());
-        http_response_code(500);
-        echo json_encode(['error' => 'Gagal mengambil media']);
-    }
-}
+        try {
+            $allMedia = $this->chatMessageModel->getAllForumMedia($forumId);
 
+            echo json_encode([
+                'success' => true,
+                'data' => $allMedia
+            ]);
+        } catch (\Exception $e) {
+            error_log('Error getting all media: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['error' => 'Gagal mengambil media']);
+        }
+    }
 }

@@ -72,6 +72,7 @@ class PostModel extends BaseModel
                 P.USER_ID,
                 TO_CHAR(P.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
                 U.USERNAME,
+                U.ID AS USER_ID,
                 U.FULL_NAME,
                 U.PATH_PHOTO,
                 (

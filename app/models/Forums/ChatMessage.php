@@ -196,7 +196,7 @@ class ChatMessage extends BaseModel
 
         return false;
     }
-    public static function getForumMediaPreview($forumId, $limit = 8)
+    public function getForumMediaPreview($forumId, $limit)
     {
         $conn = self::getConnection();
 
@@ -232,7 +232,7 @@ class ChatMessage extends BaseModel
             while ($row = oci_fetch_assoc($stmt)) {
                 $media[] = [
                     'file' => basename($row['PATH_MEDIA']),
-                    'type' => strtolower($row['TYPE']), // image, video, file
+                    'type' => strtolower($row['TYPE']),
                     'path' => $row['PATH_MEDIA'],
                     'original_name' => $row['ORIGINAL_FILENAME'],
                     'created_at' => $row['CREATED_AT']
@@ -249,7 +249,7 @@ class ChatMessage extends BaseModel
         }
     }
 
-    public static function getAllForumMedia($forumId)
+    public function getAllForumMedia($forumId)
     {
         $conn = self::getConnection();
 

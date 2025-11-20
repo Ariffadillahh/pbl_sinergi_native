@@ -9,15 +9,11 @@ class NotificationModel extends BaseModel
         $conn = self::getConnection();
 
         $sql = "SELECT ID, USER_ID, TYPE, DATA, IS_READ, 
-                   -- DIPERBAIKI: Hapus .FF3 karena DATE tidak memilikinya
                    TO_CHAR(CREATED_AT, 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') AS CREATED_AT
-            FROM NOTIFICATIONS
-            WHERE USER_ID = :user_id 
-              -- DIPERBAIKI: 
-              -- 1. Jangan ubah CREATED_AT (biarkan sebagai DATE)
-              -- 2. Ubah string input :last_timestamp Anda (yang kompleks) menjadi DATE sederhana untuk perbandingan
-              AND CREATED_AT > CAST(TO_TIMESTAMP_TZ(:last_timestamp, 'YYYY-MM-DD\"T\"HH24:MI:SS.FFTZH:TZM') AS DATE)
-            ORDER BY CREATED_AT ASC";
+                FROM NOTIFICATIONS
+                WHERE USER_ID = :user_id 
+                AND CREATED_AT > CAST(TO_TIMESTAMP_TZ(:last_timestamp, 'YYYY-MM-DD\"T\"HH24:MI:SS.FFTZH:TZM') AS DATE)
+                ORDER BY CREATED_AT ASC";
 
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ':user_id', $userId);

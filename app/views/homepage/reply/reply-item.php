@@ -10,7 +10,15 @@
             <?= htmlspecialchars($reply['FULL_NAME']) ?>
         </h1>
         <div class="flex gap-1 items-center">
-            <span class="text-gray-400 text-xs sm:text-sm">@<?= htmlspecialchars($reply['USERNAME']) ?></span>
+            <?php
+            $profileUrl = ($reply['USER_ID'] === $_SESSION['user_id'])
+                ? BASEURL . "/profile"
+                : BASEURL . "/homepage/user/profile/" . htmlspecialchars($reply['USER_ID']);
+            ?>
+
+            <a href="<?= $profileUrl ?>">
+                <span class="text-gray-400 text-xs sm:text-sm">@<?= htmlspecialchars($reply['USERNAME']) ?></span>
+            </a>
             <?php if (!empty($reply['REPLY_TO_USERNAME'])): ?>
                 <div class="flex items-center gap-1 text-xs sm:text-sm mt-0.5">
                     <svg class="w-3 h-3 text-blue-700 rotate-180 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
