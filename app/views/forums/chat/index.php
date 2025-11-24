@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="<?php echo BASEURL; ?>/src/css/output.css" rel="stylesheet">
-    <title>Forums - <?= $forumByid["NAME"] ?></title>
+    <title>Group Chats - <?= $groupChatByid["NAME"] ?></title>
 </head>
 
 <body>
@@ -13,7 +13,7 @@
     <div class="relative flex h-screen overflow-hidden bg-gray-50">
 
         <?php require_once 'app/views/components/sidebars.php'; ?>
-        <?php require_once 'app/views/components/forums/forumsList.php'; ?>
+        <?php require_once 'app/views/components/groups/groupChatList.php'; ?>
 
         <main id="Main-Content-Container" class="relative flex flex-1">
             <div class="absolute right-5 top-26 z-[9999] flex flex-col gap-2 pointer-events-none">
@@ -29,7 +29,7 @@
             </div>
             <div id="Chat-Container" class="flex flex-col flex-1 h-full overflow-hidden">
 
-                <?php require_once 'app/views/components/forums/detailForum.php'; ?>
+                <?php require_once 'app/views/components/groups/detailGroupChat.php'; ?>
 
                 <div id="Chat-Messages" class="relative flex-1 overflow-y-auto">
                     <div id="loading-indicator" class="flex items-center justify-center h-full">
@@ -149,7 +149,7 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             const BASEURL = '<?php echo BASEURL; ?>';
-            const FORUM_ID = '<?= $forumByid['ID'] ?? '1' ?>';
+            const GROUP_CHAT_ID = '<?= $groupChatByid['ID'] ?? '1' ?>';
             const CURRENT_USER_ID = '<?= $_SESSION['user_id'] ?? '123' ?>';
             const CURRENT_USER_NAME = "<?= $_SESSION['full_name'] ?? 'You' ?>";
             const CURRENT_USER_PHOTO = "<?= !empty($_SESSION['path_photo']) ? BASEURL . '/storage/users/photos/' . $_SESSION['path_photo'] : BASEURL . '/src/asset/image/default.png' ?>";
@@ -388,14 +388,14 @@
                 updateTextInputState();
 
                 const formData = new FormData();
-                formData.append("forum_id", FORUM_ID);
+                formData.append("group_chat_id", GROUP_CHAT_ID);
                 formData.append("message", messageText);
                 if (file) {
                     formData.append("attachment", file, file.name);
                 }
 
                 try {
-                    const response = await fetch(`${BASEURL}/forums/send-message`, {
+                    const response = await fetch(`${BASEURL}/groups/send-message`, {
                         method: "POST",
                         body: formData,
                     });
@@ -455,7 +455,7 @@
 
             async function longPoll() {
                 try {
-                    const response = await fetch(`${BASEURL}/forums/get-new-messages?forum_id=${FORUM_ID}&since=${encodeURIComponent(lastTimestamp)}`);
+                    const response = await fetch(`${BASEURL}/groups/get-new-messages?group_chat_id=${GROUP_CHAT_ID}&since=${encodeURIComponent(lastTimestamp)}`);
 
                     if (response.status === 403) {
                         const errorData = await response.json();
@@ -465,7 +465,7 @@
                         const errorMessage = document.getElementById('error-message');
                         if (errorMessage) {
                             errorMessage.classList.remove('hidden');
-                            errorMessage.innerHTML = errorData.error || "Anda telah dikeluarkan dari forum.";
+                            errorMessage.innerHTML = errorData.error || "Anda telah dikeluarkan dari group.";
                         }
 
                         return;
@@ -511,7 +511,7 @@
                 chatMessagesContainer.innerHTML = '';
                 loadingIndicator.style.display = 'flex';
                 try {
-                    const response = await fetch(`${BASEURL}/forums/getInitialMessages/${FORUM_ID}`);
+                    const response = await fetch(`${BASEURL}/groups/getInitialMessages/${GROUP_CHAT_ID}`);
                     if (!response.ok) {
                         throw new Error('Gagal mengambil data pesan.');
                     }

@@ -3,7 +3,7 @@ $current_uri = $_SERVER['REQUEST_URI'];
 
 $isHomepageActive = (strpos($current_uri, '/homepage') !== false);
 $isForumsActive   = (strpos($current_uri, '/forums') !== false);
-$isGrupActive   = (strpos($current_uri, '/grups') !== false);
+$isGroupActive   = (strpos($current_uri, '/groups') !== false);
 $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
 ?>
 
@@ -37,7 +37,7 @@ $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
             </li>
 
             <li class="group relative flex items-center <?php echo $isGrupActive ? 'active' : ''; ?>">
-                <a href="<?php echo BASEURL ?>/forums" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
+                <a href="<?php echo BASEURL ?>/groups" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/messages.svg" class="size-6 group-[.active]:hidden" alt="icon">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/messages-white-fill.svg" class="size-6 hidden group-[.active]:flex" alt="icon">
                 </a>

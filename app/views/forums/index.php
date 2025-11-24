@@ -5,15 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="<?php echo BASEURL; ?>/src/css/output.css" rel="stylesheet">
-    <title>Forums | Sinergi</title>
+    <title>Groups | Sinergi</title>
 </head>
 
 <body>
     <div class="relative flex h-screen overflow-hidden bg-gray-50">
 
         <?php require_once 'app/views/components/sidebars.php'; ?>
-        <?php require_once 'app/views/components/forums/forumsList.php'; ?>
-        <?php require_once 'app/views/components/forums/modalSearchForum.php'; ?>
+        <?php require_once 'app/views/components/groups/groupChatList.php'; ?>
+        <?php require_once 'app/views/components/groups/modalSearchGroup.php'; ?>
 
         <div id="Main-Content-Container" class="flex-1 overflow-y-auto pb-[70px] lg:pb-0 relative">
             <div class="flex h-[100vh] items-center justify-center text-center">
@@ -26,7 +26,7 @@
                     <div>
                         <p class="text-xl font-semibold leading-[25px]">No chat to display.</p>
                         <p class="mt-2 font-medium leading-5 text-gray-500">
-                            Tap on a forum to view the chat.
+                            Tap on a group to view the chat.
                         </p>
                     </div>
                 </div>
@@ -54,7 +54,7 @@
                 console.warn("performSearch() belum terdefinisi");
                 }
             } else {
-                console.warn("Modal search forum belum ditemukan di halaman /forums");
+                console.warn("Modal search group belum ditemukan di halaman /groups");
             }
             }, 300);
         }
