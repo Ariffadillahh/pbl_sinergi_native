@@ -1,119 +1,119 @@
 <?php
-require_once __DIR__ . '/../app/controllers/ForumsController.php';
+require_once __DIR__ . '/../app/controllers/GroupChatController.php';
 require_once __DIR__ . '/../app/controllers/ChatMessagesController.php';
 
 switch (true) {
 
-        case ($route === 'forums/checkMembership'):
+        case ($route === 'groups/checkMembership'):
         requireLogin();
         checkRoleAccess(['MAHASISWA', 'DOSEN', 'ADMIN']);
-        $controller = new ForumsController();
+        $controller = new GroupChatController();
         $controller->checkMembership();
         break;
 
-    case $route === 'forums':
+    case $route === 'groups':
         requireLogin();
-        $controller = new ForumsController();
+        $controller = new GroupChatController();
         $controller->index();
         break;
 
-    case preg_match('#^forums/chat/([a-zA-Z0-9\-]+)$#', $route, $matches):
+    case preg_match('#^groups/chat/([a-zA-Z0-9\-]+)$#', $route, $matches):
         $chatId = $matches[1];
         requireLogin();
-        $controller = new ForumsController();
+        $controller = new GroupChatController();
         $controller->chat($chatId);
         break;
 
-    case preg_match('#^forums/getInitialMessages/([a-zA-Z0-9\-]+)$#', $route, $matches):
+    case preg_match('#^groups/getInitialMessages/([a-zA-Z0-9\-]+)$#', $route, $matches):
         $chatId = $matches[1];
         requireLogin();
         $controller = new ChatMessagesController();
         $controller->getInitialMessages($chatId);
         break;
 
-    case preg_match('#^forums/getAllMedia/([a-zA-Z0-9\-]+)$#', $route, $matches):
-        $forumId = $matches[1];
+    case preg_match('#^groups/getAllMedia/([a-zA-Z0-9\-]+)$#', $route, $matches):
+        $groupChatId = $matches[1];
         requireLogin();
         $controller = new ChatMessagesController();
-        $controller->getAllMedia($forumId);
+        $controller->getAllMedia($groupChatId);
         break;
 
-    case $route === 'forums/create':
+    case $route === 'groups/create':
         requireLogin();
         checkRoleAccess(['MAHASISWA', 'DOSEN', 'ADMIN']);
-        $controller = new ForumsController();
+        $controller = new GroupChatController();
         $controller->create();
         break;
 
-    case $route === 'forums/edit':
+    case $route === 'groups/edit':
         requireLogin();
         checkRoleAccess(['MAHASISWA', 'DOSEN', 'ADMIN']);
-        $controller = new ForumsController();
+        $controller = new GroupChatController();
         $controller->edit();
         break;
 
-    case $route === 'forums/delete':
+    case $route === 'groups/delete':
         requireLogin();
         checkRoleAccess(['MAHASISWA', 'DOSEN', 'ADMIN']);
-        $controller = new ForumsController();
+        $controller = new GroupChatController();
         $controller->delete();
         break;
 
-    case $route === 'forums/exit':
+    case $route === 'groups/exit':
         requireLogin();
-        $controller = new ForumsController();
+        $controller = new GroupChatController();
         $controller->exit();
         break;
 
-    case $route === 'forums/search':
+    case $route === 'groups/search':
         requireLogin();
-        $controller = new ForumsController();
+        $controller = new GroupChatController();
         $controller->search();
         break;
 
-    case $route === 'forums/searchUser':
+    case $route === 'groups/searchUser':
         requireLogin();
-        $controller = new ForumsController();
+        $controller = new GroupChatController();
         $controller->searchUser();
         break;
 
-    case $route === 'forums/join':
+    case $route === 'groups/join':
         requireLogin();
-        $controller = new ForumsController();
+        $controller = new GroupChatController();
         $controller->join();
         break;
 
-    case $route === 'forums/joinViaInvite':
+    case $route === 'groups/joinViaInvite':
         requireLogin();
-        $controller = new ForumsController();
+        $controller = new GroupChatController();
         $controller->joinViaInvite();
         break;
 
-    case $route === 'forums/kickMember':
+    case $route === 'groups/kickMember':
         requireLogin();
-        $controller = new ForumsController();
+        $controller = new GroupChatController();
         $controller->kickMember();
         break;
 
-    case $route === 'forums/getForumInfo':
+    case $route === 'groups/getGroupChatInfo':
         requireLogin();
-        $controller = new ForumsController();
-        $controller->getForumInfo();
+        $controller = new GroupChatController();
+        $controller->getGroupChatInfo();
         break;
 
-    case $route === 'forums/addMember':
+    case $route === 'groups/addMember':
         requireLogin();
-        $controller = new ForumsController();
+        $controller = new GroupChatController();
         $controller->addMember();
         break;
 
-    case $route === 'forums/send-message':
+    case $route === 'groups/send-message':
         requireLogin();
         $controller = new ChatMessagesController();
         $controller->sendMessage();
         break;
 
-    case $route === 'forums/get-new-messages':
+    case $route === 'groups/get-new-messages':
         requireLogin();
         $controller = new ChatMessagesController();
         $controller->getNewMessages();
@@ -121,11 +121,11 @@ switch (true) {
 
     case $route === 'report':
         requireLogin();
-        $controller = new ForumsController();
-        $controller->reportForumOrPost();
+        $controller = new GroupChatController();
+        $controller->reportGroupChatOrPost();
         break;
 
-    case $route === 'forums/pollCounts':
+    case $route === 'groups/pollCounts':
         requireLogin();
         $controller = new ChatMessagesController();
         $controller->pollCounts();

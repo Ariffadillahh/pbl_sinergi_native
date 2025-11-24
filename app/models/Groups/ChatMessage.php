@@ -13,14 +13,14 @@ class ChatMessage extends BaseModel
             $contentLength = strlen($data['content']);
 
             if ($contentLength < 4000) {
-                $sql = "INSERT INTO FORUM_MESSAGES 
-                    (ID, FORUM_ID, SENDER_ID, CONTENT, PATH_MEDIA, ORIGINAL_FILENAME, TYPE) 
-                    VALUES (:id, :forum_id, :sender_id, :content, :path_media, :original_filename, :type)";
+                $sql = "INSERT INTO GROUP_CHAT_MESSAGES 
+                    (ID, GROUP_CHAT_ID, SENDER_ID, CONTENT, PATH_MEDIA, ORIGINAL_FILENAME, TYPE) 
+                    VALUES (:id, :group_chat_id, :sender_id, :content, :path_media, :original_filename, :type)";
 
                 $stmt = oci_parse($conn, $sql);
 
                 oci_bind_by_name($stmt, ':id', $uuid);
-                oci_bind_by_name($stmt, ':forum_id', $data['forum_id']);
+                oci_bind_by_name($stmt, ':group_chat_id', $data['group_chat_id']);
                 oci_bind_by_name($stmt, ':sender_id', $data['sender_id']);
                 oci_bind_by_name($stmt, ':content', $data['content']);
                 oci_bind_by_name($stmt, ':path_media', $data['path_media']);
@@ -35,16 +35,16 @@ class ChatMessage extends BaseModel
                     return ['ID' => $uuid];
                 }
             } else {
-                $sql = "INSERT INTO FORUM_MESSAGES 
-                    (ID, FORUM_ID, SENDER_ID, CONTENT, PATH_MEDIA, ORIGINAL_FILENAME, TYPE) 
-                    VALUES (:id, :forum_id, :sender_id, EMPTY_CLOB(), :path_media, :original_filename, :type)
+                $sql = "INSERT INTO GROUP_CHAT_MESSAGES 
+                    (ID, GROUP_CHAT_ID, SENDER_ID, CONTENT, PATH_MEDIA, ORIGINAL_FILENAME, TYPE) 
+                    VALUES (:id, :group_chat_id, :sender_id, EMPTY_CLOB(), :path_media, :original_filename, :type)
                     RETURNING CONTENT INTO :content";
 
                 $stmt = oci_parse($conn, $sql);
                 $clob = oci_new_descriptor($conn, OCI_D_LOB);
 
                 oci_bind_by_name($stmt, ':id', $uuid);
-                oci_bind_by_name($stmt, ':forum_id', $data['forum_id']);
+                oci_bind_by_name($stmt, ':group_chat_id', $data['group_chat_id']);
                 oci_bind_by_name($stmt, ':sender_id', $data['sender_id']);
                 oci_bind_by_name($stmt, ':path_media', $data['path_media']);
                 oci_bind_by_name($stmt, ':original_filename', $data['original_filename']);
@@ -74,17 +74,17 @@ class ChatMessage extends BaseModel
         return false;
     }
 
-    public function getMessagesSince($forumId, $timestamp = null)
+    public function getMessagesSince($groupChatId, $timestamp = null)
     {
         $conn = self::getConnection();
         if (!$conn) return [];
 
-        $baseQuery = "SELECT m.ID, m.FORUM_ID, m.SENDER_ID, m.CONTENT,m.ORIGINAL_FILENAME, m.PATH_MEDIA, m.TYPE, 
+        $baseQuery = "SELECT m.ID, m.GROUP_CHAT_ID, m.SENDER_ID, m.CONTENT,m.ORIGINAL_FILENAME, m.PATH_MEDIA, m.TYPE, 
                          TO_CHAR(m.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS.FF6') AS CREATED_AT,
                          u.FULL_NAME AS SENDER_NAME, u.PATH_PHOTO AS SENDER_PHOTO, u.ROLE
-                  FROM FORUM_MESSAGES m
+                  FROM GROUP_CHAT_MESSAGES m
                   JOIN USERS u ON m.SENDER_ID = u.ID
-                  WHERE m.FORUM_ID = :forum_id";
+                  WHERE m.GROUP_CHAT_ID = :group_chat_id";
 
         if (!empty($timestamp)) {
             $sql = $baseQuery . " AND m.CREATED_AT > TO_TIMESTAMP(:since_timestamp, 'YYYY-MM-DD HH24:MI:SS.FF6') ORDER BY m.CREATED_AT ASC";
@@ -93,7 +93,7 @@ class ChatMessage extends BaseModel
         }
 
         $stmt = oci_parse($conn, $sql);
-        oci_bind_by_name($stmt, ':forum_id', $forumId);
+        oci_bind_by_name($stmt, ':group_chat_id', $groupChatId);
         if ($timestamp) {
             oci_bind_by_name($stmt, ':since_timestamp', $timestamp);
         }
@@ -113,7 +113,7 @@ class ChatMessage extends BaseModel
         return $messages;
     }
 
-    public function getMessagesByForumId($forum_id)
+    public function getMessagesByGroupChatId($group_chat_id)
     {
         $conn = self::getConnection();
         $messages = [];
@@ -121,29 +121,29 @@ class ChatMessage extends BaseModel
 
         try {
             $sql = "SELECT 
-                        fm.ID,
-                        fm.FORUM_ID,
-                        fm.SENDER_ID,
-                        fm.CONTENT,
-                        fm.PATH_MEDIA,
-                        fm.TYPE,
-                        fm.ORIGINAL_FILENAME,
-                        TO_CHAR(fm.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
+                        gcm.ID,
+                        gcm.GROUP_CHAT_ID,
+                        gcm.SENDER_ID,
+                        gcm.CONTENT,
+                        gcm.PATH_MEDIA,
+                        gcm.TYPE,
+                        gcm.ORIGINAL_FILENAME,
+                        TO_CHAR(gcm.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
                         u.FULL_NAME AS SENDER_NAME, 
                         u.PATH_PHOTO AS SENDER_PHOTO,
                         u.ROLE 
                     FROM 
-                        FORUM_MESSAGES fm
+                        GROUP_CHAT_MESSAGES gcm
                     JOIN 
-                        USERS u ON fm.SENDER_ID = u.ID
+                        USERS u ON gcm.SENDER_ID = u.ID
                     WHERE 
-                        fm.FORUM_ID = :forum_id
+                        gcm.GROUP_CHAT_ID = :group_chat_id
                     ORDER BY 
-                        fm.CREATED_AT ASC";
+                        gcm.CREATED_AT ASC";
 
             $stmt = oci_parse($conn, $sql);
 
-            oci_bind_by_name($stmt, ':forum_id', $forum_id);
+            oci_bind_by_name($stmt, ':group_chat_id', $group_chat_id);
 
             oci_execute($stmt);
 
@@ -155,7 +155,7 @@ class ChatMessage extends BaseModel
                 $messages[] = $row;
             }
         } catch (\Exception $e) {
-            error_log('Error in getMessagesByForumId: ' . $e->getMessage());
+            error_log('Error in getMessagesByGroupChatId: ' . $e->getMessage());
             return [];
         } finally {
             if ($stmt) {
@@ -167,19 +167,19 @@ class ChatMessage extends BaseModel
         return $messages;
     }
 
-    public function isUserInForum($userId, $forumId)
+    public function isUserInGroupChat($userId, $groupChatId)
     {
         $conn = self::getConnection();
 
-        $sql = "SELECT COUNT(1) AS CNT FROM FORUM_MEMBERS 
-            WHERE FORUM_ID = :forum_id AND USER_ID = :user_id";
+        $sql = "SELECT COUNT(1) AS CNT FROM GROUP_CHAT_MEMBERS 
+            WHERE GROUP_CHAT_ID = :group_chat_id AND USER_ID = :user_id";
 
         $stid = oci_parse($conn, $sql);
 
         $clean_uid = trim($userId);
-        $clean_fid = trim($forumId);
+        $clean_fid = trim($groupChatId);
 
-        oci_bind_by_name($stid, ':forum_id', $clean_fid);
+        oci_bind_by_name($stid, ':group_chat_id', $clean_fid);
         oci_bind_by_name($stid, ':user_id', $clean_uid);
 
         if (!oci_execute($stid)) {
@@ -196,7 +196,7 @@ class ChatMessage extends BaseModel
 
         return false;
     }
-    public function getForumMediaPreview($forumId, $limit)
+    public function getGroupChatMediaPreview($groupChatId, $limit)
     {
         $conn = self::getConnection();
 
@@ -206,24 +206,24 @@ class ChatMessage extends BaseModel
 
         try {
             $sql = "SELECT 
-                    fm.ID,
-                    fm.PATH_MEDIA,
-                    fm.ORIGINAL_FILENAME,
-                    fm.TYPE,
-                    TO_CHAR(fm.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT
+                    gcm.ID,
+                    gcm.PATH_MEDIA,
+                    gcm.ORIGINAL_FILENAME,
+                    gcm.TYPE,
+                    TO_CHAR(gcm.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT
                 FROM 
-                    FORUM_MESSAGES fm
+                    GROUP_CHAT_MESSAGES gcm
                 WHERE 
-                    fm.FORUM_ID = :forum_id
-                    AND fm.PATH_MEDIA IS NOT NULL
-                    AND fm.TYPE IN ('IMAGE', 'VIDEO', 'FILE')
+                    gcm.GROUP_CHAT_ID = :group_chat_id
+                    AND gcm.PATH_MEDIA IS NOT NULL
+                    AND gcm.TYPE IN ('IMAGE', 'VIDEO', 'FILE')
                 ORDER BY 
-                    fm.CREATED_AT DESC
+                    gcm.CREATED_AT DESC
                 FETCH FIRST :limit ROWS ONLY";
 
             $stmt = oci_parse($conn, $sql);
 
-            oci_bind_by_name($stmt, ':forum_id', $forumId);
+            oci_bind_by_name($stmt, ':group_chat_id', $groupChatId);
             oci_bind_by_name($stmt, ':limit', $limit);
 
             oci_execute($stmt);
@@ -242,14 +242,14 @@ class ChatMessage extends BaseModel
             oci_free_statement($stmt);
             return $media;
         } catch (\Exception $e) {
-            error_log('Error in getForumMediaPreview: ' . $e->getMessage());
+            error_log('Error in getGroupChatMediaPreview: ' . $e->getMessage());
             return [];
         } finally {
             oci_close($conn);
         }
     }
 
-    public function getAllForumMedia($forumId)
+    public function getAllGroupChatMedia($groupChatId)
     {
         $conn = self::getConnection();
 
@@ -259,25 +259,25 @@ class ChatMessage extends BaseModel
 
         try {
             $sql = "SELECT 
-                    fm.ID,
-                    fm.PATH_MEDIA,
-                    fm.ORIGINAL_FILENAME,
-                    fm.TYPE,
+                    gcm.ID,
+                    gcm.PATH_MEDIA,
+                    gcm.ORIGINAL_FILENAME,
+                    gcm.TYPE,
                     u.FULL_NAME AS SENDER_NAME,
-                    TO_CHAR(fm.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT
+                    TO_CHAR(gcm.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT
                 FROM 
-                    FORUM_MESSAGES fm
+                    GROUP_CHAT_MESSAGES gcm
                 JOIN 
-                    USERS u ON fm.SENDER_ID = u.ID
+                    USERS u ON gcm.SENDER_ID = u.ID
                 WHERE 
-                    fm.FORUM_ID = :forum_id
-                    AND fm.PATH_MEDIA IS NOT NULL
-                    AND fm.TYPE IN ('IMAGE', 'VIDEO', 'FILE')
+                    gcm.GROUP_CHAT_ID = :group_chat_id
+                    AND gcm.PATH_MEDIA IS NOT NULL
+                    AND gcm.TYPE IN ('IMAGE', 'VIDEO', 'FILE')
                 ORDER BY 
-                    fm.CREATED_AT DESC";
+                    gcm.CREATED_AT DESC";
 
             $stmt = oci_parse($conn, $sql);
-            oci_bind_by_name($stmt, ':forum_id', $forumId);
+            oci_bind_by_name($stmt, ':group_chat_id', $groupChatId);
             oci_execute($stmt);
 
             $media = [];
@@ -295,7 +295,7 @@ class ChatMessage extends BaseModel
             oci_free_statement($stmt);
             return $media;
         } catch (\Exception $e) {
-            error_log('Error in getAllForumMedia: ' . $e->getMessage());
+            error_log('Error in getAllGroupChatMedia: ' . $e->getMessage());
             return [];
         } finally {
             oci_close($conn);

@@ -2,14 +2,14 @@
     <!-- isi Chat-Navigation tetap sama -->
     <div id="Group-Title" class="flex items-center flex-1 gap-3">
         <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden items-center justify-center">
-            <?php if (!empty($forumByid['PATH_PHOTO'])): ?>
+            <?php if (!empty($groupChatByid['PATH_PHOTO'])): ?>
                 <img
-                    src="<?= BASEURL . '/storage/forums/photos/' . $forumByid['PATH_PHOTO'] ?>"
+                    src="<?= BASEURL . '/storage/groups/photos/' . $groupChatByid['PATH_PHOTO'] ?>"
                     class="w-full h-full object-cover"
                     alt="photo">
             <?php else: ?>
                 <span class="w-full h-full flex items-center justify-center bg-pink-500 text-white font-bold text-lg">
-                    <?= strtoupper(substr($forumByid['NAME'], 0, 2)) ?>
+                    <?= strtoupper(substr($groupChatByid['NAME'], 0, 2)) ?>
                 </span>
             <?php endif; ?>
         </div>
@@ -17,16 +17,16 @@
         <div class="flex flex-col gap-1">
             <div class="flex items-center gap-[6px]">
                 <h1 class="font-semibold text-lg truncate overflow-hidden whitespace-nowrap">
-                    <?= $forumByid["NAME"] ?>
+                    <?= $groupChatByid["NAME"] ?>
                 </h1>
             </div>
             <div class="flex items-center gap-[6px]">
-                <span class="font-semibold text-sm text-gray-500"><?= count($membersForum) ?> Members</span>
+                <span class="font-semibold text-sm text-gray-500"><?= count($membersGroupChat) ?> Members</span>
             </div>
         </div>
     </div>
     <ul class="flex gap-3">
-        <?php if ($forumByid['OWNER_ID'] !== $_SESSION['user_id']) : ?>
+        <?php if ($groupChatByid['OWNER_ID'] !== $_SESSION['user_id']) : ?>
             <li class="group">
                 <button id="reportForumButton" class="size-11 flex shrink-0 bg-white rounded-xl p-[10px] items-center justify-center ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/report.png" class="size-6" alt="icon">
@@ -48,7 +48,7 @@
             <div>
                 <button id="btn-open-exit-forum" class="w-full h-full flex gap-1 items-center justify-center bg-white rounded-2xl p-[10px] ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/logout-grey.svg" class="size-6 flex shrink-0" alt="icon">
-                    <span class="font-medium text-sm text-heyhao-secondary">Leave Forum</span>
+                    <span class="font-medium text-sm text-heyhao-secondary">Leave Group</span>
                 </button>
             </div>
             <div class="group">
@@ -61,32 +61,32 @@
         <div class="flex-1 overflow-y-auto hide-scrollbar">
             <div class="flex flex-col items-center py-8 px-6 gap-4 border-b border-gray-200">
                 <div class="flex size-[120px] rounded-full overflow-hidden items-center justify-center bg-gray-200">
-                    <?php if (!empty($forumByid['PATH_PHOTO'])): ?>
+                    <?php if (!empty($groupChatByid['PATH_PHOTO'])): ?>
                         <img
-                            src="<?= BASEURL . '/storage/forums/photos/' . $forumByid['PATH_PHOTO'] ?>"
+                            src="<?= BASEURL . '/storage/groups/photos/' . $groupChatByid['PATH_PHOTO'] ?>"
                             class="w-full h-full object-cover"
                             alt="photo">
                     <?php else: ?>
                         <div class="w-full h-full flex items-center justify-center bg-pink-500 text-white text-3xl font-bold">
-                            <?= strtoupper(substr($forumByid['NAME'], 0, 2)) ?>
+                            <?= strtoupper(substr($groupChatByid['NAME'], 0, 2)) ?>
                         </div>
                     <?php endif; ?>
                 </div>
 
                 <div class="flex flex-col items-center gap-2">
                     <div class="flex items-center justify-center gap-[6px]">
-                        <p class="font-semibold text-lg"> <?= $forumByid["NAME"] ?></p>
+                        <p class="font-semibold text-lg"> <?= $groupChatByid["NAME"] ?></p>
                     </div>
-                    <?php if ($forumByid['OWNER_ID'] == $_SESSION['user_id'] && !empty($forumByid['ACCESS_KEY'])): ?>
+                    <?php if ($groupChatByid['OWNER_ID'] == $_SESSION['user_id'] && !empty($groupChatByid['ACCESS_KEY'])): ?>
                         <div class="flex items-center gap-2">
                             <span class="text-xs font-medium text-violet-700 bg-violet-100 px-2 py-0.5 rounded-md flex items-center gap-1.5">
                                 <span>Private Key:</span>
-                                <span id="access-key-text" class="font-mono"><?= $forumByid['ACCESS_KEY'] ?></span>
+                                <span id="access-key-text" class="font-mono"><?= $groupChatByid['ACCESS_KEY'] ?></span>
                             </span>
 
                             <button
                                 id="copy-key-btn"
-                                onclick="copyAccessKey('<?= $forumByid['ACCESS_KEY'] ?>')"
+                                onclick="copyAccessKey('<?= $groupChatByid['ACCESS_KEY'] ?>')"
                                 class="group relative flex items-center justify-center p-1.5 rounded-md bg-violet-100 hover:bg-violet-200 text-violet-700 transition-all duration-200 active:scale-95"
                                 title="Copy Access Key">
                                 <svg id="clipboard-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,23 +102,23 @@
                     <div class="flex items-center gap-[6px] font-semibold text-sm">
                         <p class="flex items-center gap-1">
                             <img src="<?php echo BASEURL; ?>/src/asset/icons/profile-2user-grey.svg" class="flex size-4 shrink-0" alt="icon">
-                            <span class="text-gray-500"><?= count($membersForum) ?> Members</span>
+                            <span class="text-gray-500"><?= count($membersGroupChat) ?> Members</span>
                         </p>
                     </div>
                 </div>
             </div>
             <div class="p-6">
                 <div id="About" class="flex flex-col gap-1 mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                    <p class="text-lg font-semibold text-gray-800">About Forum</p>
+                    <p class="text-lg font-semibold text-gray-800">About Group</p>
 
                     <p class="text-gray-700">
-                        <?= htmlspecialchars($forumByid["ABOUT"]) ?>
+                        <?= htmlspecialchars($groupChatByid["ABOUT"]) ?>
                     </p>
 
                     <p class="text-sm text-gray-500 mt-2">
                         Created at:
                         <span class="font-medium text-gray-700">
-                            <?= formatDatePretty($forumByid["CREATED_AT"]) ?>
+                            <?= formatDatePretty($groupChatByid["CREATED_AT"]) ?>
                         </span>
                     </p>
                 </div>
@@ -185,17 +185,17 @@
                         <p class="font-semibold leading-5">Owner</p>
                         <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 min-w-0">
                             <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
-                                <img src="<?= !empty($forumByid['PATH_PHOTO_OWNER'])
-                                                ? BASEURL . '/storage/users/photos/' . $forumByid['PATH_PHOTO_OWNER']
+                                <img src="<?= !empty($groupChatByid['PATH_PHOTO_OWNER'])
+                                                ? BASEURL . '/storage/users/photos/' . $groupChatByid['PATH_PHOTO_OWNER']
                                                 : BASEURL . '/src/asset/image/default.png' ?>" class="w-full h-full object-cover" alt="photo">
                             </div>
                             <div class="flex flex-col flex-1 gap-[6px] min-w-0">
                                 <div class="flex items-center gap-2 min-w-0">
                                     <div class="flex-1 min-w-0">
-                                        <p class="font-semibold truncate"><?= $forumByid["OWNER_NAME"] ?></p>
+                                        <p class="font-semibold truncate"><?= $groupChatByid["OWNER_NAME"] ?></p>
                                     </div>
                                     <?php
-                                    $role = $forumByid["ROLE_OWNER"];
+                                    $role = $groupChatByid["ROLE_OWNER"];
 
                                     $roleClasses = [
                                         "MAHASISWA" => "bg-blue-100 text-blue-800",
@@ -219,14 +219,14 @@
                     </div>
                     <div id="Members" class="flex flex-col gap-3 mt-6">
                         <?php
-                        $membersForumFiltered = array_filter($membersForum, function ($m) use ($forumByid) {
-                            return $m['USER_ID'] !== $forumByid['OWNER_ID'];
+                        $membersGroupChatFiltered = array_filter($membersGroupChat, function ($m) use ($groupChatByid) {
+                            return $m['USER_ID'] !== $groupChatByid['OWNER_ID'];
                         }); ?>
-                        <p class="font-semibold leading-5">Members (<?= count($membersForumFiltered) ?>)</p>
+                        <p class="font-semibold leading-5">Members (<?= count($membersGroupChatFiltered) ?>)</p>
 
                         <div class="flex flex-col gap-3">
-                            <?php foreach ($membersForumFiltered as $member): ?>
-                                <?php if ($member['USER_ID'] == $forumByid['OWNER_ID']) continue; ?>
+                            <?php foreach ($membersGroupChatFiltered as $member): ?>
+                                <?php if ($member['USER_ID'] == $groupChatByid['OWNER_ID']) continue; ?>
                                 <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 min-w-0">
                                     <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
                                         <img src="<?= !empty($member['PATH_PHOTO'])
@@ -271,7 +271,7 @@
                 </div>
 
 
-                <?php if ($forumByid['OWNER_ID'] == $_SESSION['user_id']): ?>
+                <?php if ($groupChatByid['OWNER_ID'] == $_SESSION['user_id']): ?>
                     <div class="my-5 flex">
                         <button
                             type="button"
@@ -284,12 +284,12 @@
                     <div class="my-5 flex gap-3">
                         <button type="button" id="btn-open-edit-forum"
                             class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 w-full">
-                            Edit Forum
+                            Edit Group
                         </button>
 
                         <button type="button" id="btn-open-delete-forum"
                             class="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 w-full">
-                            Delete Forum
+                            Delete Group
                         </button>
                     </div>
                 <?php endif; ?>
@@ -351,9 +351,9 @@
     }
 </script>
 
-<?php require_once 'app/views/components/forums/modalEditForum.php'; ?>
-<?php require_once 'app/views/components/forums/modalDeleteForum.php'; ?>
-<?php require_once 'app/views/components/forums/modalExitForum.php'; ?>
-<?php require_once 'app/views/components/forums/modalReportForum.php'; ?>
-<?php require_once 'app/views/components/forums/modalManageMember.php'; ?>
-<?php require_once 'app/views/components/forums/modalAllMedia.php'; ?>
+<?php require_once 'app/views/components/groups/modalEditGroup.php'; ?>
+<?php require_once 'app/views/components/groups/modalDeleteGroup.php'; ?>
+<?php require_once 'app/views/components/groups/modalExitGroup.php'; ?>
+<?php require_once 'app/views/components/groups/modalReportGroup.php'; ?>
+<?php require_once 'app/views/components/groups/modalManageMember.php'; ?>
+<?php require_once 'app/views/components/groups/modalAllMedia.php'; ?>

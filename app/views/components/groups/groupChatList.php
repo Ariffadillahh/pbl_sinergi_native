@@ -1,6 +1,6 @@
 <aside id="forumsListSidebar" class="fixed lg:relative flex flex-col w-full max-w-[360px] lg:w-[360px] shrink-0 h-full border-r border-gray-100 bg-white overflow-hidden transition-all duration-300 ease-in-out z-20 -translate-x-full lg:translate-x-0 pb-[70px] lg:pb-0">
     <div id="Top-Bar" class="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-6">
-        <p class="text-2xl font-semibold">Your Forums</p>
+        <p class="text-2xl font-semibold">Your Groups</p>
         <?php
 
         if ($_SESSION['role'] === 'MAHASISWA' || $_SESSION['role'] === 'DOSEN' || $_SESSION['role'] === 'ADMIN') {
@@ -26,27 +26,27 @@
         <div id="tabs-content-container" class="flex h-full flex-1 overflow-hidden">
             <div id="All" class="relative h-full w-full">
                 <div class="flex h-full flex-col gap-1">
-                    <p class="text-sm text-gray-500 pb-2 border-b-[1px] border-gray-200">All Forums (<?php echo count($joinedForums); ?>)</p>
+                    <p class="text-sm text-gray-500 pb-2 border-b-[1px] border-gray-200">All Groups (<?php echo count($joinedGroupChats); ?>)</p>
                     <div id="Message-container" class="hide-scrollbar h-full w-full overflow-y-scroll">
                         <div class="flex w-full flex-col gap-1">
-                            <?php if (!empty($joinedForums)): ?>
-                                <?php foreach ($joinedForums as $forum): ?>
+                            <?php if (!empty($joinedGroupChats)): ?>
+                                <?php foreach ($joinedGroupChats as $groupChat): ?>
                                     <?php
-                                    $isActive = ($activeChatId === $forum['ID']) ? 'active' : '';
+                                    $isActive = ($activeChatId === $groupChat['ID']) ? 'active' : '';
                                     ?>
-                                    <a href="<?php echo BASEURL; ?>/forums/chat/<?php echo $forum['ID']; ?>" class="chats-card group <?php echo $isActive; ?> last:pb-8">
+                                    <a href="<?php echo BASEURL; ?>/groups/chat/<?php echo $groupChat['ID']; ?>" class="chats-card group <?php echo $isActive; ?> last:pb-8">
                                         <div class="flex items-center rounded-2xl p-4 gap-3 group-[.active]:bg-gray-100 hover:bg-gray-100 transition-all duration-300">
 
                                             <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden items-center justify-center bg-gray-200">
 
-                                                <?php if (!empty($forum['PATH_PHOTO'])): ?>
+                                                <?php if (!empty($groupChat['PATH_PHOTO'])): ?>
                                                     <img
-                                                        src="<?= BASEURL . '/storage/forums/photos/' . $forum['PATH_PHOTO'] ?>"
+                                                        src="<?= BASEURL . '/storage/groups/photos/' . $groupChats['PATH_PHOTO'] ?>"
                                                         class="w-full h-full object-cover"
                                                         alt="photo">
                                                 <?php else: ?>
                                                     <span class="text-white font-bold text-lg bg-pink-500 w-full h-full flex items-center justify-center">
-                                                        <?= strtoupper(substr($forum['NAME'], 0, 2)) ?>
+                                                        <?= strtoupper(substr($groupChats['NAME'], 0, 2)) ?>
                                                     </span>
                                                 <?php endif; ?>
 
@@ -55,10 +55,10 @@
 
                                             <div class="flex flex-col w-full gap-1">
 
-                                                <div id="forum-skeleton-<?php echo $forum['ID']; ?>" class="w-full animate-pulse space-y-1.5">
+                                                <div id="forum-skeleton-<?php echo $groupChats['ID']; ?>" class="w-full animate-pulse space-y-1.5">
                                                     <div class="flex items-center justify-between gap-[6px]">
                                                         <p class="font-medium leading-5 max-w-[182px] truncate">
-                                                            <?php echo htmlspecialchars($forum['NAME']); ?>
+                                                            <?php echo htmlspecialchars($groupChats['NAME']); ?>
                                                         </p>
                                                         <div class="bg-gray-200 rounded w-10 h-3"></div>
                                                     </div>
@@ -68,20 +68,20 @@
                                                     </div>
                                                 </div>
 
-                                                <div id="forum-data-<?php echo $forum['ID']; ?>" class="w-full hidden">
+                                                <div id="forum-data-<?php echo $groupChats['ID']; ?>" class="w-full hidden">
                                                     <div class="flex items-center justify-between gap-[6px]">
                                                         <p class="font-medium leading-5 max-w-[182px] truncate">
-                                                            <?php echo htmlspecialchars($forum['NAME']); ?>
+                                                            <?php echo htmlspecialchars($groupChats['NAME']); ?>
                                                         </p>
-                                                        <span class="text-xs text-gray-500" id="forum-time-<?php echo $forum['ID']; ?>"></span>
+                                                        <span class="text-xs text-gray-500" id="forum-time-<?php echo $groupChats['ID']; ?>"></span>
                                                     </div>
                                                     <div class="flex items-center gap-1 justify-between">
                                                         <div class="w-full max-w-[178px] text-sm text-gray-500 line-clamp-1">
                                                             <p class="flex items-center gap-1">
-                                                                <span class="truncate" id="forum-last-msg-<?php echo $forum['ID']; ?>"></span>
+                                                                <span class="truncate" id="forum-last-msg-<?php echo $groupChats['ID']; ?>"></span>
                                                             </p>
                                                         </div>
-                                                        <span id="forum-count-<?php echo $forum['ID']; ?>"
+                                                        <span id="forum-count-<?php echo $groupChats['ID']; ?>"
                                                             class="flex items-center justify-center shrink-0 size-5 text-xs font-medium text-white rounded-full">
                                                         </span>
                                                     </div>
@@ -92,7 +92,7 @@
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <div class="h-full">
-                                    <p class="text-sm text-gray-900 text-center font-semibold h-[50vh] flex justify-center items-center">No forums found.</p>
+                                    <p class="text-sm text-gray-900 text-center font-semibold h-[50vh] flex justify-center items-center">No groups found.</p>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -103,7 +103,7 @@
     </div>
 </aside>
 
-<?php require_once 'app/views/components/forums/modalSearchForum.php'; ?>
+<?php require_once 'app/views/components/groups/modalSearchGroup.php'; ?>
 
 
 <script>
@@ -136,18 +136,18 @@
 
     function updateSidebarUI(data) {
         for (const item of data) {
-            const dataWrapper = document.getElementById(`forum-data-${item.forumId}`);
-            const skeletonWrapper = document.getElementById(`forum-skeleton-${item.forumId}`);
+            const dataWrapper = document.getElementById(`forum-data-${item.groupChatId}`);
+            const skeletonWrapper = document.getElementById(`forum-skeleton-${item.groupChatId}`);
 
-            const badgeElement = document.getElementById(`forum-count-${item.forumId}`);
-            const msgElement = document.getElementById(`forum-last-msg-${item.forumId}`);
-            const timeElement = document.getElementById(`forum-time-${item.forumId}`);
+            const badgeElement = document.getElementById(`forum-count-${item.groupChatId}`);
+            const msgElement = document.getElementById(`forum-last-msg-${item.groupChatId}`);
+            const timeElement = document.getElementById(`forum-time-${item.groupChatId}`);
 
             if (!dataWrapper || !skeletonWrapper || !badgeElement || !msgElement || !timeElement) {
                 continue;
             }
 
-            const isChatActive = (activeChatId !== '' && item.forumId === activeChatId);
+            const isChatActive = (activeChatId !== '' && item.groupChatId === activeChatId);
 
             if (item.count > 0 && !isChatActive) {
                 badgeElement.innerText = item.count;
@@ -170,7 +170,7 @@
     async function startCountPolling() {
 
         const hash = window.lastCountHash;
-        const url = `${baseUrl}/forums/pollCounts?lastHash=${hash}`;
+        const url = `${baseUrl}/groups/pollCounts?lastHash=${hash}`;
 
         try {
             const response = await fetch(url);

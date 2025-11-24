@@ -32,7 +32,7 @@ switch (true) {
         break;
 
     default:
-        include __DIR__ . '/forums.php';
+        include __DIR__ . '/groups.php';
         include __DIR__ . '/auth.php';
         include __DIR__ . '/profile.php';
         include __DIR__ . '/dashboard.php';

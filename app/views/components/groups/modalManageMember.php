@@ -43,7 +43,7 @@
                 <div id="page-kick">
                     <div class="flex flex-col gap-2 max-h-[350px] overflow-y-auto rounded-lg">
 
-                        <?php foreach ($membersForumFiltered as $member): ?>
+                        <?php foreach ($membersGroupChatFiltered as $member): ?>
                             <div class="flex items-center justify-between p-3 bg-white shadow-sm border border-gray-200 hover:border-blue-500 rounded-xl hover:shadow-md transition duration-300">
                                 <div class="flex items-center gap-3 min-w-0">
                                     <img src="<?= !empty($member['PATH_PHOTO'])
@@ -58,14 +58,14 @@
                                 </div>
 
                                 <button
-                                    onclick="kickMember('<?= $forumByid['ID'] ?>','<?= $member['USER_ID'] ?>')"
+                                    onclick="kickMember('<?= $groupChatByid['ID'] ?>','<?= $member['USER_ID'] ?>')"
                                     class="px-4 py-2 text-sm rounded-lg border bg-red-600 text-white hover:bg-red-800">
                                     Kick
                                 </button>
                             </div>
                         <?php endforeach; ?>
 
-                        <?php if (count($membersForumFiltered) < 1): ?>
+                        <?php if (count($membersGroupChatFiltered) < 1): ?>
                             <p class="text-gray-500 text-center">No members found.</p>
                         <?php endif; ?>
 
@@ -156,7 +156,7 @@
 </div>
 
 <script>
-    const FORUM_ID = "<?= $forumByid['ID'] ?>";
+    const GROUP_CHAT_ID = "<?= $groupChatByid['ID'] ?>";
 
     // --- DEFINISI VARIABEL BARU (GLOBAL NOTIF) ---
     const globalSuccessDiv = document.getElementById("globalSuccessDiv");
@@ -252,7 +252,7 @@
 
     async function searchUser(keyword) {
         searchResults.innerHTML = `<p class="text-center text-gray-400 text-sm">Searching...</p>`;
-        const res = await fetch(`${BASEURL}/forums/searchUser`, {
+        const res = await fetch(`${BASEURL}/groups/searchUser`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
@@ -309,13 +309,13 @@
         confirmAdd.disabled = true;
 
         try {
-            const res = await fetch(`${BASEURL}/forums/addMember`, {
+            const res = await fetch(`${BASEURL}/groups/addMember`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded"
                 },
                 body: new URLSearchParams({
-                    id: FORUM_ID,
+                    id: GROUP_CHAT_ID,
                     user_id: selectedUserId
                 })
             });
@@ -345,38 +345,38 @@
     const kickModal = document.getElementById("modal-confirm-kick");
     const cancelKickBtn = document.getElementById("cancel-kick");
     const confirmKickBtn = document.getElementById("confirm-kick");
-    let targetForumId = null;
+    let targetGroupChatId = null;
     let targetUserId = null;
 
-    function kickMember(forumId, userId) {
-        targetForumId = forumId;
+    function kickMember(groupChatId, userId) {
+        targetGroupChatId = groupChatId;
         targetUserId = userId;
         kickModal.classList.remove("hidden");
     }
 
     function closeKickModal() {
         kickModal.classList.add("hidden");
-        targetForumId = null;
+        targetGroupChatId = null;
         targetUserId = null;
     }
 
     cancelKickBtn.addEventListener("click", closeKickModal);
 
     confirmKickBtn.addEventListener("click", async function() {
-        if (!targetForumId || !targetUserId) return;
+        if (!targetGroupChatId || !targetUserId) return;
 
         const originalText = confirmKickBtn.innerText;
         confirmKickBtn.innerText = "Processing...";
         confirmKickBtn.disabled = true;
 
         try {
-            const res = await fetch(`${BASEURL}/forums/kickMember`, {
+            const res = await fetch(`${BASEURL}/groups/kickMember`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded"
                 },
                 body: new URLSearchParams({
-                    forum_id: targetForumId,
+                    group_chat_id: targetGroupChatId,
                     user_id: targetUserId
                 })
             });

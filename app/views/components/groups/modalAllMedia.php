@@ -29,11 +29,11 @@
         const modalContentBox = document.getElementById("modalContentBox");
 
         const mediaContainer = document.getElementById("mediaContainer");
-        const forumId = '<?php echo $forumByid['ID'] ?? ''; ?>';
+        const groupChatId = '<?php echo $groupChatByid['ID'] ?? ''; ?>';
         const BASEURL = '<?php echo BASEURL; ?>';
 
         async function getMedia() {
-            if (!forumId) {
+            if (!groupChatId) {
                 mediaContainer.innerHTML = '<p class="text-red-500">Forum ID tidak tersedia.</p>';
                 return;
             }
@@ -41,7 +41,7 @@
             mediaContainer.innerHTML = '<div class="text-center py-5">Loading media...</div>';
 
             try {
-                const url = `${BASEURL}/forums/getAllMedia/${forumId}`;
+                const url = `${BASEURL}/groups/getAllMedia/${groupChatId}`;
                 const response = await fetch(url);
                 const data = await response.json();
 

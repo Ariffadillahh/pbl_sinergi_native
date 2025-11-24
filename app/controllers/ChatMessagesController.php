@@ -1,15 +1,15 @@
 <?php
-require_once __DIR__ . '/../models/Forums/ChatMessage.php';
+require_once __DIR__ . '/../models/GroupChats/ChatMessage.php';
 
 class ChatMessagesController
 {
     private $chatMessageModel;
-    private $forumModel;
+    private $groupChatModel;
 
     public function __construct()
     {
         $this->chatMessageModel = new ChatMessage();
-        $this->forumModel = new Forum();
+        $this->groupChatModel = new GroupChat();
     }
 
     public function sendMessage()
@@ -34,11 +34,11 @@ class ChatMessagesController
 
         $user_id  = $_SESSION['user_id'];
 
-        $forum_id = isset($_POST['forum_id']) ? trim($_POST['forum_id']) : null;
+        $groupChatId = isset($_POST['forum_id']) ? trim($_POST['forum_id']) : null;
         $message  = trim($_POST['message'] ?? '');
 
 
-        if (!$forum_id || !$this->chatMessageModel->isUserInForum($user_id, $forum_id)) {
+        if (!$groupChatId || !$this->chatMessageModel->isUserInGroupChat($user_id, $groupChatId)) {
             http_response_code(403);
             echo json_encode(['error' => 'Anda bukan anggota forum ini.']);
             return;
@@ -53,7 +53,7 @@ class ChatMessagesController
         }
 
         $data = [
-            'forum_id'          => $forum_id,
+            'forum_id'          => $groupChatId,
             'sender_id'         => $user_id,
             'content'           => $message,
             'path_media'        => null,
@@ -124,17 +124,17 @@ class ChatMessagesController
             }
 
             $userId = $_SESSION['user_id'];
-            $forumId = isset($_GET['forum_id']) ? trim($_GET['forum_id']) : '';
+            $groupChatId = isset($_GET['forum_id']) ? trim($_GET['forum_id']) : '';
             $lastTimestamp = $_GET['since'] ?? null;
 
             session_write_close();
 
-            if (empty($forumId)) {
+            if (empty($groupChatId)) {
                 echo json_encode([]);
                 return;
             }
 
-            if (!$this->chatMessageModel->isUserInForum($userId, $forumId)) {
+            if (!$this->chatMessageModel->isUserInGroupChat($userId, $groupChatId)) {
                 http_response_code(403);
                 echo json_encode(['error' => 'Anda bukan member forum ini.']);
                 return;
@@ -145,13 +145,13 @@ class ChatMessagesController
 
             while ((time() - $startTime) < 55) {
 
-                if (!$this->chatMessageModel->isUserInForum($userId, $forumId)) {
+                if (!$this->chatMessageModel->isUserInGroupChat($userId, $groupChatId)) {
                     http_response_code(403);
                     echo json_encode(['error' => 'Anda telah dikeluarkan dari forum.']);
                     return;
                 }
 
-                $messages = $this->chatMessageModel->getMessagesSince($forumId, $lastTimestamp);
+                $messages = $this->chatMessageModel->getMessagesSince($groupChatId, $lastTimestamp);
 
                 if (!empty($messages)) {
                     echo json_encode($messages);
@@ -169,11 +169,11 @@ class ChatMessagesController
         }
     }
 
-    public function getInitialMessages($forum_id)
+    public function getInitialMessages($groupChatId)
     {
         header('Content-Type: application/json');
 
-        $messages = $this->chatMessageModel->getMessagesByForumId($forum_id);
+        $messages = $this->chatMessageModel->getMessagesByGroupChatId($groupChatId);
 
         echo json_encode($messages ?? []);
 
@@ -188,7 +188,7 @@ class ChatMessagesController
         }
 
         $currentUserId = $_SESSION['user_id'];
-        $this->forumModel->updateLastReadAt($id, $currentUserId);
+        $this->groupChatModel->updateLastReadAt($id, $currentUserId);
         http_response_code(204);
         exit;
     }
@@ -212,21 +212,21 @@ class ChatMessagesController
 
             while (time() - $startTime < 35) {
 
-                $forumsData = $this->forumModel->getForumsByUserId($userId);
+                $groupChatsData = $this->groupChatModel->getGroupChatsByUserId($userId);
 
                 $payload = [];
-                foreach ($forumsData as $forum) {
+                foreach ($groupChatsData as $groupChat) {
 
                     $lastMessage = $this->formatLastMessage(
-                        $forum['LAST_MESSAGE_CONTENT'] ?? null,
-                        $forum['LAST_MESSAGE_TYPE'] ?? 'TEXT'
+                        $groupChat['LAST_MESSAGE_CONTENT'] ?? null,
+                        $groupChat['LAST_MESSAGE_TYPE'] ?? 'TEXT'
                     );
 
-                    $lastTime = $forum['LAST_MESSAGE_AT'] ?? $forum['CREATED_AT'];
+                    $lastTime = $groupChat['LAST_MESSAGE_AT'] ?? $groupChat['CREATED_AT'];
 
                     $payload[] = [
-                        'forumId' => $forum['ID'],
-                        'count' => (int) $forum['UNREAD_COUNT'],
+                        'forumId' => $groupChat['ID'],
+                        'count' => (int) $groupChat['UNREAD_COUNT'],
                         'lastMessage' => $lastMessage,
                         'lastTime' => $lastTime
                     ];
@@ -270,7 +270,7 @@ class ChatMessagesController
         }
     }
 
-    public function getAllMedia($forumId)
+    public function getAllMedia($groupChatId)
     {
         header('Content-Type: application/json');
 
@@ -281,7 +281,7 @@ class ChatMessagesController
         }
 
         try {
-            $allMedia = $this->chatMessageModel->getAllForumMedia($forumId);
+            $allMedia = $this->chatMessageModel->getAllGroupChatMedia($groupChatId);
 
             echo json_encode([
                 'success' => true,

@@ -2,30 +2,30 @@
 
 require_once "app/models/BaseModel.php";
 
-class ForumMember extends BaseModel
+class GroupChatMember extends BaseModel
 {
-    public static function findByForumId($forumId)
+    public static function findBygroupChatId($groupChatId)
     {
         $conn = self::getConnection();
 
         $sql = "SELECT 
-                fm.USER_ID, 
-                TO_CHAR(fm.JOINED_AT, 'DD Mon YYYY', 'NLS_DATE_LANGUAGE = American') AS JOINED_AT, 
+                gcm.USER_ID, 
+                TO_CHAR(gcm.JOINED_AT, 'DD Mon YYYY', 'NLS_DATE_LANGUAGE = American') AS JOINED_AT, 
                 u.FULL_NAME AS NAME, 
                 U.USERNAME,
                 u.PATH_PHOTO,
                 u.ROLE AS ROLE,
                 u.EMAIL
             FROM 
-                FORUM_MEMBERS fm
+                GROUP_CHAT_MEMBERS gcm
             JOIN 
-                USERS u ON fm.USER_ID = u.ID
+                USERS u ON gcm.USER_ID = u.ID
             WHERE 
-                fm.FORUM_ID = :forum_id_bv";
+                gcm.GROUP_CHAT_ID = :group_chat_id_bv";
 
         $stmt = oci_parse($conn, $sql);
 
-        oci_bind_by_name($stmt, ':forum_id_bv', $forumId);
+        oci_bind_by_name($stmt, ':group_chat_id_bv', $groupChatId);
 
         oci_execute($stmt);
 
@@ -39,18 +39,18 @@ class ForumMember extends BaseModel
         return $members;
     }
 
-public function isMember($forumId, $userId)
+public function isMember($groupChatId, $userId)
 {
     $conn = self::getConnection();
 
     // pakai nama bind variable yang jelas dan tidak sama dengan kolom
     $sql = "SELECT COUNT(*) AS \"CNT\" 
-            FROM FORUM_MEMBERS 
-            WHERE FORUM_ID = :forum_id_bv AND USER_ID = :user_id_bv";
+            FROM GROUP_CHAT_MEMBERS 
+            WHERE GROUP_CHAT_ID = :group_chat_id_bv AND USER_ID = :user_id_bv";
 
     $stmt = oci_parse($conn, $sql);
 
-    oci_bind_by_name($stmt, "forum_id_bv", $forumId);
+    oci_bind_by_name($stmt, "GROUP_CHAT_ID_bv", $groupChatId);
     oci_bind_by_name($stmt, "user_id_bv", $userId);
 
     if (!oci_execute($stmt)) {
@@ -63,18 +63,18 @@ public function isMember($forumId, $userId)
     return $row && intval($row['CNT']) > 0;
 }
 
-public function removeMember($forumId, $userId)
+public function removeMember($groupChatId, $userId)
 {
     $conn = self::getConnection();
 
-    $sql = "DELETE FROM FORUM_MEMBERS 
-            WHERE FORUM_ID = :forum_id_bv 
+    $sql = "DELETE FROM GROUP_CHAT_MEMBERS 
+            WHERE GROUP_CHAT_ID = :group_chat_id_bv 
             AND USER_ID = :user_id_bv";
 
     $stmt = oci_parse($conn, $sql);
 
     // bind variabel
-    oci_bind_by_name($stmt, ":forum_id_bv", $forumId);
+    oci_bind_by_name($stmt, ":group_chat_id_bv", $groupChatId);
     oci_bind_by_name($stmt, ":user_id_bv", $userId);
 
     $exec = oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
@@ -90,18 +90,18 @@ public function removeMember($forumId, $userId)
     return true;
 }
 
-public function insertMember($forumId, $userId)
+public function insertMember($groupChatId, $userId)
 {
     $conn = self::getConnection();
 
     $id = uniqid('fm_');
 
-    $sql = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, JOINED_AT)
-            VALUES (:id, :forum_id, :user_id, CURRENT_TIMESTAMP)";
+    $sql = "INSERT INTO GROUP_CHAT_MEMBERS (ID, GROUP_CHAT_ID, USER_ID, JOINED_AT)
+            VALUES (:id, :GROUP_CHAT_ID, :user_id, CURRENT_TIMESTAMP)";
 
     $stmt = oci_parse($conn, $sql);
     oci_bind_by_name($stmt, ':id', $id);
-    oci_bind_by_name($stmt, ':forum_id', $forumId);
+    oci_bind_by_name($stmt, ':GROUP_CHAT_ID', $groupChatId);
     oci_bind_by_name($stmt, ':user_id', $userId);
 
     $result = oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);

@@ -1,5 +1,5 @@
 <?php
-$initial = strtoupper(substr($forumByid['NAME'], 0, 2));
+$initial = strtoupper(substr($groupChatByid['NAME'], 0, 2));
 $placeholder = "data:image/svg+xml;utf8,"
     . rawurlencode("
         <svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'>
@@ -15,7 +15,7 @@ $placeholder = "data:image/svg+xml;utf8,"
         <div class="relative bg-white rounded-lg shadow-sm">
             <div class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t">
                 <h3 class="text-xl font-semibold text-gray-900">
-                    Edit Forum
+                    Edit Group
                 </h3>
                 <button
                     type="button"
@@ -31,21 +31,21 @@ $placeholder = "data:image/svg+xml;utf8,"
             <div class="p-4">
                 <p id="edit-forum-error" class="bg-red-600 p-2 text-white text-center rounded-lg hidden mb-2"></p>
 
-                <form id="form-edit-forum" action="<?php echo BASEURL; ?>/forums/edit" method="post" class="my-5" enctype="multipart/form-data">
+                <form id="form-edit-forum" action="<?php echo BASEURL; ?>/groups/edit" method="post" class="my-5" enctype="multipart/form-data">
                     <section class="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <div class="flex-shrink-0 size-[100px] rounded-full overflow-hidden border-2 border-gray-200">
                             <img
                                 id="edit-forum-photo-preview"
                                 src="<?=
-                                        !empty($forumByid['PATH_PHOTO'])
-                                            ? BASEURL . '/storage/forums/photos/' . $forumByid['PATH_PHOTO']
+                                        !empty($groupChatByid['PATH_PHOTO'])
+                                            ? BASEURL . '/storage/groups/photos/' . $groupChatByid['PATH_PHOTO']
                                             : $placeholder
                                         ?>"
                                 alt="Forum photo"
                                 class="object-cover w-full h-full" />
                         </div>
 
-                        <input type="file" id="edit-forum-file-input" name="forumPhoto" class="hidden" accept="image/*" />
+                        <input type="file" id="edit-forum-file-input" name="groupChatPhoto" class="hidden" accept="image/*" />
                         <button
                             type="button"
                             id="btn-edit-forum-change-photo"
@@ -56,18 +56,18 @@ $placeholder = "data:image/svg+xml;utf8,"
                     </section>
 
                     <div class="my-6 max-w-md mx-auto">
-                        <input type="hidden" name="forum_id" value="<?php echo $forumByid['ID'] ?>">
+                        <input type="hidden" name="group_chat_id" value="<?php echo $groupChatByid['ID'] ?>">
                         <div class="relative">
                             <input
                                 type="text"
                                 id="edit-forum-name"
-                                name="forumName"
-                                value="<?php echo $forumByid['NAME'] ?>"
+                                name="groupChatName"
+                                value="<?php echo $groupChatByid['NAME'] ?>"
                                 class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                                 placeholder=" " required />
                             <label for="edit-forum-name"
                                 class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600 peer-placeholder-shown:top-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4">
-                                Forum Name
+                                Group Name
                             </label>
                         </div>
 
@@ -76,12 +76,12 @@ $placeholder = "data:image/svg+xml;utf8,"
                                 type="text"
                                 id="edit-forum-bio"
                                 name="bio"
-                                value="<?php echo $forumByid['ABOUT'] ?>"
+                                value="<?php echo $groupChatByid['ABOUT'] ?>"
                                 class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                                 placeholder=" " required />
                             <label for="edit-forum-bio"
                                 class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600 peer-placeholder-shown:top-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4">
-                                About This Forum
+                                About This Group
                             </label>
                         </div>
 
@@ -90,21 +90,21 @@ $placeholder = "data:image/svg+xml;utf8,"
                                 type="checkbox"
                                 name="isPrivate"
                                 id="edit-forum-isPrivate"
-                                <?php if (!empty($forumByid['IS_PRIVATE']) && $forumByid['IS_PRIVATE']) echo 'checked'; ?> />
-                            <label for="edit-forum-isPrivate" class="ml-2 text-sm text-gray-600">Make this forum private</label>
+                                <?php if (!empty($groupChatByid['IS_PRIVATE']) && $groupChatByid['IS_PRIVATE']) echo 'checked'; ?> />
+                            <label for="edit-forum-isPrivate" class="ml-2 text-sm text-gray-600">Make this group private</label>
                         </div>
 
-                        <div class="relative my-3 <?php echo (!empty($forumByid['IS_PRIVATE']) && $forumByid['IS_PRIVATE']) ? '' : 'hidden'; ?>" id="edit-forum-key-container">
+                        <div class="relative my-3 <?php echo (!empty($groupChatByid['IS_PRIVATE']) && $groupChatByid['IS_PRIVATE']) ? '' : 'hidden'; ?>" id="edit-forum-key-container">
                             <input
                                 type="text"
                                 id="edit-forum-key"
-                                value="<?php echo $forumByid['ACCESS_KEY'] ?>"
-                                name="keyForum"
+                                value="<?php echo $groupChatByid['ACCESS_KEY'] ?>"
+                                name="keyGroupChat"
                                 class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                                 placeholder=" " />
                             <label for="edit-forum-key"
                                 class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600 peer-placeholder-shown:top-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4">
-                                Key Forum
+                                Key Group Chat
                             </label>
                         </div>
 
@@ -113,7 +113,7 @@ $placeholder = "data:image/svg+xml;utf8,"
                             name="edit"
                             id="btn-submit-edit-forum"
                             class="mt-6 w-full px-6 py-3.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors">
-                            Edit Forum
+                            Edit Group
                         </button>
                     </div>
                 </form>

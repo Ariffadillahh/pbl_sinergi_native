@@ -3,7 +3,7 @@
         <div class="relative bg-white rounded-lg shadow-sm">
             <div class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t">
                 <h3 class="text-xl font-semibold text-gray-900">
-                    Laporkan Forum Ini
+                    Laporkan Group Ini
                 </h3>
                 <button type="button" id="btn-cancel-report-forum" class="text-gray-400 rounded-lg text-sm w-8 h-8 flex justify-center items-center cursor-pointer">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -20,13 +20,13 @@
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
                     <p class="text-sm text-gray-600 mb-5">
-                        Mengapa Anda melaporkan forum "<?php echo htmlspecialchars($forumByid['NAME'], ENT_QUOTES, 'UTF-8'); ?>"?
+                        Mengapa Anda melaporkan grup ini "<?php echo htmlspecialchars($groupChatByid['NAME'], ENT_QUOTES, 'UTF-8'); ?>"?
                     </p>
                 </div>
 
                 <form id="form-report-forum" action="<?php echo BASEURL; ?>/report" method="post">
-                    <input type="hidden" name="target_id" value="<?php echo $forumByid['ID']; ?>">
-                    <input type="hidden" name="target_type" value="FORUM">
+                    <input type="hidden" name="target_id" value="<?php echo $groupChatByid['ID']; ?>">
+                    <input type="hidden" name="target_type" value="GROUP">
 
                     <h3 class="mb-3 font-semibold text-gray-900 text-left">Pilih Alasan</h3>
 

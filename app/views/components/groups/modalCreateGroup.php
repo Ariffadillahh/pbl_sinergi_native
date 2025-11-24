@@ -3,7 +3,7 @@
         <div class="relative bg-white rounded-lg shadow-sm">
             <div class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t">
                 <h3 class="text-xl font-semibold text-gray-900">
-                    Crate New Forum
+                    Create New Group
                 </h3>
                 <button type="button" id="close-modal-forum" class="text-gray-400 rounded-lg text-sm w-8 h-8 flex justify-center items-center cursor-pointer" data-modal-hide="authentication-modal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -15,12 +15,12 @@
             </div>
             <div class="p-4">
                 <p id="modal-error-message" class="bg-red-600 p-2 text-white text-center rounded-lg hidden mb-2"></p>
-                <form id="create-forum-form" action="<?php echo BASEURL; ?>/forums/create" method="post" class="my-5" enctype="multipart/form-data">
+                <form id="create-forum-form" action="<?php echo BASEURL; ?>/groups/create" method="post" class="my-5" enctype="multipart/form-data">
                     <section class="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <div class="flex-shrink-0 size-[100px] rounded-full overflow-hidden border-2 border-gray-200">
                             <img id="photo-container" src="<?php echo BASEURL; ?>/src/asset/image/default.png" alt="User avatar" class="object-cover w-full h-full" />
                         </div>
-                        <input type="file" id="file-input" name="forumPhoto" class="hidden" accept="image/*" />
+                        <input type="file" id="file-input" name="groupChatPhoto" class="hidden" accept="image/*" />
                         <button type="button" id="add-photo" class="flex items-center gap-2 px-6 py-3.5 rounded-full bg-gray-900 text-white font-bold hover:bg-gray-700 transition-colors">
                             <img src="<?php echo BASEURL; ?>/src/asset/icons/edit-2-white-fill.svg" alt="Edit icon" class="size-6" />
                             <span>Change Photo</span>
@@ -28,22 +28,22 @@
                     </section>
                     <div class="my-6 max-w-md mx-auto">
                         <div class="relative">
-                            <input type="text" id="forumName" name="forumName" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                            <label for="forumName" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4">Forum Name</label>
+                            <input type="text" id="groupChatName" name="groupChatName" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
+                            <label for="groupChatName" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4">Group Name</label>
                         </div>
                         <div class="relative my-5">
                             <input type="text" id="bio" name="bio" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                            <label for="bio" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4">About This Forums</label>
+                            <label for="bio" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4">About This Group</label>
                         </div>
                         <div class="flex items-center">
                             <input type="checkbox" name="isPrivate" id="isPrivate" />
-                            <label for="isPrivate" class="ml-2 text-sm text-gray-600">Make this forum private</label>
+                            <label for="isPrivate" class="ml-2 text-sm text-gray-600">Make this group private</label>
                         </div>
                         <div class="relative my-3 hidden" id="keyForumContainer">
-                            <input type="text" id="keyForums" name="keyForum" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " />
-                            <label for="keyForums" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4">Key Forum</label>
+                            <input type="text" id="keyGroupChats" name="keyGroupChats" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " />
+                            <label for="keyGroupChats" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4">Key Group</label>
                         </div>
-                        <button type="submit" name="create" id="createForm" class="mt-6 w-full px-6 py-3.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors">Create Forum</button>
+                        <button type="submit" name="create" id="createForm" class="mt-6 w-full px-6 py-3.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors">Create Group</button>
                     </div>
                 </form>
             </div>
@@ -54,10 +54,10 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        createForum();
+        createGroupChat();
     });
 
-    function createForum() {
+    function createGroupChat() {
         const form = document.getElementById("create-forum-form");
         if (!form) return;
 

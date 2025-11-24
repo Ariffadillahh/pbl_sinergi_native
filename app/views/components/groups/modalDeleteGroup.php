@@ -10,11 +10,11 @@
                 </svg>
 
                 <h3 class="mb-5 text-lg font-normal text-gray-600">
-                    Are you sure you want to delete this forum?
+                    Are you sure you want to delete this group?
                 </h3>
 
-                <form id="form-delete-forum" action="<?php echo BASEURL; ?>/forums/delete" method="post">
-                    <input type="hidden" name="forum_id" value="<?php echo $forumByid['ID']; ?>">
+                <form id="form-delete-forum" action="<?php echo BASEURL; ?>/groups/delete" method="post">
+                    <input type="hidden" name="group_chat_id" value="<?php echo $groupChatByid['ID']; ?>">
                 </form>
 
                 <div class="flex justify-center gap-3 mt-4">
@@ -83,11 +83,11 @@
             if (result.success) {
                 window.location.href = result.redirectUrl;
             } else {
-                errorDeleteForum.textContent = result.message || "Failed to delete forum.";
+                errorDeleteForum.textContent = result.message || "Failed to delete group.";
                 errorDeleteForum.classList.remove("hidden");
             }
         } catch (err) {
-            errorDeleteForum.textContent = "Network error while deleting forum.";
+            errorDeleteForum.textContent = "Network error while deleting group.";
             errorDeleteForum.classList.remove("hidden");
         } finally {
             btnConfirmDeleteForum.disabled = false;

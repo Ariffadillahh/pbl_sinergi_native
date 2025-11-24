@@ -1,15 +1,15 @@
 <?php
-require_once __DIR__ . '/../models/Forums/Forum.php';
-require_once __DIR__ . '/../models/Forums/ForumMember.php';
-require_once __DIR__ . '/../models/Forums/ChatMessage.php';
+require_once __DIR__ . '/../models/GroupChats/GroupChat.php';
+require_once __DIR__ . '/../models/GroupChats/GroupChatMember.php';
+require_once __DIR__ . '/../models/GroupChats/ChatMessage.php';
 require_once __DIR__ . '/../models/Notif/NotificationModel.php';
 require_once __DIR__ . '/../models/Posts/PostModel.php';
 require_once __DIR__ . '/../models/Users/UserModel.php';
 
-class ForumsController
+class GroupChatController
 {
-    private $forumModel;
-    private $forumMemberModel;
+    private $groupChatModel;
+    private $groupChatMemberModel;
     private $notificationModel;
     private $postModel;
     private $userModel;
@@ -17,8 +17,8 @@ class ForumsController
 
     public function __construct()
     {
-        $this->forumModel = new Forum();
-        $this->forumMemberModel = new ForumMember();
+        $this->groupChatModel = new GroupChat();
+        $this->groupChatMemberModel = new GroupChatMember();
         $this->notificationModel = new NotificationModel();
         $this->postModel = new PostModel();
         $this->userModel = new UserModel();
@@ -27,26 +27,26 @@ class ForumsController
 
     public function index()
     {
-        $joinedForums = $this->forumModel->getForumsByUserId($_SESSION['user_id']);
+        $joinedChatGroups = $this->groupChatModel->getGroupChatsByUserId($_SESSION['user_id']);
         $activeChatId = null;
 
-        $contentView = __DIR__ . '/../views/forums/index.php';
-        require_once __DIR__ . '/../views/forums/layout.php';
+        $contentView = __DIR__ . '/../views/groups/index.php';
+        require_once __DIR__ . '/../views/groups/layout.php';
     }
 
     public function chat($id)
     {
-        $forumByid = $this->forumModel->findById($id);
+        $groupChatId = $this->groupChatModel->findById($id);
 
-        if (!$forumByid) {
-            header("Location: " . BASEURL . "/forums");
+        if (!$groupChatId) {
+            header("Location: " . BASEURL . "/groups");
             exit;
         }
 
-        $membersForum = $this->forumMemberModel->findByForumId($id);
+        $membersGroupChat = $this->groupChatMemberModel->findByGroupChatId($id);
 
         $isMember = false;
-        foreach ($membersForum as $member) {
+        foreach ($membersGroupChat as $member) {
             if ($member['USER_ID'] == $_SESSION['user_id']) {
                 $isMember = true;
                 break;
@@ -54,16 +54,16 @@ class ForumsController
         }
 
         if (!$isMember) {
-            header("Location: " . BASEURL . "/forums");
+            header("Location: " . BASEURL . "/groups");
             exit;
         }
 
         $currentUserId = $_SESSION['user_id'];
 
-        $unreadCount = $this->forumModel->getUnreadCount($id, $currentUserId);
+        $unreadCount = $this->groupChatModel->getUnreadCount($id, $currentUserId);
 
         if ($unreadCount > 0) {
-            $this->forumModel->updateLastReadAt($id, $currentUserId);
+            $this->groupChatModel->updateLastReadAt($id, $currentUserId);
         }
 
         function formatDatePretty($rawDate)
@@ -76,12 +76,12 @@ class ForumsController
             return date("d F Y", $timestamp); 
         }
 
-        $mediaPreview = $this->chatMessageModel->getForumMediaPreview($id, 4);
-        $joinedForums = $this->forumModel->getForumsByUserId($currentUserId);
+        $mediaPreview = $this->chatMessageModel->getGroupChatMediaPreview($id, 4);
+        $joinedGroupChats = $this->groupChatModel->getGroupChatsByUserId($currentUserId);
         $activeChatId = $id;
 
-        $contentView = __DIR__ . '/../views/forums/chat/index.php';
-        require_once __DIR__ . '/../views/forums/layout.php';
+        $contentView = __DIR__ . '/../views/groups/chat/index.php';
+        require_once __DIR__ . '/../views/groups/layout.php';
     }
 
     public function create()
@@ -93,41 +93,41 @@ class ForumsController
             exit;
         }
 
-        $forumName = trim($_POST['forumName'] ?? '');
+        $groupChatName = trim($_POST['groupChatName'] ?? '');
         $bio = trim($_POST['bio'] ?? '');
         $isPrivate = isset($_POST['isPrivate']) ? 1 : 0;
 
-        if (empty($forumName) || empty($bio)) {
-            echo json_encode(['success' => false, 'message' => 'Nama Forum dan Bio tidak boleh kosong.']);
+        if (empty($groupChatName) || empty($bio)) {
+            echo json_encode(['success' => false, 'message' => 'Nama Group Chat dan Bio tidak boleh kosong.']);
             exit;
         }
 
         $photoPath = null;
-        if (!empty($_FILES['forumPhoto']['name'])) {
+        if (!empty($_FILES['groupChatPhoto']['name'])) {
             $id_sementara = uniqid();
-            $targetDir = __DIR__ . '/../../storage/forums/photos/';
+            $targetDir = __DIR__ . '/../../storage/groups/photos/';
             if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
-            $fileName = $id_sementara . "_" . basename($_FILES['forumPhoto']['name']);
+            $fileName = $id_sementara . "_" . basename($_FILES['groupChatPhoto']['name']);
             $targetFile = $targetDir . $fileName;
-            if (move_uploaded_file($_FILES['forumPhoto']['tmp_name'], $targetFile)) {
+            if (move_uploaded_file($_FILES['groupChatPhoto']['tmp_name'], $targetFile)) {
                 $photoPath = $fileName;
             }
         }
 
         $data = [
-            'forumName' => $forumName,
+            'groupChatName' => $groupChatName,
             'bio'       => $bio,
             'isPrivate' => $isPrivate,
-            'keyForum'  => $_POST['keyForum'] ?? null,
+            'keyGroupChat'  => $_POST['keyGroupChat'] ?? null,
             'user_id'   => $_SESSION['user_id'],
             'photo'     => $photoPath
         ];
 
-        $newForumId = $this->forumModel->create($data);
-        if ($newForumId) {
-            $response = ['success' => true, 'message' => 'Forum berhasil dibuat!', 'redirectUrl' => BASEURL . "/forums/chat/" . $newForumId];
+        $newGroupChatId = $this->groupChatModel->create($data);
+        if ($newGroupChatId) {
+            $response = ['success' => true, 'message' => 'Group berhasil dibuat!', 'redirectUrl' => BASEURL . "/groups/chat/" . $newGroupChatId];
         } else {
-            $response = ['success' => false, 'message' => 'Gagal membuat forum.'];
+            $response = ['success' => false, 'message' => 'Gagal membuat Group.'];
         }
         echo json_encode($response);
         exit;
@@ -142,38 +142,38 @@ class ForumsController
             exit;
         }
 
-        $forumId = $_POST['forum_id'] ?? null;
-        $forumName = trim($_POST['forumName'] ?? '');
+        $groupChatId = $_POST['group_chat_id'] ?? null;
+        $groupChatName = trim($_POST['groupChatName'] ?? '');
         $bio = trim($_POST['bio'] ?? '');
         $isPrivate = isset($_POST['isPrivate']) ? 1 : 0;
-        $keyForum = $_POST['keyForum'] ?? null;
+        $keyGroupChat = $_POST['keyGroupChat'] ?? null;
 
-        if (empty($forumId) || empty($forumName) || empty($bio)) {
+        if (empty($groupChatId) || empty($groupChatName) || empty($bio)) {
             echo json_encode(['success' => false, 'message' => 'Data tidak boleh kosong.']);
             exit;
         }
 
-        $oldForum = $this->forumModel->findById($forumId);
-        if (!$oldForum) {
-            echo json_encode(['success' => false, 'message' => 'Forum tidak ditemukan.']);
+        $oldGroupChat = $this->groupChatModel->findById($groupChatId);
+        if (!$oldGroupChat) {
+            echo json_encode(['success' => false, 'message' => 'Group tidak ditemukan.']);
             exit;
         }
 
-        if ($oldForum['OWNER_ID'] != $_SESSION['user_id']) {
+        if ($oldGroupChat['OWNER_ID'] != $_SESSION['user_id']) {
             http_response_code(403);
-            echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki izin untuk mengedit forum ini.']);
+            echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki izin untuk mengedit group ini.']);
             exit;
         }
 
-        $photoPath = $oldForum['PATH_PHOTO'];
-        if (!empty($_FILES['forumPhoto']['name'])) {
-            $targetDir = __DIR__ . '/../../storage/forums/photos/';
+        $photoPath = $oldGroupChat['PATH_PHOTO'];
+        if (!empty($_FILES['groupChatPhoto']['name'])) {
+            $targetDir = __DIR__ . '/../../storage/groups/photos/';
             if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
-            $fileName = uniqid() . "_" . basename($_FILES['forumPhoto']['name']);
+            $fileName = uniqid() . "_" . basename($_FILES['groupChatPhoto']['name']);
             $targetFile = $targetDir . $fileName;
-            if (move_uploaded_file($_FILES['forumPhoto']['tmp_name'], $targetFile)) {
-                if (!empty($oldForum['PATH_PHOTO']) && $oldForum['PATH_PHOTO'] !== 'default.png') {
-                    $oldFile = $targetDir . $oldForum['PATH_PHOTO'];
+            if (move_uploaded_file($_FILES['groupChatPhoto']['tmp_name'], $targetFile)) {
+                if (!empty($oldGroupChat['PATH_PHOTO']) && $oldGroupChat['PATH_PHOTO'] !== 'default.png') {
+                    $oldFile = $targetDir . $oldGroupChat['PATH_PHOTO'];
                     if (file_exists($oldFile)) {
                         unlink($oldFile);
                     }
@@ -183,17 +183,17 @@ class ForumsController
         }
 
         $data = [
-            'NAME' => $forumName,
+            'NAME' => $groupChatName,
             'ABOUT' => $bio,
             'IS_PRIVATE' => $isPrivate,
-            'ACCESS_KEY' => $isPrivate ? $keyForum : null,
+            'ACCESS_KEY' => $isPrivate ? $keyGroupChat : null,
             'PATH_PHOTO' => $photoPath,
         ];
 
-        if ($this->forumModel->edit($forumId, $data)) {
-            $response = ['success' => true, 'message' => 'Forum berhasil diperbarui!', 'redirectUrl' => BASEURL . "/forums/chat/" . $forumId];
+        if ($this->groupChatModel->edit($groupChatId, $data)) {
+            $response = ['success' => true, 'message' => 'Group berhasil diperbarui!', 'redirectUrl' => BASEURL . "/groups/chat/" . $groupChatId];
         } else {
-            $response = ['success' => false, 'message' => 'Gagal memperbarui forum.'];
+            $response = ['success' => false, 'message' => 'Gagal memperbarui Group.'];
         }
         echo json_encode($response);
         exit;
@@ -208,30 +208,30 @@ class ForumsController
             exit;
         }
 
-        $forumId = $_POST['forum_id'] ?? null;
-        if (empty($forumId)) {
-            echo json_encode(['success' => false, 'message' => 'Forum ID tidak ditemukan.']);
+        $groupChatId = $_POST['group_chat_id'] ?? null;
+        if (empty($groupChatId)) {
+            echo json_encode(['success' => false, 'message' => 'Group ID tidak ditemukan.']);
             exit;
         }
 
-        $forumToDelete = $this->forumModel->findById($forumId);
-        if (!$forumToDelete || $forumToDelete['OWNER_ID'] != $_SESSION['user_id']) {
+        $groupChatToDelete = $this->groupChatModel->findById($groupChatId);
+        if (!$groupChatToDelete || $groupChatToDelete['OWNER_ID'] != $_SESSION['user_id']) {
             http_response_code(403);
-            echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki izin atau forum tidak ditemukan.']);
+            echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki izin atau group tidak ditemukan.']);
             exit;
         }
 
-        if ($this->forumModel->delete($forumId)) {
-            $photoPath = $forumToDelete['PATH_PHOTO'] ?? null;
+        if ($this->groupChatModel->delete($groupChatId)) {
+            $photoPath = $groupChatToDelete['PATH_PHOTO'] ?? null;
             if (!empty($photoPath) && $photoPath !== 'default.png') {
-                $fullPath = __DIR__ . '/../../storage/forums/photos/' . $photoPath;
+                $fullPath = __DIR__ . '/../../storage/groups/photos/' . $photoPath;
                 if (file_exists($fullPath)) {
                     unlink($fullPath);
                 }
             }
-            $response = ['success' => true, 'message' => 'Forum berhasil dihapus!', 'redirectUrl' => BASEURL . "/forums"];
+            $response = ['success' => true, 'message' => 'Group berhasil dihapus!', 'redirectUrl' => BASEURL . "/groups"];
         } else {
-            $response = ['success' => false, 'message' => 'Gagal menghapus forum.'];
+            $response = ['success' => false, 'message' => 'Gagal menghapus Group.'];
         }
         echo json_encode($response);
         exit;
@@ -247,17 +247,17 @@ class ForumsController
         }
 
         $userId = $_SESSION['user_id'] ?? null;
-        $forumId = $_POST['forum_id'] ?? null;
-        if (empty($userId) || empty($forumId)) {
+        $groupChatId = $_POST['group_chat_id'] ?? null;
+        if (empty($userId) || empty($groupChatId)) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Data tidak lengkap.']);
             exit;
         }
 
-        if ($this->forumModel->exitForum($forumId, $userId)) {
-            $response = ['success' => true, 'message' => 'Anda berhasil keluar dari forum!', 'redirectUrl' => BASEURL . "/forums"];
+        if ($this->groupChatModel->exitGroupChat($groupChatId, $userId)) {
+            $response = ['success' => true, 'message' => 'Anda berhasil keluar dari group!', 'redirectUrl' => BASEURL . "/groups"];
         } else {
-            $response = ['success' => false, 'message' => 'Gagal keluar dari forum.'];
+            $response = ['success' => false, 'message' => 'Gagal keluar dari group.'];
         }
         echo json_encode($response);
         exit;
@@ -272,8 +272,8 @@ class ForumsController
             echo json_encode([]);
             exit;
         }
-        $forums = $this->forumModel->searchByName($keyword, $userId);
-        echo json_encode($forums);
+        $groupChats = $this->groupChatModel->searchByName($keyword, $userId);
+        echo json_encode($groupChats);
         exit;
     }
 
@@ -286,19 +286,19 @@ class ForumsController
             exit;
         }
 
-        $forumId = $_POST['forum_id'] ?? null;
+        $groupChatId = $_POST['group_chat_id'] ?? null;
         $userId = $_SESSION['user_id'] ?? null;
         $accessKey = $_POST['access_key'] ?? null;
 
-        if (empty($forumId) || empty($userId)) {
+        if (empty($groupChatId) || empty($userId)) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Data tidak lengkap.']);
             exit;
         }
 
-        $result = $this->forumModel->joinForum($forumId, $userId, $accessKey);
+        $result = $this->groupChatModel->joinGroupChat($groupChatId, $userId, $accessKey);
         if ($result['success']) {
-            echo json_encode(['success' => true, 'message' => $result['message'], 'redirectUrl' => BASEURL . '/forums/chat/' . $forumId]);
+            echo json_encode(['success' => true, 'message' => $result['message'], 'redirectUrl' => BASEURL . '/groups/chat/' . $groupChatId]);
         } else {
             http_response_code(409);
             echo json_encode(['success' => false, 'message' => $result['message']]);
@@ -316,35 +316,35 @@ class ForumsController
             exit;
         }
 
-        $forumId = $_POST['forum_id'] ?? null;
+        $groupChatId = $_POST['group_chat_id'] ?? null;
         $userId = $_SESSION['user_id'] ?? null;
 
-        if (!$forumId || !$userId) {
+        if (!$groupChatId || !$userId) {
             echo json_encode(['success' => false, 'message' => 'Missing parameters']);
             exit;
         }
 
         // Cek apakah sudah jadi member
-        if ($this->forumMemberModel->isMember($forumId, $userId)) {
+        if ($this->groupChatMemberModel->isMember($groupChatId, $userId)) {
             echo json_encode(['success' => true, 'message' => 'Already a member']);
             exit;
         }
 
         // Langsung insert tanpa access key
-        $insert = $this->forumMemberModel->insertMember($forumId, $userId);
+        $insert = $this->groupChatMemberModel->insertMember($groupChatId, $userId);
 
         if ($insert) {
             echo json_encode([
                 'success' => true,
-                'redirect' => BASEURL . "/forums/chat/" . $forumId
+                'redirect' => BASEURL . "/groups/chat/" . $groupChatId
             ]);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Failed to join forum']);
+            echo json_encode(['success' => false, 'message' => 'Failed to join group']);
         }
     }
 
 
-    public function reportForumOrPost()
+    public function reportGroupChatOrPost()
     {
         header('Content-Type: application/json');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -380,7 +380,7 @@ class ForumsController
         ];
 
         try {
-            if ($this->forumModel->createReport($reportData)['success']) {
+            if ($this->groupChatModel->createReport($reportData)['success']) {
                 echo json_encode(['success' => true, 'message' => 'Laporan Anda telah berhasil dikirim.']);
             } else {
                 http_response_code(500);
@@ -395,16 +395,16 @@ class ForumsController
     public function checkMembership()
     {
         header('Content-Type: application/json');
-        $forumId = $_GET['forum_id'] ?? null;
+        $groupChatId = $_GET['group_chat_id'] ?? null;
         $userId = $_SESSION['user_id'] ?? null;
 
-        if (!$forumId || !$userId) {
+        if (!$groupChatId || !$userId) {
             http_response_code(400);
             echo json_encode(['error' => 'Invalid request.']);
             return;
         }
 
-        $isMember = $this->forumMemberModel->isMember($forumId, $userId);
+        $isMember = $this->groupChatMemberModel->isMember($groupChatId, $userId);
         echo json_encode(['is_member' => $isMember]);
     }
 
@@ -427,31 +427,30 @@ class ForumsController
         }
 
         $currentUserId = $_SESSION['user_id'];
-        $forumId = $_POST['forum_id'] ?? null;
+        $groupChatId = $_POST['group_chat_id'] ?? null;
         $targetUserId = $_POST['user_id'] ?? null;
 
         // Input check
-        if (!$forumId || !$targetUserId) {
+        if (!$groupChatId || !$targetUserId) {
             http_response_code(400);
             echo json_encode(['error' => 'Missing parameters']);
             exit;
         }
 
-        // Check forum exists
-        $forum = $this->forumModel->findById($forumId);
-        if (!$forum) {
-            echo json_encode(['success' => false, 'message' => 'Forum not found']);
+        $groupChat = $this->groupChatModel->findById($groupChatId);
+        if (!$groupChat) {
+            echo json_encode(['success' => false, 'message' => 'Group not found']);
             exit;
         }
 
         // Check if current user is owner
-        if ($forum['OWNER_ID'] !== $currentUserId) {
+        if ($groupChat['OWNER_ID'] !== $currentUserId) {
             echo json_encode(['success' => false, 'message' => 'Unauthorized']);
             exit;
         }
 
         // Execute kick
-        $removed = $this->forumMemberModel->removeMember($forumId, $targetUserId);
+        $removed = $this->groupChatMemberModel->removeMember($groupChatId, $targetUserId);
 
         if (!$removed) {
             echo json_encode(['success' => false, 'message' => 'Failed to remove member']);
@@ -462,7 +461,7 @@ class ForumsController
         $this->notificationModel->addNotification(
             $targetUserId,     // user yg dikick
             $currentUserId,    // siapa yang kick
-            $forumId,          // target id
+            $groupChatId,          // target id
             "KICKED",          // type notif
             ""            // category (optional)
         );
@@ -513,29 +512,28 @@ class ForumsController
         }
 
         $ownerId = $_SESSION['user_id'];
-        $forumId = $_POST['id'] ?? null;
+        $groupChatId = $_POST['id'] ?? null;
         $targetUserId = $_POST['user_id'] ?? null;
 
-        if (!$forumId || !$targetUserId) {
+        if (!$groupChatId || !$targetUserId) {
             echo json_encode(['success' => false, 'message' => 'Missing parameters']);
             exit;
         }
 
-        // check forum
-        $forum = $this->forumModel->findById($forumId);
-        if (!$forum) {
-            echo json_encode(['success' => false, 'message' => 'Forum not found']);
+        $groupChat = $this->groupChatModel->findById($groupChatId);
+        if (!$groupChat) {
+            echo json_encode(['success' => false, 'message' => 'Group not found']);
             exit;
         }
 
         // only owner can add
-        if ($forum['OWNER_ID'] != $ownerId) {
+        if ($groupChat['OWNER_ID'] != $ownerId) {
             echo json_encode(['success' => false, 'message' => 'Unauthorized']);
             exit;
         }
 
         // check if already member
-        if ($this->forumMemberModel->isMember($forumId, $targetUserId)) {
+        if ($this->groupChatMemberModel->isMember($groupChatId, $targetUserId)) {
             echo json_encode(['success' => false, 'message' => 'User already a member']);
             exit;
         }
@@ -544,16 +542,16 @@ class ForumsController
         $this->notificationModel->addNotification(
             $targetUserId,
             $ownerId,
-            $forumId,
-            "INVITE_FORUM",
-            "FORUM"
+            $groupChatId,
+            "INVITE_GROUP",
+            "GROUP"
         );
 
         echo json_encode(['success' => true, 'message' => 'Member invited successfully']);
         exit;
     }
 
-    public function getForumInfo()
+    public function getGroupChatInfo()
     {
         $id = $_GET['id'] ?? null;
 
@@ -562,15 +560,15 @@ class ForumsController
             return;
         }
 
-        $forum = $this->forumModel->findById($id);
-        $owner = $this->userModel->getUsersById($forum['OWNER_ID']);
-        $members = $this->forumMemberModel->findByForumId($id);
+        $groupChat = $this->groupChatModel->findById($id);
+        $owner = $this->userModel->getUsersById($groupChat['OWNER_ID']);
+        $members = $this->groupChatMemberModel->findByGroupChatId($id);
 
         echo json_encode([
-            "ID" => $forum['ID'],
-            "NAME" => $forum['NAME'],
-            "ABOUT" => $forum['ABOUT'],
-            "PHOTO" => $forum['PATH_PHOTO'],
+            "ID" => $groupChat['ID'],
+            "NAME" => $groupChat['NAME'],
+            "ABOUT" => $groupChat['ABOUT'],
+            "PHOTO" => $groupChat['PATH_PHOTO'],
             "OWNER" => [
                 "ID" => $owner['ID'],
                 "NAME" => $owner['FULL_NAME'],
@@ -586,39 +584,36 @@ class ForumsController
         ]);
     }
 
-    // In your Forum controller or wherever you render the detail page
-
-    public function detail($forumId)
+    public function detail($groupChatId)
     {
         if (!isset($_SESSION['user_id'])) {
             header('Location: ' . BASEURL . '/login');
             exit;
         }
 
-        // Get forum details
-        $forum = $this->forumModel->findById($forumId);
+        $groupChat = $this->groupChatModel->findById($groupChatId);
 
-        if (!$forum) {
+        if (!$groupChat) {
             // Handle not found
-            header('Location: ' . BASEURL . '/forums');
+            header('Location: ' . BASEURL . '/groups');
             exit;
         }
 
         // Get messages
         $chatMessageModel = new ChatMessage();
-        $messages = $chatMessageModel->getMessagesByForumId($forumId);
+        $messages = $chatMessageModel->getMessagesByGroupChatId($groupChatId);
 
         // Get media preview (8 most recent)
-        $mediaPreview = $chatMessageModel->getForumMediaPreview($forumId, 8);
+        $mediaPreview = $chatMessageModel->getGroupChatMediaPreview($groupChatId, 8);
 
         $data = [
-            'title' => 'Forum - ' . $forum['TITLE'],
-            'forum' => $forum,
+            'title' => 'Group - ' . $groupChat['TITLE'],
+            'groupChat' => $groupChat,
             'messages' => $messages,
             'mediaPreview' => $mediaPreview
         ];
 
         // Load view
-        require_once __DIR__ . '/../views/forums/detail.php';
+        require_once __DIR__ . '/../views/groups/detail.php';
     }
 }

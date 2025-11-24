@@ -2,9 +2,9 @@
 
 require_once __DIR__ . "/../BaseModel.php";
 
-class Forum extends BaseModel
+class GroupChat extends BaseModel
 {
-    public function allForums()
+    public function allGroupChats()
     {
         $conn = self::getConnection();
 
@@ -13,7 +13,7 @@ class Forum extends BaseModel
             return [];
         }
 
-        $sql = "SELECT ID, NAME, IS_PRIVATE, OWNER_ID FROM FORUMS ORDER BY NAME ASC";
+        $sql = "SELECT ID, NAME, IS_PRIVATE, OWNER_ID FROM GROUP_CHATS ORDER BY NAME ASC";
 
         $stmt = oci_parse($conn, $sql);
 
@@ -21,18 +21,18 @@ class Forum extends BaseModel
             return [];
         }
 
-        $forums = [];
+        $groupChats = [];
         while ($row = oci_fetch_assoc($stmt)) {
-            $forums[] = $row;
+            $groupChats[] = $row;
         }
 
         oci_free_statement($stmt);
 
-        return $forums;
+        return $groupChats;
     }
 
 
-    public function getAllForumsPagination($search = '', $limit = 6, $offset = 0)
+    public function getAllGroupChatsPagination($search = '', $limit = 6, $offset = 0)
     {
         $conn = self::getConnection();
         if (!$conn) return ['data' => [], 'total' => 0];
@@ -41,12 +41,12 @@ class Forum extends BaseModel
         $searchParam = '%' . strtolower($search) . '%';
 
         $sqlCount = "
-            SELECT COUNT(f.ID) AS TOTAL_ROWS
-            FROM FORUMS f
-            WHERE f.OWNER_ID != :currentUser
+            SELECT COUNT(gc.ID) AS TOTAL_ROWS
+            FROM GROUPCHATS gc
+            WHERE gc.OWNER_ID != :currentUser
         ";
         if (!empty($search)) {
-            $sqlCount .= " AND LOWER(f.NAME) LIKE :search";
+            $sqlCount .= " AND LOWER(gc.NAME) LIKE :search";
         }
 
         $stmtCount = oci_parse($conn, $sqlCount);
@@ -61,27 +61,27 @@ class Forum extends BaseModel
         $sqlData = "
             SELECT * FROM (
                 SELECT 
-                    f.ID,
-                    f.NAME,
-                    f.IS_PRIVATE,
+                    gc.ID,
+                    gc.NAME,
+                    gc.IS_PRIVATE,
                     u.FULL_NAME AS OWNER_NAME,
                     COUNT(m.USER_ID) AS TOTAL_MEMBERS,
-                    f.PATH_PHOTO,
-                    f.CREATED_AT
-                FROM FORUMS f
-                JOIN USERS u ON u.ID = f.OWNER_ID
-                LEFT JOIN FORUM_MEMBERS m ON m.FORUM_ID = f.ID
-                WHERE f.OWNER_ID != :currentUser
+                    gc.PATH_PHOTO,
+                    gc.CREATED_AT
+                FROM GROUP_CHATS gc
+                JOIN USERS u ON u.ID = gc.OWNER_ID
+                LEFT JOIN GROUP_CHAT_MEMBERS gcm ON gcm.GROUP_CHAT_ID = gc.ID
+                WHERE gc.OWNER_ID != :currentUser
         ";
 
         if (!empty($search)) {
-            $sqlData .= " AND LOWER(f.NAME) LIKE :search";
+            $sqlData .= " AND LOWER(gc.NAME) LIKE :search";
         }
 
         $sqlData .= "
                 GROUP BY 
-                    f.ID, f.NAME, f.IS_PRIVATE, u.FULL_NAME, f.CREATED_AT, f.PATH_PHOTO
-                ORDER BY f.CREATED_AT DESC
+                    gc.ID, gc.NAME, gc.IS_PRIVATE, u.FULL_NAME, gc.CREATED_AT, gc.PATH_PHOTO
+                ORDER BY gc.CREATED_AT DESC
             )
             OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
         ";
@@ -97,16 +97,16 @@ class Forum extends BaseModel
 
         if (!oci_execute($stmtData)) return ['data' => [], 'total' => 0];
 
-        $forums = [];
+        $groupChats = [];
         while ($row = oci_fetch_assoc($stmtData)) {
-            $forums[] = $row;
+            $groupChats[] = $row;
         }
         oci_free_statement($stmtData);
 
-        return ['data' => $forums, 'total' => $totalRows];
+        return ['data' => $groupChats, 'total' => $totalRows];
     }
 
-    public function getMyForum($search = '', $limit = 6, $offset = 0)
+    public function getMyGroupChat($search = '', $limit = 6, $offset = 0)
     {
         $conn = self::getConnection();
         if (!$conn) return ['data' => [], 'total' => 0];
@@ -115,12 +115,12 @@ class Forum extends BaseModel
         $searchParam = '%' . strtolower($search) . '%';
 
         $sqlCount = "
-            SELECT COUNT(f.ID) AS TOTAL_ROWS
-            FROM FORUMS f
-            WHERE f.OWNER_ID = :currentUser
+            SELECT COUNT(gc.ID) AS TOTAL_ROWS
+            FROM GROUP_CHATS gc
+            WHERE gc.OWNER_ID = :currentUser
         ";
         if (!empty($search)) {
-            $sqlCount .= " AND LOWER(f.NAME) LIKE :search";
+            $sqlCount .= " AND LOWER(gc.NAME) LIKE :search";
         }
 
         $stmtCount = oci_parse($conn, $sqlCount);
@@ -135,28 +135,28 @@ class Forum extends BaseModel
         $sqlData = "
             SELECT * FROM (
                 SELECT 
-                    f.ID,
-                    f.NAME,
-                    f.IS_PRIVATE,
+                    gc.ID,
+                    gc.NAME,
+                    gc.IS_PRIVATE,
                     u.FULL_NAME AS OWNER_NAME,
                     COUNT(m.USER_ID) AS TOTAL_MEMBERS,
-                    f.PATH_PHOTO,
-                    f.ACCESS_KEY,
-                    f.CREATED_AT
-                FROM FORUMS f
-                JOIN USERS u ON u.ID = f.OWNER_ID
-                LEFT JOIN FORUM_MEMBERS m ON m.FORUM_ID = f.ID
-                WHERE f.OWNER_ID = :currentUser
+                    gc.PATH_PHOTO,
+                    gc.ACCESS_KEY,
+                    gc.CREATED_AT
+                FROM GROUP_CHATS gc
+                JOIN USERS u ON u.ID = gc.OWNER_ID
+                LEFT JOIN GROUP_CHAT_MEMBERS gcm ON gcm.GROUP_CHAT_ID = gc.ID
+                WHERE gc.OWNER_ID = :currentUser
             ";
 
         if (!empty($search)) {
-            $sqlData .= " AND LOWER(f.NAME) LIKE :search";
+            $sqlData .= " AND LOWER(gc.NAME) LIKE :search";
         }
 
         $sqlData .= "
                 GROUP BY 
-                    f.ID, f.NAME, f.IS_PRIVATE, u.FULL_NAME, f.CREATED_AT, f.ACCESS_KEY, f.PATH_PHOTO
-                ORDER BY f.CREATED_AT DESC
+                    gc.ID, gc.NAME, gc.IS_PRIVATE, u.FULL_NAME, gc.CREATED_AT, gc.ACCESS_KEY, gc.PATH_PHOTO
+                ORDER BY gc.CREATED_AT DESC
             )
             OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
         ";
@@ -171,17 +171,17 @@ class Forum extends BaseModel
 
         if (!oci_execute($stmtData)) return ['data' => [], 'total' => 0];
 
-        $forums = [];
+        $GroupChats = [];
         while ($row = oci_fetch_assoc($stmtData)) {
-            $forums[] = $row;
+            $GroupChats[] = $row;
         }
         oci_free_statement($stmtData);
 
-        return ['data' => $forums, 'total' => $totalRows];
+        return ['data' => $GroupChats, 'total' => $totalRows];
     }
 
 
-    public function getForumsByUserId($userId)
+    public function getGroupChatsByUserId($userId)
     {
         $conn = self::getConnection();
 
@@ -192,24 +192,24 @@ class Forum extends BaseModel
 
         $sql = "
             SELECT 
-                f.ID, 
-                f.NAME, 
-                f.PATH_PHOTO, 
-                f.CREATED_AT,
-                f.ABOUT,
-                f.OWNER_ID,
+                gc.ID, 
+                gc.NAME, 
+                gc.PATH_PHOTO, 
+                gc.CREATED_AT,
+                gc.ABOUT,
+                gc.OWNER_ID,
                 (
                     SELECT COUNT(*) 
-                    FROM FORUM_MEMBERS fm2
-                    WHERE fm2.FORUM_ID = f.ID
-                    AND fm2.USER_ID != f.OWNER_ID
+                    FROM GROUP_CHAT_MEMBERS gcm
+                    WHERE gcm.GROUP_CHAT_ID = gc.ID
+                    AND gcm.USER_ID != gc.OWNER_ID
                 ) AS MEMBER_COUNT,
                 (
                     SELECT COUNT(msg_count.ID)
-                    FROM FORUM_MESSAGES msg_count
-                    WHERE msg_count.FORUM_ID = fm.FORUM_ID
-                    AND msg_count.CREATED_AT > fm.LAST_READ_AT
-                    AND msg_count.SENDER_ID != fm.USER_ID
+                    FROM GROUP_CHAT_MESSAGES msg_count
+                    WHERE msg_count.GROUP_CHAT_ID = gcm.GROUP_CHAT_ID
+                    AND msg_count.CREATED_AT > gcm.LAST_READ_AT
+                    AND msg_count.SENDER_ID != gcm.USER_ID
                 ) AS UNREAD_COUNT,
 
                 lm.CONTENT AS LAST_MESSAGE_CONTENT,
@@ -217,20 +217,20 @@ class Forum extends BaseModel
                 lm.CREATED_AT AS LAST_MESSAGE_AT
                 
             FROM 
-                FORUMS f
+                GROUP_CHATS gc
             JOIN 
-                FORUM_MEMBERS fm ON f.ID = fm.FORUM_ID
+                GROUP_CHAT_MEMBERS gcm ON gc.ID = gcm.GROUP_CHAT_ID
             
             OUTER APPLY (
                 SELECT msg.CONTENT, msg.TYPE, msg.CREATED_AT
-                FROM FORUM_MESSAGES msg
-                WHERE msg.FORUM_ID = f.ID 
+                FROM GROUP_CHAT_MESSAGES msg
+                WHERE msg.GROUP_CHAT_ID = gc.ID 
                 ORDER BY msg.CREATED_AT DESC
                 FETCH FIRST 1 ROWS ONLY
             ) lm
                 
             WHERE 
-                fm.USER_ID = :user_id_bv
+             gcm.USER_ID = :user_id_bv
             ORDER BY 
                 lm.CREATED_AT DESC NULLS LAST";
 
@@ -253,12 +253,12 @@ class Forum extends BaseModel
             return [];
         }
 
-        $forums = [];
-        oci_fetch_all($stmt, $forums, 0, -1, OCI_FETCHSTATEMENT_BY_ROW | OCI_ASSOC);
+        $groupChats = [];
+        oci_fetch_all($stmt, $groupChats, 0, -1, OCI_FETCHSTATEMENT_BY_ROW | OCI_ASSOC);
         oci_free_statement($stmt);
         oci_close($conn);
 
-        return $forums;
+        return $groupChats;
     }
 
     public function findById($id)
@@ -266,32 +266,32 @@ class Forum extends BaseModel
         $conn = self::getConnection();
         $sql = "
             SELECT 
-                f.ID, 
-                f.NAME, 
-                f.ABOUT, 
-                f.IS_PRIVATE, 
-                f.ACCESS_KEY, 
-                f.PATH_PHOTO, 
-                f.OWNER_ID, 
-                f.CREATED_AT,
+                gc.ID, 
+                gc.NAME, 
+                gc.ABOUT, 
+                gc.IS_PRIVATE, 
+                gc.ACCESS_KEY, 
+                gc.PATH_PHOTO, 
+                gc.OWNER_ID, 
+                gc.CREATED_AT,
                 u.FULL_NAME AS OWNER_NAME,
                 u.ROLE AS ROLE_OWNER,
                 u.PATH_PHOTO AS PATH_PHOTO_OWNER
-            FROM FORUMS f
-            LEFT JOIN USERS u ON f.OWNER_ID = u.ID
-            WHERE f.ID = :id_bv
+            FROM GROUP_CHATS gc
+            LEFT JOIN USERS u ON gc.OWNER_ID = u.ID
+            WHERE gc.ID = :id_bv
         ";
 
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ':id_bv', $id);
         oci_execute($stmt);
 
-        $forum = oci_fetch_assoc($stmt);
+        $groupChat = oci_fetch_assoc($stmt);
 
         oci_free_statement($stmt);
         oci_close($conn);
 
-        return $forum;
+        return $groupChat;
     }
 
     public function create($data)
@@ -304,31 +304,31 @@ class Forum extends BaseModel
             $id = uniqid();
             $photoPath = $data['photo'] ?? null;
             $isPrivate = (int)$data['isPrivate'];
-            $keyForum = $isPrivate ? ($data['keyForum'] ?? null) : null;
+            $keyGroupChat = $isPrivate ? ($data['keyGroupChat'] ?? null) : null;
 
-            $sqlForum = "INSERT INTO FORUMS (ID, NAME, ABOUT, IS_PRIVATE, ACCESS_KEY, PATH_PHOTO, OWNER_ID) 
+            $sqlGroupChat = "INSERT INTO GROUP_CHATS (ID, NAME, ABOUT, IS_PRIVATE, ACCESS_KEY, PATH_PHOTO, OWNER_ID) 
                      VALUES (:id, :name, :about, :is_private, :access_key, :path_photo, :owner_id)";
 
-            $stmt = oci_parse($conn, $sqlForum);
+            $stmt = oci_parse($conn, $sqlGroupChat);
 
             oci_bind_by_name($stmt, ':id', $id);
-            oci_bind_by_name($stmt, ':name', $data['forumName']);
+            oci_bind_by_name($stmt, ':name', $data['groupChatName']);
             oci_bind_by_name($stmt, ':about', $data['bio']);
             oci_bind_by_name($stmt, ':is_private', $isPrivate);
-            oci_bind_by_name($stmt, ':access_key', $keyForum);
+            oci_bind_by_name($stmt, ':access_key', $keyGroupChat);
             oci_bind_by_name($stmt, ':path_photo', $photoPath);
             oci_bind_by_name($stmt, ':owner_id', $data['user_id']);
 
             oci_execute($stmt, OCI_NO_AUTO_COMMIT);
 
             $memberId = uniqid();
-            $sqlMembers = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, JOINED_AT) 
-                     VALUES (:id, :forum_id, :user_id, CURRENT_TIMESTAMP)";
+            $sqlMembers = "INSERT INTO GROUP_CHAT_MEMBERS (ID, GROUP_CHAT_ID, USER_ID, JOINED_AT) 
+                     VALUES (:id, :group_chat_id, :user_id, CURRENT_TIMESTAMP)";
 
             $stmt2 = oci_parse($conn, $sqlMembers);
 
             oci_bind_by_name($stmt2, ':id', $memberId);
-            oci_bind_by_name($stmt2, ':forum_id', $id);
+            oci_bind_by_name($stmt2, ':groupChat_id', $id);
             oci_bind_by_name($stmt2, ':user_id', $data['user_id']);
 
             oci_execute($stmt2, OCI_NO_AUTO_COMMIT);
@@ -367,7 +367,7 @@ class Forum extends BaseModel
                 return false;
             }
 
-            $sql = "UPDATE FORUMS SET " . implode(', ', $setClauses) . " WHERE ID = :id";
+            $sql = "UPDATE GROUP_CHATS SET " . implode(', ', $setClauses) . " WHERE ID = :id";
 
             $stmt = oci_parse($conn, $sql);
 
@@ -405,14 +405,14 @@ class Forum extends BaseModel
         $stmt_get_messages = null;
         $stmt_messages = null;
         $stmt_members = null;
-        $stmt_forum = null;
+        $stmt_groupChat = null;
 
         try {
-            $sql_get_messages = "SELECT PATH_MEDIA FROM FORUM_MESSAGES 
-                             WHERE FORUM_ID = :forum_id";
+            $sql_get_messages = "SELECT PATH_MEDIA FROM GROUP_CHAT_MESSAGES 
+                             WHERE GROUP_CHAT_ID = :GROUP_CHAT_id";
 
             $stmt_get_messages = oci_parse($conn, $sql_get_messages);
-            oci_bind_by_name($stmt_get_messages, ':forum_id', $id);
+            oci_bind_by_name($stmt_get_messages, ':groupChat_id', $id);
             oci_execute($stmt_get_messages);
 
             $filesToDelete = [];
@@ -436,20 +436,20 @@ class Forum extends BaseModel
                 }
             }
 
-            $sql_messages = "DELETE FROM FORUM_MESSAGES WHERE FORUM_ID = :forum_id";
+            $sql_messages = "DELETE FROM GROUP_CHAT_MESSAGES WHERE GROUP_CHAT_ID = :group_chat_id";
             $stmt_messages = oci_parse($conn, $sql_messages);
-            oci_bind_by_name($stmt_messages, ':forum_id', $id);
+            oci_bind_by_name($stmt_messages, ':group_chat_id', $id);
             oci_execute($stmt_messages, OCI_NO_AUTO_COMMIT);
 
-            $sql_members = "DELETE FROM FORUM_MEMBERS WHERE FORUM_ID = :forum_id";
+            $sql_members = "DELETE FROM GROUP_CHAT_MEMBERS WHERE GROUP_CHAT_ID = :group_chat_id";
             $stmt_members = oci_parse($conn, $sql_members);
-            oci_bind_by_name($stmt_members, ':forum_id', $id);
+            oci_bind_by_name($stmt_members, ':group_chat_id', $id);
             oci_execute($stmt_members, OCI_NO_AUTO_COMMIT);
 
-            $sql_forum = "DELETE FROM FORUMS WHERE ID = :id";
-            $stmt_forum = oci_parse($conn, $sql_forum);
-            oci_bind_by_name($stmt_forum, ':id', $id);
-            oci_execute($stmt_forum, OCI_NO_AUTO_COMMIT);
+            $sql_groupChat = "DELETE FROM GROUP_CHATS WHERE ID = :id";
+            $stmt_groupChat = oci_parse($conn, $sql_groupChat);
+            oci_bind_by_name($stmt_groupChat, ':id', $id);
+            oci_execute($stmt_groupChat, OCI_NO_AUTO_COMMIT);
 
             oci_commit($conn);
 
@@ -463,21 +463,21 @@ class Forum extends BaseModel
 
             if ($stmt_messages) oci_free_statement($stmt_messages);
             if ($stmt_members) oci_free_statement($stmt_members);
-            if ($stmt_forum) oci_free_statement($stmt_forum);
+            if ($stmt_groupChat) oci_free_statement($stmt_groupChat);
         }
     }
 
-    public function exitForum($forumId, $userId)
+    public function exitGroupChat($groupChatId, $userId)
     {
         $conn = self::getConnection();
         $stmt = null;
 
         try {
-            $sql = "DELETE FROM FORUM_MEMBERS WHERE FORUM_ID = :forum_id AND USER_ID = :user_id";
+            $sql = "DELETE FROM GROUP_CHAT_MEMBERS WHERE GROUP_CHAT_ID = :group_chat_id AND USER_ID = :user_id";
 
             $stmt = oci_parse($conn, $sql);
 
-            oci_bind_by_name($stmt, ':forum_id', $forumId);
+            oci_bind_by_name($stmt, ':group_chat_id', $groupChatId);
             oci_bind_by_name($stmt, ':user_id', $userId);
 
             $result = oci_execute($stmt);
@@ -500,11 +500,11 @@ class Forum extends BaseModel
         $results = [];
 
         try {
-            $sql = "SELECT f.*, u.USERNAME as OWNER_USERNAME, fm.USER_ID as IS_MEMBER
-                FROM FORUMS f
-                LEFT JOIN FORUM_MEMBERS fm ON f.ID = fm.FORUM_ID AND fm.USER_ID = :user_id
-                LEFT JOIN USERS u ON f.OWNER_ID = u.ID
-                WHERE UPPER(f.NAME) LIKE :keyword";
+            $sql = "SELECT gc.*, u.USERNAME as OWNER_USERNAME, gcm.USER_ID as IS_MEMBER
+                FROM GROUP_CHATS gc
+                LEFT JOIN GROUP_CHAT_MEMBERS gcm ON gc.ID = gcm.GroupChat_ID AND gcm.USER_ID = :user_id
+                LEFT JOIN USERS u ON gc.OWNER_ID = u.ID
+                WHERE UPPER(gc.NAME) LIKE :keyword";
 
             $stmt = oci_parse($conn, $sql);
 
@@ -530,59 +530,59 @@ class Forum extends BaseModel
         }
     }
 
-    public function joinForum($forumId, $userId, $accessKey = null)
+    public function joinGroupChat($groupChatId, $userId, $accessKey = null)
     {
         $conn = self::getConnection();
 
-        $forumSql = "SELECT IS_PRIVATE, ACCESS_KEY FROM FORUMS WHERE ID = :forum_id";
-        $stmt_forum = oci_parse($conn, $forumSql);
-        oci_bind_by_name($stmt_forum, ':forum_id', $forumId);
-        oci_execute($stmt_forum);
-        $forum = oci_fetch_assoc($stmt_forum);
-        oci_free_statement($stmt_forum);
+        $groupChatSql = "SELECT IS_PRIVATE, ACCESS_KEY FROM GROUP_CHATS WHERE ID = :group_chat_id";
+        $stmt_groupChat = oci_parse($conn, $groupChatSql);
+        oci_bind_by_name($stmt_groupChat, ':group_chat_id', $groupChatId);
+        oci_execute($stmt_groupChat);
+        $groupChat = oci_fetch_assoc($stmt_groupChat);
+        oci_free_statement($stmt_groupChat);
 
-        if (!$forum) {
-            return ['success' => false, 'message' => 'Forum tidak ditemukan.'];
+        if (!$groupChat) {
+            return ['success' => false, 'message' => 'Group Chat tidak ditemukan.'];
         }
 
-        if ($forum['IS_PRIVATE'] == 1) {
+        if ($groupChat['IS_PRIVATE'] == 1) {
             if (empty($accessKey)) {
-                return ['success' => false, 'message' => 'Kunci akses diperlukan untuk forum ini.'];
+                return ['success' => false, 'message' => 'Kunci akses diperlukan untuk Group Chat ini.'];
             }
-            if (strtoupper($accessKey) !== strtoupper($forum['ACCESS_KEY'])) {
+            if (strtoupper($accessKey) !== strtoupper($groupChat['ACCESS_KEY'])) {
                 return ['success' => false, 'message' => 'Kunci akses yang Anda masukkan salah.'];
             }
         }
 
-        $checkSql = "SELECT COUNT(*) as COUNT FROM FORUM_MEMBERS WHERE FORUM_ID = :forum_id AND USER_ID = :user_id";
+        $checkSql = "SELECT COUNT(*) as COUNT FROM GROUP_CHAT_MEMBERS WHERE GROUP_CHAT_ID = :group_chat_id AND USER_ID = :user_id";
         $stmt_check = oci_parse($conn, $checkSql);
-        oci_bind_by_name($stmt_check, ':forum_id', $forumId);
+        oci_bind_by_name($stmt_check, ':group_chat_id', $groupChatId);
         oci_bind_by_name($stmt_check, ':user_id', $userId);
         oci_execute($stmt_check);
         $row = oci_fetch_assoc($stmt_check);
         oci_free_statement($stmt_check);
 
         if ($row['COUNT'] > 0) {
-            return ['success' => false, 'message' => 'Pengguna ini sudah tercatat sebagai anggota forum.'];
+            return ['success' => false, 'message' => 'Pengguna ini sudah tercatat sebagai anggota Group Chat.'];
         }
 
         $stmt_insert = null;
         try {
             $id = uniqid();
-            $sql = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, JOINED_AT) 
-                VALUES (:id, :forum_id, :user_id, CURRENT_TIMESTAMP)";
+            $sql = "INSERT INTO GROUP_CHAT_MEMBERS (ID, GROUP_CHAT_ID, USER_ID, JOINED_AT) 
+                VALUES (:id, :group_chat_id, :user_id, CURRENT_TIMESTAMP)";
 
             $stmt_insert = oci_parse($conn, $sql);
             oci_bind_by_name($stmt_insert, ':id', $id);
-            oci_bind_by_name($stmt_insert, ':forum_id', $forumId);
+            oci_bind_by_name($stmt_insert, ':group_chat_id', $groupChatId);
             oci_bind_by_name($stmt_insert, ':user_id', $userId);
 
             $result = oci_execute($stmt_insert);
 
             if ($result) {
-                return ['success' => true, 'message' => 'Berhasil bergabung dengan forum.'];
+                return ['success' => true, 'message' => 'Berhasil bergabung dengan Group Chat.'];
             } else {
-                return ['success' => false, 'message' => 'Gagal bergabung dengan forum.'];
+                return ['success' => false, 'message' => 'Gagal bergabung dengan Group Chat.'];
             }
         } catch (Exception $e) {
             error_log($e->getMessage());
@@ -639,7 +639,7 @@ class Forum extends BaseModel
         }
     }
 
-    public function getUnreadCount($forumId, $userId)
+    public function getUnreadCount($groupChatId, $userId)
     {
         $conn = self::getConnection();
 
@@ -649,19 +649,19 @@ class Forum extends BaseModel
         }
 
         $sql = "
-            SELECT COUNT(m.ID) AS UNREAD_COUNT
-            FROM FORUM_MESSAGES m
-            JOIN FORUM_MEMBERS fm ON m.FORUM_ID = fm.FORUM_ID
+            SELECT COUNT(gcm.ID) AS UNREAD_COUNT
+            FROM GROUP_CHAT_MESSAGES m
+            JOIN GROUP_CHAT_MEMBERS gcm ON m.GROUP_CHAT_ID = gcm.GROUP_CHAT_ID
             WHERE
-                m.FORUM_ID = :forumId
-                AND fm.USER_ID = :userId
-                AND m.CREATED_AT > fm.LAST_READ_AT
+                m.GROUP_CHAT_ID = :group_chat_id
+                AND gcm.USER_ID = :userId
+                AND m.CREATED_AT > gcm.LAST_READ_AT
                 AND m.SENDER_ID != :userId
         ";
 
         $stmt = oci_parse($conn, $sql);
 
-        oci_bind_by_name($stmt, ':forumId', $forumId);
+        oci_bind_by_name($stmt, ':group_chat_id', $groupChatId);
         oci_bind_by_name($stmt, ':userId', $userId);
 
         if (!oci_execute($stmt)) {
@@ -678,12 +678,12 @@ class Forum extends BaseModel
 
         $unreadCount = isset($row['UNREAD_COUNT']) ? (int)$row['UNREAD_COUNT'] : 0;
 
-        error_log("[getUnreadCount] Forum ID={$forumId}, User ID={$userId}, Unread={$unreadCount}");
+        error_log("[getUnreadCount] GROUP_CHAT_ID={$groupChatId}, User ID={$userId}, Unread={$unreadCount}");
 
         return $unreadCount;
     }
 
-    public function updateLastReadAt($forumId, $userId)
+    public function updateLastReadAt($groupChatId, $userId)
     {
         $conn = self::getConnection();
 
@@ -693,9 +693,9 @@ class Forum extends BaseModel
         }
 
         $sql = "
-            UPDATE FORUM_MEMBERS
+            UPDATE GROUP_CHAT_MEMBERS
             SET LAST_READ_AT = CURRENT_TIMESTAMP
-            WHERE FORUM_ID = :forumId
+            WHERE GROUP_CHAT_ID = :groupChatId
             AND USER_ID = :userId
         ";
 
@@ -708,7 +708,7 @@ class Forum extends BaseModel
             return;
         }
 
-        oci_bind_by_name($stmt, ':forumId', $forumId);
+        oci_bind_by_name($stmt, ':groupChatId', $groupChatId);
         oci_bind_by_name($stmt, ':userId', $userId);
 
         if (!oci_execute($stmt, OCI_COMMIT_ON_SUCCESS)) {
@@ -722,9 +722,9 @@ class Forum extends BaseModel
         $rowsAffected = oci_num_rows($stmt);
 
         if ($rowsAffected > 0) {
-            error_log("Update berhasil untuk FORUM_ID={$forumId}, USER_ID={$userId}");
+            error_log("Update berhasil untuk GROUP_CHAT_ID={$groupChatId}, USER_ID={$userId}");
         } else {
-            error_log("Tidak ada baris diperbarui untuk FORUM_ID={$forumId}, USER_ID={$userId}.");
+            error_log("Tidak ada baris diperbarui untuk GROUP_CHAT_ID={$groupChatId}, USER_ID={$userId}.");
         }
 
         oci_free_statement($stmt);
