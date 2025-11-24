@@ -15,7 +15,7 @@ $placeholder = "data:image/svg+xml;utf8,"
         <div class="relative bg-white rounded-lg shadow-sm">
             <div class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t">
                 <h3 class="text-xl font-semibold text-gray-900">
-                    Edit Forum
+                    Edit Group
                 </h3>
                 <button
                     type="button"
@@ -67,7 +67,7 @@ $placeholder = "data:image/svg+xml;utf8,"
                                 placeholder=" " required />
                             <label for="edit-forum-name"
                                 class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600 peer-placeholder-shown:top-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4">
-                                Forum Name
+                                Group Name
                             </label>
                         </div>
 
@@ -81,7 +81,7 @@ $placeholder = "data:image/svg+xml;utf8,"
                                 placeholder=" " required />
                             <label for="edit-forum-bio"
                                 class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600 peer-placeholder-shown:top-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4">
-                                About This Forum
+                                About This Group
                             </label>
                         </div>
 
@@ -91,7 +91,7 @@ $placeholder = "data:image/svg+xml;utf8,"
                                 name="isPrivate"
                                 id="edit-forum-isPrivate"
                                 <?php if (!empty($forumByid['IS_PRIVATE']) && $forumByid['IS_PRIVATE']) echo 'checked'; ?> />
-                            <label for="edit-forum-isPrivate" class="ml-2 text-sm text-gray-600">Make this forum private</label>
+                            <label for="edit-forum-isPrivate" class="ml-2 text-sm text-gray-600">Make this group private</label>
                         </div>
 
                         <div class="relative my-3 <?php echo (!empty($forumByid['IS_PRIVATE']) && $forumByid['IS_PRIVATE']) ? '' : 'hidden'; ?>" id="edit-forum-key-container">
@@ -104,7 +104,7 @@ $placeholder = "data:image/svg+xml;utf8,"
                                 placeholder=" " />
                             <label for="edit-forum-key"
                                 class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600 peer-placeholder-shown:top-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4">
-                                Key Forum
+                                Key Group
                             </label>
                         </div>
 
@@ -113,7 +113,7 @@ $placeholder = "data:image/svg+xml;utf8,"
                             name="edit"
                             id="btn-submit-edit-forum"
                             class="mt-6 w-full px-6 py-3.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors">
-                            Edit Forum
+                            Edit Group
                         </button>
                     </div>
                 </form>

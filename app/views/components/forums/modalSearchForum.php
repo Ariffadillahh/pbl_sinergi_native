@@ -1,7 +1,7 @@
 <div id="searchModal" class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50">
     <div class="lg:w-[50%] md:w-[60%] w-[90%]  bg-white h-[80%] rounded-3xl p-4">
         <div class="flex justify-between">
-            <h1 class="font-semibold text-xl">Search Forum</h1>
+            <h1 class="font-semibold text-xl">Search Group</h1>
             <button class="cursor-pointer" id="closeModalBtn">
                 <img src="<?php echo BASEURL; ?>/src/asset/icons/close-circle-grey.svg" class="w-7 h-7" alt="Remove">
             </button>
@@ -29,7 +29,7 @@
 
         <div class="mt-4">
             <div class="overflow-y-auto max-h-[58vh] pr-2 hide-scrollbar">
-                <p class="font-medium text-gray-700 mb-2" id="forumListTitle">Joined forums</p>
+                <p class="font-medium text-gray-700 mb-2" id="forumListTitle">Joined Group</p>
                 <div id="forumListContainer">
                     <?php if (!empty($joinedForums)): ?>
                         <?php foreach ($joinedForums as $forum): ?>
@@ -65,7 +65,7 @@
                                             </p>
                                             <?php if ($isOwner): ?>
                                                 <span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm border border-blue-400">
-                                                    My Forum
+                                                    My Group
                                                 </span>
                                             <?php endif; ?>
                                         </div>
@@ -183,7 +183,7 @@
                 forumListContainer.innerHTML += finalElementHTML;
             });
         } else {
-            forumListContainer.innerHTML = '<p class="text-gray-500 text-center mt-8">Forum tidak ditemukan.</p>';
+            forumListContainer.innerHTML = '<p class="text-gray-500 text-center mt-8">Group tidak ditemukan.</p>';
         }
 
     }

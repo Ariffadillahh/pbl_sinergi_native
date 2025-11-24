@@ -27,22 +27,31 @@ $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
             <?php endif; ?>
 
             <li class="group relative flex items-center <?php echo $isForumsActive ? 'active' : ''; ?>">
-                <a href="<?php echo BASEURL ?>/forums" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
-                    <img src="<?php echo BASEURL; ?>/src/asset/icons/messages.svg" class="size-6 group-[.active]:hidden" alt="icon">
-                    <img src="<?php echo BASEURL; ?>/src/asset/icons/messages-white-fill.svg" class="size-6 hidden group-[.active]:flex" alt="icon">
+                <a href="<?php echo BASEURL ?>/forums"
+                    class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[7px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
+
+                    <img src="<?php echo BASEURL; ?>/src/asset/icons/forum.png"
+                        class="h-10 object-contain group-[.active]:hidden"
+                        alt="icon">
+
+                    <img src="<?php echo BASEURL; ?>/src/asset/icons/forumsActive.png"
+                        class="h-10 object-contain hidden group-[.active]:flex"
+                        alt="icon">
                 </a>
+
                 <h1 class="absolute left-full ml-4 whitespace-nowrap rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white border border-gray-200 border-l-4 border-l-blue-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100 invisible group-hover:visible pointer-events-none z-[9999]">
                     Forums
                 </h1>
             </li>
 
+
             <li class="group relative flex items-center <?php echo $isGrupActive ? 'active' : ''; ?>">
-                <a href="<?php echo BASEURL ?>/forums" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
+                <a href="<?php echo BASEURL ?>/group" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/messages.svg" class="size-6 group-[.active]:hidden" alt="icon">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/messages-white-fill.svg" class="size-6 hidden group-[.active]:flex" alt="icon">
                 </a>
                 <h1 class="absolute left-full ml-4 whitespace-nowrap rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white border border-gray-200 border-l-4 border-l-blue-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100 invisible group-hover:visible pointer-events-none z-[9999]">
-                    Grups
+                    Grups Chat
                 </h1>
             </li>
             <li class="group relative flex items-center">
@@ -91,34 +100,54 @@ $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
                     Profile
                 </h1>
             </li>
-            
+
         </ul>
     </nav>
 
-    <nav class="lg:hidden fixed bottom-0 left-0 right-0 grid <?php echo $accsesPages ? 'grid-cols-4' : 'grid-cols-3'; ?> h-[70px] items-center bg-white border-t border-gray-100 px-2 z-[9999]">
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 grid 
+    <?php echo $accsesPages ? 'grid-cols-5' : 'grid-cols-4'; ?> 
+    h-[70px] items-center bg-white border-t border-gray-100 px-2 z-[9999]">
 
-        <?php if ($accsesPages) : ?>
-            <a href="<?php echo BASEURL ?>/homepage" class="flex flex-col items-center justify-center gap-1 text-center">
-                <img src="<?php echo BASEURL; ?>/src/asset/icons/<?php echo $isHomepageActive ? 'chart-square-white-fill.svg' : 'chart-square-grey.svg'; ?>"
-                    class="h-7 w-7 <?php echo $isHomepageActive ? 'bg-blue-600 p-1 rounded-lg' : ''; ?>" alt="icon">
-                <span class="text-xs <?php echo $isHomepageActive ? 'text-blue-600 font-semibold' : 'text-gray-500'; ?>">
+        <!-- HOMEPAGE -->
+        <?php if ($accsesPages): ?>
+            <a href="<?= BASEURL ?>/homepage" class="flex flex-col items-center justify-center gap-1 text-center">
+                <img src="<?= BASEURL ?>/src/asset/icons/<?= $isHomepageActive ? 'chart-square-white-fill.svg' : 'chart-square-grey.svg' ?>"
+                    class="h-7 w-7 <?= $isHomepageActive ? 'bg-blue-600 p-1 rounded-lg' : '' ?>" alt="icon">
+
+                <span class="text-xs <?= $isHomepageActive ? 'text-blue-600 font-semibold' : 'text-gray-500' ?>">
                     HomePage
                 </span>
             </a>
         <?php endif; ?>
 
-        <?php if ($isForumsActive): ?>
+
+        <!-- MENU / CHAT -->
+        <?php if ($isGrupActive): ?>
             <button id="toggleForumsBtn" class="flex flex-col items-center justify-center gap-1 text-center">
-                <img src="<?php echo BASEURL; ?>/src/asset/icons/menuActive.png" class="h-7 w-7 bg-blue-600 p-1 rounded-lg" alt="icon">
+                <img src="<?= BASEURL ?>/src/asset/icons/menuActive.png"
+                    class="h-7 w-7 bg-blue-600 p-1 rounded-lg" alt="icon">
                 <span class="text-xs text-blue-600 font-semibold">Menu</span>
             </button>
         <?php else: ?>
-            <a href="<?php echo BASEURL; ?>/forums" class="flex flex-col items-center justify-center gap-1 text-center">
-                <img src="<?php echo BASEURL; ?>/src/asset/icons/messages.svg" class="h-7 w-7" alt="icon">
-                <span class="text-xs text-gray-500">Forums</span>
+            <a href="<?= BASEURL ?>/group" class="flex flex-col items-center justify-center gap-1 text-center">
+                <img src="<?= BASEURL ?>/src/asset/icons/messages.svg" class="h-7 w-7" alt="icon">
+                <span class="text-xs text-gray-500">Chat</span>
             </a>
         <?php endif; ?>
 
+
+        <!-- FORUMS -->
+        <a href="<?= BASEURL ?>/forums" class="flex flex-col items-center justify-center gap-1 text-center">
+            <img src="<?= BASEURL ?>/src/asset/icons/<?= $isForumsActive ? 'forumActive.png' : 'forum.png' ?>"
+                class="h-7 w-7" alt="icon">
+
+            <span class="text-xs <?= $isForumsActive ? 'text-blue-600 font-semibold' : 'text-gray-500' ?>">
+                Forums
+            </span>
+        </a>
+
+
+        <!-- NOTIFICATION -->
         <div class="relative flex flex-col items-center justify-center gap-1 text-center">
             <button id="notif-btn-mobile" class="relative group">
                 <svg class="w-7 h-7 sm:w-8 sm:h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,31 +169,31 @@ $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
 
             <span class="text-xs text-gray-500">Notification</span>
         </div>
-        
 
 
-        <div class="relative flex flex-col items-center justify-center gap-1">
+        <div class="relative flex flex-col items-center justify-center gap-1 text-center">
             <button id="btn-menu" class="h-8 w-8 rounded-full overflow-hidden cursor-pointer group">
                 <img src="<?= !empty($_SESSION['path_photo'])
                                 ? BASEURL . '/storage/users/photos/' . $_SESSION['path_photo']
                                 : BASEURL . '/src/asset/image/default.png' ?>"
-                    class="h-full w-full object-cover"
-                    alt="photo">
+                    class="h-full w-full object-cover" alt="photo">
             </button>
+
             <span class="text-xs text-gray-500">Profile</span>
 
-            <div class="absolute bottom-full right-0.5 mb-4 hidden" id="menu-profile-signout">
+            <div id="menu-profile-signout"
+                class="absolute bottom-full right-0.5 mb-4 hidden">
                 <ul class="bg-white shadow-lg rounded-lg py-2 w-32 text-sm text-gray-700 border border-gray-200">
+
                     <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'ADMIN'): ?>
                         <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">
                             <a href="<?= BASEURL ?>/dashboard" class="flex gap-2 items-center">
-                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6z
-                                            M14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z
-                                            M4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z
-                                            M14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
-                                    </path>
+                                       M14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z
+                                       M4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z
+                                       M14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                                 </svg>
                                 Dashboard
                             </a>
@@ -172,21 +201,24 @@ $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
                     <?php endif; ?>
 
                     <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                        <a href="<?php echo BASEURL ?>/profile" class="flex gap-2 items-center">
-                            <img src="<?php echo BASEURL; ?>/src/asset/icons/profile-2user-grey.svg" class="size-5" alt="icon">
+                        <a href="<?= BASEURL ?>/profile" class="flex gap-2 items-center">
+                            <img src="<?= BASEURL ?>/src/asset/icons/profile-2user-grey.svg" class="size-5" alt="icon">
                             Profile
                         </a>
                     </li>
+
                     <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                        <a href="<?php echo BASEURL ?>/logout" class="flex gap-2 items-center">
-                            <img src="<?php echo BASEURL; ?>/src/asset/icons/Logout.svg" class="size-5" alt="icon">
+                        <a href="<?= BASEURL ?>/logout" class="flex gap-2 items-center">
+                            <img src="<?= BASEURL ?>/src/asset/icons/Logout.svg" class="size-5" alt="icon">
                             Sign Out
                         </a>
                     </li>
                 </ul>
             </div>
         </div>
+
     </nav>
+
 </div>
 
 <script>

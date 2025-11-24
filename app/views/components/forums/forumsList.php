@@ -1,6 +1,6 @@
 <aside id="forumsListSidebar" class="fixed lg:relative flex flex-col w-full max-w-[360px] lg:w-[360px] shrink-0 h-full border-r border-gray-100 bg-white overflow-hidden transition-all duration-300 ease-in-out z-20 -translate-x-full lg:translate-x-0 pb-[70px] lg:pb-0">
     <div id="Top-Bar" class="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-6">
-        <p class="text-2xl font-semibold">Your Forums</p>
+        <p class="text-2xl font-semibold">Chat Groups</p>
         <?php
 
         if ($_SESSION['role'] === 'MAHASISWA' || $_SESSION['role'] === 'DOSEN' || $_SESSION['role'] === 'ADMIN') {
@@ -26,7 +26,7 @@
         <div id="tabs-content-container" class="flex h-full flex-1 overflow-hidden">
             <div id="All" class="relative h-full w-full">
                 <div class="flex h-full flex-col gap-1">
-                    <p class="text-sm text-gray-500 pb-2 border-b-[1px] border-gray-200">All Forums (<?php echo count($joinedForums); ?>)</p>
+                    <p class="text-sm text-gray-500 pb-2 border-b-[1px] border-gray-200">Your Group (<?php echo count($joinedForums); ?>)</p>
                     <div id="Message-container" class="hide-scrollbar h-full w-full overflow-y-scroll">
                         <div class="flex w-full flex-col gap-1">
                             <?php if (!empty($joinedForums)): ?>

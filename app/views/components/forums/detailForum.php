@@ -48,7 +48,7 @@
             <div>
                 <button id="btn-open-exit-forum" class="w-full h-full flex gap-1 items-center justify-center bg-white rounded-2xl p-[10px] ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/logout-grey.svg" class="size-6 flex shrink-0" alt="icon">
-                    <span class="font-medium text-sm text-heyhao-secondary">Leave Forum</span>
+                    <span class="font-medium text-sm text-heyhao-secondary">Leave Group</span>
                 </button>
             </div>
             <div class="group">
@@ -109,7 +109,7 @@
             </div>
             <div class="p-6">
                 <div id="About" class="flex flex-col gap-1 mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                    <p class="text-lg font-semibold text-gray-800">About Forum</p>
+                    <p class="text-lg font-semibold text-gray-800">About Group</p>
 
                     <p class="text-gray-700">
                         <?= htmlspecialchars($forumByid["ABOUT"]) ?>
@@ -284,12 +284,12 @@
                     <div class="my-5 flex gap-3">
                         <button type="button" id="btn-open-edit-forum"
                             class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 w-full">
-                            Edit Forum
+                            Edit Group
                         </button>
 
                         <button type="button" id="btn-open-delete-forum"
                             class="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 w-full">
-                            Delete Forum
+                            Delete Group
                         </button>
                     </div>
                 <?php endif; ?>

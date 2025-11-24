@@ -10,7 +10,7 @@
                 </svg>
 
                 <h3 class="mb-5 text-lg font-normal text-gray-600">
-                    Are you sure you want to delete this forum?
+                    Are you sure you want to delete this group?
                 </h3>
 
                 <form id="form-delete-forum" action="<?php echo BASEURL; ?>/forums/delete" method="post">
