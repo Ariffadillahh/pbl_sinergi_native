@@ -24,10 +24,18 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
 <body>
     <main class="w-full h-screen overflow-y-auto border-gray-200 hide-scrollbar relative z-[999]">
         <div class="sticky top-0 z-10 bg-white w-full px-5 py-3 border-b border-gray-200">
-            <button onclick="window.history.back()" class="flex items-center gap-3 text-black font-semibold cursor-pointer">
-                <img src="<?php echo BASEURL . '/src/asset/icons/left-arrow-svgrepo-com.svg'; ?>" alt="icon" class="w-6 h-6">
-                <h1 class="text-xl">Profile <span class="text-blue-600">@<?= $userById['USERNAME'] ?></span></h1>
+            <button onclick="window.history.back()"
+                class="flex items-center gap-3 text-black font-semibold cursor-pointer w-full">
+
+                <img src="<?php echo BASEURL . '/src/asset/icons/left-arrow-svgrepo-com.svg'; ?>"
+                    alt="icon" class="w-4 h-4 md:w-6 md:h-6">
+
+                <h1 class="block max-w-[80%] truncate text-base lg:text-xl">
+                    Profile <span class="text-blue-600"><?= $userById['FULL_NAME'] ?></span>
+                </h1>
+
             </button>
+
         </div>
         <div class="max-w-xl mx-auto px-5 md:p-0 mb-20 md:mb-10">
             <div class="relative w-full h-48 bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600">
@@ -119,12 +127,12 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                                                 <div
                                                     id="dropdown-<?= $post['POST_ID'] ?>"
                                                     class="hidden absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
-                                                       <button
-                                                            type="button"
-                                                            class="report-btn w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-100"
-                                                            data-post-id="<?= $post['POST_ID']; ?>">
-                                                            Report
-                                                        </button>
+                                                    <button
+                                                        type="button"
+                                                        class="report-btn w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-100"
+                                                        data-post-id="<?= $post['POST_ID']; ?>">
+                                                        Report
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -267,7 +275,7 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
             });
             const dropdown = document.getElementById(id);
             dropdown.classList.toggle('hidden');
-            
+
         }
     </script>
 

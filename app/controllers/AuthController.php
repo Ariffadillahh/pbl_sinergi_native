@@ -228,7 +228,7 @@ class AuthController
     {
         header('Content-Type: application/json');
         $userModel = new User();
-        $users = $userModel->getAllUsers();
+        $users = $userModel->getRegularUsers();
         echo json_encode(['success' => true, 'data' => $users]);
         exit;
     }

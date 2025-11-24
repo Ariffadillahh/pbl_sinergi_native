@@ -129,10 +129,12 @@
                     <div class="flex items-center justify-between">
                         <p class="text-lg font-semibold text-gray-800">Media, Files & Links</p>
 
-                        <button id="open-media-full"
-                            class="text-sm font-medium text-blue-600 hover:underline">
-                            Lihat lainnya →
-                        </button>
+                        <?php if (!empty($mediaPreview)) : ?>
+                            <button id="open-media-full"
+                                class="text-sm font-medium text-blue-600 hover:underline">
+                                Lihat lainnya →
+                            </button>
+                        <?php endif ?>
                     </div>
 
                     <div class="grid grid-cols-4 gap-3">
@@ -170,7 +172,7 @@
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <p class="text-gray-500 text-sm col-span-4 text-center">
+                            <p class="text-gray-500 text-sm col-span-4 text-center my-3">
                                 Belum ada media yang dikirim.
                             </p>
                         <?php endif; ?>

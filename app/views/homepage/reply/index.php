@@ -3,6 +3,54 @@ function loadLobSafe($data)
 {
     return ($data instanceof OCILob) ? $data->load() : $data;
 }
+
+function organizeReplies($replies)
+{
+    $repliesById = [];
+    $roots = [];
+
+    // 1. Petakan semua reply berdasarkan ID agar mudah dicari
+    foreach ($replies as $reply) {
+        $reply['children'] = []; // Siapkan array children kosong
+        $repliesById[$reply['REPLY_ID']] = $reply;
+    }
+
+    // 2. Pisahkan mana Bapak Utama (Root), mana Anak/Cucu
+    foreach ($repliesById as $id => $reply) {
+        if (empty($reply['PARENT_ID'])) {
+            $roots[$id] = &$repliesById[$id];
+        }
+    }
+
+    // 3. Masukkan Anak, Cucu, Cicit ke dalam children milik Bapak Utama
+    foreach ($repliesById as $id => $reply) {
+        if (!empty($reply['PARENT_ID'])) {
+            $currentParentId = $reply['PARENT_ID'];
+            $ultimateRootId = null;
+
+            $safety = 0;
+            while ($safety < 100) {
+                if (isset($repliesById[$currentParentId])) {
+                    if (empty($repliesById[$currentParentId]['PARENT_ID'])) {
+                        $ultimateRootId = $currentParentId;
+                        break;
+                    } else {
+                        $currentParentId = $repliesById[$currentParentId]['PARENT_ID'];
+                    }
+                } else {
+                    break;
+                }
+                $safety++;
+            }
+
+            if ($ultimateRootId && isset($roots[$ultimateRootId])) {
+                $roots[$ultimateRootId]['children'][] = $reply;
+            }
+        }
+    }
+
+    return $roots;
+}
 ?>
 <!doctype html>
 <html>
@@ -22,7 +70,7 @@ function loadLobSafe($data)
                 <h1 class="text-xl">Post</h1>
             </button>
         </div>
-        <div class="max-w-xl mx-auto px-5 md:p-0 mb-20 md:mb-10">
+        <div class="max-w-xl mx-auto px-5 md:p-0 mb-20 lg:mb-10">
             <div class="max-w-xl w-full mx-auto">
                 <?php require_once 'app/views/components/postingan/replyPost.php'; ?>
 
@@ -90,7 +138,7 @@ function loadLobSafe($data)
 
                                 <div class="flex gap-3 sm:gap-4 items-center">
                                     <p class="text-gray-400 time-ago" data-time="<?= htmlspecialchars($comment['CREATED_AT']) ?>"></p>
-                                    <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold">
+                                    <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold" data-username="<?= htmlspecialchars($comment['USERNAME']) ?>">
                                         Reply
                                     </button>
                                 </div>
@@ -145,6 +193,7 @@ function loadLobSafe($data)
                             <?php if (!empty($comment['REPLIES'])): ?>
                                 <?php
                                 $totalReplies = count($comment['REPLIES']);
+                                $organizedReplies = organizeReplies($comment['REPLIES']);
                                 ?>
 
                                 <div class="border-t border-gray-200 mt-3 pt-4 replies-section">
@@ -158,11 +207,27 @@ function loadLobSafe($data)
                                         Show <?= $totalReplies ?> <?= $totalReplies === 1 ? 'reply' : 'replies' ?>
                                     </button>
 
-                                    <div class="hidden-replies hidden space-y-4">
-                                        <?php foreach ($comment['REPLIES'] as $reply): ?>
-                                            <div class="comment-container">
-                                                <?php include __DIR__ . '/reply-item.php'; ?>
-                                            </div>
+                                    <div class="hidden-replies hidden">
+                                        <?php foreach ($organizedReplies as $parentReply): ?>
+                                            <?php
+                                            $reply = $parentReply;
+                                            $isChild = false;
+
+                                            $rootReplyId = $parentReply['REPLY_ID'];
+
+                                            include __DIR__ . '/reply-item.php';
+                                            ?>
+
+                                            <?php if (!empty($parentReply['children'])): ?>
+                                                <?php foreach ($parentReply['children'] as $childReply): ?>
+                                                    <?php
+                                                    $reply = $childReply;
+                                                    $isChild = true;
+
+                                                    include __DIR__ . '/reply-item.php';
+                                                    ?>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
                                         <?php endforeach; ?>
                                     </div>
                                 </div>
@@ -451,18 +516,19 @@ function loadLobSafe($data)
                 }
 
                 if (e.target.classList.contains('toggle-reply')) {
-                    const commentBlock = e.target.closest('.comment-block, .comment-container');
+                    const targetUsername = e.target.dataset.username;
+
+                    const commentBlock = e.target.closest('.comment-block, .comment-container, .reply-container');
                     const replyForm = commentBlock.querySelector('.reply-form');
+
                     if (replyForm) {
                         replyForm.classList.toggle('hidden');
                         const textarea = replyForm.querySelector('textarea');
-                        if (textarea) {
-                            const usernameTag = e.target.closest('.comment-block, .comment-container')
-                                ?.querySelector('span.text-gray-500')?.textContent?.trim().replace('@', '');
 
-                            if (usernameTag) {
-                                textarea.placeholder = `Reply to @${usernameTag}`;
-                                textarea.dataset.replyTo = usernameTag;
+                        if (textarea) {
+                            if (targetUsername) {
+                                textarea.placeholder = `Reply to @${targetUsername}`;
+                                textarea.dataset.replyTo = targetUsername;
                             }
 
                             if (!textarea.dataset.mentionInitialized) {

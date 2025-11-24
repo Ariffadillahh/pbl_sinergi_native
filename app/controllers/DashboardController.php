@@ -70,7 +70,7 @@ class DashboardController
         $myForumsData = $this->forumModel->getMyForum($mySearch, $limit, $myOffset);
         $allForumsData = $this->forumModel->getAllForumsPagination($allSearch, $limit, $allOffset);
 
-        $users = $this->userModel->getAllUsers();
+        $users = $this->userModel->getAllUser();
         $allForums = $this->forumModel->allForums();
 
         $data = [

@@ -31,7 +31,7 @@ if (!isset($new)) $new = [];
     </div>
 
     <div class="mt-8">
-      <h1 class="font-semibold font-sans">Hot Forums 🔥</h1>
+      <h1 class="font-semibold font-sans">Your Forums</h1>
       <?php foreach ($hot as $forum): ?>
           <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 mt-2 cursor-pointer" onclick="handleForumClick('<?= $forum['ID'] ?>', '<?= htmlspecialchars($forum['NAME'], ENT_QUOTES) ?>')">
             <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
@@ -49,7 +49,7 @@ if (!isset($new)) $new = [];
     </div>
 
     <div class="mt-8">
-      <h1 class="font-semibold font-sans">New Forums</h1>
+      <h1 class="font-semibold font-sans">Your Grups</h1>
       <?php foreach ($new as $forum): ?>
         <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 mt-2 cursor-pointer" onclick="handleForumClick('<?= $forum['ID'] ?>', '<?= htmlspecialchars($forum['NAME'], ENT_QUOTES) ?>')">
           <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">

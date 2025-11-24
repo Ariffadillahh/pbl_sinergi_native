@@ -157,7 +157,7 @@ class User extends BaseModel
         return true;
     }
 
-    public function getAllUsers()
+    public function getRegularUsers()
     {
         $conn = self::getConnection();
         if (!$conn) {
@@ -171,6 +171,48 @@ class User extends BaseModel
             FROM USERS 
             WHERE ROLE NOT IN ('MITRA', 'ALUMNI') 
             AND ID != :id";
+
+        $stmt = oci_parse($conn, $sql);
+
+        if (!$stmt) {
+            $e = oci_error($conn);
+            error_log("Gagal mem-parsing SQL: " . $e['message']);
+            return [];
+        }
+
+        oci_bind_by_name($stmt, ':id', $userId);
+
+        $result = oci_execute($stmt);
+
+        if (!$result) {
+            $e = oci_error($stmt);
+            error_log("Gagal mengeksekusi query: " . $e['message']);
+            oci_free_statement($stmt);
+            return [];
+        }
+
+        $users = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $users[] = $row;
+        }
+
+        oci_free_statement($stmt);
+        return $users;
+    }
+
+    public function getAllUser()
+    {
+        $conn = self::getConnection();
+        if (!$conn) {
+            error_log("Gagal mendapatkan koneksi database.");
+            return [];
+        }
+
+        $userId = $_SESSION['user_id'];
+
+        $sql = "SELECT ID, USERNAME, FULL_NAME, PATH_PHOTO, ROLE 
+            FROM USERS 
+            WHERE ID != :id";
 
         $stmt = oci_parse($conn, $sql);
 

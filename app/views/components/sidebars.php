@@ -3,6 +3,7 @@ $current_uri = $_SERVER['REQUEST_URI'];
 
 $isHomepageActive = (strpos($current_uri, '/homepage') !== false);
 $isForumsActive   = (strpos($current_uri, '/forums') !== false);
+$isGrupActive   = (strpos($current_uri, '/grups') !== false);
 $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
 ?>
 
@@ -32,6 +33,16 @@ $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
                 </a>
                 <h1 class="absolute left-full ml-4 whitespace-nowrap rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white border border-gray-200 border-l-4 border-l-blue-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100 invisible group-hover:visible pointer-events-none z-[9999]">
                     Forums
+                </h1>
+            </li>
+
+            <li class="group relative flex items-center <?php echo $isGrupActive ? 'active' : ''; ?>">
+                <a href="<?php echo BASEURL ?>/forums" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
+                    <img src="<?php echo BASEURL; ?>/src/asset/icons/messages.svg" class="size-6 group-[.active]:hidden" alt="icon">
+                    <img src="<?php echo BASEURL; ?>/src/asset/icons/messages-white-fill.svg" class="size-6 hidden group-[.active]:flex" alt="icon">
+                </a>
+                <h1 class="absolute left-full ml-4 whitespace-nowrap rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white border border-gray-200 border-l-4 border-l-blue-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100 invisible group-hover:visible pointer-events-none z-[9999]">
+                    Grups
                 </h1>
             </li>
             <li class="group relative flex items-center">
@@ -80,6 +91,7 @@ $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
                     Profile
                 </h1>
             </li>
+            
         </ul>
     </nav>
 
@@ -128,6 +140,7 @@ $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
 
             <span class="text-xs text-gray-500">Notification</span>
         </div>
+        
 
 
         <div class="relative flex flex-col items-center justify-center gap-1">

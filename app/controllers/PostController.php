@@ -66,14 +66,19 @@ class PostController
         }
 
         $uploadedPaths = [];
-        if (!empty($_FILES['images']['name'][0])) {
+        if ($hasImages) {
             $totalFiles = count($_FILES['images']['name']);
+
             if ($totalFiles > 5) {
                 echo json_encode(['success' => false, 'message' => 'Maksimal 5 gambar per postingan.']);
                 exit;
             }
 
             for ($i = 0; $i < $totalFiles; $i++) {
+                if ($_FILES['images']['error'][$i] !== UPLOAD_ERR_OK) {
+                    continue; 
+                }
+
                 $fileName = uniqid('post_', true) . '-' . basename($_FILES['images']['name'][$i]);
                 $targetFile = $uploadDir . $fileName;
                 $fileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
@@ -83,10 +88,12 @@ class PostController
                     echo json_encode(['success' => false, 'message' => 'Hanya file gambar (JPG, JPEG, PNG, GIF) yang diperbolehkan.']);
                     exit;
                 }
+
                 if (!move_uploaded_file($_FILES['images']['tmp_name'][$i], $targetFile)) {
                     echo json_encode(['success' => false, 'message' => 'Gagal mengunggah file gambar.']);
                     exit;
                 }
+
                 $uploadedPaths[] = 'storage/posts/images/' . $fileName;
             }
         }
@@ -101,7 +108,6 @@ class PostController
 
             if (!empty($mentionedUsernames)) {
                 $mentionedUsers = $this->postModel->getUsersByUsernames($mentionedUsernames);
-
                 foreach ($mentionedUsers as $mentionedUser) {
                     if ($mentionedUser['ID'] !== $user['ID']) {
                         $this->notificationModel->addNotification(
@@ -115,7 +121,22 @@ class PostController
                 }
             }
 
-            echo json_encode(['success' => true, 'message' => 'Postingan berhasil dibuat.']);
+            if (isset($_SESSION['img_mood']) && !empty($_SESSION['img_mood'])) {
+                $filename = $_SESSION['img_mood'];
+
+                $filePath = __DIR__ . '/../../' . $filename;
+
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+
+                unset($_SESSION['img_mood']);
+            }
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Postingan berhasil dibuat.',
+            ]);
             exit;
         } else {
             echo json_encode(['success' => false, 'message' => 'Gagal menyimpan postingan ke database.']);

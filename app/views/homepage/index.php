@@ -10,7 +10,7 @@
 
 <body>
     <main class="w-full h-screen overflow-y-auto border-gray-200 hide-scrollbar relative">
-        <div class="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full shadow-sm border-b border-gray-200/80">
+        <div class="sticky top-0 z-[99999] bg-white/95 backdrop-blur-md w-full shadow-sm border-b border-gray-200/80">
             <div class="w-full px-4 sm:px-6 lg:px-8 py-3">
                 <div class="flex items-center justify-between gap-3 sm:gap-4">
 
@@ -52,6 +52,8 @@
                             </button>
                         </div>
                     </form>
+
+
 
                     <div class="group relative flex justify-center">
                         <button id="quote-btn-opn" aria-label="Show Quote of the Day" class="flex items-center justify-center p-2.5 rounded-full cursor-pointer">

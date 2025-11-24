@@ -94,7 +94,7 @@
                     </div>
                     <h3 class="font-bold text-lg mb-3 text-gray-900">Diskusi Interaktif</h3>
                     <p class="text-gray-500 text-sm leading-relaxed">
-                        Mulai percakapan, tanyakan pertanyaan, dan dapatkan jawaban langsung dari komunitas akademik.
+                        Mulai percakapan, ajukan pertanyaan, dan dapatkan jawaban secara real-time dari komunitas akademik.
                     </p>
                 </div>
 

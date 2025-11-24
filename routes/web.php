@@ -16,6 +16,21 @@ switch (true) {
         $controller->landingPage();
         break;
 
+    case $route === 'smile-o-met':
+        $controller = new LandingPageController();
+        $controller->smileOMet();
+        break;
+
+    case $route === 'simpan-mood':
+        $controller = new LandingPageController();
+        $controller->syncMood();
+        break;
+
+    case $route === 'mood/delete-preview':
+        $controller = new LandingPageController();
+        $controller->deletePreview();
+        break;
+
     default:
         include __DIR__ . '/forums.php';
         include __DIR__ . '/auth.php';

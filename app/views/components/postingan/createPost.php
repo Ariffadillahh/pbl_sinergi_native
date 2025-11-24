@@ -52,26 +52,43 @@
     </div>
 </form>
 
-<div id="toast-limit-create" 
-     class="hidden fixed top-5 right-5 z-[99999]">
-  <div class="bg-red-600 text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-fade-in">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-    </svg>
-    <span class="font-semibold">Maksimal 5 gambar.</span>
-  </div>
+<?php
+$moodUrl = '';
+if (isset($_SESSION['img_mood']) && !empty($_SESSION['img_mood'])) {
+    $moodUrl = BASEURL . $_SESSION['img_mood'];
+}
+?>
+<div id="mood-data" data-url="<?= $moodUrl ?>" class="hidden"></div>
+
+<div id="toast-limit-create"
+    class="hidden fixed top-5 right-5 z-[99999]">
+    <div class="bg-red-600 text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-fade-in">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        <span class="font-semibold">Maksimal 5 gambar.</span>
+    </div>
 </div>
 
+<div id="successDiv" class="hidden fixed top-5 right-5 z-[99999] bg-green-500 text-white px-4 py-3 rounded-xl shadow-lg animate-fade-in"></div>
+<div id="errorDiv" class="hidden fixed top-5 right-5 z-[99999] bg-red-500 text-white px-4 py-3 rounded-xl shadow-lg animate-fade-in"></div>
+
+
 <style>
-    
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(-10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 </style>
 
 <script>
-    
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('createPostForm');
         const submitButton = document.getElementById('submit-post-btn');
@@ -79,154 +96,209 @@
         const successDiv = document.getElementById("successDiv");
         const errorDiv = document.getElementById("errorDiv");
         const textarea = document.getElementById("content");
-        const teximagePreviewtarea = document.getElementById("image-preview-container");
-        const imageInput = document.getElementById("image-input");
+
         const previewContainer = document.getElementById("image-preview-container");
+        const imageInput = document.getElementById("image-input");
         const removeIconUrl = imageInput.dataset.iconUrl;
         const MAX_FILES = 5;
+
         let fileBuffer = [];
         let fileIdCounter = 0;
 
-    function showCreateLimitToast() {
-    const toast = document.getElementById("toast-limit-create");
-    toast.classList.remove("hidden");
+        function showCreateLimitToast() {
+            const toast = document.getElementById("toast-limit-create");
+            toast.classList.remove("hidden");
+            setTimeout(() => {
+                toast.classList.add("hidden");
+            }, 2500);
+        }
 
-    setTimeout(() => {
-        toast.classList.add("hidden");
-    }, 2500);
-    }
+        function showEmptyPostToast() {
+            errorDiv.innerHTML = "Konten atau gambar tidak boleh kosong!";
+            errorDiv.classList.remove("hidden");
+            setTimeout(() => errorDiv.classList.add("hidden"), 2500);
+        }
 
-function updateInputFiles() {
-    const dt = new DataTransfer();
-    fileBuffer.forEach(file => dt.items.add(file));
-    imageInput.files = dt.files;
-}
+        function updateInputFiles() {
+            const dt = new DataTransfer();
+            fileBuffer.forEach(file => dt.items.add(file));
+            imageInput.files = dt.files;
+        }
 
-function updateImageInputState() {
-    if (fileBuffer.length >= MAX_FILES) {
-        imageInput.disabled = true;
-        imageInput.parentElement.classList.add('opacity-50', 'cursor-not-allowed');
-    } else {
-        imageInput.disabled = false;
-        imageInput.parentElement.classList.remove('opacity-50', 'cursor-not-allowed');
-    }
-}
+        function updateImageInputState() {
+            if (fileBuffer.length >= MAX_FILES) {
+                imageInput.disabled = true;
+                imageInput.parentElement.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                imageInput.disabled = false;
+                imageInput.parentElement.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
 
-function removeFile(fileToRemove) {
-    fileBuffer = fileBuffer.filter(f => f.name !== fileToRemove.name || f.size !== fileToRemove.size);
-    updateInputFiles();
-    renderPreviews();
-    updateImageInputState();
-}
+        function removeFile(fileToRemove) {
+            if (fileToRemove.serverFilename) {
+                fetch('<?= BASEURL ?>/mood/delete-preview', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            filename: fileToRemove.serverFilename
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log('File di server dihapus:', data);
+                    })
+                    .catch(err => console.error('Gagal hapus server:', err));
+            }
 
-async function renderPreviews() {
-    previewContainer.innerHTML = "";
+            fileBuffer = fileBuffer.filter(f => f !== fileToRemove);
 
-    for (const file of fileBuffer) {
-        const reader = new FileReader();
+            renderPreviews();
+        }
 
-        const base64 = await new Promise((resolve, reject) => {
-            reader.onload = e => resolve(e.target.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
+        async function renderPreviews() {
+            previewContainer.innerHTML = "";
 
-        const wrapper = document.createElement('div');
-        wrapper.className = 'relative flex-shrink-0 h-44 w-auto';
+            for (const file of fileBuffer) {
+                const reader = new FileReader();
+                const base64 = await new Promise((resolve, reject) => {
+                    reader.onload = e => resolve(e.target.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
 
-        const img = document.createElement("img");
-        img.src = base64;
-        img.className = "h-full w-full rounded-lg object-cover";
+                const wrapper = document.createElement('div');
+                wrapper.className = 'relative flex-shrink-0 h-44 w-auto';
 
-        const removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.className = 'absolute top-1 right-1 size-6 flex items-center justify-center bg-white hover:bg-gray-200 rounded-full transition-colors';
-        removeBtn.innerHTML = `<img src="${removeIconUrl}" class="w-5 h-5" alt="Remove">`;
+                const img = document.createElement("img");
+                img.src = base64;
+                img.className = "h-full w-full rounded-lg object-cover";
 
-        removeBtn.addEventListener('click', e => {
-            e.preventDefault();
-            removeFile(file);
-        });
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'absolute top-1 right-1 size-6 flex items-center justify-center bg-white hover:bg-gray-200 rounded-full transition-colors shadow-sm';
+                removeBtn.innerHTML = `<img src="${removeIconUrl}" class="w-5 h-5" alt="Remove">`;
 
-        wrapper.appendChild(img);
-        wrapper.appendChild(removeBtn);
-        previewContainer.appendChild(wrapper);
-    }
-}
+                removeBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    removeFile(file);
+                });
 
-imageInput.addEventListener("change", function () {
-    const selectedFiles = Array.from(this.files);
-    const availableSlots = MAX_FILES - fileBuffer.length;
-    
-    if (availableSlots <= 0) {
-        showCreateLimitToast();
-        this.value = "";
-        return;
-    }
-    
-    const filesToAdd = selectedFiles.slice(0, availableSlots);
-    const rejectedCount = selectedFiles.length - filesToAdd.length;
-    
-    const newFiles = filesToAdd.map((file, idx) => {
-        file.uploadOrder = fileBuffer.length + idx;
-        file.uniqueId = fileIdCounter++;
-        return file;
-    });
+                wrapper.appendChild(img);
+                wrapper.appendChild(removeBtn);
+                previewContainer.appendChild(wrapper);
+            }
+        }
 
-    fileBuffer.push(...newFiles);
-    updateInputFiles();
-    renderPreviews();
-    updateImageInputState(); 
-    
-    if (rejectedCount > 0) {
-        showCreateLimitToast();
-    }
-    
-    this.value = "";
-});
+        async function initMoodImage() {
+            const moodElement = document.getElementById('mood-data');
+            const moodUrl = moodElement ? moodElement.dataset.url : '';
 
-form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    if (fileBuffer.length === 0 && textarea.value.trim() === "") {
-        showEmptyPostToast();
-        return;
-    }
+            if (!moodUrl) return;
 
-    submitButton.disabled = true;
-    submitButton.innerHTML = 'Memposting...';
+            try {
+                const response = await fetch(moodUrl);
+                const blob = await response.blob();
 
-    const formData = new FormData();
-    formData.append("content", textarea.value.trim());
+                const urlParts = moodUrl.split('/');
+                const realFilename = urlParts[urlParts.length - 1];
 
-    fileBuffer.forEach((file, index) => {
-        const orderedFilename = `${String(index).padStart(3, '0')}_${file.name}`;
-        formData.append("images[]", file, orderedFilename);
-    });
+                const file = new File([blob], realFilename, {
+                    type: blob.type
+                });
 
-    const imageOrder = fileBuffer.map((f, i) => ({
-        index: i,
-        originalName: f.name,
-        size: f.size
-    }));
-    formData.append("image_order", JSON.stringify(imageOrder));
+                file.serverFilename = realFilename;
+
+                file.uploadOrder = 0;
+                file.uniqueId = fileIdCounter++;
+
+                fileBuffer.push(file);
+                updateInputFiles();
+                renderPreviews();
+                updateImageInputState();
+
+                console.log("Mood image loaded:", realFilename);
+            } catch (error) {
+                console.error("Gagal memuat gambar mood:", error);
+            }
+        }
+
+        initMoodImage();
 
 
-    try {
-        const response = await fetch(form.action, {
-            method: 'POST',
-            body: formData
-        });
+        imageInput.addEventListener("change", function() {
+            const selectedFiles = Array.from(this.files);
+            const availableSlots = MAX_FILES - fileBuffer.length;
 
-        const result = await response.json();
+            if (availableSlots <= 0) {
+                showCreateLimitToast();
+                this.value = "";
+                return;
+            }
 
-        if (result.success) {
-            textarea.value = "";
-            fileBuffer = [];
+            const filesToAdd = selectedFiles.slice(0, availableSlots);
+            const rejectedCount = selectedFiles.length - filesToAdd.length;
+
+            const newFiles = filesToAdd.map((file, idx) => {
+                file.uploadOrder = fileBuffer.length + idx;
+                file.uniqueId = fileIdCounter++;
+                return file;
+            });
+
+            fileBuffer.push(...newFiles);
             updateInputFiles();
             renderPreviews();
+            updateImageInputState();
 
-                    teximagePreviewtarea.innerHTML = "";
+            if (rejectedCount > 0) {
+                showCreateLimitToast();
+            }
+
+            this.value = "";
+        });
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (fileBuffer.length === 0 && textarea.value.trim() === "") {
+                showEmptyPostToast();
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.innerHTML = 'Memposting...';
+
+            const formData = new FormData();
+            formData.append("content", textarea.value.trim());
+
+            fileBuffer.forEach((file, index) => {
+                const orderedFilename = `${String(index).padStart(3, '0')}_${file.name}`;
+                formData.append("images[]", file, orderedFilename);
+            });
+
+            const imageOrder = fileBuffer.map((f, i) => ({
+                index: i,
+                originalName: f.name,
+                size: f.size
+            }));
+            formData.append("image_order", JSON.stringify(imageOrder));
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    textarea.value = "";
+                    fileBuffer = [];
+                    updateInputFiles();
+                    renderPreviews();
+                    previewContainer.innerHTML = "";
 
                     successDiv.innerHTML = `
                         <div class="flex items-center gap-2">
@@ -264,15 +336,11 @@ form.addEventListener('submit', async function(e) {
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
-                        ${result.message}
+                        Terjadi kesalahan jaringan.
                     </div>
                 `;
                 errorDiv.classList.remove("hidden");
-
-                setTimeout(() => {
-                    errorDiv.classList.add("hidden");
-                }, 2500);
-
+                setTimeout(() => errorDiv.classList.add("hidden"), 2500);
                 console.error(err);
 
             } finally {
@@ -280,32 +348,25 @@ form.addEventListener('submit', async function(e) {
                 submitButton.innerHTML = `Posting <img src="<?= BASEURL; ?>/src/asset/image/send.png" class="size-4 mt-1" alt="icon">`;
             }
         });
-
     });
 
     const textarea = document.getElementById('content');
     const mentionDropdown = document.getElementById('mention');
-
     let users = [];
 
     async function fetchUsers() {
         try {
             const response = await fetch('<?= BASEURL ?>/get-all-user');
-
             if (!response.ok) throw new Error(`Server responded with ${response.status}`);
 
             const contentType = response.headers.get("content-type");
             if (!contentType || !contentType.includes("application/json")) {
-                throw new Error("Response bukan JSON. Periksa URL endpoint.");
+                return;
             }
-
             const data = await response.json();
             if (data.success && Array.isArray(data.data)) {
                 users = data.data;
-            } else {
-                console.error('Failed to get user data from response:', data);
             }
-
         } catch (err) {
             console.error('Failed to fetch users for mentions:', err);
         }
@@ -357,7 +418,6 @@ form.addEventListener('submit', async function(e) {
                 'MAHASISWA': 'bg-blue-100 text-blue-700 border-blue-200',
                 'DOSEN': 'bg-green-100 text-green-700 border-green-200',
             };
-
             const role = u.ROLE;
             const badgeColor = roleBadges[role] || 'bg-gray-100 text-gray-700 border-gray-200';
 
