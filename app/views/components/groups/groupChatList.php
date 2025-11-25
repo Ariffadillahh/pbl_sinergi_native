@@ -33,6 +33,7 @@
                                 <?php foreach ($joinedGroupChats as $groupChat): ?>
                                     <?php
                                     $isActive = ($activeChatId === $groupChat['ID']) ? 'active' : '';
+                                    $cleanId = trim($groupChat['ID']);
                                     ?>
                                     <a href="<?php echo BASEURL; ?>/groups/chat/<?php echo $groupChat['ID']; ?>" class="chats-card group <?php echo $isActive; ?> last:pb-8">
                                         <div class="flex items-center rounded-2xl p-4 gap-3 group-[.active]:bg-gray-100 hover:bg-gray-100 transition-all duration-300">
@@ -55,7 +56,7 @@
 
                                             <div class="flex flex-col w-full gap-1">
 
-                                                <div id="forum-skeleton-<?php echo $groupChat['ID']; ?>" class="w-full animate-pulse space-y-1.5">
+                                                <div id="forum-skeleton-<?php echo $cleanId; ?>" class="w-full animate-pulse space-y-1.5">
                                                     <div class="flex items-center justify-between gap-[6px]">
                                                         <p class="font-medium leading-5 max-w-[182px] truncate">
                                                             <?php echo htmlspecialchars($groupChat['NAME']); ?>
@@ -68,7 +69,7 @@
                                                     </div>
                                                 </div>
 
-                                                <div id="forum-data-<?php echo $groupChat['ID']; ?>" class="w-full hidden">
+                                                <div id="forum-data-<?php echo $cleanId; ?>" class="w-full hidden">
                                                     <div class="flex items-center justify-between gap-[6px]">
                                                         <p class="font-medium leading-5 max-w-[182px] truncate">
                                                             <?php echo htmlspecialchars($groupChat['NAME']); ?>
@@ -113,19 +114,78 @@
     const baseUrl = '<?php echo BASEURL; ?>';
 
     function formatTime(timestamp) {
-        if (!timestamp) return '';
+        if (!timestamp) {
+            console.warn('Empty timestamp received');
+            return '';
+        }
+        
         try {
-            const date = new Date(timestamp);
+            // Oracle returns format: 'YYYY-MM-DD HH24:MI:SS' or 'DD-MMM-YY HH.MI.SS.FF AM'
+            // Clean and parse the timestamp
+            let dateString = timestamp;
+            
+            // If it contains a space, assume it's 'YYYY-MM-DD HH:MI:SS' format
+            if (dateString.includes(' ')) {
+                dateString = dateString.replace(' ', 'T');
+            }
+            
+            const date = new Date(dateString);
 
+            // Validate the date
             if (isNaN(date.getTime())) {
-                return timestamp.substring(0, 6).replace('-', ' '); 
+                console.error('Invalid date:', timestamp);
+                return timestamp.substring(0, 10); // Fallback: return just the date part
             }
 
+            const now = new Date();
+            
+            // Reset time to midnight for date comparison
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            
+            const diffTime = today - messageDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            // Today - show time in 12-hour format with AM/PM
+            if (diffDays === 0) {
+                let hours = date.getHours();
+                const minutes = date.getMinutes().toString().padStart(2, '0');
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                
+                // Convert to 12-hour format
+                hours = hours % 12;
+                hours = hours ? hours : 12; // 0 should be 12
+                
+                return `${hours}:${minutes} ${ampm}`;
+            }
+
+            // Yesterday
+            if (diffDays === 1) {
+                return 'Yesterday';
+            }
+
+            // This week (2-6 days ago) - show day name
+            if (diffDays >= 2 && diffDays <= 6) {
+                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                return days[date.getDay()];
+            }
+
+            // This year - show date without year (DD MMM)
+            if (now.getFullYear() === date.getFullYear()) {
+                const day = date.getDate().toString().padStart(2, '0');
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const month = months[date.getMonth()];
+                return `${day} ${month}`;
+            }
+
+            // Older than this year - show with year (DD MMM YYYY)
             const day = date.getDate().toString().padStart(2, '0');
-            const month = date.toLocaleString('id-ID', {
-                month: 'short'
-            });
-            return `${day} ${month}`;
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            return `${day} ${month} ${year}`;
 
         } catch (e) {
             console.error("Error formatting date:", timestamp, e);
@@ -133,22 +193,24 @@
         }
     }
 
-
     function updateSidebarUI(data) {
-        for (const item of data) {
-            const dataWrapper = document.getElementById(`forum-data-${item.groupChatId}`);
-            const skeletonWrapper = document.getElementById(`forum-skeleton-${item.groupChatId}`);
+        console.log('Updating sidebar with data:', data); // ✅ Debug log
 
-            const badgeElement = document.getElementById(`forum-count-${item.groupChatId}`);
-            const msgElement = document.getElementById(`forum-last-msg-${item.groupChatId}`);
-            const timeElement = document.getElementById(`forum-time-${item.groupChatId}`);
+        for (const item of data) {
+            const dataWrapper = document.getElementById(`forum-data-${item.group_chat_id}`);
+            const skeletonWrapper = document.getElementById(`forum-skeleton-${item.group_chat_id}`);
+            const badgeElement = document.getElementById(`forum-count-${item.group_chat_id}`);
+            const msgElement = document.getElementById(`forum-last-msg-${item.group_chat_id}`);
+            const timeElement = document.getElementById(`forum-time-${item.group_chat_id}`);
 
             if (!dataWrapper || !skeletonWrapper || !badgeElement || !msgElement || !timeElement) {
+                console.warn(`Missing elements for group ${item.group_chat_id}`); // ✅ Debug log
                 continue;
             }
 
-            const isChatActive = (activeChatId !== '' && item.groupChatId === activeChatId);
+            const isChatActive = (activeChatId !== '' && item.group_chat_id === activeChatId);
 
+            // Update badge
             if (item.count > 0 && !isChatActive) {
                 badgeElement.innerText = item.count;
                 badgeElement.classList.add('bg-blue-600');
@@ -157,31 +219,38 @@
                 badgeElement.classList.remove('bg-blue-600');
             }
 
+            // Update last message
             msgElement.innerText = item.lastMessage || 'No messages yet';
 
+            // Update time
             timeElement.innerText = formatTime(item.lastTime);
 
+            // Show data, hide skeleton
             skeletonWrapper.classList.add('hidden');
             dataWrapper.classList.remove('hidden');
         }
     }
 
-
     async function startCountPolling() {
-
         const hash = window.lastCountHash;
-        const url = `${baseUrl}/groups/pollCounts?lastHash=${hash}`;
+        const url = `${baseUrl}/groups/pollCounts?lastHash=${encodeURIComponent(hash)}`;
 
         try {
             const response = await fetch(url);
 
             if (response.status === 200) {
-                const data = await response.json();
+                const result = await response.json();
+                console.log('Poll response:', result); // ✅ Debug log
 
-                window.lastCountHash = data.hash;
+                window.lastCountHash = result.hash;
+                updateSidebarUI(result.data);
 
-                updateSidebarUI(data.data);
-
+            } else if (response.status === 204) {
+                // No changes, continue polling
+                console.log('No changes detected');
+            } else if (response.status === 403) {
+                console.error('Unauthorized');
+                return; // Stop polling
             }
 
         } catch (error) {
@@ -189,8 +258,12 @@
             await new Promise(resolve => setTimeout(resolve, 5000));
         }
 
+        // Continue polling
         startCountPolling();
     }
 
-    document.addEventListener('DOMContentLoaded', startCountPolling);
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('Starting count polling...'); // ✅ Debug log
+        startCountPolling();
+    });
 </script>

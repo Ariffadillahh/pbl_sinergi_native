@@ -45,7 +45,7 @@ $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
             </li>
 
 
-            <li class="group relative flex items-center <?php echo $isGrupActive ? 'active' : ''; ?>">
+            <li class="group relative flex items-center <?php echo $isGroupActive ? 'active' : ''; ?>">
                 <a href="<?php echo BASEURL ?>/groups" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/messages.svg" class="size-6 group-[.active]:hidden" alt="icon">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/messages-white-fill.svg" class="size-6 hidden group-[.active]:flex" alt="icon">
@@ -122,7 +122,7 @@ $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
 
 
         <!-- MENU / CHAT -->
-        <?php if ($isGrupActive): ?>
+        <?php if ($isGroupActive): ?>
             <button id="toggleForumsBtn" class="flex flex-col items-center justify-center gap-1 text-center">
                 <img src="<?= BASEURL ?>/src/asset/icons/menuActive.png"
                     class="h-7 w-7 bg-blue-600 p-1 rounded-lg" alt="icon">

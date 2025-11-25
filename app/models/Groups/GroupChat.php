@@ -32,84 +32,89 @@ class GroupChat extends BaseModel
     }
 
     public function getGroupChatsByUserId($userId)
-    {
-        $conn = self::getConnection();
+{
+    $conn = self::getConnection();
 
-        if (!$conn) {
-            error_log(" Gagal terhubung ke database.");
-            return [];
-        }
+    if (!$conn) {
+        error_log("Gagal terhubung ke database.");
+        return [];
+    }
 
-        $sql = "
-            SELECT 
-                gc.ID, 
-                gc.NAME, 
-                gc.PATH_PHOTO, 
-                gc.CREATED_AT,
-                gc.ABOUT,
-                gc.OWNER_ID,
-                (
-                    SELECT COUNT(*) 
-                    FROM GROUP_CHAT_MEMBERS gcm
-                    WHERE gcm.GROUP_CHAT_ID = gc.ID
-                    AND gcm.USER_ID != gc.OWNER_ID
-                ) AS MEMBER_COUNT,
-                (
-                    SELECT COUNT(msg_count.ID)
-                    FROM GROUP_CHAT_MESSAGES msg_count
-                    WHERE msg_count.GROUP_CHAT_ID = gcm.GROUP_CHAT_ID
-                    AND msg_count.CREATED_AT > gcm.LAST_READ_AT
-                    AND msg_count.SENDER_ID != gcm.USER_ID
-                ) AS UNREAD_COUNT,
-
-                lm.CONTENT AS LAST_MESSAGE_CONTENT,
-                lm.TYPE AS LAST_MESSAGE_TYPE,
-                lm.CREATED_AT AS LAST_MESSAGE_AT
-                
-            FROM 
-                GROUP_CHATS gc
-            JOIN 
-                GROUP_CHAT_MEMBERS gcm ON gc.ID = gcm.GROUP_CHAT_ID
+    $sql = "
+        SELECT 
+            gc.ID, 
+            gc.NAME, 
+            gc.PATH_PHOTO, 
+            TO_CHAR(gc.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
+            gc.ABOUT,
+            gc.OWNER_ID,
+            (
+                SELECT COUNT(*) 
+                FROM GROUP_CHAT_MEMBERS gcm_inner
+                WHERE gcm_inner.GROUP_CHAT_ID = gc.ID
+                AND gcm_inner.USER_ID != gc.OWNER_ID
+            ) AS MEMBER_COUNT,
+            (
+                SELECT COUNT(msg_count.ID)
+                FROM GROUP_CHAT_MESSAGES msg_count
+                WHERE msg_count.GROUP_CHAT_ID = gcm.GROUP_CHAT_ID
+                AND msg_count.CREATED_AT > gcm.LAST_READ_AT
+                AND msg_count.SENDER_ID != gcm.USER_ID
+            ) AS UNREAD_COUNT,
+            lm.CONTENT AS LAST_MESSAGE_CONTENT,
+            lm.TYPE AS LAST_MESSAGE_TYPE,
+            TO_CHAR(lm.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS LAST_MESSAGE_AT
+        FROM 
+            GROUP_CHATS gc
+        JOIN 
+            GROUP_CHAT_MEMBERS gcm ON gc.ID = gcm.GROUP_CHAT_ID
+        
+        OUTER APPLY (
+            SELECT msg.CONTENT, msg.TYPE, msg.CREATED_AT
+            FROM GROUP_CHAT_MESSAGES msg
+            WHERE msg.GROUP_CHAT_ID = gc.ID 
+            ORDER BY msg.CREATED_AT DESC
+            FETCH FIRST 1 ROWS ONLY
+        ) lm
             
-            OUTER APPLY (
-                SELECT msg.CONTENT, msg.TYPE, msg.CREATED_AT
-                FROM GROUP_CHAT_MESSAGES msg
-                WHERE msg.GROUP_CHAT_ID = gc.ID 
-                ORDER BY msg.CREATED_AT DESC
-                FETCH FIRST 1 ROWS ONLY
-            ) lm
-                
-            WHERE 
-             gcm.USER_ID = :user_id_bv
-            ORDER BY 
-                lm.CREATED_AT DESC NULLS LAST";
+        WHERE 
+            gcm.USER_ID = :user_id_bv
+        ORDER BY 
+            lm.CREATED_AT DESC NULLS LAST";
 
-        $stmt = oci_parse($conn, $sql);
+    $stmt = oci_parse($conn, $sql);
 
-        if (!$stmt) {
-            $e = oci_error($conn);
-            error_log("Gagal parse query: " . $e['message']);
-            oci_close($conn);
-            return [];
-        }
+    if (!$stmt) {
+        $e = oci_error($conn);
+        error_log("Gagal parse query: " . $e['message']);
+        oci_close($conn);
+        return [];
+    }
 
-        oci_bind_by_name($stmt, ':user_id_bv', $userId);
+    oci_bind_by_name($stmt, ':user_id_bv', $userId);
 
-        if (!oci_execute($stmt)) {
-            $e = oci_error($stmt);
-            error_log("Gagal execute query: " . $e['message']);
-            oci_free_statement($stmt);
-            oci_close($conn);
-            return [];
-        }
-
-        $groupChat = [];
-        oci_fetch_all($stmt, $groupChat, 0, -1, OCI_FETCHSTATEMENT_BY_ROW | OCI_ASSOC);
+    if (!oci_execute($stmt)) {
+        $e = oci_error($stmt);
+        error_log("Gagal execute query: " . $e['message']);
         oci_free_statement($stmt);
         oci_close($conn);
-
-        return $groupChat;
+        return [];
     }
+
+    $groupChat = [];
+    while ($row = oci_fetch_assoc($stmt)) {
+        // Handle CLOB content if needed
+        if (is_object($row['LAST_MESSAGE_CONTENT'])) {
+            $row['LAST_MESSAGE_CONTENT'] = $row['LAST_MESSAGE_CONTENT']->load();
+        }
+        $groupChat[] = $row;
+    }
+    
+    oci_free_statement($stmt);
+    oci_close($conn);
+
+    return $groupChat;
+}
 
     public function findById($id)
     {
@@ -543,7 +548,7 @@ class GroupChat extends BaseModel
             }
         }
 
-        $checkSql = "SELECT COUNT(*) as COUNT FROM GROUP_CHAT_MEMBERS WHERE GROUP_CHAT_ID = :group_chat_id AND USER_ID = :user_id";
+        $checkSql = "SELECT COUNT(*) as COUNT FR    OM GROUP_CHAT_MEMBERS WHERE GROUP_CHAT_ID = :group_chat_id AND USER_ID = :user_id";
         $stmt_check = oci_parse($conn, $checkSql);
         oci_bind_by_name($stmt_check, ':group_chat_id', $groupChatId);
         oci_bind_by_name($stmt_check, ':user_id', $userId);
