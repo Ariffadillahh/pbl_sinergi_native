@@ -3,7 +3,7 @@ $current_uri = $_SERVER['REQUEST_URI'];
 
 $isHomepageActive = (strpos($current_uri, '/homepage') !== false);
 $isForumsActive   = (strpos($current_uri, '/forums') !== false);
-$isGrupActive   = (strpos($current_uri, '/grups') !== false);
+$isGrupActive   = (strpos($current_uri, '/groups') !== false);
 $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
 ?>
 
@@ -46,7 +46,7 @@ $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
 
 
             <li class="group relative flex items-center <?php echo $isGrupActive ? 'active' : ''; ?>">
-                <a href="<?php echo BASEURL ?>/group" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
+                <a href="<?php echo BASEURL ?>/groups" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/messages.svg" class="size-6 group-[.active]:hidden" alt="icon">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/messages-white-fill.svg" class="size-6 hidden group-[.active]:flex" alt="icon">
                 </a>
@@ -129,7 +129,7 @@ $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
                 <span class="text-xs text-blue-600 font-semibold">Menu</span>
             </button>
         <?php else: ?>
-            <a href="<?= BASEURL ?>/group" class="flex flex-col items-center justify-center gap-1 text-center">
+            <a href="<?= BASEURL ?>/groups" class="flex flex-col items-center justify-center gap-1 text-center">
                 <img src="<?= BASEURL ?>/src/asset/icons/messages.svg" class="h-7 w-7" alt="icon">
                 <span class="text-xs text-gray-500">Chat</span>
             </a>
@@ -137,14 +137,19 @@ $accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
 
 
         <!-- FORUMS -->
-        <a href="<?= BASEURL ?>/forums" class="flex flex-col items-center justify-center gap-1 text-center">
-            <img src="<?= BASEURL ?>/src/asset/icons/<?= $isForumsActive ? 'forumActive.png' : 'forum.png' ?>"
-                class="h-7 w-7" alt="icon">
+        <a href="<?= BASEURL ?>/forums"
+            class="flex flex-col items-center justify-center gap-1 text-center">
+
+            <div class="p-1 rounded-xl <?= $isForumsActive ? 'bg-blue-600' : '' ?>">
+                <img src="<?= BASEURL ?>/src/asset/icons/<?= $isForumsActive ? 'forumsActive.png' : 'forum.png' ?>"
+                    class="h-6 w-6" alt="icon">
+            </div>
 
             <span class="text-xs <?= $isForumsActive ? 'text-blue-600 font-semibold' : 'text-gray-500' ?>">
                 Forums
             </span>
         </a>
+
 
 
         <!-- NOTIFICATION -->

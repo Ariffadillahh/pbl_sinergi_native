@@ -32,6 +32,7 @@ switch (true) {
         break;
 
     default:
+        include __DIR__ . '/groupChat.php';
         include __DIR__ . '/forums.php';
         include __DIR__ . '/auth.php';
         include __DIR__ . '/profile.php';

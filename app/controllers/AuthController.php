@@ -463,6 +463,7 @@ class AuthController
         }
 
         $sessionData['PATH_PHOTO'] = $finalPhotoName;
+        $sessionData['STATUS'] = 'APPROVED';
         unset($sessionData['temp_photo_path']);
         unset($sessionData['temp_photo']);
 
