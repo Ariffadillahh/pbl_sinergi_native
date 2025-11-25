@@ -178,7 +178,7 @@ class GroupChat extends BaseModel
             $stmt2 = oci_parse($conn, $sqlMembers);
 
             oci_bind_by_name($stmt2, ':id', $memberId);
-            oci_bind_by_name($stmt2, ':groupChat_id', $id);
+            oci_bind_by_name($stmt2, ':group_chat_id', $id);
             oci_bind_by_name($stmt2, ':user_id', $data['user_id']);
 
             oci_execute($stmt2, OCI_NO_AUTO_COMMIT);
@@ -262,7 +262,7 @@ class GroupChat extends BaseModel
                              WHERE GROUP_CHAT_ID = :GROUP_CHAT_id";
 
             $stmt_get_messages = oci_parse($conn, $sql_get_messages);
-            oci_bind_by_name($stmt_get_messages, ':groupChat_id', $id);
+            oci_bind_by_name($stmt_get_messages, ':group_chat_id', $id);
             oci_execute($stmt_get_messages);
 
             $filesToDelete = [];
@@ -352,7 +352,7 @@ class GroupChat extends BaseModel
         try {
             $sql = "SELECT gc.*, u.USERNAME as OWNER_USERNAME, gcm.USER_ID as IS_MEMBER
                 FROM GROUP_CHATS gc
-                LEFT JOIN GROUP_CHAT_MEMBERS gcm ON gc.ID = gcm.GroupChat_ID AND gcm.USER_ID = :user_id
+                LEFT JOIN GROUP_CHAT_MEMBERS gcm ON gc.ID = gcm.GROUP_CHAT_ID AND gcm.USER_ID = :user_id
                 LEFT JOIN USERS u ON gc.OWNER_ID = u.ID
                 WHERE UPPER(gc.NAME) LIKE :keyword";
 
@@ -483,7 +483,7 @@ class GroupChat extends BaseModel
         $sql = "
             UPDATE GROUP_CHAT_MEMBERS
             SET LAST_READ_AT = CURRENT_TIMESTAMP
-            WHERE GROUP_CHAT_ID = :groupChatId
+            WHERE GROUP_CHAT_ID = :group_chat_id
             AND USER_ID = :userId
         ";
 
@@ -496,7 +496,7 @@ class GroupChat extends BaseModel
             return;
         }
 
-        oci_bind_by_name($stmt, ':groupChatId', $groupChatId);
+        oci_bind_by_name($stmt, ':group_chat_id', $groupChatId);
         oci_bind_by_name($stmt, ':userId', $userId);
 
         if (!oci_execute($stmt, OCI_COMMIT_ON_SUCCESS)) {

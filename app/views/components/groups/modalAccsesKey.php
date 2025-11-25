@@ -5,7 +5,7 @@
         <p class="text-gray-600 mb-4">Group Chat ini memerlukan kunci akses untuk bergabung. Silakan masukkan di bawah ini.</p>
 
         <form id="accessKeyForm">
-            <input type="hidden" id="forumIdToJoin" name="forum_id">
+            <input type="hidden" id="forumIdToJoin" name="groupChat_id">
 
             <div>
                 <label for="access_key" class="block text-sm font-medium text-gray-700">Kunci Akses</label>

@@ -351,7 +351,7 @@
         const joinButton = event.target.closest('.join-forum-btn');
 
         if (joinButton) {
-            const groupChatId = joinButton.dataset.groupChatId;
+            const groupChatId = joinButton.dataset.forumId;
             const isPrivate = joinButton.dataset.isPrivate;
             if (isPrivate === '1') {
                 openAccessKeyModal(groupChatId);

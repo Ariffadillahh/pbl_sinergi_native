@@ -41,12 +41,12 @@
 
                                                 <?php if (!empty($groupChat['PATH_PHOTO'])): ?>
                                                     <img
-                                                        src="<?= BASEURL . '/storage/groups/photos/' . $groupChatId['PATH_PHOTO'] ?>"
+                                                        src="<?= BASEURL . '/storage/groups/photos/' . $groupChat['PATH_PHOTO'] ?>"
                                                         class="w-full h-full object-cover"
                                                         alt="photo">
                                                 <?php else: ?>
                                                     <span class="text-white font-bold text-lg bg-pink-500 w-full h-full flex items-center justify-center">
-                                                        <?= strtoupper(substr($groupChatId['NAME'], 0, 2)) ?>
+                                                        <?= strtoupper(substr($groupChat['NAME'], 0, 2)) ?>
                                                     </span>
                                                 <?php endif; ?>
 
@@ -55,10 +55,10 @@
 
                                             <div class="flex flex-col w-full gap-1">
 
-                                                <div id="forum-skeleton-<?php echo $groupChatId['ID']; ?>" class="w-full animate-pulse space-y-1.5">
+                                                <div id="forum-skeleton-<?php echo $groupChat['ID']; ?>" class="w-full animate-pulse space-y-1.5">
                                                     <div class="flex items-center justify-between gap-[6px]">
                                                         <p class="font-medium leading-5 max-w-[182px] truncate">
-                                                            <?php echo htmlspecialchars($groupChatId['NAME']); ?>
+                                                            <?php echo htmlspecialchars($groupChat['NAME']); ?>
                                                         </p>
                                                         <div class="bg-gray-200 rounded w-10 h-3"></div>
                                                     </div>
@@ -68,20 +68,20 @@
                                                     </div>
                                                 </div>
 
-                                                <div id="forum-data-<?php echo $groupChatId['ID']; ?>" class="w-full hidden">
+                                                <div id="forum-data-<?php echo $groupChat['ID']; ?>" class="w-full hidden">
                                                     <div class="flex items-center justify-between gap-[6px]">
                                                         <p class="font-medium leading-5 max-w-[182px] truncate">
-                                                            <?php echo htmlspecialchars($groupChatId['NAME']); ?>
+                                                            <?php echo htmlspecialchars($groupChat['NAME']); ?>
                                                         </p>
-                                                        <span class="text-xs text-gray-500" id="forum-time-<?php echo $groupChatId['ID']; ?>"></span>
+                                                        <span class="text-xs text-gray-500" id="forum-time-<?php echo $groupChat['ID']; ?>"></span>
                                                     </div>
                                                     <div class="flex items-center gap-1 justify-between">
                                                         <div class="w-full max-w-[178px] text-sm text-gray-500 line-clamp-1">
                                                             <p class="flex items-center gap-1">
-                                                                <span class="truncate" id="forum-last-msg-<?php echo $groupChatId['ID']; ?>"></span>
+                                                                <span class="truncate" id="forum-last-msg-<?php echo $groupChat['ID']; ?>"></span>
                                                             </p>
                                                         </div>
-                                                        <span id="forum-count-<?php echo $groupChatId['ID']; ?>"
+                                                        <span id="forum-count-<?php echo $groupChat['ID']; ?>"
                                                             class="flex items-center justify-center shrink-0 size-5 text-xs font-medium text-white rounded-full">
                                                         </span>
                                                     </div>
