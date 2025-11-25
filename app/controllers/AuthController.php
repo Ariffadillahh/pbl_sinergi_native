@@ -4,7 +4,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 require_once __DIR__ . '/../models/Auth/SignUp.php';
 require_once __DIR__ . '/../models/Auth/SignIn.php';
-require_once __DIR__ . '/../models/Forums/Forum.php';
+require_once __DIR__ . '/../models/Groups/GroupChat.php';
 
 class AuthController
 {

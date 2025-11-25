@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/../models/GroupChats/GroupChat.php';
-require_once __DIR__ . '/../models/GroupChats/GroupChatMember.php';
-require_once __DIR__ . '/../models/GroupChats/ChatMessage.php';
+require_once __DIR__ . '/../models/Groups/GroupChat.php';
+require_once __DIR__ . '/../models/Groups/GroupChatMember.php';
+require_once __DIR__ . '/../models/Groups/ChatMessage.php';
 require_once __DIR__ . '/../models/Notif/NotificationModel.php';
 require_once __DIR__ . '/../models/Posts/PostModel.php';
 require_once __DIR__ . '/../models/Users/UserModel.php';

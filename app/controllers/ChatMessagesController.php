@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../models/GroupChats/ChatMessage.php';
+require_once __DIR__ . '/../models/Groups/ChatMessage.php';
 
 class ChatMessagesController
 {
