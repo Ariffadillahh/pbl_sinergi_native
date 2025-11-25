@@ -13,7 +13,7 @@
                 </h3>
 
                 <form id="form-exit-forum" action="<?php echo BASEURL; ?>/groups/exit" method="post">
-                    <input type="hidden" name="group_chat_id" value="<?php echo $groupChatByid['ID']; ?>">
+                    <input type="hidden" name="group_chat_id" value="<?php echo $groupChatId['ID']; ?>">
                 </form>
 
                 <div class="flex justify-center gap-3 mt-4">

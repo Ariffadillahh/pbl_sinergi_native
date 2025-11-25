@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../models/Auth/SignIn.php';
-require_once __DIR__ . '/../models/Forums/Forum.php';
+require_once __DIR__ . '/../models/Forum/Forum.php';
 require_once __DIR__ . '/DashboardOverview.php';
 require_once __DIR__ . '/ReportController.php';
 require_once __DIR__ . '/../models/Notif/NotificationModel.php';
@@ -25,7 +25,7 @@ class DashboardController
         $this->loginModel  = new SignInModel();
         $this->overviewCount = new overviewCount();
         $this->reportController = new ReportController();
-        $this->forumModel = new Forum();
+        $this->forumModel = new ForumModel();
         $this->notificationModel = new NotificationModel();
     }
 

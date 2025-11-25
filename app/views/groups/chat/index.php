@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="<?php echo BASEURL; ?>/src/css/output.css" rel="stylesheet">
-    <title>Group Chats - <?= $groupChatByid["NAME"] ?></title>
+    <title>Group Chats - <?= $groupChatId["NAME"] ?></title>
 </head>
 
 <body>
@@ -149,7 +149,7 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             const BASEURL = '<?php echo BASEURL; ?>';
-            const GROUP_CHAT_ID = '<?= $groupChatByid['ID'] ?? '1' ?>';
+            const GROUP_CHAT_ID = '<?= $groupChatId['ID'] ?? '1' ?>';
             const CURRENT_USER_ID = '<?= $_SESSION['user_id'] ?? '123' ?>';
             const CURRENT_USER_NAME = "<?= $_SESSION['full_name'] ?? 'You' ?>";
             const CURRENT_USER_PHOTO = "<?= !empty($_SESSION['path_photo']) ? BASEURL . '/storage/users/photos/' . $_SESSION['path_photo'] : BASEURL . '/src/asset/image/default.png' ?>";

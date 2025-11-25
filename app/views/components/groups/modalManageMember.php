@@ -58,7 +58,7 @@
                                 </div>
 
                                 <button
-                                    onclick="kickMember('<?= $groupChatByid['ID'] ?>','<?= $member['USER_ID'] ?>')"
+                                    onclick="kickMember('<?= $groupChatId['ID'] ?>','<?= $member['USER_ID'] ?>')"
                                     class="px-4 py-2 text-sm rounded-lg border bg-red-600 text-white hover:bg-red-800">
                                     Kick
                                 </button>
@@ -156,7 +156,7 @@
 </div>
 
 <script>
-    const GROUP_CHAT_ID = "<?= $groupChatByid['ID'] ?>";
+    const GROUP_CHAT_ID = "<?= $groupChatId['ID'] ?>";
 
     // --- DEFINISI VARIABEL BARU (GLOBAL NOTIF) ---
     const globalSuccessDiv = document.getElementById("globalSuccessDiv");

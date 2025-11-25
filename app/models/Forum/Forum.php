@@ -4,6 +4,33 @@ require_once "app/models/BaseModel.php";
 
 class ForumModel extends BaseModel
 {
+        public function allForums()
+    {
+        $conn = self::getConnection();
+
+        if (!$conn) {
+            error_log("Gagal terhubung ke database.");
+            return [];
+        }
+
+        $sql = "SELECT ID, NAME, IS_PRIVATE, OWNER_ID FROM FORUMS ORDER BY NAME ASC";
+
+        $stmt = oci_parse($conn, $sql);
+
+        if (!oci_execute($stmt)) {
+            return [];
+        }
+
+        $forums = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $forums[] = $row;
+        }
+
+        oci_free_statement($stmt);
+
+        return $forums;
+    }
+
     public function createForum($data)
     {
         $conn = self::getConnection();
@@ -205,5 +232,215 @@ class ForumModel extends BaseModel
         oci_free_statement($stmt);
 
         return $forum ?: null;
+    }
+
+    public function joinForum($forumId, $userId, $accessKey = null)
+    {
+        $conn = self::getConnection();
+
+        $forumSql = "SELECT IS_PRIVATE, ACCESS_KEY FROM FORUMS WHERE ID = :forum_id";
+        $stmt_forum = oci_parse($conn, $forumSql);
+        oci_bind_by_name($stmt_forum, ':forum_id', $forumId);
+        oci_execute($stmt_forum);
+        $forum = oci_fetch_assoc($stmt_forum);
+        oci_free_statement($stmt_forum);
+
+        if (!$forum) {
+            return ['success' => false, 'message' => 'Forum tidak ditemukan.'];
+        }
+
+        if ($forum['IS_PRIVATE'] == 1) {
+            if (empty($accessKey)) {
+                return ['success' => false, 'message' => 'Kunci akses diperlukan untuk Forum ini.'];
+            }
+            if (strtoupper($accessKey) !== strtoupper($forum['ACCESS_KEY'])) {
+                return ['success' => false, 'message' => 'Kunci akses yang Anda masukkan salah.'];
+            }
+        }
+
+        $checkSql = "SELECT COUNT(*) as COUNT FROM FORUM_MEMBERS WHERE FORUM_ID = :forum_id AND USER_ID = :user_id";
+        $stmt_check = oci_parse($conn, $checkSql);
+        oci_bind_by_name($stmt_check, ':forum_id', $forumId);
+        oci_bind_by_name($stmt_check, ':user_id', $userId);
+        oci_execute($stmt_check);
+        $row = oci_fetch_assoc($stmt_check);
+        oci_free_statement($stmt_check);
+
+        if ($row['COUNT'] > 0) {
+            return ['success' => false, 'message' => 'Pengguna ini sudah tercatat sebagai anggota Forum Chat.'];
+        }
+
+        $stmt_insert = null;
+        try {
+            $id = uniqid();
+            $sql = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, JOINED_AT) 
+                VALUES (:id, :forum_id, :user_id, CURRENT_TIMESTAMP)";
+
+            $stmt_insert = oci_parse($conn, $sql);
+            oci_bind_by_name($stmt_insert, ':id', $id);
+            oci_bind_by_name($stmt_insert, ':forum_id', $forumId);
+            oci_bind_by_name($stmt_insert, ':user_id', $userId);
+
+            $result = oci_execute($stmt_insert);
+
+            if ($result) {
+                return ['success' => true, 'message' => 'Berhasil bergabung dengan Forum.'];
+            } else {
+                return ['success' => false, 'message' => 'Gagal bergabung dengan Forum.'];
+            }
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return ['success' => false, 'message' => 'Terjadi kesalahan server.'];
+        } finally {
+            if ($stmt_insert) oci_free_statement($stmt_insert);
+        }
+    }
+
+    public function getMyForum($search = '', $limit = 6, $offset = 0)
+    {
+        $conn = self::getConnection();
+        if (!$conn) return ['data' => [], 'total' => 0];
+
+        $currentUser = $_SESSION['user_id'];
+        $searchParam = '%' . strtolower($search) . '%';
+
+        $sqlCount = "
+            SELECT COUNT(f.ID) AS TOTAL_ROWS
+            FROM FORUM f
+            WHERE f.OWNER_ID = :currentUser
+        ";
+        if (!empty($search)) {
+            $sqlCount .= " AND LOWER(f.NAME) LIKE :search";
+        }
+
+        $stmtCount = oci_parse($conn, $sqlCount);
+        oci_bind_by_name($stmtCount, ":currentUser", $currentUser);
+        if (!empty($search)) {
+            oci_bind_by_name($stmtCount, ":search", $searchParam);
+        }
+        oci_execute($stmtCount);
+        $totalRows = oci_fetch_assoc($stmtCount)['TOTAL_ROWS'] ?? 0;
+        oci_free_statement($stmtCount);
+
+        $sqlData = "
+            SELECT * FROM (
+                SELECT 
+                    f.ID,
+                    f.NAME,
+                    f.IS_PRIVATE,
+                    u.FULL_NAME AS OWNER_NAME,
+                    COUNT(m.USER_ID) AS TOTAL_MEMBERS,
+                    f.PATH_PHOTO,
+                    f.ACCESS_KEY,
+                    f.CREATED_AT
+                FROM FORUM f
+                JOIN USERS u ON u.ID = f.OWNER_ID
+                LEFT JOIN FORUM_MEMBERS fm ON fm._FORUM_ID = f.ID
+                WHERE f.OWNER_ID = :currentUser
+            ";
+
+        if (!empty($search)) {
+            $sqlData .= " AND LOWER(f.NAME) LIKE :search";
+        }
+
+        $sqlData .= "
+                GROUP BY 
+                    f.ID, f.NAME, f.IS_PRIVATE, u.FULL_NAME, f.CREATED_AT, f.ACCESS_KEY, f.PATH_PHOTO
+                ORDER BY f.CREATED_AT DESC
+            )
+            OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
+        ";
+
+        $stmtData = oci_parse($conn, $sqlData);
+        oci_bind_by_name($stmtData, ":currentUser", $currentUser);
+        oci_bind_by_name($stmtData, ":offset", $offset);
+        oci_bind_by_name($stmtData, ":limit", $limit);
+        if (!empty($search)) {
+            oci_bind_by_name($stmtData, ":search", $searchParam);
+        }
+
+        if (!oci_execute($stmtData)) return ['data' => [], 'total' => 0];
+
+        $forums = [];
+        while ($row = oci_fetch_assoc($stmtData)) {
+            $forums[] = $row;
+        }
+        oci_free_statement($stmtData);
+
+        return ['data' => $forums, 'total' => $totalRows];
+    }
+
+    public function getAllForumsPagination($search = '', $limit = 6, $offset = 0)
+    {
+        $conn = self::getConnection();
+        if (!$conn) return ['data' => [], 'total' => 0];
+
+        $currentUser = $_SESSION['user_id'];
+        $searchParam = '%' . strtolower($search) . '%';
+
+        $sqlCount = "
+            SELECT COUNT(f.ID) AS TOTAL_ROWS
+            FROM FORUM f
+            WHERE f.OWNER_ID != :currentUser
+        ";
+        if (!empty($search)) {
+            $sqlCount .= " AND LOWER(f.NAME) LIKE :search";
+        }
+
+        $stmtCount = oci_parse($conn, $sqlCount);
+        oci_bind_by_name($stmtCount, ":currentUser", $currentUser);
+        if (!empty($search)) {
+            oci_bind_by_name($stmtCount, ":search", $searchParam);
+        }
+        oci_execute($stmtCount);
+        $totalRows = oci_fetch_assoc($stmtCount)['TOTAL_ROWS'] ?? 0;
+        oci_free_statement($stmtCount);
+
+        $sqlData = "
+            SELECT * FROM (
+                SELECT 
+                    f.ID,
+                    f.NAME,
+                    f.IS_PRIVATE,
+                    u.FULL_NAME AS OWNER_NAME,
+                    COUNT(m.USER_ID) AS TOTAL_MEMBERS,
+                    f.PATH_PHOTO,
+                    f.CREATED_AT
+                FROM FORUM f
+                JOIN USERS u ON u.ID = f.OWNER_ID
+                LEFT JOIN FORUM_MEMBERS fm ON fm.FORUM_ID = f.ID
+                WHERE f.OWNER_ID != :currentUser
+        ";
+
+        if (!empty($search)) {
+            $sqlData .= " AND LOWER(f.NAME) LIKE :search";
+        }
+
+        $sqlData .= "
+                GROUP BY 
+                    f.ID, f.NAME, f.IS_PRIVATE, u.FULL_NAME, f.CREATED_AT, f.PATH_PHOTO
+                ORDER BY f.CREATED_AT DESC
+            )
+            OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
+        ";
+
+        $stmtData = oci_parse($conn, $sqlData);
+        oci_bind_by_name($stmtData, ":currentUser", $currentUser);
+        oci_bind_by_name($stmtData, ":offset", $offset);
+        oci_bind_by_name($stmtData, ":limit", $limit);
+
+        if (!empty($search)) {
+            oci_bind_by_name($stmtData, ":search", $searchParam);
+        }
+
+        if (!oci_execute($stmtData)) return ['data' => [], 'total' => 0];
+
+        $forums = [];
+        while ($row = oci_fetch_assoc($stmtData)) {
+            $forums[] = $row;
+        }
+        oci_free_statement($stmtData);
+
+        return ['data' => $forums, 'total' => $totalRows];
     }
 }

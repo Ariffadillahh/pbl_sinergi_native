@@ -27,7 +27,7 @@ class GroupChatController
 
     public function index()
     {
-        $joinedChatGroups = $this->groupChatModel->getGroupChatsByUserId($_SESSION['user_id']);
+        $joinedGroupChats = $this->groupChatModel->getGroupChatsByUserId($_SESSION['user_id']);
         $activeChatId = null;
 
         $contentView = __DIR__ . '/../views/groups/index.php';
@@ -272,8 +272,8 @@ class GroupChatController
             echo json_encode([]);
             exit;
         }
-        $groupChats = $this->groupChatModel->searchByName($keyword, $userId);
-        echo json_encode($groupChats);
+        $groupChat = $this->groupChatModel->searchByName($keyword, $userId);
+        echo json_encode($groupChat);
         exit;
     }
 

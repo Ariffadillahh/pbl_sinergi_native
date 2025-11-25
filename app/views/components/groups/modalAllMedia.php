@@ -29,7 +29,7 @@
         const modalContentBox = document.getElementById("modalContentBox");
 
         const mediaContainer = document.getElementById("mediaContainer");
-        const groupChatId = '<?php echo $groupChatByid['ID'] ?? ''; ?>';
+        const groupChatId = '<?php echo $groupChatId['ID'] ?? ''; ?>';
         const BASEURL = '<?php echo BASEURL; ?>';
 
         async function getMedia() {

@@ -20,12 +20,12 @@
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
                     <p class="text-sm text-gray-600 mb-5">
-                        Mengapa Anda melaporkan grup ini "<?php echo htmlspecialchars($groupChatByid['NAME'], ENT_QUOTES, 'UTF-8'); ?>"?
+                        Mengapa Anda melaporkan grup ini "<?php echo htmlspecialchars($groupChatId['NAME'], ENT_QUOTES, 'UTF-8'); ?>"?
                     </p>
                 </div>
 
                 <form id="form-report-forum" action="<?php echo BASEURL; ?>/report" method="post">
-                    <input type="hidden" name="target_id" value="<?php echo $groupChatByid['ID']; ?>">
+                    <input type="hidden" name="target_id" value="<?php echo $groupChatId['ID']; ?>">
                     <input type="hidden" name="target_type" value="GROUP">
 
                     <h3 class="mb-3 font-semibold text-gray-900 text-left">Pilih Alasan</h3>

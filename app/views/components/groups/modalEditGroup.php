@@ -1,5 +1,5 @@
 <?php
-$initial = strtoupper(substr($groupChatByid['NAME'], 0, 2));
+$initial = strtoupper(substr($groupChatId['NAME'], 0, 2));
 $placeholder = "data:image/svg+xml;utf8,"
     . rawurlencode("
         <svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'>
@@ -37,8 +37,8 @@ $placeholder = "data:image/svg+xml;utf8,"
                             <img
                                 id="edit-forum-photo-preview"
                                 src="<?=
-                                        !empty($groupChatByid['PATH_PHOTO'])
-                                            ? BASEURL . '/storage/groups/photos/' . $groupChatByid['PATH_PHOTO']
+                                        !empty($groupChatId['PATH_PHOTO'])
+                                            ? BASEURL . '/storage/groups/photos/' . $groupChatId['PATH_PHOTO']
                                             : $placeholder
                                         ?>"
                                 alt="Forum photo"
@@ -56,13 +56,13 @@ $placeholder = "data:image/svg+xml;utf8,"
                     </section>
 
                     <div class="my-6 max-w-md mx-auto">
-                        <input type="hidden" name="group_chat_id" value="<?php echo $groupChatByid['ID'] ?>">
+                        <input type="hidden" name="group_chat_id" value="<?php echo $groupChatId['ID'] ?>">
                         <div class="relative">
                             <input
                                 type="text"
                                 id="edit-forum-name"
                                 name="groupChatName"
-                                value="<?php echo $groupChatByid['NAME'] ?>"
+                                value="<?php echo $groupChatId['NAME'] ?>"
                                 class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                                 placeholder=" " required />
                             <label for="edit-forum-name"
@@ -76,7 +76,7 @@ $placeholder = "data:image/svg+xml;utf8,"
                                 type="text"
                                 id="edit-forum-bio"
                                 name="bio"
-                                value="<?php echo $groupChatByid['ABOUT'] ?>"
+                                value="<?php echo $groupChatId['ABOUT'] ?>"
                                 class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                                 placeholder=" " required />
                             <label for="edit-forum-bio"
@@ -90,15 +90,15 @@ $placeholder = "data:image/svg+xml;utf8,"
                                 type="checkbox"
                                 name="isPrivate"
                                 id="edit-forum-isPrivate"
-                                <?php if (!empty($groupChatByid['IS_PRIVATE']) && $groupChatByid['IS_PRIVATE']) echo 'checked'; ?> />
+                                <?php if (!empty($groupChatId['IS_PRIVATE']) && $groupChatId['IS_PRIVATE']) echo 'checked'; ?> />
                             <label for="edit-forum-isPrivate" class="ml-2 text-sm text-gray-600">Make this group private</label>
                         </div>
 
-                        <div class="relative my-3 <?php echo (!empty($groupChatByid['IS_PRIVATE']) && $groupChatByid['IS_PRIVATE']) ? '' : 'hidden'; ?>" id="edit-forum-key-container">
+                        <div class="relative my-3 <?php echo (!empty($groupChatId['IS_PRIVATE']) && $groupChatId['IS_PRIVATE']) ? '' : 'hidden'; ?>" id="edit-forum-key-container">
                             <input
                                 type="text"
                                 id="edit-forum-key"
-                                value="<?php echo $groupChatByid['ACCESS_KEY'] ?>"
+                                value="<?php echo $groupChatId['ACCESS_KEY'] ?>"
                                 name="keyGroupChat"
                                 class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                                 placeholder=" " />

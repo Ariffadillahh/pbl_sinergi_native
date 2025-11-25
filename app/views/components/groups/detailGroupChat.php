@@ -2,14 +2,14 @@
     <!-- isi Chat-Navigation tetap sama -->
     <div id="Group-Title" class="flex items-center flex-1 gap-3">
         <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden items-center justify-center">
-            <?php if (!empty($groupChatByid['PATH_PHOTO'])): ?>
+            <?php if (!empty($groupChatId['PATH_PHOTO'])): ?>
                 <img
-                    src="<?= BASEURL . '/storage/groups/photos/' . $groupChatByid['PATH_PHOTO'] ?>"
+                    src="<?= BASEURL . '/storage/groups/photos/' . $groupChatId['PATH_PHOTO'] ?>"
                     class="w-full h-full object-cover"
                     alt="photo">
             <?php else: ?>
                 <span class="w-full h-full flex items-center justify-center bg-pink-500 text-white font-bold text-lg">
-                    <?= strtoupper(substr($groupChatByid['NAME'], 0, 2)) ?>
+                    <?= strtoupper(substr($groupChatId['NAME'], 0, 2)) ?>
                 </span>
             <?php endif; ?>
         </div>
@@ -17,7 +17,7 @@
         <div class="flex flex-col gap-1">
             <div class="flex items-center gap-[6px]">
                 <h1 class="font-semibold text-lg truncate overflow-hidden whitespace-nowrap">
-                    <?= $groupChatByid["NAME"] ?>
+                    <?= $groupChatId["NAME"] ?>
                 </h1>
             </div>
             <div class="flex items-center gap-[6px]">
@@ -26,7 +26,7 @@
         </div>
     </div>
     <ul class="flex gap-3">
-        <?php if ($groupChatByid['OWNER_ID'] !== $_SESSION['user_id']) : ?>
+        <?php if ($groupChatId['OWNER_ID'] !== $_SESSION['user_id']) : ?>
             <li class="group">
                 <button id="reportForumButton" class="size-11 flex shrink-0 bg-white rounded-xl p-[10px] items-center justify-center ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/report.png" class="size-6" alt="icon">
@@ -61,32 +61,32 @@
         <div class="flex-1 overflow-y-auto hide-scrollbar">
             <div class="flex flex-col items-center py-8 px-6 gap-4 border-b border-gray-200">
                 <div class="flex size-[120px] rounded-full overflow-hidden items-center justify-center bg-gray-200">
-                    <?php if (!empty($groupChatByid['PATH_PHOTO'])): ?>
+                    <?php if (!empty($groupChatId['PATH_PHOTO'])): ?>
                         <img
-                            src="<?= BASEURL . '/storage/groups/photos/' . $groupChatByid['PATH_PHOTO'] ?>"
+                            src="<?= BASEURL . '/storage/groups/photos/' . $groupChatId['PATH_PHOTO'] ?>"
                             class="w-full h-full object-cover"
                             alt="photo">
                     <?php else: ?>
                         <div class="w-full h-full flex items-center justify-center bg-pink-500 text-white text-3xl font-bold">
-                            <?= strtoupper(substr($groupChatByid['NAME'], 0, 2)) ?>
+                            <?= strtoupper(substr($groupChatId['NAME'], 0, 2)) ?>
                         </div>
                     <?php endif; ?>
                 </div>
 
                 <div class="flex flex-col items-center gap-2">
                     <div class="flex items-center justify-center gap-[6px]">
-                        <p class="font-semibold text-lg"> <?= $groupChatByid["NAME"] ?></p>
+                        <p class="font-semibold text-lg"> <?= $groupChatId["NAME"] ?></p>
                     </div>
-                    <?php if ($groupChatByid['OWNER_ID'] == $_SESSION['user_id'] && !empty($groupChatByid['ACCESS_KEY'])): ?>
+                    <?php if ($groupChatId['OWNER_ID'] == $_SESSION['user_id'] && !empty($groupChatId['ACCESS_KEY'])): ?>
                         <div class="flex items-center gap-2">
                             <span class="text-xs font-medium text-violet-700 bg-violet-100 px-2 py-0.5 rounded-md flex items-center gap-1.5">
                                 <span>Private Key:</span>
-                                <span id="access-key-text" class="font-mono"><?= $groupChatByid['ACCESS_KEY'] ?></span>
+                                <span id="access-key-text" class="font-mono"><?= $groupChatId['ACCESS_KEY'] ?></span>
                             </span>
 
                             <button
                                 id="copy-key-btn"
-                                onclick="copyAccessKey('<?= $groupChatByid['ACCESS_KEY'] ?>')"
+                                onclick="copyAccessKey('<?= $groupChatId['ACCESS_KEY'] ?>')"
                                 class="group relative flex items-center justify-center p-1.5 rounded-md bg-violet-100 hover:bg-violet-200 text-violet-700 transition-all duration-200 active:scale-95"
                                 title="Copy Access Key">
                                 <svg id="clipboard-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,13 +112,13 @@
                     <p class="text-lg font-semibold text-gray-800">About Group</p>
 
                     <p class="text-gray-700">
-                        <?= htmlspecialchars($groupChatByid["ABOUT"]) ?>
+                        <?= htmlspecialchars($groupChatId["ABOUT"]) ?>
                     </p>
 
                     <p class="text-sm text-gray-500 mt-2">
                         Created at:
                         <span class="font-medium text-gray-700">
-                            <?= formatDatePretty($groupChatByid["CREATED_AT"]) ?>
+                            <?= formatDatePretty($groupChatId["CREATED_AT"]) ?>
                         </span>
                     </p>
                 </div>
@@ -185,17 +185,17 @@
                         <p class="font-semibold leading-5">Owner</p>
                         <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 min-w-0">
                             <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
-                                <img src="<?= !empty($groupChatByid['PATH_PHOTO_OWNER'])
-                                                ? BASEURL . '/storage/users/photos/' . $groupChatByid['PATH_PHOTO_OWNER']
+                                <img src="<?= !empty($groupChatId['PATH_PHOTO_OWNER'])
+                                                ? BASEURL . '/storage/users/photos/' . $groupChatId['PATH_PHOTO_OWNER']
                                                 : BASEURL . '/src/asset/image/default.png' ?>" class="w-full h-full object-cover" alt="photo">
                             </div>
                             <div class="flex flex-col flex-1 gap-[6px] min-w-0">
                                 <div class="flex items-center gap-2 min-w-0">
                                     <div class="flex-1 min-w-0">
-                                        <p class="font-semibold truncate"><?= $groupChatByid["OWNER_NAME"] ?></p>
+                                        <p class="font-semibold truncate"><?= $groupChatId["OWNER_NAME"] ?></p>
                                     </div>
                                     <?php
-                                    $role = $groupChatByid["ROLE_OWNER"];
+                                    $role = $groupChatId["ROLE_OWNER"];
 
                                     $roleClasses = [
                                         "MAHASISWA" => "bg-blue-100 text-blue-800",
@@ -219,14 +219,14 @@
                     </div>
                     <div id="Members" class="flex flex-col gap-3 mt-6">
                         <?php
-                        $membersGroupChatFiltered = array_filter($membersGroupChat, function ($m) use ($groupChatByid) {
-                            return $m['USER_ID'] !== $groupChatByid['OWNER_ID'];
+                        $membersGroupChatFiltered = array_filter($membersGroupChat, function ($m) use ($groupChatId) {
+                            return $m['USER_ID'] !== $groupChatId['OWNER_ID'];
                         }); ?>
                         <p class="font-semibold leading-5">Members (<?= count($membersGroupChatFiltered) ?>)</p>
 
                         <div class="flex flex-col gap-3">
                             <?php foreach ($membersGroupChatFiltered as $member): ?>
-                                <?php if ($member['USER_ID'] == $groupChatByid['OWNER_ID']) continue; ?>
+                                <?php if ($member['USER_ID'] == $groupChatId['OWNER_ID']) continue; ?>
                                 <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 min-w-0">
                                     <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
                                         <img src="<?= !empty($member['PATH_PHOTO'])
@@ -271,7 +271,7 @@
                 </div>
 
 
-                <?php if ($groupChatByid['OWNER_ID'] == $_SESSION['user_id']): ?>
+                <?php if ($groupChatId['OWNER_ID'] == $_SESSION['user_id']): ?>
                     <div class="my-5 flex">
                         <button
                             type="button"
