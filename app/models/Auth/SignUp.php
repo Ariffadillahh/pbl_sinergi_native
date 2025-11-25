@@ -14,10 +14,10 @@ class User extends BaseModel
 
         $sql = "INSERT INTO USERS (
                     ID, USERNAME, PERSONAL_NUMBER, FULL_NAME, TAHUN_MASUK, 
-                    EMAIL, PASSWORD, PATH_PHOTO, JENJANG_STUDI, ROLE, PRODI
+                    EMAIL, PASSWORD, PATH_PHOTO, JENJANG_STUDI, ROLE, PRODI, STATUS
                 ) VALUES (
                     :id, :username, :personal_number, :full_name, :tahun_masuk, 
-                    :email, :password, :path_photo, :jenjang_studi, :role, :prodi
+                    :email, :password, :path_photo, :jenjang_studi, :role, :prodi, :status
                 )";
 
 
@@ -40,6 +40,7 @@ class User extends BaseModel
             oci_bind_by_name($stmt, ':jenjang_studi', $data['JENJANG_STUDI']);
             oci_bind_by_name($stmt, ':role', $data['ROLE']);
             oci_bind_by_name($stmt, ':prodi', $data['PRODI']);
+            oci_bind_by_name($stmt, ':status', $data['STATUS']);
 
             $result = oci_execute($stmt, OCI_NO_AUTO_COMMIT);
 
@@ -426,7 +427,7 @@ class User extends BaseModel
         $conn = self::getConnection();
         if (!$conn) {
             error_log("Gagal mendapatkan koneksi database.");
-            return false; 
+            return false;
         }
 
         $sql = "UPDATE users SET ROLE = :new_role WHERE ID = :user_id";
