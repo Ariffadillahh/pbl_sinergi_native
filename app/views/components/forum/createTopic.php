@@ -8,7 +8,8 @@
         <div id="successDiv" class="hidden fixed top-16 right-10 bg-green-100 text-green-700 px-4 py-2 rounded shadow-lg z-50 text-sm border border-green-400"></div>
 
         <div class="bg-white rounded-lg shadow p-6">
-            <form id="createPostForm" action="/post/create" method="POST" enctype="multipart/form-data">
+            <form id="createPostForm" action="<?= BASEURL ?>/create/topics" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="forum_id" value="<?= $forumById['ID'] ?>">
                 <div class="flex gap-3 items-start mb-3">
                     <div class="w-12 h-12 shrink-0 rounded-full overflow-hidden">
                         <img src="<?= !empty($_SESSION['path_photo'])
@@ -128,17 +129,14 @@
             for (const file of fileBuffer) {
                 const reader = new FileReader();
 
-                // Gunakan Promise agar render berurutan
                 const base64 = await new Promise((resolve) => {
                     reader.onload = e => resolve(e.target.result);
                     reader.readAsDataURL(file);
                 });
 
-                // Buat Elemen Wrapper (Horizontal Scroll Style)
                 const wrapper = document.createElement('div');
                 wrapper.className = 'relative group flex-none rounded-lg overflow-hidden shadow-sm border border-gray-200 snap-center bg-gray-50';
 
-                // Styling dinamis: Foto kotak, File memanjang
                 if (file.type.startsWith('image/')) {
                     wrapper.classList.add('w-40', 'h-40');
                 } else {
@@ -162,7 +160,6 @@
                     `;
                 }
 
-                // Tombol Hapus
                 const removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
                 removeBtn.className = 'absolute top-1 right-1 size-6 flex items-center justify-center bg-gray-900/60 hover:bg-red-600 text-white rounded-full transition-colors shadow-sm backdrop-blur-sm z-10';
@@ -179,32 +176,27 @@
             }
         }
 
-        // --- 4. EVENT LISTENER: INPUT CHANGE ---
         imageInput.addEventListener("change", function() {
             const selectedFiles = Array.from(this.files);
             const availableSlots = MAX_FILES - fileBuffer.length;
 
             if (availableSlots <= 0) {
                 showCreateLimitToast();
-                this.value = ""; // Reset input fisik agar event change bisa trigger lagi
+                this.value = "";
                 return;
             }
 
-            // Logic ambil file yang muat
             const filesToAdd = selectedFiles.slice(0, availableSlots);
             const rejectedCount = selectedFiles.length - filesToAdd.length;
 
-            // Tambahkan Metadata (Order & ID)
             const newFiles = filesToAdd.map((file, idx) => {
                 file.uploadOrder = fileBuffer.length + idx;
                 file.uniqueId = fileIdCounter++;
                 return file;
             });
 
-            // GABUNGKAN KE BUFFER
             fileBuffer.push(...newFiles);
 
-            // Sync ke UI dan Input Asli
             updateInputFiles();
             renderPreviews();
             updateImageInputState();
@@ -213,34 +205,31 @@
                 showCreateLimitToast();
             }
 
-            this.value = ""; // Reset value input file fisik
+            this.value = "";
         });
 
-        // --- 5. EVENT LISTENER: SUBMIT FORM ---
         form.addEventListener('submit', async function(e) {
-            e.preventDefault(); // Mencegah reload halaman biasa
+            e.preventDefault();
 
-            // Validasi Kosong
             if (fileBuffer.length === 0 && textarea.value.trim() === "") {
                 showEmptyPostToast();
                 return;
             }
 
-            // UI Loading
             submitButton.disabled = true;
             submitButton.innerHTML = 'Memposting...';
 
-            // Konstruksi FormData
             const formData = new FormData();
+
             formData.append("content", textarea.value.trim());
 
-            // Append File dari Buffer ke FormData
+            const forumIdValue = form.querySelector('input[name="forum_id"]').value;
+            formData.append("forum_id", forumIdValue);
+
             fileBuffer.forEach((file, index) => {
-                const orderedFilename = `${String(index).padStart(3, '0')}_${file.name}`;
-                formData.append("images[]", file, orderedFilename);
+                formData.append("images[]", file, file.name);
             });
 
-            // Append Metadata JSON
             const imageOrder = fileBuffer.map((f, i) => ({
                 index: i,
                 originalName: f.name,
@@ -248,29 +237,12 @@
             }));
             formData.append("image_order", JSON.stringify(imageOrder));
 
-            // Simulasi Submit AJAX (Ganti URL ini dengan endpoint PHP Anda nanti)
             console.log("Mengirim data...", {
                 content: textarea.value,
                 files: fileBuffer.length,
                 order: imageOrder
             });
 
-            // --- SIMULASI SUKSES (Hapus blok ini saat dipakai di PHP) ---
-            setTimeout(() => {
-                successDiv.innerHTML = "Postingan berhasil dibuat! (Simulasi)";
-                successDiv.classList.remove("hidden");
-                textarea.value = "";
-                fileBuffer = [];
-                updateInputFiles();
-                renderPreviews();
-                submitButton.disabled = false;
-                submitButton.innerHTML = `Posting <svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>`;
-                setTimeout(() => successDiv.classList.add("hidden"), 2000);
-            }, 1000);
-            return;
-
-            // --- KODE FETCH ASLI (Pakai ini di PHP) ---
-            /*
             try {
                 const response = await fetch(form.action, {
                     method: 'POST',
@@ -283,7 +255,7 @@
                     fileBuffer = [];
                     updateInputFiles();
                     renderPreviews();
-                    
+
                     successDiv.innerHTML = result.message;
                     successDiv.classList.remove("hidden");
                     setTimeout(() => window.location.reload(), 1200);
@@ -298,9 +270,8 @@
                 errorDiv.classList.remove("hidden");
             } finally {
                 submitButton.disabled = false;
-                submitButton.innerHTML = `Posting ...`; 
+                submitButton.innerHTML = `Posting ...`;
             }
-            */
         });
     });
 </script>

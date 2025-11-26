@@ -283,37 +283,37 @@
             }
         }
 
-        async function pollForNotifications() {
-            if (isPolling) return;
-            isPolling = true;
-            try {
-                const response = await fetch(`${BASEURL}/notifications/checkForUpdates?last_timestamp=${encodeURIComponent(lastTimestamp)}`);
-                if (!response.ok) throw new Error('Network response was not ok.');
-                const newNotifications = await response.json();
+        // async function pollForNotifications() {
+        //     if (isPolling) return;
+        //     isPolling = true;
+        //     try {
+        //         const response = await fetch(`${BASEURL}/notifications/checkForUpdates?last_timestamp=${encodeURIComponent(lastTimestamp)}`);
+        //         if (!response.ok) throw new Error('Network response was not ok.');
+        //         const newNotifications = await response.json();
 
-                if (newNotifications.length > 0) {
-                    newNotifications.forEach(notif => {
-                        if (notif.IS_READ == 0) {
-                            unreadContainer.insertAdjacentHTML('afterbegin', createNotificationHTML(notif));
-                        } else {
-                            readContainer.querySelector('.overflow-y-auto').insertAdjacentHTML('afterbegin', createNotificationHTML(notif));
-                        }
-                    });
+        //         if (newNotifications.length > 0) {
+        //             newNotifications.forEach(notif => {
+        //                 if (notif.IS_READ == 0) {
+        //                     unreadContainer.insertAdjacentHTML('afterbegin', createNotificationHTML(notif));
+        //                 } else {
+        //                     readContainer.querySelector('.overflow-y-auto').insertAdjacentHTML('afterbegin', createNotificationHTML(notif));
+        //                 }
+        //             });
 
-                    updateContainerVisibility();
-                    lastTimestamp = newNotifications[0].CREATED_AT;
-                    const currentCount = parseInt(notifCountSpan.textContent) || 0;
-                    const newUnreadCount = currentCount + newNotifications.filter(n => n.IS_READ == 0).length;
-                    updateNotificationCount(newUnreadCount);
-                }
-            } catch (error) {
-                console.error("Long polling error:", error);
-                await new Promise(resolve => setTimeout(resolve, 5000));
-            } finally {
-                isPolling = false;
-                pollForNotifications();
-            }
-        }
+        //             updateContainerVisibility();
+        //             lastTimestamp = newNotifications[0].CREATED_AT;
+        //             const currentCount = parseInt(notifCountSpan.textContent) || 0;
+        //             const newUnreadCount = currentCount + newNotifications.filter(n => n.IS_READ == 0).length;
+        //             updateNotificationCount(newUnreadCount);
+        //         }
+        //     } catch (error) {
+        //         console.error("Long polling error:", error);
+        //         await new Promise(resolve => setTimeout(resolve, 5000));
+        //     } finally {
+        //         isPolling = false;
+        //         pollForNotifications();
+        //     }
+        // }
 
         function handleNotificationClick(container) {
             container.addEventListener('click', async (event) => {

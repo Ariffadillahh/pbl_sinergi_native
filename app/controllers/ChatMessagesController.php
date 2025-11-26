@@ -1,15 +1,15 @@
 <?php
-require_once __DIR__ . '/../models/Forums/ChatMessage.php';
+require_once __DIR__ . '/../models/Groups/ChatMessage.php';
 
 class ChatMessagesController
 {
     private $chatMessageModel;
-    private $forumModel;
+    private $groupChatModel;
 
     public function __construct()
     {
         $this->chatMessageModel = new ChatMessage();
-        $this->forumModel = new Forum();
+        $this->groupChatModel = new GroupChat();
     }
 
     public function sendMessage()
@@ -34,13 +34,13 @@ class ChatMessagesController
 
         $user_id  = $_SESSION['user_id'];
 
-        $forum_id = isset($_POST['forum_id']) ? trim($_POST['forum_id']) : null;
+        $groupChatId = isset($_POST['group_chat_id']) ? trim($_POST['group_chat_id']) : null;
         $message  = trim($_POST['message'] ?? '');
 
 
-        if (!$forum_id || !$this->chatMessageModel->isUserInForum($user_id, $forum_id)) {
+        if (!$groupChatId || !$this->chatMessageModel->isUserInGroupChat($user_id, $groupChatId)) {
             http_response_code(403);
-            echo json_encode(['error' => 'Anda bukan anggota forum ini.']);
+            echo json_encode(['error' => 'Anda bukan anggota Group ini.']);
             return;
         }
 
@@ -53,7 +53,7 @@ class ChatMessagesController
         }
 
         $data = [
-            'forum_id'          => $forum_id,
+            'group_chat_id'     => $groupChatId,
             'sender_id'         => $user_id,
             'content'           => $message,
             'path_media'        => null,
@@ -64,7 +64,7 @@ class ChatMessagesController
         if ($hasFile) {
             $uploadStart = microtime(true);
 
-            $uploadDir = __DIR__ . '/../../storage/forums/attachment/';
+            $uploadDir = __DIR__ . '/../../storage/groups/attachment/';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
@@ -81,7 +81,7 @@ class ChatMessagesController
                 elseif (strpos($mime, 'video/') === 0) $fileType = 'VIDEO';
                 else $fileType = 'FILE';
 
-                $data['path_media'] = 'storage/forums/attachment/' . $fileName;
+                $data['path_media'] = 'storage/groups/attachment/' . $fileName;
                 $data['original_filename'] = $originalName;
                 $data['type'] = $fileType;
             } else {
@@ -124,19 +124,19 @@ class ChatMessagesController
             }
 
             $userId = $_SESSION['user_id'];
-            $forumId = isset($_GET['forum_id']) ? trim($_GET['forum_id']) : '';
+            $groupChatId = isset($_GET['group_chat_id']) ? trim($_GET['group_chat_id']) : '';
             $lastTimestamp = $_GET['since'] ?? null;
 
             session_write_close();
 
-            if (empty($forumId)) {
+            if (empty($groupChatId)) {
                 echo json_encode([]);
                 return;
             }
 
-            if (!$this->chatMessageModel->isUserInForum($userId, $forumId)) {
+            if (!$this->chatMessageModel->isUserInGroupChat($userId, $groupChatId)) {
                 http_response_code(403);
-                echo json_encode(['error' => 'Anda bukan member forum ini.']);
+                echo json_encode(['error' => 'Anda bukan member grup ini.']);
                 return;
             }
 
@@ -145,13 +145,13 @@ class ChatMessagesController
 
             while ((time() - $startTime) < 55) {
 
-                if (!$this->chatMessageModel->isUserInForum($userId, $forumId)) {
+                if (!$this->chatMessageModel->isUserInGroupChat($userId, $groupChatId)) {
                     http_response_code(403);
-                    echo json_encode(['error' => 'Anda telah dikeluarkan dari forum.']);
+                    echo json_encode(['error' => 'Anda telah dikeluarkan dari grup.']);
                     return;
                 }
 
-                $messages = $this->chatMessageModel->getMessagesSince($forumId, $lastTimestamp);
+                $messages = $this->chatMessageModel->getMessagesSince($groupChatId, $lastTimestamp);
 
                 if (!empty($messages)) {
                     echo json_encode($messages);
@@ -169,11 +169,11 @@ class ChatMessagesController
         }
     }
 
-    public function getInitialMessages($forum_id)
+    public function getInitialMessages($groupChatId)
     {
         header('Content-Type: application/json');
 
-        $messages = $this->chatMessageModel->getMessagesByForumId($forum_id);
+        $messages = $this->chatMessageModel->getMessagesByGroupChatId($groupChatId);
 
         echo json_encode($messages ?? []);
 
@@ -188,7 +188,7 @@ class ChatMessagesController
         }
 
         $currentUserId = $_SESSION['user_id'];
-        $this->forumModel->updateLastReadAt($id, $currentUserId);
+        $this->groupChatModel->updateLastReadAt($id, $currentUserId);
         http_response_code(204);
         exit;
     }
@@ -199,11 +199,16 @@ class ChatMessagesController
         set_time_limit(40);
 
         try {
+            if (session_status() == PHP_SESSION_NONE) {
+                session_start();
+            }
+
             if (!isset($_SESSION['user_id'])) {
                 http_response_code(403);
                 echo json_encode(['error' => 'Unauthorized']);
                 exit;
             }
+
             $userId = $_SESSION['user_id'];
             session_write_close();
 
@@ -212,21 +217,28 @@ class ChatMessagesController
 
             while (time() - $startTime < 35) {
 
-                $forumsData = $this->forumModel->getForumsByUserId($userId);
+                $groupChatsData = $this->groupChatModel->getGroupChatsByUserId($userId);
 
                 $payload = [];
-                foreach ($forumsData as $forum) {
+
+                foreach ($groupChatsData as $groupChat) {
+                    // Handle CLOB if needed
+                    $content = $groupChat['LAST_MESSAGE_CONTENT'] ?? null;
+                    if (is_object($content) && get_class($content) === 'OCILob') {
+                        $content = $content->load();
+                    }
 
                     $lastMessage = $this->formatLastMessage(
-                        $forum['LAST_MESSAGE_CONTENT'] ?? null,
-                        $forum['LAST_MESSAGE_TYPE'] ?? 'TEXT'
+                        $content,
+                        $groupChat['LAST_MESSAGE_TYPE'] ?? 'TEXT'
                     );
 
-                    $lastTime = $forum['LAST_MESSAGE_AT'] ?? $forum['CREATED_AT'];
+                    $lastTime = $groupChat['LAST_MESSAGE_AT'] ?? $groupChat['CREATED_AT'];
 
+                    // ✅ Trim the ID
                     $payload[] = [
-                        'forumId' => $forum['ID'],
-                        'count' => (int) $forum['UNREAD_COUNT'],
+                        'group_chat_id' => trim($groupChat['ID']),
+                        'count' => (int) ($groupChat['UNREAD_COUNT'] ?? 0),
                         'lastMessage' => $lastMessage,
                         'lastTime' => $lastTime
                     ];
@@ -234,7 +246,8 @@ class ChatMessagesController
 
                 $newHash = md5(json_encode($payload));
 
-                if ($newHash != $lastHash) {
+                // Always return on first poll or if changed
+                if ($lastHash === '' || $newHash != $lastHash) {
                     http_response_code(200);
                     echo json_encode([
                         'hash' => $newHash,
@@ -252,6 +265,7 @@ class ChatMessagesController
             error_log('Error in pollCounts: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['error' => 'Terjadi kesalahan pada server.']);
+            exit;
         }
     }
 
@@ -270,7 +284,7 @@ class ChatMessagesController
         }
     }
 
-    public function getAllMedia($forumId)
+    public function getAllMedia($groupChatId)
     {
         header('Content-Type: application/json');
 
@@ -281,7 +295,7 @@ class ChatMessagesController
         }
 
         try {
-            $allMedia = $this->chatMessageModel->getAllForumMedia($forumId);
+            $allMedia = $this->chatMessageModel->getAllGroupChatMedia($groupChatId);
 
             echo json_encode([
                 'success' => true,
