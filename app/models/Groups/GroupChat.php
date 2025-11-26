@@ -41,46 +41,51 @@ class GroupChat extends BaseModel
     }
 
     $sql = "
+    SELECT 
+        gc.ID, 
+        gc.NAME, 
+        gc.PATH_PHOTO, 
+        TO_CHAR(gc.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
+        gc.ABOUT,
+        gc.OWNER_ID,
+        (
+            SELECT COUNT(*) 
+            FROM GROUP_CHAT_MEMBERS gcm_inner
+            WHERE gcm_inner.GROUP_CHAT_ID = gc.ID
+            AND gcm_inner.USER_ID != gc.OWNER_ID
+        ) AS MEMBER_COUNT,
+        (
+            SELECT COUNT(msg_count.ID)
+            FROM GROUP_CHAT_MESSAGES msg_count
+            WHERE msg_count.GROUP_CHAT_ID = gcm.GROUP_CHAT_ID
+            AND msg_count.CREATED_AT > gcm.LAST_READ_AT
+            AND msg_count.SENDER_ID != gcm.USER_ID
+        ) AS UNREAD_COUNT,
+        lm.CONTENT AS LAST_MESSAGE_CONTENT,
+        lm.TYPE AS LAST_MESSAGE_TYPE,
+        TO_CHAR(lm.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS LAST_MESSAGE_AT,
+        lm.CREATED_AT AS LAST_MESSAGE_AT_RAW
+    FROM 
+        GROUP_CHATS gc
+    JOIN 
+        GROUP_CHAT_MEMBERS gcm ON gc.ID = gcm.GROUP_CHAT_ID
+    LEFT JOIN (
         SELECT 
-            gc.ID, 
-            gc.NAME, 
-            gc.PATH_PHOTO, 
-            TO_CHAR(gc.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
-            gc.ABOUT,
-            gc.OWNER_ID,
-            (
-                SELECT COUNT(*) 
-                FROM GROUP_CHAT_MEMBERS gcm_inner
-                WHERE gcm_inner.GROUP_CHAT_ID = gc.ID
-                AND gcm_inner.USER_ID != gc.OWNER_ID
-            ) AS MEMBER_COUNT,
-            (
-                SELECT COUNT(msg_count.ID)
-                FROM GROUP_CHAT_MESSAGES msg_count
-                WHERE msg_count.GROUP_CHAT_ID = gcm.GROUP_CHAT_ID
-                AND msg_count.CREATED_AT > gcm.LAST_READ_AT
-                AND msg_count.SENDER_ID != gcm.USER_ID
-            ) AS UNREAD_COUNT,
-            lm.CONTENT AS LAST_MESSAGE_CONTENT,
-            lm.TYPE AS LAST_MESSAGE_TYPE,
-            TO_CHAR(lm.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS LAST_MESSAGE_AT
-        FROM 
-            GROUP_CHATS gc
-        JOIN 
-            GROUP_CHAT_MEMBERS gcm ON gc.ID = gcm.GROUP_CHAT_ID
-        
-        OUTER APPLY (
-            SELECT msg.CONTENT, msg.TYPE, msg.CREATED_AT
-            FROM GROUP_CHAT_MESSAGES msg
-            WHERE msg.GROUP_CHAT_ID = gc.ID 
-            ORDER BY msg.CREATED_AT DESC
-            FETCH FIRST 1 ROWS ONLY
-        ) lm
-            
-        WHERE 
-            gcm.USER_ID = :user_id_bv
-        ORDER BY 
-            lm.CREATED_AT DESC NULLS LAST";
+            msg.GROUP_CHAT_ID,
+            msg.CONTENT, 
+            msg.TYPE, 
+            msg.CREATED_AT,
+            ROW_NUMBER() OVER (PARTITION BY msg.GROUP_CHAT_ID ORDER BY msg.CREATED_AT DESC) as rn
+        FROM GROUP_CHAT_MESSAGES msg
+    ) lm ON gc.ID = lm.GROUP_CHAT_ID AND lm.rn = 1
+    WHERE 
+        gcm.USER_ID = :user_id_bv
+    ORDER BY 
+        CASE 
+            WHEN lm.CREATED_AT IS NOT NULL 
+            THEN lm.CREATED_AT 
+            ELSE gc.CREATED_AT 
+        END DESC";
 
     $stmt = oci_parse($conn, $sql);
 

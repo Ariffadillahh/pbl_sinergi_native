@@ -185,20 +185,49 @@
     function updateSidebarUI(data) {
         console.log('Updating sidebar with data:', data);
 
+        // Validate data
+        if (!data || !Array.isArray(data)) {
+            console.error('Invalid data received:', data);
+            return;
+        }
+
+        // Sort data by lastTime (newest first)
+        data.sort((a, b) => {
+            const timeA = a.lastTime ? new Date(a.lastTime.replace(' ', 'T')).getTime() : 0;
+            const timeB = b.lastTime ? new Date(b.lastTime.replace(' ', 'T')).getTime() : 0;
+            return timeB - timeA; // Descending order (newest first)
+        });
+
+        const container = document.querySelector('#Message-container > div');
+        if (!container) {
+            console.error('Message container not found');
+            return;
+        }
+
+        // Update data for each group
         for (const item of data) {
-            const dataWrapper = document.getElementById(`forum-data-${item.group_chat_id}`);
-            const skeletonWrapper = document.getElementById(`forum-skeleton-${item.group_chat_id}`);
-            const badgeElement = document.getElementById(`forum-count-${item.group_chat_id}`);
-            const msgElement = document.getElementById(`forum-last-msg-${item.group_chat_id}`);
-            const timeElement = document.getElementById(`forum-time-${item.group_chat_id}`);
+            // Handle both groupChatId and group_chat_id
+            const groupChatId = (item.groupChatId || item.group_chat_id || '').toString().trim();
+            if (!groupChatId) {
+                console.warn('Missing group chat ID in item:', item);
+                continue;
+            }
+            
+            const dataWrapper = document.getElementById(`forum-data-${groupChatId}`);
+            const skeletonWrapper = document.getElementById(`forum-skeleton-${groupChatId}`);
+            const badgeElement = document.getElementById(`forum-count-${groupChatId}`);
+            const msgElement = document.getElementById(`forum-last-msg-${groupChatId}`);
+            const timeElement = document.getElementById(`forum-time-${groupChatId}`);
+            const chatCard = document.querySelector(`a[href*="/groups/chat/${groupChatId}"]`);
 
             if (!dataWrapper || !skeletonWrapper || !badgeElement || !msgElement || !timeElement) {
-                console.warn(`Missing elements for group ${item.group_chat_id}`);
+                console.warn(`Missing elements for group ${groupChatId}`);
                 continue;
             }
 
-            const isChatActive = (activeChatId !== '' && item.group_chat_id === activeChatId);
+            const isChatActive = (activeChatId !== '' && groupChatId === activeChatId);
 
+            // Update badge
             if (item.count > 0 && !isChatActive) {
                 badgeElement.innerText = item.count;
                 badgeElement.classList.add('bg-blue-600');
@@ -207,13 +236,50 @@
                 badgeElement.classList.remove('bg-blue-600');
             }
 
+            // Update last message
             msgElement.innerText = item.lastMessage || 'No messages yet';
 
+            // Update time
             timeElement.innerText = formatTime(item.lastTime);
 
+            // Show data, hide skeleton
             skeletonWrapper.classList.add('hidden');
             dataWrapper.classList.remove('hidden');
+
+            // Store timestamp for sorting
+            if (chatCard) {
+                chatCard.dataset.lastMessageTime = item.lastTime || '0';
+            }
         }
+
+        // Reorder DOM elements - insert in correct order from top to bottom
+        console.log('Starting reorder process...');
+        
+        for (let i = 0; i < data.length; i++) {
+            const item = data[i];
+            const groupId = (item.groupChatId || item.group_chat_id || '').toString().trim();
+            
+            if (!groupId) continue;
+            
+            // Find the card for this group
+            const card = container.querySelector(`a[href*="/groups/chat/${groupId}"]`)?.closest('.chats-card');
+            
+            if (!card) {
+                console.warn(`Card not found for group ${groupId}`);
+                continue;
+            }
+            
+            // Get the card that should be at position i
+            const cardAtPosition = container.children[i];
+            
+            // If the card is not already in the correct position, move it
+            if (cardAtPosition !== card) {
+                console.log(`Moving group ${groupId} to position ${i}`);
+                container.insertBefore(card, cardAtPosition);
+            }
+        }
+
+        console.log('Sidebar reordered successfully');
     }
 
     async function startCountPolling() {
@@ -234,6 +300,7 @@
                 console.log('No changes detected');
             } else if (response.status === 403) {
                 console.error('Unauthorized');
+                return;
             }
 
         } catch (error) {
