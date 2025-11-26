@@ -56,7 +56,7 @@
                     } else {
                         console.warn("Modal search group belum ditemukan di halaman /groups");
                     }
-                }, 300);
+                });
             }
         });
     </script>

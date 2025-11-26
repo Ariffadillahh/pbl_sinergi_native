@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../models/Admin/ReportManage.php';
-require_once __DIR__ . '/../models/Forums/Forum.php';
+require_once __DIR__ . '/../models/Forum/Forum.php';
 require_once __DIR__ . '/../models/Notif/NotificationModel.php';
 require_once __DIR__ . '/../models/Posts/PostModel.php';
 
@@ -14,7 +14,7 @@ class ReportController
     public function __construct()
     {
         $this->reportModel = new ReportManage();
-        $this->forumModel = new Forum();
+        $this->forumModel = new ForumModel();
         $this->notificationModel = new NotificationModel();
     }
 

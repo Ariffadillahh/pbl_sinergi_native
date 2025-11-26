@@ -4,7 +4,7 @@ require_once __DIR__ . '/../app/controllers/ChatMessagesController.php';
 
 switch (true) {
 
-    case ($route === 'groups/checkMembership'):
+        case ($route === 'groups/checkMembership'):
         requireLogin();
         checkRoleAccess(['MAHASISWA', 'DOSEN', 'ADMIN']);
         $controller = new GroupChatController();
@@ -130,4 +130,5 @@ switch (true) {
         $controller = new ChatMessagesController();
         $controller->pollCounts();
         break;
+
 }

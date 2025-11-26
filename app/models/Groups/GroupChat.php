@@ -32,15 +32,15 @@ class GroupChat extends BaseModel
     }
 
     public function getGroupChatsByUserId($userId)
-    {
-        $conn = self::getConnection();
+{
+    $conn = self::getConnection();
 
-        if (!$conn) {
-            error_log("Gagal terhubung ke database.");
-            return [];
-        }
+    if (!$conn) {
+        error_log("Gagal terhubung ke database.");
+        return [];
+    }
 
-        $sql = "
+    $sql = "
         SELECT 
             gc.ID, 
             gc.NAME, 
@@ -82,39 +82,39 @@ class GroupChat extends BaseModel
         ORDER BY 
             lm.CREATED_AT DESC NULLS LAST";
 
-        $stmt = oci_parse($conn, $sql);
+    $stmt = oci_parse($conn, $sql);
 
-        if (!$stmt) {
-            $e = oci_error($conn);
-            error_log("Gagal parse query: " . $e['message']);
-            oci_close($conn);
-            return [];
-        }
+    if (!$stmt) {
+        $e = oci_error($conn);
+        error_log("Gagal parse query: " . $e['message']);
+        oci_close($conn);
+        return [];
+    }
 
-        oci_bind_by_name($stmt, ':user_id_bv', $userId);
+    oci_bind_by_name($stmt, ':user_id_bv', $userId);
 
-        if (!oci_execute($stmt)) {
-            $e = oci_error($stmt);
-            error_log("Gagal execute query: " . $e['message']);
-            oci_free_statement($stmt);
-            oci_close($conn);
-            return [];
-        }
-
-        $groupChat = [];
-        while ($row = oci_fetch_assoc($stmt)) {
-            // Handle CLOB content if needed
-            if (is_object($row['LAST_MESSAGE_CONTENT'])) {
-                $row['LAST_MESSAGE_CONTENT'] = $row['LAST_MESSAGE_CONTENT']->load();
-            }
-            $groupChat[] = $row;
-        }
-
+    if (!oci_execute($stmt)) {
+        $e = oci_error($stmt);
+        error_log("Gagal execute query: " . $e['message']);
         oci_free_statement($stmt);
         oci_close($conn);
-
-        return $groupChat;
+        return [];
     }
+
+    $groupChat = [];
+    while ($row = oci_fetch_assoc($stmt)) {
+        // Handle CLOB content if needed
+        if (is_object($row['LAST_MESSAGE_CONTENT'])) {
+            $row['LAST_MESSAGE_CONTENT'] = $row['LAST_MESSAGE_CONTENT']->load();
+        }
+        $groupChat[] = $row;
+    }
+    
+    oci_free_statement($stmt);
+    oci_close($conn);
+
+    return $groupChat;
+}
 
     public function findById($id)
     {
