@@ -281,9 +281,8 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                     </div>
                 </div>
 
-                <div class="lg:col-span-2">
+                <div class="lg:col-span-2 mb-14 lg:mb-0">
                     <div id="tabContent">
-
                         <div class="tab-content active space-y-4" data-content="discussion">
                             <?php if ($isMember) : ?>
                                 <?php require_once 'app/views/components/forum/createTopic.php'; ?>
@@ -302,22 +301,12 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
 
                         <!-- Media Tab -->
-                        <div class="tab-content hidden" data-content="media">
-                            <div class="bg-white rounded-lg shadow p-8 text-center">
-                                <div class="text-6xl mb-4">🖼️</div>
-                                <h3 class="text-xl font-bold mb-2">Media Gallery</h3>
-                                <p class="text-gray-600">Photos and videos shared in this group</p>
-                            </div>
-                        </div>
+                        <?php require_once 'app/views/components/forum/tabsMedia.php'; ?>
+
 
                         <!-- Files Tab -->
-                        <div class="tab-content hidden" data-content="files">
-                            <div class="bg-white rounded-lg shadow p-8 text-center">
-                                <div class="text-6xl mb-4">📁</div>
-                                <h3 class="text-xl font-bold mb-2">Group Files</h3>
-                                <p class="text-gray-600">Documents shared in this group</p>
-                            </div>
-                        </div>
+                        <?php require_once 'app/views/components/forum/tabsFiles.php'; ?>
+
 
                         <!-- Settings -->
                         <?php require_once 'app/views/components/forum/tabsSetings.php'; ?>

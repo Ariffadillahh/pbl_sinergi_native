@@ -32,6 +32,16 @@ class CommentController
         ]);
     }
 
+    public function getCommentsTopics($topicId)
+    {
+        $comments = $this->commentModel->getCommentsByTopicId($topicId);
+
+        echo json_encode([
+            'success' => true,
+            'comments' => $comments
+        ]);
+    }
+
     public function addComment()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -238,84 +248,304 @@ class CommentController
         }
     }
 
-public function deleteComment()
-{
-    if (!isset($_POST['comment_id'])) {
-        echo json_encode(['success' => false, 'message' => 'Comment ID tidak ditemukan']);
-        return;
+    public function deleteComment()
+    {
+        if (!isset($_POST['comment_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Comment ID tidak ditemukan']);
+            return;
+        }
+
+        $commentId = $_POST['comment_id'];
+
+        $details = $this->commentModel->getCommentDetails($commentId);
+
+        if (!$details['success']) {
+            echo json_encode(['success' => false, 'message' => 'Komentar tidak ditemukan']);
+            return;
+        }
+
+        $commentUserId = $details['details']['USER_ID'];
+        $postId        = $details['details']['POST_ID'];
+
+        $postOwner = $this->commentModel->getPostOwner($postId);
+
+        if (
+            $_SESSION['user_id'] !== $commentUserId &&
+            $_SESSION['user_id'] !== $postOwner['ID'] &&
+            ($_SESSION['role'] ?? '') !== 'ADMIN'
+        ) {
+            echo json_encode(['success' => false, 'message' => 'Tidak punya izin menghapus komentar']);
+            return;
+        }
+
+        $success = $this->commentModel->deleteComment($commentId);
+
+        echo json_encode(['success' => $success]);
     }
 
-    $commentId = $_POST['comment_id'];
+    public function deleteReply()
+    {
+        if (!isset($_POST['reply_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Reply ID tidak ditemukan']);
+            return;
+        }
 
-    // Ambil detail
-    $details = $this->commentModel->getCommentDetails($commentId);
+        $replyId = $_POST['reply_id'];
 
-    if (!$details['success']) {
-        echo json_encode(['success' => false, 'message' => 'Komentar tidak ditemukan']);
-        return;
+        $details = $this->commentModel->getReplyDetails($replyId);
+
+        if (!$details['success']) {
+            echo json_encode(['success' => false, 'message' => 'Reply tidak ditemukan']);
+            return;
+        }
+
+        $replyUserId = $details['data']['USER_ID'];
+        $postId      = $details['data']['POST_ID'];
+
+        $postOwner = $details['data']['POST_ID']
+            ? $this->commentModel->getPostOwner($details['data']['POST_ID'])
+            : null;
+
+        if (
+            $_SESSION['user_id'] !== $replyUserId &&
+            $_SESSION['user_id'] !== ($postOwner['ID'] ?? null) &&
+            ($_SESSION['role'] ?? '') !== 'ADMIN'
+        ) {
+            echo json_encode(['success' => false, 'message' => 'Tidak punya izin menghapus reply']);
+            return;
+        }
+
+        $success = $this->commentModel->deleteReply($replyId);
+
+        echo json_encode(['success' => $success]);
     }
 
-    $commentUserId = $details['details']['USER_ID'];
-    $postId        = $details['details']['POST_ID'];
+    public function addCommentTopic()
+    {
+        header('Content-Type: application/json');
 
-    // Ambil owner post
-    $postOwner = $this->commentModel->getPostOwner($postId);
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            ob_clean();
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            return;
+        }
 
-    // Permission
-    if (
-        $_SESSION['user_id'] !== $commentUserId &&
-        $_SESSION['user_id'] !== $postOwner['ID'] &&
-        ($_SESSION['role'] ?? '') !== 'ADMIN'
-    ) {
-        echo json_encode(['success' => false, 'message' => 'Tidak punya izin menghapus komentar']);
-        return;
+        $userId = $_SESSION['user_id'] ?? null;
+        $topikId = $_POST['topic_id'] ?? null;
+        $message = trim($_POST['message'] ?? '');
+
+        if (!$userId || !$topikId || $message === '') {
+            ob_clean();
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Data tidak lengkap']);
+            return;
+        }
+
+        $newComment = $this->commentModel->addCommentTopik($topikId, $userId, $message);
+
+        if ($newComment) {
+            $owner = $this->commentModel->getTopicOwner($topikId);
+            if ($owner && $owner['ID'] !== $userId) {
+                $this->notificationModel->addNotification(
+                    $owner['ID'],
+                    $userId,
+                    $topikId,
+                    'REPLY_POST',
+                    'FORUM'
+                );
+            }
+            echo json_encode(['success' => true, 'message' => 'Komentar berhasil ditambahkan']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Gagal menambahkan komentar']);
+        }
+        exit;
     }
 
-    // Hapus full comment + semua replies
-    $success = $this->commentModel->deleteComment($commentId);
+    public function addReplyTopic()
+    {
+        header('Content-Type: application/json');
 
-    echo json_encode(['success' => $success]);
-}
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            return;
+        }
 
-public function deleteReply()
-{
-    if (!isset($_POST['reply_id'])) {
-        echo json_encode(['success' => false, 'message' => 'Reply ID tidak ditemukan']);
-        return;
+        $userId = $_SESSION['user_id'] ?? null;
+        $commentId = $_POST['comment_id'] ?? null;
+        $message = trim($_POST['message'] ?? '');
+        $topicId = $_POST['topik_id'] ?? null;
+        $parentId = empty($_POST['parent_id']) ? null : $_POST['parent_id'];
+
+        if (!$userId || !$commentId || $message === '') {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Data tidak lengkap']);
+            return;
+        }
+
+        $newReplyId = $this->commentModel->addReplyTopic($commentId, $userId, $message, $parentId);
+
+        if ($newReplyId) {
+
+            $commentDetails = $this->commentModel->getCommentDetailsTopic($commentId);
+
+            if ($commentDetails['success']) {
+                $commentOwnerId = $commentDetails['details']['USER_ID'];
+                $topicId = $commentDetails['details']['TOPIC_ID'];
+
+                if (!$parentId) {
+                    $owner = $this->commentModel->getTopicOwner($topicId);
+                    if ($owner && $owner['ID'] !== $userId) {
+                        $this->notificationModel->addNotification(
+                            $owner['ID'],
+                            $userId,
+                            $topicId,
+                            'REPLY_POST',
+                            'FORUM'
+                        );
+                    }
+
+                    $ownerComment = $this->commentModel->getCommentTopicOwner($topicId);
+                    if ($ownerComment['success']) {
+                        $commentData = $ownerComment['data'];
+
+                        if ($commentData['ID'] !== $userId) {
+                            $this->notificationModel->addNotification(
+                                $commentData['ID'],
+                                $userId,
+                                $topicId,
+                                'REPLY_COMMENT',
+                                'FORUM'
+                            );
+                        }
+                    }
+                } else {
+                    $owner = $this->commentModel->getTopicOwner($topicId);
+                    if ($owner && $owner['ID'] !== $userId) {
+                        $this->notificationModel->addNotification(
+                            $owner['ID'],
+                            $userId,
+                            $topicId,
+                            'REPLY_POST',
+                            'FORUM'
+                        );
+                    }
+
+                    $ownerComment = $this->commentModel->getCommentTopicOwner($topicId);
+                    if ($ownerComment['success']) {
+                        $commentData = $ownerComment['data'];
+
+                        if ($commentData['ID'] !== $userId) {
+                            $this->notificationModel->addNotification(
+                                $commentData['ID'],
+                                $userId,
+                                $topicId,
+                                'REPLY_COMMENT',
+                                'FOEUM'
+                            );
+                        }
+                    }
+
+                    $ownerReply = $this->commentModel->getReplyTopicDetails($parentId);
+                    if ($ownerReply['success']) {
+                        $replyData = $ownerReply['data'];
+                        if ($replyData['ID'] !== $userId) {
+                            $this->notificationModel->addNotification(
+                                $replyData['ID'],
+                                $userId,
+                                $topicId,
+                                'REPLY_COMMENT',
+                                'FORUM'
+                            );
+                        }
+                    }
+                }
+            }
+
+            echo json_encode(['success' => true, 'message' => 'Balasan berhasil ditambahkan', 'reply_id' => $newReplyId]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Gagal menambahkan balasan']);
+        }
+        exit;
     }
 
-    $replyId = $_POST['reply_id'];
+    public function deleteCommentTopic()
+    {
+        header('Content-Type: application/json');
 
-    // Ambil detail reply
-    $details = $this->commentModel->getReplyDetails($replyId);
+        if (!isset($_POST['comment_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Comment ID tidak ditemukan']);
+            return;
+        }
 
-    if (!$details['success']) {
-        echo json_encode(['success' => false, 'message' => 'Reply tidak ditemukan']);
-        return;
+        $commentId = $_POST['comment_id'];
+
+        $details = $this->commentModel->getCommentDetailsTopic($commentId);
+
+        if (!$details['success']) {
+            echo json_encode(['success' => false, 'message' => 'Komentar tidak ditemukan']);
+            return;
+        }
+
+        $commentUserId = $details['details']['USER_ID'];
+        $topicId       = $details['details']['TOPIC_ID'];
+
+        $postOwner = $this->commentModel->getTopicOwner($topicId);
+
+        if (
+            $_SESSION['user_id'] !== $commentUserId &&
+            $_SESSION['user_id'] !== $postOwner['ID'] &&
+            ($_SESSION['role'] ?? '') !== 'ADMIN'
+        ) {
+            echo json_encode(['success' => false, 'message' => 'Tidak punya izin menghapus komentar']);
+            return;
+        }
+
+        $success = $this->commentModel->deleteCommentTopic($commentId);
+
+        echo json_encode(['success' => $success]);
+        exit;
     }
 
-    // DATA REPLY
-    $replyUserId = $details['data']['USER_ID'];    // pemilik reply
-    $postId      = $details['data']['POST_ID'];    // ambil post id
+    public function deleteReplyTopic()
+    {
+        header('Content-Type: application/json');
 
-    $postOwner = $details['data']['POST_ID']
-    ? $this->commentModel->getPostOwner($details['data']['POST_ID'])
-    : null;
+        if (!isset($_POST['reply_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Reply ID tidak ditemukan']);
+            return;
+        }
 
-    if (
-        $_SESSION['user_id'] !== $replyUserId && 
-        $_SESSION['user_id'] !== ($postOwner['ID'] ?? null) &&
-        ($_SESSION['role'] ?? '') !== 'ADMIN'
-    ) {
-        echo json_encode(['success' => false, 'message' => 'Tidak punya izin menghapus reply']);
-        return;
+        $replyId = $_POST['reply_id'];
+
+        $details = $this->commentModel->getReplyDetailsTopic($replyId);
+
+        if (!$details['success']) {
+            echo json_encode(['success' => false, 'message' => 'Reply tidak ditemukan']);
+            return;
+        }
+
+        $replyUserId = $details['data']['USER_ID'];
+        $topicId      = $details['data']['TOPIC_ID'];
+
+        $postOwner = $details['data']['TOPIC_ID']
+            ? $this->commentModel->getTopicOwner($topicId)
+            : null;
+
+        if (
+            $_SESSION['user_id'] !== $replyUserId &&
+            $_SESSION['user_id'] !== ($postOwner['ID'] ?? null) &&
+            ($_SESSION['role'] ?? '') !== 'ADMIN'
+        ) {
+            echo json_encode(['success' => false, 'message' => 'Tidak punya izin menghapus reply']);
+            return;
+        }
+
+        $success = $this->commentModel->deleteReplyTopic($replyId);
+
+        echo json_encode(['success' => $success]);
+        exit;
     }
-
-    // Lanjut hapus
-    $success = $this->commentModel->deleteReply($replyId);
-
-    echo json_encode(['success' => $success]);
-}
-
-
 }

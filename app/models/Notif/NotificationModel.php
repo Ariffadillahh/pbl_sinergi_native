@@ -148,10 +148,10 @@ class NotificationModel extends BaseModel
 
         if ($targetType === 'POST') {
             $notifData['link'] = "homepage/reply/$targetId";
-        } elseif ($targetType === 'FORUM') {
-            $notifData['link'] = "forums/chat/$targetId";
+        } elseif ($targetType === 'GROUP') {
+            $notifData['link'] = "groups/chat/$targetId";
         } else {
-            $notifData['link'] = "#";
+            $notifData['link'] = "forum/topic/$targetId";
         }
 
 

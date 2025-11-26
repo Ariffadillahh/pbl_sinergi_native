@@ -4,7 +4,7 @@ require_once "app/models/BaseModel.php";
 
 class ForumModel extends BaseModel
 {
-        public function allForums()
+    public function allForums()
     {
         $conn = self::getConnection();
 
@@ -638,5 +638,50 @@ class ForumModel extends BaseModel
         oci_free_statement($stmtData);
 
         return ['data' => $forums, 'total' => $totalRows];
+    }
+
+    public function getGalleryMediaByForum($forumId)
+    {
+        $conn = self::getConnection();
+
+        // HAPUS titik koma (;) di akhir query
+        // TAMBAHKAN m.ORIGINAL_FILENAME agar nama file muncul
+        // GANTI TO_CHAR(t.CONTENT) dengan DBMS_LOB.SUBSTR agar aman jika konten panjang
+        $sql = "SELECT 
+                m.ID AS MEDIA_ID,
+                m.MEDIA_PATH,
+                m.MEDIA_TYPE,
+                m.ORIGINAL_FILENAME, 
+                t.ID AS TOPIC_ID,
+                DBMS_LOB.SUBSTR(t.CONTENT, 2000, 1) AS TOPIC_CONTENT, 
+                TO_CHAR(m.CREATED_AT, 'DD Mon YYYY HH24:MI') AS FORMATTED_DATE,
+                u.USERNAME,
+                u.PATH_PHOTO, 
+                u.FULL_NAME
+            FROM TOPIC_MEDIA m
+            JOIN FORUM_TOPICS t ON m.TOPIC_ID = t.ID
+            JOIN USERS u ON t.USER_ID = u.ID
+            WHERE t.FORUM_ID = :forum_id 
+            AND m.MEDIA_TYPE IN ('IMAGE', 'FILE') 
+            ORDER BY m.CREATED_AT DESC"; // Tidak boleh ada ; di sini
+
+        $stid = oci_parse($conn, $sql);
+
+        if (!$stid) {
+            $e = oci_error($conn);
+            error_log("Oracle Error: " . $e['message']);
+            return [];
+        }
+
+        oci_bind_by_name($stid, ":forum_id", $forumId);
+
+        oci_execute($stid);
+
+        $results = [];
+        oci_fetch_all($stid, $results, 0, -1, OCI_FETCHSTATEMENT_BY_ROW);
+
+        oci_free_statement($stid);
+
+        return $results;
     }
 }
