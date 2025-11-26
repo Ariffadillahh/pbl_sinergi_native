@@ -73,7 +73,7 @@ class GroupChatController
             $timestamp = strtotime($rawDate);
             if (!$timestamp) return $rawDate;
 
-            return date("d F Y", $timestamp); 
+            return date("d F Y", $timestamp);
         }
 
         $mediaPreview = $this->chatMessageModel->getGroupChatMediaPreview($id, 4);

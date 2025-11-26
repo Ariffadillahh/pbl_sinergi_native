@@ -105,24 +105,74 @@ class ForumModel extends BaseModel
         ];
     }
 
+    public function updateForum($id, $data)
+    {
+        $conn = self::getConnection();
+
+        $sql = "UPDATE FORUMS SET 
+                NAME = :name, 
+                ABOUT = :about, 
+                IS_PRIVATE = :is_private, 
+                ACCESS_KEY = :access_key";
+
+        if (array_key_exists('PATH_PHOTO', $data)) {
+            $sql .= ", PATH_PHOTO = :photo";
+        }
+
+        if (array_key_exists('PATH_THUMBNAIL', $data)) {
+            $sql .= ", PATH_THUMBNAIL = :thumb";
+        }
+
+        $sql .= " WHERE ID = :id";
+
+        $stmt = oci_parse($conn, $sql);
+
+        oci_bind_by_name($stmt, ":id", $id);
+        oci_bind_by_name($stmt, ":name", $data['NAME']);
+        oci_bind_by_name($stmt, ":about", $data['ABOUT']);
+        oci_bind_by_name($stmt, ":is_private", $data['IS_PRIVATE']);
+        oci_bind_by_name($stmt, ":access_key", $data['ACCESS_KEY']);
+
+        if (array_key_exists('PATH_PHOTO', $data)) {
+            oci_bind_by_name($stmt, ":photo", $data['PATH_PHOTO']);
+        }
+
+        if (array_key_exists('PATH_THUMBNAIL', $data)) {
+            oci_bind_by_name($stmt, ":thumb", $data['PATH_THUMBNAIL']);
+        }
+
+        $result = oci_execute($stmt, OCI_NO_AUTO_COMMIT);
+
+        if ($result) {
+            oci_commit($conn);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function getForumsWithFilter($userId, $filter, $search, $limit, $offset)
     {
         $conn = self::getConnection();
-        $bindings = []; 
+        $bindings = [];
 
         $sql = "SELECT 
-                f.*, 
-                u.FULL_NAME AS OWNER_NAME,
-                (SELECT COUNT(*) FROM FORUM_MEMBERS fm WHERE fm.FORUM_ID = f.ID) AS TOTAL_MEMBERS,
-                (SELECT COUNT(*) FROM FORUM_MEMBERS fm2 WHERE fm2.FORUM_ID = f.ID AND fm2.USER_ID = :userid_check) AS IS_MEMBER
-            FROM FORUMS f
-            JOIN USERS u ON f.OWNER_ID = u.ID ";
+            f.*, 
+            u.FULL_NAME AS OWNER_NAME,
+            (SELECT COUNT(*) FROM FORUM_MEMBERS fm WHERE fm.FORUM_ID = f.ID) AS TOTAL_MEMBERS,
+            (SELECT COUNT(*) FROM FORUM_MEMBERS fm2 WHERE fm2.FORUM_ID = f.ID AND fm2.USER_ID = :userid_check) AS IS_MEMBER
+        FROM FORUMS f
+        JOIN USERS u ON f.OWNER_ID = u.ID ";
 
         if ($filter === 'joined') {
             $sql .= " JOIN FORUM_MEMBERS fm_filter ON f.ID = fm_filter.FORUM_ID ";
         }
 
-        $sql .= " WHERE f.STATUS = 'ACTIVE' ";
+        if ($filter === 'owned') {
+            $sql .= " WHERE f.STATUS IN ('ACTIVE', 'NONACTIVE') ";
+        } else {
+            $sql .= " WHERE f.STATUS = 'ACTIVE' ";
+        }
 
         if ($filter === 'joined') {
             $sql .= " AND fm_filter.USER_ID = :userid_filter ";
@@ -138,20 +188,16 @@ class ForumModel extends BaseModel
             $bindings[':search_desc'] = $search;
         }
 
-        $sql .= " ORDER BY f.CREATED_AT DESC ";
+        $sql .= " ORDER BY f.CREATED_AT DESC OFFSET :offset_val ROWS FETCH NEXT :limit_val ROWS ONLY";
 
-        $sql .= " OFFSET :offset_val ROWS FETCH NEXT :limit_val ROWS ONLY";
         $bindings[':offset_val'] = $offset;
         $bindings[':limit_val'] = $limit;
-
         $bindings[':userid_check'] = $userId;
 
         $stmt = oci_parse($conn, $sql);
-
         foreach ($bindings as $key => $val) {
             oci_bind_by_name($stmt, $key, $bindings[$key]);
         }
-
         oci_execute($stmt);
 
         $forums = [];
@@ -203,7 +249,15 @@ class ForumModel extends BaseModel
     {
         $conn = self::getConnection();
 
-        $sql = "SELECT * FROM FORUMS WHERE ID = :id";
+        $sql = "SELECT f.*, 
+                   (SELECT COUNT(*) FROM FORUM_MEMBERS fm WHERE fm.FORUM_ID = f.ID) AS TOTAL_MEMBERS,
+                   u.FULL_NAME AS OWNER_NAME,
+                   u.PATH_PHOTO AS PATH_PHOTO_OWNER,
+                   u.ROLE AS ROLE_OWNER
+            FROM FORUMS f 
+            JOIN USERS u ON f.OWNER_ID = u.ID
+            WHERE f.ID = :id";
+
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ":id", $forumId);
 
@@ -215,23 +269,165 @@ class ForumModel extends BaseModel
         return $forum ?: null;
     }
 
-    public function getForumJoinOwnerById($forumId)
+    public function getAllForumAssets($forumId)
     {
         $conn = self::getConnection();
 
-        $sql = "SELECT f.*, u.USERNAME AS OWNER_USERNAME, u.FULL_NAME AS OWNER_FULL_NAME
-                FROM FORUMS f
-                JOIN USERS u ON f.OWNER_ID = u.ID
-                WHERE f.ID = :id";
+        $sqlForum = "SELECT PATH_THUMBNAIL, PATH_PHOTO FROM FORUMS WHERE ID = :id";
+        $stmtF = oci_parse($conn, $sqlForum);
+        oci_bind_by_name($stmtF, ":id", $forumId);
+        oci_execute($stmtF);
+        $forumAssets = oci_fetch_assoc($stmtF);
+
+        $sqlMedia = "SELECT tm.MEDIA_PATH 
+                     FROM TOPIC_MEDIA tm
+                     JOIN FORUM_TOPICS ft ON tm.TOPIC_ID = ft.ID
+                     WHERE ft.FORUM_ID = :fid";
+
+        $stmtM = oci_parse($conn, $sqlMedia);
+        oci_bind_by_name($stmtM, ":fid", $forumId);
+        oci_execute($stmtM);
+
+        $mediaPaths = [];
+        while ($row = oci_fetch_assoc($stmtM)) {
+            if (!empty($row['MEDIA_PATH'])) {
+                $mediaPaths[] = $row['MEDIA_PATH'];
+            }
+        }
+
+        return [
+            'forum_photo' => $forumAssets['PATH_PHOTO'] ?? null,
+            'forum_thumb' => $forumAssets['PATH_THUMBNAIL'] ?? null,
+            'topic_media' => $mediaPaths
+        ];
+    }
+
+    public function deleteForum($id)
+    {
+        $conn = self::getConnection();
+
+        try {
+            $sqlMember = "DELETE FROM FORUM_MEMBERS WHERE FORUM_ID = :id";
+            $stmtMember = oci_parse($conn, $sqlMember);
+            oci_bind_by_name($stmtMember, ":id", $id);
+            $resMember = oci_execute($stmtMember, OCI_NO_AUTO_COMMIT);
+            if (!$resMember) throw new Exception("Gagal menghapus member");
+
+            $sqlForum = "DELETE FROM FORUMS WHERE ID = :id";
+            $stmtForum = oci_parse($conn, $sqlForum);
+            oci_bind_by_name($stmtForum, ":id", $id);
+            $resForum = oci_execute($stmtForum, OCI_NO_AUTO_COMMIT);
+            if (!$resForum) throw new Exception("Gagal menghapus forum");
+
+            oci_commit($conn);
+            return true;
+        } catch (Exception $e) {
+            oci_rollback($conn);
+            return false;
+        }
+    }
+
+    public function isMember($forumId, $userId)
+    {
+        $conn = self::getConnection();
+
+        $sql = "SELECT COUNT(*) AS TOTAL 
+                FROM FORUM_MEMBERS 
+                WHERE FORUM_ID = :forum_id 
+                AND USER_ID = :user_id";
+
         $stmt = oci_parse($conn, $sql);
-        oci_bind_by_name($stmt, ":id", $forumId);
+
+        oci_bind_by_name($stmt, ":forum_id", $forumId);
+        oci_bind_by_name($stmt, ":user_id", $userId);
 
         oci_execute($stmt);
 
-        $forum = oci_fetch_assoc($stmt);
-        oci_free_statement($stmt);
+        $row = oci_fetch_assoc($stmt);
 
-        return $forum ?: null;
+        return ($row['TOTAL'] > 0);
+    }
+
+    public function addMember($forumId, $userId)
+    {
+        $conn = self::getConnection();
+
+        $id = uniqid('member_');
+
+        $sql = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, JOINED_AT) 
+            VALUES (:id, :forum_id, :user_id, SYSDATE)";
+
+        $stmt = oci_parse($conn, $sql);
+
+        oci_bind_by_name($stmt, ":id", $id);
+        oci_bind_by_name($stmt, ":forum_id", $forumId);
+        oci_bind_by_name($stmt, ":user_id", $userId);
+
+        $result = oci_execute($stmt, OCI_NO_AUTO_COMMIT);
+
+        if ($result) {
+            oci_commit($conn);
+            return true;
+        } else {
+            $e = oci_error($stmt);
+            error_log("Database Error: " . $e['message']);
+            return false;
+        }
+    }
+
+    public function getForumMembers($forumId)
+    {
+        $conn = self::getConnection();
+
+        $sql = "SELECT 
+                fm.USER_ID, 
+                fm.JOINED_AT,
+                u.FULL_NAME, 
+                u.PATH_PHOTO, 
+                u.ROLE 
+            FROM FORUM_MEMBERS fm
+            JOIN USERS u ON fm.USER_ID = u.ID
+            WHERE fm.FORUM_ID = :forum_id
+            ORDER BY fm.JOINED_AT DESC";
+
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ":forum_id", $forumId);
+
+        if (!oci_execute($stmt)) {
+            $e = oci_error($stmt);
+            error_log($e['message']);
+            return [];
+        }
+
+        $members = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $members[] = $row;
+        }
+
+        return $members;
+    }
+
+    public function removeMember($forumId, $userId)
+    {
+        $conn = self::getConnection();
+
+        $sql = "DELETE FROM FORUM_MEMBERS 
+                WHERE FORUM_ID = :forum_id 
+                AND USER_ID = :user_id";
+
+        $stmt = oci_parse($conn, $sql);
+
+        oci_bind_by_name($stmt, ":forum_id", $forumId);
+        oci_bind_by_name($stmt, ":user_id", $userId);
+
+        $result = oci_execute($stmt, OCI_NO_AUTO_COMMIT);
+
+        if ($result) {
+            oci_commit($conn);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function joinForum($forumId, $userId, $accessKey = null)

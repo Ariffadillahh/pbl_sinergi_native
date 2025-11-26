@@ -15,72 +15,8 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link href="<?php echo BASEURL; ?>/src/css/output.css" rel="stylesheet">
     <title>Forum <?= $forumById['NAME'] ?></title>
-    <style>
-        .swiper {
-            width: 100%;
-            height: 100%;
-        }
-
-        .swiper-slide {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #000;
-        }
-
-        .swiper-slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .swiper-button-next,
-        .swiper-button-prev {
-            background: rgba(255, 255, 255, 0.9);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .swiper-button-next:after,
-        .swiper-button-prev:after {
-            font-size: 18px;
-            font-weight: bold;
-            color: #1f2937;
-        }
-
-        .swiper:hover .swiper-button-next,
-        .swiper:hover .swiper-button-prev {
-            opacity: 1;
-        }
-
-        .swiper-button-next.swiper-button-disabled,
-        .swiper-button-prev.swiper-button-disabled {
-            opacity: 0 !important;
-        }
-
-        .swiper-pagination-bullet {
-            width: 8px;
-            height: 8px;
-            background: #fff;
-            opacity: 0.5;
-            transition: all 0.3s ease;
-        }
-
-        .swiper-pagination-bullet-active {
-            opacity: 1;
-            background: #fff;
-            width: 24px;
-            border-radius: 4px;
-        }
-
-        .swiper-pagination {
-            bottom: 12px !important;
-        }
-    </style>
 </head>
 
 <body>
@@ -102,22 +38,67 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                         </div>
 
                         <div class="mb-2 text-center md:text-left mt-2 md:mt-0">
-                            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 leading-tight"><?= $forumById['NAME'] ?></h1>
-                            <p class="text-gray-600 text-sm md:text-base">🌐 Public group · 235.5K members</p>
+                            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
+                                <?= htmlspecialchars($forumById['NAME']) ?>
+                            </h1>
+
+                            <p class="text-gray-600 text-sm md:text-base flex items-center justify-center md:justify-start gap-2 mt-1">
+                                <span>
+                                    <?= ($forumById['IS_PRIVATE'] == 1) ? '🔒 Private' : '🌐 Public' ?>
+                                </span>
+                                <span>·</span>
+                                <span class="font-medium">
+                                    <?= number_format($forumById['TOTAL_MEMBERS']) ?> Followings
+                                </span>
+                            </p>
                         </div>
                     </div>
 
-                    <div class="flex gap-2 mt-4 md:mt-0 w-full md:w-auto justify-center md:justify-end mb-2">
-                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 md:px-6 py-2 rounded-lg font-semibold text-sm md:text-base flex-1 md:flex-none">
-                            + Invite
-                        </button>
-                        <button class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 md:px-6 py-2 rounded-lg font-semibold text-sm md:text-base flex-1 md:flex-none">
-                            ✓ Joined
-                        </button>
-                        <button class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg flex-none">
-                            ⋯
-                        </button>
+                    <div class="flex flex-col md:flex-row gap-2 mt-4 w-full md:w-auto justify-center md:justify-end mb-2">
+
+                        <?php if ($isMember): ?>
+
+                            <button
+                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 md:px-6 py-2 rounded-lg font-semibold text-sm md:text-base w-full md:w-auto transition cursor-default">
+                                ✓ Joined
+                            </button>
+
+                            <div class="flex gap-3">
+                                <button
+                                    id="btn-open-leave-forum"
+                                    class="w-full md:w-auto flex items-center justify-center gap-2 bg-white rounded-xl px-4 py-2 ring-1 ring-gray-200 hover:ring-blue-600 transition-all">
+                                    <img src="<?= BASEURL; ?>/src/asset/icons/logout-grey.svg" class="size-6" alt="icon">
+                                    <span class="font-medium text-sm text-heyhao-secondary">Leave Forum</span>
+                                </button>
+
+                                <button
+                                    class="w-full md:w-auto flex items-center justify-center bg-white rounded-xl px-4 py-2 ring-1 ring-gray-200 hover:ring-blue-600 transition-all">
+                                    <img src="<?= BASEURL; ?>/src/asset/icons/report.png" class="size-6" alt="icon">
+                                </button>
+                            </div>
+
+
+                        <?php else: ?>
+
+                            <?php if ($forumById['IS_PRIVATE'] == 1): ?>
+                                <button
+                                    onclick="requestJoin('<?= $forumById['ID'] ?>')"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold text-sm md:text-base w-full md:w-auto shadow-md transition transform hover:scale-105">
+                                    Minta Bergabung
+                                </button>
+
+                            <?php else: ?>
+                                <button
+                                    onclick="joinForum('<?= $forumById['ID'] ?>')"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold text-sm md:text-base w-full md:w-auto shadow-md transition transform hover:scale-105">
+                                    Gabung Forum
+                                </button>
+                            <?php endif; ?>
+
+                        <?php endif; ?>
+
                     </div>
+
                 </div>
 
                 <div class="border-t border-gray-300">
@@ -136,6 +117,13 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                         <button class="tab-btn px-4 py-3 md:py-4 text-gray-600 hover:bg-gray-100 rounded-t-lg font-semibold whitespace-nowrap text-sm md:text-base" data-tab="files">
                             Files
                         </button>
+                        <?php if ($forumById['OWNER_ID'] === $_SESSION['user_id']) : ?>
+                            <button
+                                class="tab-btn px-4 py-3 md:py-4 text-gray-600 hover:bg-gray-100 rounded-t-lg font-semibold whitespace-nowrap text-sm md:text-base"
+                                data-tab="settings">
+                                Settings
+                            </button>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -194,48 +182,82 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-lg shadow p-4 mb-4 border-l-4 border-blue-600 relative overflow-hidden">
+                        <?php if (!empty($pinned_topics)): ?>
+                            <?php foreach ($pinned_topics as $pin): ?>
 
-                            <div class="flex items-center gap-2 mb-3 text-blue-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform rotate-45" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                <span class="text-xs font-bold uppercase tracking-wider">Featured Post</span>
-                            </div>
+                                <div class="bg-white rounded-lg shadow p-4 mb-4 border-l-4 border-blue-600 relative overflow-hidden">
 
-                            <div class="flex items-center gap-3 mb-3">
-                                <img src="https://ui-avatars.com/api/?name=Admin+Group&background=random" alt="Admin" class="w-8 h-8 rounded-full">
-                                <div>
-                                    <p class="font-bold text-sm text-gray-900">Admin Group</p>
-                                    <p class="text-xs text-gray-500">Updated 2 hours ago</p>
+                                    <div class="flex items-center gap-2 mb-3 text-blue-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform rotate-45" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        <span class="text-xs font-bold uppercase tracking-wider">Pinned Post</span>
+
+                                        <?php if ($can_unpin): ?>
+                                            <button type="button" data-id="<?= $pin['ID'] ?>" class="btn-pin-action ml-auto text-xs text-red-500 hover:text-red-700 hover:underline font-semibold transition">
+                                                Unpin Post
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <div class="flex items-center gap-3 mb-3">
+                                        <?php
+                                        $userPhoto = !empty($pin['PROFILE_PIC']) ? $pin['PROFILE_PIC'] : (!empty($pin['PATH_PHOTO']) ? $pin['PATH_PHOTO'] : null);
+                                        ?>
+                                        <img src="<?= $userPhoto ? BASEURL . '/storage/users/photos/' . $userPhoto : BASEURL . '/src/asset/image/default.png' ?>"
+                                            class="w-8 h-8 rounded-full object-cover">
+                                        <div>
+                                            <p class="font-bold text-sm text-gray-900"><?= htmlspecialchars($pin['USERNAME']) ?></p>
+                                            <p class="text-xs text-gray-500"><?= date('d M Y H:i', strtotime($pin['CREATED_AT'])) ?></p>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-sm mb-3">
+                                        <p class="text-gray-800 leading-relaxed">
+                                            <?= nl2br(htmlspecialchars(substr($pin['CONTENT'], 0, 300))) ?>
+                                            <?= strlen($pin['CONTENT']) > 300 ? '...' : '' ?>
+                                        </p>
+                                        <?php if (strlen($pin['CONTENT']) > 300): ?>
+                                            <a href="<?= BASEURL ?>/topic/<?= $pin['ID'] ?>" class="text-blue-600 text-xs font-semibold hover:underline">Baca Selengkapnya</a>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <?php if (!empty($pin['MEDIA_PATH']) && strtoupper($pin['MEDIA_TYPE']) === 'FILE'): ?>
+                                        <a href="<?= BASEURL ?>/storage/forums/topics/<?= $pin['MEDIA_PATH'] ?>" target="_blank" download="<?= htmlspecialchars($pin['ORIGINAL_FILENAME'] ?? 'Dokumen') ?>">
+                                            <div class="bg-gray-50 rounded-lg p-2 mb-3 flex items-center gap-2 border border-gray-200 hover:bg-gray-100 transition cursor-pointer">
+                                                <div class="bg-blue-100 p-2 rounded text-blue-600">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                </div>
+                                                <div class="overflow-hidden">
+                                                    <p class="text-sm font-semibold text-gray-800 truncate"><?= htmlspecialchars($pin['ORIGINAL_FILENAME'] ?? 'Dokumen Lampiran') ?></p>
+                                                    <p class="text-xs text-gray-500">Klik untuk mengunduh</p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($pin['MEDIA_PATH']) && strtoupper($pin['MEDIA_TYPE']) === 'IMAGE'): ?>
+                                        <div class="mb-3">
+                                            <img src="<?= BASEURL ?>/storage/forums/topics/<?= $pin['MEDIA_PATH'] ?>" class="w-full h-48 object-cover rounded-lg border border-gray-200">
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <div class="border-t pt-2 flex items-center justify-between text-gray-500 text-xs">
+                                        <span><?= $pin['TOTAL_COMMENTS'] ?> Comments</span>
+                                        <div class="flex items-center gap-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                            </svg>
+                                            <span><?= $pin['TOTAL_LIKES'] ?> Like</span>
+                                        </div>
+                                    </div>
+
                                 </div>
-                            </div>
 
-                            <div class="text-sm">
-                                <h4 class="font-bold text-gray-900 mb-1">⚠️ PERATURAN GRUP (Wajib Baca)</h4>
-                                <p class="text-gray-700 leading-relaxed mb-3">
-                                    Dilarang keras melakukan spam link phising. Transaksi wajib menggunakan REKBER (Rekening Bersama) admin yang bertugas.
-                                </p>
-                            </div>
-
-                            <div class="bg-gray-100 rounded-lg p-2 mb-3 flex items-center gap-2">
-                                <div class="bg-blue-100 p-2 rounded text-blue-600">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-semibold text-gray-800">Daftar_Rekber_Resmi.pdf</p>
-                                    <p class="text-xs text-gray-500">120 KB</p>
-                                </div>
-                            </div>
-
-                            <div class="border-t pt-2 flex items-center justify-between text-gray-500 text-xs">
-                                <span>124 comments</span>
-                                <span>45 Like</span>
-                            </div>
-
-                        </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
 
                     </div>
                 </div>
@@ -243,249 +265,22 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                 <div class="lg:col-span-2">
                     <div id="tabContent">
 
-                        <!-- Discussion Tab -->
                         <div class="tab-content active space-y-4" data-content="discussion">
+                            <?php if ($isMember) : ?>
+                                <?php require_once 'app/views/components/forum/createTopic.php'; ?>
+                            <?php else : ?>
+                                <button onclick="joinForum('<?= $forumById['ID'] ?>')" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold text-sm md:text-base w-full shadow-md">
+                                    Join to Create Post
+                                </button>
+                            <?php endif; ?>
 
-                            <!-- Create Post Card -->
-                            <?php require_once 'app/views/components/forum/createTopic.php'; ?>
-
-                            <!-- Post 1 with Slider -->
-                            <div class="bg-white rounded-lg shadow">
-                                <div class="p-4">
-                                    <div class="flex items-start justify-between mb-3">
-                                        <div class="flex gap-3">
-                                            <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold flex-shrink-0">
-                                                YU
-                                            </div>
-                                            <div>
-                                                <h4 class="font-semibold">Ya Udah Iya</h4>
-                                                <p class="text-xs text-gray-500">20h · 🌐</p>
-                                            </div>
-                                        </div>
-                                        <button class="text-gray-500 hover:bg-gray-100 rounded-full p-2 transition">⋯</button>
-                                    </div>
-
-                                    <p class="text-gray-900 mb-3">WTS Akun PUBG Season 20 Conqueror, full skin legendary! Cek SS nya 🔥</p>
-                                </div>
-
-                                <!-- Swiper Slider -->
-                                <div class="swiper postSwiper1" style="height: 400px;">
-                                    <div class="swiper-wrapper">
-                                        <div class="swiper-slide">
-                                            <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800" alt="PUBG 1">
-                                        </div>
-                                        <div class="swiper-slide">
-                                            <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800" alt="PUBG 2">
-                                        </div>
-                                        <div class="swiper-slide">
-                                            <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800" alt="PUBG 3">
-                                        </div>
-                                        <div class="swiper-slide">
-                                            <img src="https://images.unsplash.com/photo-1560253023-3ec5d502959f?w=800" alt="PUBG 4">
-                                        </div>
-                                    </div>
-                                    <div class="swiper-button-next"></div>
-                                    <div class="swiper-button-prev"></div>
-                                    <div class="swiper-pagination"></div>
-                                </div>
-
-                                <div class="border-t border-gray-200 py-2 px-2 flex justify-center gap-1 select-none">
-                                    <button
-                                        class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition hover:bg-gray-100 cursor-pointer group w-1/2">
-                                        <svg
-                                            class="w-5 h-5 text-gray-500 group-hover:text-red-500 transition-all duration-300"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                        </svg>
-
-                                        <span class="text-gray-600 group-hover:text-red-500">12</span>
-                                    </button>
-
-                                    <button
-                                        class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition hover:bg-gray-100 cursor-pointer group w-1/2">
-                                        <svg
-                                            class="w-5 h-5 text-gray-500 group-hover:text-blue-600 transition"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                        </svg>
-
-                                        <span class="text-gray-600 group-hover:text-blue-600">3</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Post 3 -->
-                            <div class="bg-white rounded-lg shadow">
-                                <div class="p-4">
-                                    <div class="flex items-start justify-between mb-3">
-                                        <div class="flex gap-3">
-                                            <div class="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center font-bold flex-shrink-0">
-                                                BS
-                                            </div>
-                                            <div>
-                                                <h4 class="font-semibold">Budi Santoso</h4>
-                                                <p class="text-xs text-gray-500">2d · 🌐</p>
-                                            </div>
-                                        </div>
-                                        <button class="text-gray-500 hover:bg-gray-100 rounded-full p-2 transition">⋯</button>
-                                    </div>
-
-                                    <p class="text-gray-900 mb-3">LF akun pubg budget 200-250rb, tier minimal diamond, RP lengkap. Ada yg jual?</p>
-                                </div>
-
-
-
-                                <div class="border-t border-gray-200 py-2 px-2 flex justify-center gap-1 select-none">
-                                    <button
-                                        class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition hover:bg-gray-100 cursor-pointer group w-1/2">
-                                        <svg
-                                            class="w-5 h-5 text-gray-500 group-hover:text-red-500 transition-all duration-300"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                        </svg>
-
-                                        <span class="text-gray-600 group-hover:text-red-500">12</span>
-                                    </button>
-
-                                    <button
-                                        class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition hover:bg-gray-100 cursor-pointer group w-1/2">
-                                        <svg
-                                            class="w-5 h-5 text-gray-500 group-hover:text-blue-600 transition"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                        </svg>
-
-                                        <span class="text-gray-600 group-hover:text-blue-600">3</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Post 4 -->
-                            <div class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
-
-                                <!-- 1. HEADER (User Info) -->
-                                <div class="p-4 pb-2">
-                                    <div class="flex items-start justify-between mb-3">
-                                        <div class="flex gap-3">
-                                            <!-- Avatar -->
-                                            <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold flex-shrink-0 text-sm">
-                                                SN
-                                            </div>
-                                            <!-- Name & Time -->
-                                            <div>
-                                                <h4 class="font-semibold text-gray-900 leading-tight">Siti Nurhaliza</h4>
-                                                <p class="text-xs text-gray-500 mt-0.5">3d · 🌐</p>
-                                            </div>
-                                        </div>
-                                        <!-- Menu Button -->
-                                        <button class="text-gray-400 hover:bg-gray-100 rounded-full p-2 transition">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                                                <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                                            </svg>
-                                        </button>
-                                    </div>
-
-                                    <!-- Post Text -->
-                                    <p class="text-gray-900 mb-2">
-                                        Berikut saya lampirkan surat perjanjian jual beli yang sudah disepakati. Silakan diunduh ya. 🙏
-                                    </p>
-                                </div>
-
-
-
-                                <div class="px-4 pb-4">
-                                    <a href="#" class="group block">
-                                        <div class="flex items-center p-3 border border-gray-300 rounded-xl bg-gray-50 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200">
-
-                                            <div class="flex-shrink-0 h-12 w-12 bg-blue-100 text-blue-500 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                </svg>
-                                            </div>
-
-                                            <div class="ml-4 flex-1 overflow-hidden">
-                                                <h5 class="text-sm font-bold text-gray-900 group-hover:text-blue-700 truncate">Surat_Perjanjian_Jual_Beli_Sah.pdf</h5>
-                                            </div>
-
-                                            <div class="flex-shrink-0 ml-3 text-gray-400 group-hover:text-blue-600">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-
-                                <div class="border-t border-gray-100 px-4 py-3 flex items-center justify-between text-xs text-gray-500">
-                                    <div class="flex items-center gap-1">
-                                        <span class="bg-blue-500 text-white rounded-full p-0.5">
-                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v7.333a2 2 0 01-.826 1.57l-2.174.43z" />
-                                            </svg>
-                                        </span>
-                                        <span>12</span>
-                                    </div>
-                                    <div class="flex gap-3 hover:underline cursor-pointer">
-                                        <span>2 comments</span>
-                                        <span>1 share</span>
-                                    </div>
-                                </div>
-
-
-
-                                <div class="border-t border-gray-200 py-2 px-2 flex justify-center gap-1 select-none">
-                                    <button
-                                        class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition hover:bg-gray-100 cursor-pointer group w-1/2">
-                                        <svg
-                                            class="w-5 h-5 text-gray-500 group-hover:text-red-500 transition-all duration-300"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                        </svg>
-
-                                        <span class="text-gray-600 group-hover:text-red-500">12</span>
-                                    </button>
-
-                                    <button
-                                        class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition hover:bg-gray-100 cursor-pointer group w-1/2">
-                                        <svg
-                                            class="w-5 h-5 text-gray-500 group-hover:text-blue-600 transition"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                        </svg>
-
-                                        <span class="text-gray-600 group-hover:text-blue-600">3</span>
-                                    </button>
-                                </div>
-                            </div>
+                            <?php require_once 'app/views/components/forum/topics.php'; ?>
                         </div>
 
 
                         <!-- People Tab -->
-                        <div class="tab-content hidden" data-content="people">
-                            <div class="bg-white rounded-lg shadow p-8 text-center">
-                                <div class="text-6xl mb-4">👥</div>
-                                <h3 class="text-xl font-bold mb-2">Group Members</h3>
-                                <p class="text-gray-600">235.5K members in this group</p>
-                            </div>
-                        </div>
+                        <?php require_once 'app/views/components/forum/tabsMembers.php'; ?>
+
 
                         <!-- Media Tab -->
                         <div class="tab-content hidden" data-content="media">
@@ -505,6 +300,9 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                             </div>
                         </div>
 
+                        <!-- Settings -->
+                        <?php require_once 'app/views/components/forum/tabsSetings.php'; ?>
+
                     </div>
 
                 </div>
@@ -514,61 +312,70 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <!-- Overlay -->
+    <div id="modal-leave-forum"
+        class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden justify-center items-center">
+
+        <!-- Modal Box -->
+        <div class="bg-white rounded-2xl p-6 w-[90%] max-w-md shadow-lg animate-fadeIn">
+
+            <!-- Icon -->
+            <div class="flex justify-center mb-4">
+                <svg class="w-14 h-14 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                        d="M12 9v4m0 4h.01M21 12A9 9 0 1 1 3 12a9 9 0 0 1 18 0Z" />
+                </svg>
+            </div>
+
+            <!-- Title -->
+            <h2 class="text-lg font-semibold text-center text-gray-900">Leave Forum?</h2>
+
+            <!-- Message -->
+            <p class="text-center text-sm text-gray-600 mt-2">
+                Are you sure you want to leave this forum? You will lose access to all discussions unless rejoined.
+            </p>
+
+            <!-- Buttons -->
+            <div class="flex mt-6 gap-3">
+                <button id="btn-cancel-leave-forum"
+                    class="flex-1 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition">
+                    Cancel
+                </button>
+
+                <button id="btn-confirm-leave-forum"
+                    class="flex-1 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition">
+                    Yes, Leave
+                </button>
+            </div>
+        </div>
+    </div>
+
+
     <script>
-        // Initialize all Swiper instances
-        document.addEventListener('DOMContentLoaded', function() {
-            // Swiper 1
-            const swiper1 = new Swiper('.postSwiper1', {
-                slidesPerView: 1,
-                spaceBetween: 0,
-                loop: false,
-                pagination: {
-                    el: '.postSwiper1 .swiper-pagination',
-                    clickable: true,
-                    dynamicBullets: true,
-                    dynamicMainBullets: 3,
-                },
-                navigation: {
-                    nextEl: '.postSwiper1 .swiper-button-next',
-                    prevEl: '.postSwiper1 .swiper-button-prev',
-                },
-            });
+        async function joinForum(forumId) {
 
-            // Swiper 2
-            const swiper2 = new Swiper('.postSwiper2', {
-                slidesPerView: 1,
-                spaceBetween: 0,
-                loop: false,
-                pagination: {
-                    el: '.postSwiper2 .swiper-pagination',
-                    clickable: true,
-                    dynamicBullets: true,
-                    dynamicMainBullets: 3,
-                },
-                navigation: {
-                    nextEl: '.postSwiper2 .swiper-button-next',
-                    prevEl: '.postSwiper2 .swiper-button-prev',
-                },
-            });
+            const formData = new FormData();
+            formData.append('forum_id', forumId);
 
-            // Swiper 4
-            const swiper4 = new Swiper('.postSwiper4', {
-                slidesPerView: 1,
-                spaceBetween: 0,
-                loop: false,
-                pagination: {
-                    el: '.postSwiper4 .swiper-pagination',
-                    clickable: true,
-                    dynamicBullets: true,
-                    dynamicMainBullets: 3,
-                },
-                navigation: {
-                    nextEl: '.postSwiper4 .swiper-button-next',
-                    prevEl: '.postSwiper4 .swiper-button-prev',
-                },
-            });
-        });
+            try {
+                const response = await fetch('<?= BASEURL ?>/forum/join', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    location.href = '<?= BASEURL ?>/forum/' + forumId;
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Gagal menghubungi server.');
+            }
+        }
     </script>
 
     <script>
@@ -581,23 +388,19 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                     button.addEventListener('click', function() {
                         const targetTab = this.getAttribute('data-tab');
 
-                        // Remove active class from all buttons
                         tabButtons.forEach(btn => {
                             btn.classList.remove('active', 'text-blue-600', 'border-b-4', 'border-blue-600');
                             btn.classList.add('text-gray-600');
                         });
 
-                        // Add active class to clicked button
                         this.classList.add('active', 'text-blue-600', 'border-b-4', 'border-blue-600');
                         this.classList.remove('text-gray-600');
 
-                        // Hide all tab contents
                         tabContents.forEach(content => {
                             content.classList.add('hidden');
                             content.classList.remove('active');
                         });
 
-                        // Show target tab content
                         const targetContent = document.querySelector(`[data-content="${targetTab}"]`);
                         if (targetContent) {
                             targetContent.classList.remove('hidden');
@@ -606,6 +409,39 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                     });
                 });
             }
+
+            const modalLeave = document.getElementById("modal-leave-forum");
+            const openLeaveBtn = document.getElementById("btn-open-leave-forum");
+            const cancelLeaveBtn = document.getElementById("btn-cancel-leave-forum");
+            const confirmLeaveBtn = document.getElementById("btn-confirm-leave-forum");
+
+            openLeaveBtn.addEventListener("click", () => {
+                modalLeave.classList.remove("hidden");
+                modalLeave.classList.add("flex");
+            });
+
+            cancelLeaveBtn.addEventListener("click", () => {
+                modalLeave.classList.add("hidden");
+                modalLeave.classList.remove("flex");
+            });
+
+            confirmLeaveBtn.addEventListener("click", () => {
+                const formData = new FormData();
+                formData.append('forum_id', '<?= $forumById['ID'] ?>');
+                fetch('<?= BASEURL ?>/forum/leave', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            location.href = '<?= BASEURL ?>/forums';
+                        } else {
+                            alert(result.message);
+                        }
+                    })
+            });
+
         });
     </script>
 </body>

@@ -35,31 +35,31 @@
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-        const params = new URLSearchParams(window.location.search);
-        const keyword = params.get("keyword");
+            const params = new URLSearchParams(window.location.search);
+            const keyword = params.get("keyword");
 
-        if (keyword) {
-            const modal = document.getElementById("searchModal");
-            const input = document.getElementById("searchLive");
+            if (keyword) {
+                const modal = document.getElementById("searchModal");
+                const input = document.getElementById("searchLive");
 
-            setTimeout(() => {
-            if (modal && input) {
-                modal.classList.remove("hidden");
-                modal.classList.add("flex");
-                input.value = keyword;
+                setTimeout(() => {
+                    if (modal && input) {
+                        modal.classList.remove("hidden");
+                        modal.classList.add("flex");
+                        input.value = keyword;
 
-                if (typeof performSearch === "function") {
-                performSearch(keyword);
-                } else {
-                console.warn("performSearch() belum terdefinisi");
-                }
-            } else {
-                console.warn("Modal search group belum ditemukan di halaman /groups");
+                        if (typeof performSearch === "function") {
+                            performSearch(keyword);
+                        } else {
+                            console.warn("performSearch() belum terdefinisi");
+                        }
+                    } else {
+                        console.warn("Modal search group belum ditemukan di halaman /groups");
+                    }
+                });
             }
-            }, 300);
-        }
         });
     </script>
 </body>
-</html>
 
+</html>
