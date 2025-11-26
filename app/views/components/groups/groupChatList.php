@@ -120,57 +120,47 @@
         }
         
         try {
-            // Oracle returns format: 'YYYY-MM-DD HH24:MI:SS' or 'DD-MMM-YY HH.MI.SS.FF AM'
-            // Clean and parse the timestamp
             let dateString = timestamp;
             
-            // If it contains a space, assume it's 'YYYY-MM-DD HH:MI:SS' format
             if (dateString.includes(' ')) {
                 dateString = dateString.replace(' ', 'T');
             }
             
             const date = new Date(dateString);
 
-            // Validate the date
             if (isNaN(date.getTime())) {
                 console.error('Invalid date:', timestamp);
-                return timestamp.substring(0, 10); // Fallback: return just the date part
+                return timestamp.substring(0, 10);
             }
 
             const now = new Date();
             
-            // Reset time to midnight for date comparison
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
             
             const diffTime = today - messageDate;
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-            // Today - show time in 12-hour format with AM/PM
             if (diffDays === 0) {
                 let hours = date.getHours();
                 const minutes = date.getMinutes().toString().padStart(2, '0');
                 const ampm = hours >= 12 ? 'PM' : 'AM';
                 
-                // Convert to 12-hour format
                 hours = hours % 12;
-                hours = hours ? hours : 12; // 0 should be 12
+                hours = hours ? hours : 12;
                 
                 return `${hours}:${minutes} ${ampm}`;
             }
 
-            // Yesterday
             if (diffDays === 1) {
                 return 'Yesterday';
             }
 
-            // This week (2-6 days ago) - show day name
             if (diffDays >= 2 && diffDays <= 6) {
                 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                 return days[date.getDay()];
             }
 
-            // This year - show date without year (DD MMM)
             if (now.getFullYear() === date.getFullYear()) {
                 const day = date.getDate().toString().padStart(2, '0');
                 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
@@ -179,7 +169,6 @@
                 return `${day} ${month}`;
             }
 
-            // Older than this year - show with year (DD MMM YYYY)
             const day = date.getDate().toString().padStart(2, '0');
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
                         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -194,21 +183,49 @@
     }
 
     function updateSidebarUI(data) {
-        console.log('Updating sidebar with data:', data); // ✅ Debug log
+        console.log('Updating sidebar with data:', data);
 
+        // Validate data
+        if (!data || !Array.isArray(data)) {
+            console.error('Invalid data received:', data);
+            return;
+        }
+
+        // Sort data by lastTime (newest first)
+        data.sort((a, b) => {
+            const timeA = a.lastTime ? new Date(a.lastTime.replace(' ', 'T')).getTime() : 0;
+            const timeB = b.lastTime ? new Date(b.lastTime.replace(' ', 'T')).getTime() : 0;
+            return timeB - timeA; // Descending order (newest first)
+        });
+
+        const container = document.querySelector('#Message-container > div');
+        if (!container) {
+            console.error('Message container not found');
+            return;
+        }
+
+        // Update data for each group
         for (const item of data) {
-            const dataWrapper = document.getElementById(`forum-data-${item.group_chat_id}`);
-            const skeletonWrapper = document.getElementById(`forum-skeleton-${item.group_chat_id}`);
-            const badgeElement = document.getElementById(`forum-count-${item.group_chat_id}`);
-            const msgElement = document.getElementById(`forum-last-msg-${item.group_chat_id}`);
-            const timeElement = document.getElementById(`forum-time-${item.group_chat_id}`);
+            // Handle both groupChatId and group_chat_id
+            const groupChatId = (item.groupChatId || item.group_chat_id || '').toString().trim();
+            if (!groupChatId) {
+                console.warn('Missing group chat ID in item:', item);
+                continue;
+            }
+            
+            const dataWrapper = document.getElementById(`forum-data-${groupChatId}`);
+            const skeletonWrapper = document.getElementById(`forum-skeleton-${groupChatId}`);
+            const badgeElement = document.getElementById(`forum-count-${groupChatId}`);
+            const msgElement = document.getElementById(`forum-last-msg-${groupChatId}`);
+            const timeElement = document.getElementById(`forum-time-${groupChatId}`);
+            const chatCard = document.querySelector(`a[href*="/groups/chat/${groupChatId}"]`);
 
             if (!dataWrapper || !skeletonWrapper || !badgeElement || !msgElement || !timeElement) {
-                console.warn(`Missing elements for group ${item.group_chat_id}`); // ✅ Debug log
+                console.warn(`Missing elements for group ${groupChatId}`);
                 continue;
             }
 
-            const isChatActive = (activeChatId !== '' && item.group_chat_id === activeChatId);
+            const isChatActive = (activeChatId !== '' && groupChatId === activeChatId);
 
             // Update badge
             if (item.count > 0 && !isChatActive) {
@@ -228,7 +245,41 @@
             // Show data, hide skeleton
             skeletonWrapper.classList.add('hidden');
             dataWrapper.classList.remove('hidden');
+
+            // Store timestamp for sorting
+            if (chatCard) {
+                chatCard.dataset.lastMessageTime = item.lastTime || '0';
+            }
         }
+
+        // Reorder DOM elements - insert in correct order from top to bottom
+        console.log('Starting reorder process...');
+        
+        for (let i = 0; i < data.length; i++) {
+            const item = data[i];
+            const groupId = (item.groupChatId || item.group_chat_id || '').toString().trim();
+            
+            if (!groupId) continue;
+            
+            // Find the card for this group
+            const card = container.querySelector(`a[href*="/groups/chat/${groupId}"]`)?.closest('.chats-card');
+            
+            if (!card) {
+                console.warn(`Card not found for group ${groupId}`);
+                continue;
+            }
+            
+            // Get the card that should be at position i
+            const cardAtPosition = container.children[i];
+            
+            // If the card is not already in the correct position, move it
+            if (cardAtPosition !== card) {
+                console.log(`Moving group ${groupId} to position ${i}`);
+                container.insertBefore(card, cardAtPosition);
+            }
+        }
+
+        console.log('Sidebar reordered successfully');
     }
 
     async function startCountPolling() {
@@ -240,17 +291,16 @@
 
             if (response.status === 200) {
                 const result = await response.json();
-                console.log('Poll response:', result); // ✅ Debug log
+                console.log('Poll response:', result);
 
                 window.lastCountHash = result.hash;
                 updateSidebarUI(result.data);
 
             } else if (response.status === 204) {
-                // No changes, continue polling
                 console.log('No changes detected');
             } else if (response.status === 403) {
                 console.error('Unauthorized');
-                return; // Stop polling
+                return;
             }
 
         } catch (error) {
@@ -258,12 +308,11 @@
             await new Promise(resolve => setTimeout(resolve, 5000));
         }
 
-        // Continue polling
         startCountPolling();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        console.log('Starting count polling...'); // ✅ Debug log
+        console.log('Starting count polling...');
         startCountPolling();
     });
 </script>
