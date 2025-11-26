@@ -1,11 +1,13 @@
 <?php
 $current_uri = $_SERVER['REQUEST_URI'];
 
-$isHomepageActive = (strpos($current_uri, '/homepage') !== false);
-$isForumsActive   = (strpos($current_uri, '/forums') !== false);
-$isGroupActive   = (strpos($current_uri, '/groups') !== false);
-$accsesPages = (in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']));
+$isHomepageActive = preg_match('#/homepage(/|$)#', $current_uri);
+$isForumsActive   = preg_match('#/forums?(/|$)#', $current_uri);
+$isGroupActive    = preg_match('#/groups?(/|$)#', $current_uri);
+
+$accsesPages = in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']);
 ?>
+
 
 <div>
     <nav class="hidden lg:flex h-screen flex-col items-center justify-between min-w-[84px] shrink-0 bg-gray-200/70 px-5 py-[25px] z-[99999]">

@@ -1,12 +1,13 @@
 <?php
 
-$bannerUrl = !empty($forumById['PATH_THUMBNAIL'])
+$hasBanner = !empty($forumById['PATH_THUMBNAIL']);
+$bannerUrl = $hasBanner
     ? BASEURL . '/storage/forums/thumbnail/' . $forumById['PATH_THUMBNAIL']
-    : 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80';
+    : null;
 
 $iconUrl = !empty($forumById['PATH_PHOTO'])
     ? BASEURL . '/storage/forums/photos/' . $forumById['PATH_PHOTO']
-    : 'https://ui-avatars.com/api/?name=' . urlencode($forumById['NAME']) . '&background=random';
+    : 'https://ui-avatars.com/api/?name=' . urlencode($forumById['NAME']) . '&background=3B82F6&color=fff';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,9 +23,27 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 <body>
     <div class="w-full h-full overflow-y-auto">
         <div class="bg-white shadow-sm">
-            <div class="h-48 md:h-72 bg-gradient-to-r from-blue-900 via-blue-700 to-cyan-500 relative overflow-hidden">
-                <img src="<?= htmlspecialchars($bannerUrl) ?>" alt="Cover" class="w-full h-full object-cover opacity-60">
+            <div class="h-48 md:h-72 relative overflow-hidden bg-gray-300">
+
+                <?php if ($hasBanner): ?>
+                    <img src="<?= htmlspecialchars($bannerUrl) ?>"
+                        alt="Cover"
+                        class="absolute inset-0 w-full h-full object-cover">
+                <?php endif; ?>
+
+                <div class="absolute inset-0 bg-gradient-to-r from-black to-gray-900 opacity-30"></div>
+
+                <?php if (!$hasBanner): ?>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-white text-4xl md:text-5xl font-bold opacity-70 tracking-wide">
+                            SINERGI
+                        </span>
+                    </div>
+                <?php endif; ?>
+
             </div>
+
+
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-0">
 
