@@ -277,34 +277,64 @@ class GroupChatController
         exit;
     }
 
-    public function join()
-    {
+public function join()
+{
+    ob_start();
+    
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    if (!isset($_SESSION['user_id'])) {
+        ob_clean();
         header('Content-Type: application/json');
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
-            echo json_encode(['success' => false, 'message' => 'Method Not Allowed.']);
-            exit;
-        }
-
-        $groupChatId = $_POST['group_chat_id'] ?? null;
-        $userId = $_SESSION['user_id'] ?? null;
-        $accessKey = $_POST['access_key'] ?? null;
-
-        if (empty($groupChatId) || empty($userId)) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Data tidak lengkap.']);
-            exit;
-        }
-
-        $result = $this->groupChatModel->joinGroupChat($groupChatId, $userId, $accessKey);
-        if ($result['success']) {
-            echo json_encode(['success' => true, 'message' => $result['message'], 'redirectUrl' => BASEURL . '/groups/chat/' . $groupChatId]);
-        } else {
-            http_response_code(409);
-            echo json_encode(['success' => false, 'message' => $result['message']]);
-        }
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
         exit;
     }
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        ob_clean();
+        header('Content-Type: application/json');
+        http_response_code(405);
+        echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+        exit;
+    }
+
+    $userId = $_SESSION['user_id'];
+    $groupChatId = trim($_POST['group_chat_id'] ?? '');
+    $accessKey = trim($_POST['access_key'] ?? '');
+
+    if (empty($groupChatId)) {
+        ob_clean();
+        header('Content-Type: application/json');
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Group ID is required']);
+        exit;
+    }
+
+    $result = $this->groupChatModel->joinGroupChat($userId, $groupChatId, $accessKey);
+
+    ob_clean();
+    header('Content-Type: application/json');
+
+    if ($result['success']) {
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'message' => $result['message'] ?? 'Successfully joined the group',
+            'redirectUrl' => BASEURL . '/groups/chat/' . $groupChatId
+        ]);
+    } else {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => $result['message'] ?? 'Failed to join group'
+        ]);
+    }
+    
+    exit;
+}
 
     public function joinViaInvite()
     {
@@ -324,13 +354,11 @@ class GroupChatController
             exit;
         }
 
-        // Cek apakah sudah jadi member
         if ($this->groupChatMemberModel->isMember($groupChatId, $userId)) {
             echo json_encode(['success' => true, 'message' => 'Already a member']);
             exit;
         }
 
-        // Langsung insert tanpa access key
         $insert = $this->groupChatMemberModel->insertMember($groupChatId, $userId);
 
         if ($insert) {
@@ -412,14 +440,12 @@ class GroupChatController
     {
         header('Content-Type: application/json');
 
-        // Method check
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['error' => 'Method not allowed']);
             exit;
         }
 
-        // Auth check
         if (empty($_SESSION['user_id'])) {
             http_response_code(401);
             echo json_encode(['error' => 'Unauthorized']);
@@ -430,7 +456,6 @@ class GroupChatController
         $groupChatId = $_POST['group_chat_id'] ?? null;
         $targetUserId = $_POST['user_id'] ?? null;
 
-        // Input check
         if (!$groupChatId || !$targetUserId) {
             http_response_code(400);
             echo json_encode(['error' => 'Missing parameters']);
@@ -443,13 +468,11 @@ class GroupChatController
             exit;
         }
 
-        // Check if current user is owner
         if ($groupChat['OWNER_ID'] !== $currentUserId) {
             echo json_encode(['success' => false, 'message' => 'Unauthorized']);
             exit;
         }
 
-        // Execute kick
         $removed = $this->groupChatMemberModel->removeMember($groupChatId, $targetUserId);
 
         if (!$removed) {
@@ -457,13 +480,12 @@ class GroupChatController
             exit;
         }
 
-        // Add notification: TYPE = KICKED
         $this->notificationModel->addNotification(
-            $targetUserId,     // user yg dikick
-            $currentUserId,    // siapa yang kick
-            $groupChatId,          // target id
-            "KICKED",          // type notif
-            ""            // category (optional)
+            $targetUserId,
+            $currentUserId,
+            $groupChatId,
+            "KICKED",
+            ""
         );
 
         echo json_encode([
@@ -526,19 +548,16 @@ class GroupChatController
             exit;
         }
 
-        // only owner can add
         if ($groupChat['OWNER_ID'] != $ownerId) {
             echo json_encode(['success' => false, 'message' => 'Unauthorized']);
             exit;
         }
 
-        // check if already member
         if ($this->groupChatMemberModel->isMember($groupChatId, $targetUserId)) {
             echo json_encode(['success' => false, 'message' => 'User already a member']);
             exit;
         }
 
-        // create notification
         $this->notificationModel->addNotification(
             $targetUserId,
             $ownerId,
@@ -594,16 +613,12 @@ class GroupChatController
         $groupChat = $this->groupChatModel->findById($groupChatId);
 
         if (!$groupChat) {
-            // Handle not found
             header('Location: ' . BASEURL . '/groups');
             exit;
         }
-
-        // Get messages
         $chatMessageModel = new ChatMessage();
         $messages = $chatMessageModel->getMessagesByGroupChatId($groupChatId);
 
-        // Get media preview (8 most recent)
         $mediaPreview = $chatMessageModel->getGroupChatMediaPreview($groupChatId, 8);
 
         $data = [
@@ -613,7 +628,6 @@ class GroupChatController
             'mediaPreview' => $mediaPreview
         ];
 
-        // Load view
         require_once __DIR__ . '/../views/groups/detail.php';
     }
 }

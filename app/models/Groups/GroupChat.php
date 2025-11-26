@@ -41,46 +41,51 @@ class GroupChat extends BaseModel
     }
 
     $sql = "
+    SELECT 
+        gc.ID, 
+        gc.NAME, 
+        gc.PATH_PHOTO, 
+        TO_CHAR(gc.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
+        gc.ABOUT,
+        gc.OWNER_ID,
+        (
+            SELECT COUNT(*) 
+            FROM GROUP_CHAT_MEMBERS gcm_inner
+            WHERE gcm_inner.GROUP_CHAT_ID = gc.ID
+            AND gcm_inner.USER_ID != gc.OWNER_ID
+        ) AS MEMBER_COUNT,
+        (
+            SELECT COUNT(msg_count.ID)
+            FROM GROUP_CHAT_MESSAGES msg_count
+            WHERE msg_count.GROUP_CHAT_ID = gcm.GROUP_CHAT_ID
+            AND msg_count.CREATED_AT > gcm.LAST_READ_AT
+            AND msg_count.SENDER_ID != gcm.USER_ID
+        ) AS UNREAD_COUNT,
+        lm.CONTENT AS LAST_MESSAGE_CONTENT,
+        lm.TYPE AS LAST_MESSAGE_TYPE,
+        TO_CHAR(lm.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS LAST_MESSAGE_AT,
+        lm.CREATED_AT AS LAST_MESSAGE_AT_RAW
+    FROM 
+        GROUP_CHATS gc
+    JOIN 
+        GROUP_CHAT_MEMBERS gcm ON gc.ID = gcm.GROUP_CHAT_ID
+    LEFT JOIN (
         SELECT 
-            gc.ID, 
-            gc.NAME, 
-            gc.PATH_PHOTO, 
-            TO_CHAR(gc.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
-            gc.ABOUT,
-            gc.OWNER_ID,
-            (
-                SELECT COUNT(*) 
-                FROM GROUP_CHAT_MEMBERS gcm_inner
-                WHERE gcm_inner.GROUP_CHAT_ID = gc.ID
-                AND gcm_inner.USER_ID != gc.OWNER_ID
-            ) AS MEMBER_COUNT,
-            (
-                SELECT COUNT(msg_count.ID)
-                FROM GROUP_CHAT_MESSAGES msg_count
-                WHERE msg_count.GROUP_CHAT_ID = gcm.GROUP_CHAT_ID
-                AND msg_count.CREATED_AT > gcm.LAST_READ_AT
-                AND msg_count.SENDER_ID != gcm.USER_ID
-            ) AS UNREAD_COUNT,
-            lm.CONTENT AS LAST_MESSAGE_CONTENT,
-            lm.TYPE AS LAST_MESSAGE_TYPE,
-            TO_CHAR(lm.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS LAST_MESSAGE_AT
-        FROM 
-            GROUP_CHATS gc
-        JOIN 
-            GROUP_CHAT_MEMBERS gcm ON gc.ID = gcm.GROUP_CHAT_ID
-        
-        OUTER APPLY (
-            SELECT msg.CONTENT, msg.TYPE, msg.CREATED_AT
-            FROM GROUP_CHAT_MESSAGES msg
-            WHERE msg.GROUP_CHAT_ID = gc.ID 
-            ORDER BY msg.CREATED_AT DESC
-            FETCH FIRST 1 ROWS ONLY
-        ) lm
-            
-        WHERE 
-            gcm.USER_ID = :user_id_bv
-        ORDER BY 
-            lm.CREATED_AT DESC NULLS LAST";
+            msg.GROUP_CHAT_ID,
+            msg.CONTENT, 
+            msg.TYPE, 
+            msg.CREATED_AT,
+            ROW_NUMBER() OVER (PARTITION BY msg.GROUP_CHAT_ID ORDER BY msg.CREATED_AT DESC) as rn
+        FROM GROUP_CHAT_MESSAGES msg
+    ) lm ON gc.ID = lm.GROUP_CHAT_ID AND lm.rn = 1
+    WHERE 
+        gcm.USER_ID = :user_id_bv
+    ORDER BY 
+        CASE 
+            WHEN lm.CREATED_AT IS NOT NULL 
+            THEN lm.CREATED_AT 
+            ELSE gc.CREATED_AT 
+        END DESC";
 
     $stmt = oci_parse($conn, $sql);
 
@@ -524,65 +529,96 @@ class GroupChat extends BaseModel
         oci_close($conn);
     }
 
-    public function joinGroupChat($groupChatId, $userId, $accessKey = null)
+    public function joinGroupChat($userId, $groupChatId, $accessKey = null)
     {
         $conn = self::getConnection();
-
-        $groupChatSql = "SELECT IS_PRIVATE, ACCESS_KEY FROM GROUP_CHATS WHERE ID = :group_chat_id";
-        $stmt_groupChat = oci_parse($conn, $groupChatSql);
-        oci_bind_by_name($stmt_groupChat, ':group_chat_id', $groupChatId);
-        oci_execute($stmt_groupChat);
-        $groupChat = oci_fetch_assoc($stmt_groupChat);
-        oci_free_statement($stmt_groupChat);
-
-        if (!$groupChat) {
-            return ['success' => false, 'message' => 'Group Chat tidak ditemukan.'];
-        }
-
-        if ($groupChat['IS_PRIVATE'] == 1) {
-            if (empty($accessKey)) {
-                return ['success' => false, 'message' => 'Kunci akses diperlukan untuk Group Chat ini.'];
-            }
-            if (strtoupper($accessKey) !== strtoupper($groupChat['ACCESS_KEY'])) {
-                return ['success' => false, 'message' => 'Kunci akses yang Anda masukkan salah.'];
-            }
-        }
-
-        $checkSql = "SELECT COUNT(*) as COUNT FR    OM GROUP_CHAT_MEMBERS WHERE GROUP_CHAT_ID = :group_chat_id AND USER_ID = :user_id";
-        $stmt_check = oci_parse($conn, $checkSql);
-        oci_bind_by_name($stmt_check, ':group_chat_id', $groupChatId);
-        oci_bind_by_name($stmt_check, ':user_id', $userId);
-        oci_execute($stmt_check);
-        $row = oci_fetch_assoc($stmt_check);
-        oci_free_statement($stmt_check);
-
-        if ($row['COUNT'] > 0) {
-            return ['success' => false, 'message' => 'Pengguna ini sudah tercatat sebagai anggota Group Chat.'];
-        }
-
-        $stmt_insert = null;
+        
         try {
-            $id = uniqid();
-            $sql = "INSERT INTO GROUP_CHAT_MEMBERS (ID, GROUP_CHAT_ID, USER_ID, JOINED_AT) 
-                VALUES (:id, :group_chat_id, :user_id, CURRENT_TIMESTAMP)";
-
-            $stmt_insert = oci_parse($conn, $sql);
-            oci_bind_by_name($stmt_insert, ':id', $id);
-            oci_bind_by_name($stmt_insert, ':group_chat_id', $groupChatId);
-            oci_bind_by_name($stmt_insert, ':user_id', $userId);
-
-            $result = oci_execute($stmt_insert);
-
-            if ($result) {
-                return ['success' => true, 'message' => 'Berhasil bergabung dengan Group Chat.'];
-            } else {
-                return ['success' => false, 'message' => 'Gagal bergabung dengan Group Chat.'];
+            // Check if user is already a member
+            $checkSql = "SELECT COUNT(*) AS CNT FROM GROUP_CHAT_MEMBERS 
+                        WHERE USER_ID = :user_id AND GROUP_CHAT_ID = :group_chat_id";
+            $checkStmt = oci_parse($conn, $checkSql);
+            oci_bind_by_name($checkStmt, ':user_id', $userId);
+            oci_bind_by_name($checkStmt, ':group_chat_id', $groupChatId);
+            oci_execute($checkStmt);
+            
+            $row = oci_fetch_assoc($checkStmt);
+            oci_free_statement($checkStmt);
+            
+            if ($row && $row['CNT'] > 0) {
+                // Already a member - return success
+                return [
+                    'success' => true,
+                    'message' => 'Already a member'
+                ];
             }
-        } catch (Exception $e) {
-            error_log($e->getMessage());
-            return ['success' => false, 'message' => 'Terjadi kesalahan server.'];
+            
+            // Check if group is private and validate access key
+            $groupSql = "SELECT IS_PRIVATE, ACCESS_KEY FROM GROUP_CHATS WHERE ID = :id";
+            $groupStmt = oci_parse($conn, $groupSql);
+            oci_bind_by_name($groupStmt, ':id', $groupChatId);
+            oci_execute($groupStmt);
+            
+            $group = oci_fetch_assoc($groupStmt);
+            oci_free_statement($groupStmt);
+            
+            if (!$group) {
+                return [
+                    'success' => false,
+                    'message' => 'Group not found'
+                ];
+            }
+            
+            // Validate access key for private groups
+            if ($group['IS_PRIVATE'] == 1) {
+                if (empty($accessKey)) {
+                    return [
+                        'success' => false,
+                        'message' => 'Access key is required for private groups'
+                    ];
+                }
+                
+                if ($accessKey !== $group['ACCESS_KEY']) {
+                    return [
+                        'success' => false,
+                        'message' => 'Invalid access key'
+                    ];
+                }
+            }
+            
+            // Insert new member
+            $insertSql = "INSERT INTO GROUP_CHAT_MEMBERS (ID, GROUP_CHAT_ID, USER_ID) 
+                        VALUES (SYS_GUID(), :group_chat_id, :user_id)";
+            $insertStmt = oci_parse($conn, $insertSql);
+            oci_bind_by_name($insertStmt, ':group_chat_id', $groupChatId);
+            oci_bind_by_name($insertStmt, ':user_id', $userId);
+            
+            $result = oci_execute($insertStmt, OCI_COMMIT_ON_SUCCESS);
+            oci_free_statement($insertStmt);
+            
+            if ($result) {
+                return [
+                    'success' => true,
+                    'message' => 'Successfully joined the group'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'Failed to join group'
+                ];
+            }
+            
+        } catch (\Exception $e) {
+            error_log('Error in joinGroupChat: ' . $e->getMessage());
+            if ($conn) {
+                oci_rollback($conn);
+            }
+            return [
+                'success' => false,
+                'message' => 'An error occurred while joining the group'
+            ];
         } finally {
-            if ($stmt_insert) oci_free_statement($stmt_insert);
+            oci_close($conn);
         }
     }
 }

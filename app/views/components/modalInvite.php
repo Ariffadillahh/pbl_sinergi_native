@@ -50,7 +50,7 @@
 
             <button id="invite-forum-join"
                 class="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition">
-                Gabung Forum
+                Gabung Grup
             </button>
         </div>
     </div>
@@ -88,13 +88,13 @@
     const inviteOwnerPhoto = document.getElementById('invite-owner-photo');
     const inviteMembers = document.getElementById('invite-members');
 
-    function openPreviewForum(forumId) {
-        fetch(`${BASEURL}/forums/getForumInfo?id=${forumId}`)
+    function openPreviewGroup(groupChatId) {
+        fetch(`${BASEURL}/groups/getGroupChatInfo?id=${groupChatId}`)
             .then(r => r.json())
             .then(data => {
 
                 if (data.PHOTO) {
-                    inviteForumPhoto.src = `${BASEURL}/storage/forums/photos/${data.PHOTO}`;
+                    inviteForumPhoto.src = `${BASEURL}/storage/groups/photos/${data.PHOTO}`;
                     inviteForumPhoto.classList.remove("hidden");
                     inviteForumInitials.classList.add("hidden");
                 } else {
@@ -130,27 +130,27 @@
                     `;
                 }).join('');
 
-                inviteForumJoin.dataset.forumId = forumId;
+                inviteForumJoin.dataset.groupChatId = groupChatId;
 
                 modalInvite.classList.remove("hidden");
             })
             .catch(err => {
                 console.error(err);
-                alert("Gagal memuat info forum.");
+                alert("Gagal memuat info grup.");
             });
     }
 
     // JOIN BUTTON
     inviteForumJoin.addEventListener('click', async () => {
-        const id = inviteForumJoin.dataset.forumId;
+        const id = inviteForumJoin.dataset.groupChatId;
 
-        const res = await fetch(`${BASEURL}/forums/joinViaInvite`, {
+        const res = await fetch(`${BASEURL}/groups/joinViaInvite`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
             },
             body: new URLSearchParams({
-                forum_id: id
+                group_chat_id: id
             })
         });
 
@@ -159,7 +159,7 @@
         if (json.success) {
             window.location.href = json.redirect;
         } else {
-            alert(json.message || "Gagal join forum.");
+            alert(json.message || "Gagal join grup.");
         }
     });
 
