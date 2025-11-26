@@ -120,57 +120,47 @@
         }
         
         try {
-            // Oracle returns format: 'YYYY-MM-DD HH24:MI:SS' or 'DD-MMM-YY HH.MI.SS.FF AM'
-            // Clean and parse the timestamp
             let dateString = timestamp;
             
-            // If it contains a space, assume it's 'YYYY-MM-DD HH:MI:SS' format
             if (dateString.includes(' ')) {
                 dateString = dateString.replace(' ', 'T');
             }
             
             const date = new Date(dateString);
 
-            // Validate the date
             if (isNaN(date.getTime())) {
                 console.error('Invalid date:', timestamp);
-                return timestamp.substring(0, 10); // Fallback: return just the date part
+                return timestamp.substring(0, 10);
             }
 
             const now = new Date();
             
-            // Reset time to midnight for date comparison
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
             
             const diffTime = today - messageDate;
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-            // Today - show time in 12-hour format with AM/PM
             if (diffDays === 0) {
                 let hours = date.getHours();
                 const minutes = date.getMinutes().toString().padStart(2, '0');
                 const ampm = hours >= 12 ? 'PM' : 'AM';
                 
-                // Convert to 12-hour format
                 hours = hours % 12;
-                hours = hours ? hours : 12; // 0 should be 12
+                hours = hours ? hours : 12;
                 
                 return `${hours}:${minutes} ${ampm}`;
             }
 
-            // Yesterday
             if (diffDays === 1) {
                 return 'Yesterday';
             }
 
-            // This week (2-6 days ago) - show day name
             if (diffDays >= 2 && diffDays <= 6) {
                 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                 return days[date.getDay()];
             }
 
-            // This year - show date without year (DD MMM)
             if (now.getFullYear() === date.getFullYear()) {
                 const day = date.getDate().toString().padStart(2, '0');
                 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
@@ -179,7 +169,6 @@
                 return `${day} ${month}`;
             }
 
-            // Older than this year - show with year (DD MMM YYYY)
             const day = date.getDate().toString().padStart(2, '0');
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
                         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -194,7 +183,7 @@
     }
 
     function updateSidebarUI(data) {
-        console.log('Updating sidebar with data:', data); // ✅ Debug log
+        console.log('Updating sidebar with data:', data);
 
         for (const item of data) {
             const dataWrapper = document.getElementById(`forum-data-${item.group_chat_id}`);
@@ -204,13 +193,12 @@
             const timeElement = document.getElementById(`forum-time-${item.group_chat_id}`);
 
             if (!dataWrapper || !skeletonWrapper || !badgeElement || !msgElement || !timeElement) {
-                console.warn(`Missing elements for group ${item.group_chat_id}`); // ✅ Debug log
+                console.warn(`Missing elements for group ${item.group_chat_id}`);
                 continue;
             }
 
             const isChatActive = (activeChatId !== '' && item.group_chat_id === activeChatId);
 
-            // Update badge
             if (item.count > 0 && !isChatActive) {
                 badgeElement.innerText = item.count;
                 badgeElement.classList.add('bg-blue-600');
@@ -219,13 +207,10 @@
                 badgeElement.classList.remove('bg-blue-600');
             }
 
-            // Update last message
             msgElement.innerText = item.lastMessage || 'No messages yet';
 
-            // Update time
             timeElement.innerText = formatTime(item.lastTime);
 
-            // Show data, hide skeleton
             skeletonWrapper.classList.add('hidden');
             dataWrapper.classList.remove('hidden');
         }
@@ -240,17 +225,15 @@
 
             if (response.status === 200) {
                 const result = await response.json();
-                console.log('Poll response:', result); // ✅ Debug log
+                console.log('Poll response:', result);
 
                 window.lastCountHash = result.hash;
                 updateSidebarUI(result.data);
 
             } else if (response.status === 204) {
-                // No changes, continue polling
                 console.log('No changes detected');
             } else if (response.status === 403) {
                 console.error('Unauthorized');
-                return; // Stop polling
             }
 
         } catch (error) {
@@ -258,12 +241,11 @@
             await new Promise(resolve => setTimeout(resolve, 5000));
         }
 
-        // Continue polling
         startCountPolling();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        console.log('Starting count polling...'); // ✅ Debug log
+        console.log('Starting count polling...');
         startCountPolling();
     });
 </script>

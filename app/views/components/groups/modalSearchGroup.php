@@ -94,270 +94,294 @@
 
 <script>
     if (typeof BASEURL === 'undefined') {
-        var BASEURL = '<?php echo BASEURL; ?>';
+    var BASEURL = '<?php echo BASEURL; ?>';
+}
+
+function debounce(func, delay = 300) {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), delay);
+    };
+}
+
+const modal = document.getElementById('searchModal');
+const openBtn = document.getElementById('openModalBtn');
+const closeBtn = document.getElementById('closeModalBtn');
+const liveSearch = document.getElementById("searchLive");
+const forumListContainer = document.getElementById('forumListContainer');
+const forumListTitle = document.getElementById('forumListTitle');
+const initialForumListHTML = forumListContainer.innerHTML;
+const initialTitle = forumListTitle.textContent;
+const accessKeyModal = document.getElementById('accessKeyModal');
+const closeKeyModalBtn = document.getElementById('closeKeyModalBtn');
+const accessKeyForm = document.getElementById('accessKeyForm');
+const forumIdToJoinInput = document.getElementById('forumIdToJoin');
+const accessKeyInput = document.getElementById('access_key');
+const keyWornNotif = document.getElementById("keyWrongNotif");
+
+openBtn.addEventListener('click', () => {
+    modal.classList.remove('hidden');
+    modal.classList.add("flex");
+});
+
+closeBtn.addEventListener('click', () => {
+    modal.classList.remove('flex');
+    modal.classList.add("hidden");
+    // Reset search when closing
+    liveSearch.value = '';
+    forumListContainer.innerHTML = initialForumListHTML;
+    forumListTitle.textContent = initialTitle;
+});
+
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        closeBtn.click();
     }
+});
 
-    function debounce(func, delay = 300) {
-        let timeout;
-        return (...args) => {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func(...args), delay);
-        };
-    }
+function renderResults(data) {
+    forumListContainer.innerHTML = '';
 
-    const modal = document.getElementById('searchModal');
-    const openBtn = document.getElementById('openModalBtn');
-    const closeBtn = document.getElementById('closeModalBtn');
-    const liveSearch = document.getElementById("searchLive");
-    const forumListContainer = document.getElementById('forumListContainer');
-    const forumListTitle = document.getElementById('forumListTitle');
-    const initialForumListHTML = forumListContainer.innerHTML;
-    const initialTitle = forumListTitle.textContent;
-    const accessKeyModal = document.getElementById('accessKeyModal');
-    const closeKeyModalBtn = document.getElementById('closeKeyModalBtn');
-    const accessKeyForm = document.getElementById('accessKeyForm');
-    const forumIdToJoinInput = document.getElementById('forumIdToJoin');
-    const accessKeyInput = document.getElementById('access_key');
-    const keyWornNotif = document.getElementById("keyWrongNotif")
+    if (data.length > 0) {
+        data.forEach(groupChat => {
+            const defaultPhotoHTML = `<span class="text-white font-bold text-lg w-16 h-16 flex items-center justify-center rounded-xl" style="background-color: #EF5DA8;">
+                                        ${groupChat.NAME.substring(0, 2).toUpperCase()}
+                                      </span>`;
 
-    openBtn.addEventListener('click', () => {
-        modal.classList.remove('hidden');
-        modal.classList.add("flex");
-    });
+            const photoContent = groupChat.PATH_PHOTO ?
+                `<img src="${BASEURL}/storage/groups/photos/${groupChat.PATH_PHOTO}" alt="Forum Photo" class="w-16 h-16 rounded-xl object-cover flex-shrink-0" />` :
+                defaultPhotoHTML;
 
-    closeBtn.addEventListener('click', () => {
-        modal.classList.remove('flex');
-        modal.classList.add("hidden");
-    });
+            const isJoined = groupChat.IS_MEMBER == 1 || groupChat.IS_MEMBER === true;
+            const isPrivate = groupChat.IS_PRIVATE == 1 || groupChat.IS_PRIVATE === true;
 
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-    });
+            const lockIcon = isPrivate ? `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 mb-1.5 inline-block ml-1">
+                    <path fill-rule="evenodd" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7V4.5A3.5 3.5 0 0 0 8 1Zm2 3.5V7h-4V4.5a2 2 0 1 1 4 0Z" clip-rule="evenodd" />
+                </svg>
+            ` : '';
 
-    function renderResults(data) {
-        forumListContainer.innerHTML = '';
-
-        if (data.length > 0) {
-            data.forEach(groupChat => {
-                const defaultPhotoHTML = `<span class="text-white font-bold text-lg w-16 h-16 flex items-center justify-center rounded-xl" style="background-color: #EF5DA8;">
-                                            ${groupChat.NAME.substring(0, 2).toUpperCase()}
-                                          </span>`;
-
-                const photoContent = groupChat.PATH_PHOTO ?
-                    `<img src="${BASEURL}/storage/groups/photos/${groupChat.PATH_PHOTO}" alt="Forum Photo" class="w-16 h-16 rounded-xl object-cover flex-shrink-0" />` :
-                    defaultPhotoHTML;
-
-
-                const isJoined = groupChat.IS_MEMBER;
-
-                const cardContentHTML = `
-                    <div class="flex items-start gap-3">
-                        ${photoContent}
-                        <div class="flex-1 min-w-0">
-                            <p class="text-black font-bold mb-1 truncate">${groupChat.NAME}</p>
-                            <p class="text-gray-600 text-sm truncate">${groupChat.ABOUT || ''}</p>
-                        </div>
-                        ${!isJoined ? `
-                            <button 
-                                class="join-forum-btn bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 self-center flex-shrink-0"
-                                data-forum-id="${groupChat.ID}"
-                                data-is-private="${groupChat.IS_PRIVATE}">
-                                Join
-                                ${groupChat.IS_PRIVATE  ? `
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 mb-1.5 inline-block ml-1">
-                                        <path fill-rule="evenodd" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7V4.5A3.5 3.5 0 0 0 8 1Zm2 3.5V7h-4V4.5a2 2 0 1 1 4 0Z" clip-rule="evenodd" />
-                                    </svg>
-                                ` : ''}
-                            </button>
-                        ` : ''}
-                    </div>`;
-
-                const finalElementHTML = isJoined ?
-                    `<a href="${BASEURL}/groups/chat/${groupChat.ID}" class="block my-3 border border-gray-200 rounded-2xl p-3 hover:bg-gray-50 cursor-pointer">
-                        ${cardContentHTML}
-                    </a>` :
-                    `<div class="my-3 border border-gray-200 rounded-2xl p-3">
-                        ${cardContentHTML}
-                    </div>`;
-
-                forumListContainer.innerHTML += finalElementHTML;
-            });
-        } else {
-            forumListContainer.innerHTML = '<p class="text-gray-500 text-center mt-8">Group tidak ditemukan.</p>';
-        }
-
-    }
-
-    function performSearch(query) {
-        if (query.trim() === "") {
-            console.log("Kosong, jangan cari dulu");
-            forumListContainer.innerHTML = initialForumListHTML;
-            forumListTitle.textContent = "Joined forus";
-            return;
-        }
-
-        forumListTitle.textContent = "Search Results";
-        forumListContainer.innerHTML = `
-                <div id="loading-indicator" class="flex items-center justify-center h-full">
-                    <div class="text-center">
-                    <svg
-                        class="animate-spin h-8 w-8 text-blue-600 mx-auto"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                    >
-                        <circle
-                        class="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        stroke-width="4"
-                        ></circle>
-                        <path
-                        class="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 
-                            5.291A7.962 7.962 0 014 12H0c0 3.042 
-                            1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                    </svg>
+            const cardContentHTML = `
+                <div class="flex items-start gap-3">
+                    ${photoContent}
+                    <div class="flex-1 min-w-0">
+                        <p class="text-black font-bold mb-1 truncate">${groupChat.NAME}</p>
+                        <p class="text-gray-600 text-sm truncate">${groupChat.ABOUT || 'No description'}</p>
                     </div>
-                </div>
-                `;
+                    ${!isJoined ? `
+                        <button 
+                            class="join-forum-btn bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 self-center flex-shrink-0 whitespace-nowrap"
+                            data-forum-id="${groupChat.ID}"
+                            data-is-private="${isPrivate ? '1' : '0'}">
+                            Join${lockIcon}
+                        </button>
+                    ` : `
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full self-center flex-shrink-0">
+                            Joined
+                        </span>
+                    `}
+                </div>`;
 
-        console.log("Mencari group dengan kata kunci:", query);
+            const finalElementHTML = isJoined ?
+                `<a href="${BASEURL}/groups/chat/${groupChat.ID}" class="block my-3 border border-gray-200 rounded-2xl p-3 hover:bg-gray-50 cursor-pointer">
+                    ${cardContentHTML}
+                </a>` :
+                `<div class="my-3 border border-gray-200 rounded-2xl p-3">
+                    ${cardContentHTML}
+                </div>`;
 
-        fetch(`${BASEURL}/groups/search?q=${encodeURIComponent(query)}`)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return res.json();
-            })
-            .then(data => {
-                renderResults(data);
-            })
-            .catch(error => {
-                console.error("Gagal melakukan pencarian:", error);
-                forumListContainer.innerHTML = '<p class="text-red-500 text-center mt-8">Terjadi kesalahan saat mencari.</p>';
-            });
+            forumListContainer.innerHTML += finalElementHTML;
+        });
+    } else {
+        forumListContainer.innerHTML = '<p class="text-gray-500 text-center mt-8">Group tidak ditemukan.</p>';
+    }
+}
+
+function performSearch(query) {
+    if (query.trim() === "") {
+        forumListContainer.innerHTML = initialForumListHTML;
+        forumListTitle.textContent = initialTitle;
+        return;
     }
 
-    const debouncedSearch = debounce((e) => {
-        performSearch(e.target.value);
-    }, 700);
+    forumListTitle.textContent = "Search Results";
+    forumListContainer.innerHTML = `
+        <div id="loading-indicator" class="flex items-center justify-center h-full py-8">
+            <div class="text-center">
+                <svg class="animate-spin h-8 w-8 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+        </div>
+    `;
 
-    liveSearch.addEventListener('input', debouncedSearch);
+    fetch(`${BASEURL}/groups/search?q=${encodeURIComponent(query)}`)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return res.json();
+        })
+        .then(data => {
+            renderResults(data);
+        })
+        .catch(error => {
+            console.error("Gagal melakukan pencarian:", error);
+            forumListContainer.innerHTML = '<p class="text-red-500 text-center mt-8">Terjadi kesalahan saat mencari.</p>';
+        });
+}
 
-    async function handleJoinForum(groupChatId, buttonElement, accessKey = null) {
-        const submitButton = accessKeyForm.querySelector('button[type="submit"]');
+const debouncedSearch = debounce((e) => {
+    performSearch(e.target.value);
+}, 700);
 
-        if (buttonElement) buttonElement.disabled = true;
-        if (submitButton) submitButton.disabled = true;
-        if (buttonElement) buttonElement.textContent = 'Joining...';
+liveSearch.addEventListener('input', debouncedSearch);
 
-        keyWrongNotif.classList.add("hidden");
+async function handleJoinForum(groupChatId, buttonElement, accessKey = null) {
+    const submitButton = accessKeyForm.querySelector('button[type="submit"]');
 
+    if (buttonElement) buttonElement.disabled = true;
+    if (submitButton) submitButton.disabled = true;
+    if (buttonElement) buttonElement.textContent = 'Joining...';
+
+    keyWornNotif.classList.add("hidden");
+
+    try {
+        const formData = new URLSearchParams();
+        formData.append('group_chat_id', groupChatId);
+        if (accessKey) {
+            formData.append('access_key', accessKey);
+        }
+
+        console.log('Sending join request:', {
+            groupChatId,
+            hasAccessKey: !!accessKey
+        });
+
+        const response = await fetch(`${BASEURL}/groups/join`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData,
+        });
+
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers.get('content-type'));
+
+        // Get response text first for debugging
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+
+        // Try to parse as JSON
+        let result;
         try {
-            const formData = new URLSearchParams();
-            formData.append('group_chat_id', groupChatId);
-            if (accessKey) {
-                formData.append('access_key', accessKey);
-            }
+            result = JSON.parse(responseText);
+        } catch (e) {
+            console.error('Failed to parse JSON:', e);
+            throw new Error('Server returned invalid response: ' + responseText.substring(0, 100));
+        }
 
-            const response = await fetch(`${BASEURL}/groups/join`, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: formData,
-            });
+        console.log('Parsed result:', result);
 
-            const result = await response.json();
-
-            if (response.ok && result.success) {
-                if (result.redirectUrl) {
-                    closeAccessKeyModal();
-                    window.location.href = result.redirectUrl;
-                }
-            } else {
-                throw new Error(result.message || 'Gagal bergabung dengan group.');
-            }
-
-        } catch (error) {
-            console.error("Join Error:", error.message);
-
-            keyWrongNotif.textContent = error.message;
-            keyWrongNotif.classList.remove("hidden");
-
+        if (response.ok && result.success) {
+            console.log('Join successful, redirecting...');
+            
+            // Close modals
+            closeAccessKeyModal();
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            
+            // Small delay to ensure modals are closed
             setTimeout(() => {
-                keyWrongNotif.classList.add("hidden");
-            }, 3000);
+                // Redirect to the group chat
+                const redirectUrl = result.redirectUrl || `${BASEURL}/groups/chat/${groupChatId}`;
+                console.log('Redirecting to:', redirectUrl);
+                window.location.href = redirectUrl;
+            }, 100);
+        } else {
+            throw new Error(result.message || 'Gagal bergabung dengan group.');
+        }
 
-            if (buttonElement) {
-                buttonElement.disabled = false;
+    } catch (error) {
+        console.error("Join Error:", error);
 
-                const isPrivate = buttonElement.dataset.isPrivate === '1';
-                let buttonContent = 'Join';
+        keyWornNotif.textContent = error.message || 'Terjadi kesalahan';
+        keyWornNotif.classList.remove("hidden");
 
-                if (isPrivate) {
-                    const lockIconSVG = `
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 mb-1.5 inline-block ml-1">
-                            <path fill-rule="evenodd" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7V4.5A3.5 3.5 0 0 0 8 1Zm2 3.5V7h-4V4.5a2 2 0 1 1 4 0Z" clip-rule="evenodd" />
-                        </svg>
-                    `;
-                    buttonContent += lockIconSVG;
-                }
+        setTimeout(() => {
+            keyWornNotif.classList.add("hidden");
+        }, 3000);
 
-                buttonElement.innerHTML = buttonContent;
-            }
+        if (buttonElement) {
+            buttonElement.disabled = false;
+            const isPrivate = buttonElement.dataset.isPrivate === '1';
+            
+            const lockIcon = isPrivate ? `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 mb-1.5 inline-block ml-1">
+                    <path fill-rule="evenodd" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7V4.5A3.5 3.5 0 0 0 8 1Zm2 3.5V7h-4V4.5a2 2 0 1 1 4 0Z" clip-rule="evenodd" />
+                </svg>
+            ` : '';
+            
+            buttonElement.innerHTML = `Join${lockIcon}`;
+        }
 
-            if (submitButton) {
-                submitButton.disabled = false;
-            }
+        if (submitButton) {
+            submitButton.disabled = false;
         }
     }
+}
 
-    function openAccessKeyModal(groupChatId) {
-        forumIdToJoinInput.value = groupChatId;
-        accessKeyModal.classList.remove('hidden');
-        accessKeyModal.classList.add('flex');
+function openAccessKeyModal(groupChatId) {
+    forumIdToJoinInput.value = groupChatId;
+    accessKeyInput.value = '';
+    keyWornNotif.classList.add("hidden");
+    accessKeyModal.classList.remove('hidden');
+    accessKeyModal.classList.add('flex');
+}
+
+function closeAccessKeyModal() {
+    accessKeyModal.classList.add('hidden');
+    accessKeyModal.classList.remove('flex');
+    accessKeyInput.value = '';
+    keyWornNotif.classList.add("hidden");
+}
+
+closeKeyModalBtn.addEventListener('click', closeAccessKeyModal);
+accessKeyModal.addEventListener('click', (e) => {
+    if (e.target === accessKeyModal) closeAccessKeyModal();
+});
+
+accessKeyForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+    const groupChatId = forumIdToJoinInput.value;
+    const accessKey = accessKeyInput.value.trim();
+
+    if (!accessKey) {
+        keyWornNotif.textContent = "Kunci akses tidak boleh kosong";
+        keyWornNotif.classList.remove("hidden");
+        return;
     }
 
-    function closeAccessKeyModal() {
-        accessKeyModal.classList.add('hidden');
-        accessKeyModal.classList.remove('flex');
-        accessKeyInput.value = '';
-    }
+    const originalButton = forumListContainer.querySelector(`[data-forum-id="${groupChatId}"]`);
+    handleJoinForum(groupChatId, originalButton, accessKey);
+});
 
-    closeKeyModalBtn.addEventListener('click', closeAccessKeyModal);
-    accessKeyModal.addEventListener('click', (e) => {
-        if (e.target === accessKeyModal) closeAccessKeyModal();
-    });
+forumListContainer.addEventListener('click', function(event) {
+    const joinButton = event.target.closest('.join-forum-btn');
 
-    accessKeyForm.addEventListener('submit', function(event) {
+    if (joinButton) {
         event.preventDefault();
-        const groupChatId = forumIdToJoinInput.value;
-        const accessKey = accessKeyInput.value;
-
-        const originalButton = forumListContainer.querySelector(`[data-forum-id="${groupChatId}"]`);
-
-        handleJoinForum(groupChatId, originalButton, accessKey);
-    });
-
-
-    forumListContainer.addEventListener('click', function(event) {
-        const joinButton = event.target.closest('.join-forum-btn');
-
-        if (joinButton) {
-            const groupChatId = joinButton.dataset.forumId;
-            const isPrivate = joinButton.dataset.isPrivate;
-            if (isPrivate === '1') {
-                openAccessKeyModal(groupChatId);
-            } else {
-                handleJoinForum(groupChatId, joinButton);
-            }
+        const groupChatId = joinButton.dataset.forumId;
+        const isPrivate = joinButton.dataset.isPrivate;
+        
+        if (isPrivate === '1') {
+            openAccessKeyModal(groupChatId);
+        } else {
+            handleJoinForum(groupChatId, joinButton);
         }
-    });
+    }
+});
 </script>
