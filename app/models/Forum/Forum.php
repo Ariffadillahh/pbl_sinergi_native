@@ -502,7 +502,7 @@ class ForumModel extends BaseModel
 
         $sqlCount = "
             SELECT COUNT(f.ID) AS TOTAL_ROWS
-            FROM FORUM f
+            FROM FORUMS f
             WHERE f.OWNER_ID = :currentUser
         ";
         if (!empty($search)) {
@@ -525,13 +525,13 @@ class ForumModel extends BaseModel
                     f.NAME,
                     f.IS_PRIVATE,
                     u.FULL_NAME AS OWNER_NAME,
-                    COUNT(m.USER_ID) AS TOTAL_MEMBERS,
+                    COUNT(fm.USER_ID) AS TOTAL_MEMBERS,
                     f.PATH_PHOTO,
                     f.ACCESS_KEY,
                     f.CREATED_AT
-                FROM FORUM f
+                FROM FORUMS f
                 JOIN USERS u ON u.ID = f.OWNER_ID
-                LEFT JOIN FORUM_MEMBERS fm ON fm._FORUM_ID = f.ID
+                LEFT JOIN FORUM_MEMBERS fm ON fm.FORUM_ID = f.ID
                 WHERE f.OWNER_ID = :currentUser
             ";
 
@@ -576,7 +576,7 @@ class ForumModel extends BaseModel
 
         $sqlCount = "
             SELECT COUNT(f.ID) AS TOTAL_ROWS
-            FROM FORUM f
+            FROM FORUMS f
             WHERE f.OWNER_ID != :currentUser
         ";
         if (!empty($search)) {
@@ -599,10 +599,10 @@ class ForumModel extends BaseModel
                     f.NAME,
                     f.IS_PRIVATE,
                     u.FULL_NAME AS OWNER_NAME,
-                    COUNT(m.USER_ID) AS TOTAL_MEMBERS,
+                    COUNT(fm.USER_ID) AS TOTAL_MEMBERS,
                     f.PATH_PHOTO,
                     f.CREATED_AT
-                FROM FORUM f
+                FROM FORUMS f
                 JOIN USERS u ON u.ID = f.OWNER_ID
                 LEFT JOIN FORUM_MEMBERS fm ON fm.FORUM_ID = f.ID
                 WHERE f.OWNER_ID != :currentUser
