@@ -11,12 +11,12 @@
             </div>
         </div>
 
-        <h2 class="text-xl font-bold text-center text-gray-800 mb-2">Delete this Post?</h2>
+        <h2 class="text-xl font-bold text-center text-gray-800 mb-2">Delete this Groups?</h2>
 
         <p class="text-gray-500 text-center mb-6">This file will be permanently deleted from your system and cannot be recovered.</p>
 
         <form method="post" id="form">
-            <input type="hidden" id="deleteId" name="post_id">
+            <input type="text" id="deleteId" name="group_id">
             <input type="hidden" id="reportIds" name="report_ids">
             <input type="hidden" id="ownerId" name="owner_id">
 
@@ -76,7 +76,7 @@
 
             const formData = new FormData(form);
             try {
-                const response = await fetch("<?= BASEURL ?>/report/delete/post", {
+                const response = await fetch("<?= BASEURL ?>/report/delete/group", {
                     method: "POST",
                     body: formData
                 });
@@ -87,7 +87,7 @@
 
                 if (result.success) {
                     divSucc.classList.remove("hidden");
-                    divSucc.textContent = "Post successfully deleteds";
+                    divSucc.textContent = "Group successfully deleted.";
 
                     setTimeout(() => {
                         closeDelete();

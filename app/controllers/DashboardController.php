@@ -34,6 +34,7 @@ class DashboardController
         $anggotaCount = $this->overviewCount->countAnggota();
         $postCount = $this->overviewCount->countPost();
         $forumCount = $this->overviewCount->countForum();
+        $groupCount = $this->overviewCount->groupCount();
         $laporanCount = $this->overviewCount->countLaporan();
         $contentViewDashboard =  __DIR__ . '/../views/dashboard/index.php';
         require_once __DIR__ . '/../views/dashboard/layout.php';
@@ -50,6 +51,13 @@ class DashboardController
     {
         $report = $this->reportController->getReportPost();
         $contentViewDashboard =  __DIR__ . '/../views/dashboard/laporan/laporanPost.php';
+        require_once __DIR__ . '/../views/dashboard/layout.php';
+    }
+
+    public function laporanGroup()
+    {
+        $report = $this->reportController->getReportGroup();
+        $contentViewDashboard =  __DIR__ . '/../views/dashboard/laporan/laporanGroup.php';
         require_once __DIR__ . '/../views/dashboard/layout.php';
     }
 

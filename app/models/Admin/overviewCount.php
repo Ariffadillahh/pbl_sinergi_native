@@ -100,6 +100,38 @@ class overviewCount extends BaseModel
         return $count;
     }
 
+    public function groupCount()
+    {
+        $conn = self::getConnection();
+        if (!$conn) {
+            error_log("Gagal mendapatkan koneksi database.");
+            return 0;
+        }
+
+        $sql = "SELECT COUNT(*) AS JUMLAH_GROUP FROM GROUP_CHATS";
+        $stmt = oci_parse($conn, $sql);
+
+        if (!$stmt) {
+            $e = oci_error($conn);
+            error_log("Gagal mem-parsing SQL: " . $e['message']);
+            return 0;
+        }
+
+        $result = oci_execute($stmt);
+        if (!$result) {
+            $e = oci_error($stmt);
+            error_log("Gagal mengeksekusi query: " . $e['message']);
+            oci_free_statement($stmt);
+            return 0;
+        }
+
+        $row = oci_fetch_assoc($stmt);
+        $count = $row ? $row['JUMLAH_GROUP'] : 0;
+
+        oci_free_statement($stmt);
+        return $count;
+    }
+
     public function countLaporan()
     {
         $conn = self::getConnection();

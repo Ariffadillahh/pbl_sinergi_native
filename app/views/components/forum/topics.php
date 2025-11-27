@@ -114,43 +114,45 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                 </div>
             <?php endif; ?>
 
-            <div class="border-t border-gray-100 px-4 py-2 mt-2">
-                <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
-                    <div class="flex items-center gap-1 like-count-container">
-                        <span class="bg-blue-500 text-white rounded-full p-0.5">
-                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v7.333a2 2 0 01-.826 1.57l-2.174.43z" />
+            <?php if ($isMember) : ?>
+                <div class="border-t border-gray-100 px-4 py-2 mt-2">
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+                        <div class="flex items-center gap-1 like-count-container">
+                            <span class="bg-blue-500 text-white rounded-full p-0.5">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v7.333a2 2 0 01-.826 1.57l-2.174.43z" />
+                                </svg>
+                            </span>
+                            <span class="like-count-display font-medium"><?= $topic['TOTAL_LIKES'] ?></span>
+                        </div>
+                        <div class="flex gap-3">
+                            <span><?= $topic['TOTAL_COMMENTS'] ?> Comments</span>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 pt-1 flex justify-center gap-1 select-none">
+
+                        <button class="like-btn flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition hover:bg-gray-100 cursor-pointer group w-1/2"
+                            data-topic-id="<?= $topic['ID'] ?>"
+                            data-liked="<?= $isLikedByUser ? 'true' : 'false' ?>">
+
+                            <svg class="w-5 h-5 transition-all transform duration-200 <?= $isLikedByUser ? 'text-red-500 fill-red-500' : 'text-gray-500 group-hover:text-red-500' ?>"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                             </svg>
-                        </span>
-                        <span class="like-count-display font-medium"><?= $topic['TOTAL_LIKES'] ?></span>
-                    </div>
-                    <div class="flex gap-3">
-                        <span><?= $topic['TOTAL_COMMENTS'] ?> comments</span>
+
+                            <span class="text-gray-600 group-hover:text-red-500 text-sm font-medium">Like</span>
+                        </button>
+
+                        <a href="<?= BASEURL ?>/forum/topic/<?= $topic['ID'] ?>" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition hover:bg-gray-100 cursor-pointer group w-1/2">
+                            <svg class="w-5 h-5 text-gray-500 group-hover:text-blue-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            <span class="text-gray-600 group-hover:text-blue-600 text-sm font-medium">Comment</span>
+                        </a>
                     </div>
                 </div>
-
-                <div class="border-t border-gray-100 pt-1 flex justify-center gap-1 select-none">
-
-                    <button class="like-btn flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition hover:bg-gray-100 cursor-pointer group w-1/2"
-                        data-topic-id="<?= $topic['ID'] ?>"
-                        data-liked="<?= $isLikedByUser ? 'true' : 'false' ?>">
-
-                        <svg class="w-5 h-5 transition-all transform duration-200 <?= $isLikedByUser ? 'text-red-500 fill-red-500' : 'text-gray-500 group-hover:text-red-500' ?>"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-
-                        <span class="text-gray-600 group-hover:text-red-500 text-sm font-medium">Like</span>
-                    </button>
-
-                    <a href="<?= BASEURL ?>/forum/topic/<?= $topic['ID'] ?>" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition hover:bg-gray-100 cursor-pointer group w-1/2">
-                        <svg class="w-5 h-5 text-gray-500 group-hover:text-blue-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
-                        <span class="text-gray-600 group-hover:text-blue-600 text-sm font-medium">Comment</span>
-                    </a>
-                </div>
-            </div>
+            <?php endif; ?>
         </div>
     <?php endforeach; ?>
 

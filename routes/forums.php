@@ -22,6 +22,12 @@ switch (true) {
         $controller->joinForum();
         break;
 
+    case $route ===  'req-join':
+        requireLogin();
+        $controller = new ForumController();
+        $controller->reqJoin();
+        break;
+
     case $route ===  'forum/leave':
         requireLogin();
         $controller = new ForumController();
@@ -44,6 +50,18 @@ switch (true) {
         requireLogin();
         $controller = new ForumController();
         $controller->getAssetsJson();
+        break;
+
+    case $route ===  'get-req-forum':
+        requireLogin();
+        $controller = new ForumController();
+        $controller->getReqForum();
+        break;
+
+    case $route ===  'update-req-forum':
+        requireLogin();
+        $controller = new ForumController();
+        $controller->updateReqForum();
         break;
 
     case $route ===  'create/topics':

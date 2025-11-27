@@ -9,38 +9,46 @@
 </head>
 
 <body>
-    <div class="grid grid-cols-2 md:grid-cols-4 md:gap-[34px] gap-3">
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <div class="bg-white drop-shadow rounded-xl p-4">
             <div class="flex justify-between items-center">
-                <p class="text-lg font-medium text-gray-700">Total Anggota</p>
+                <p class="text-lg font-medium text-gray-700">Total Members</p>
                 <img src="<?php echo BASEURL ?>/src/asset/icons/userCount.svg" class="size-10">
             </div>
             <h1 id="total-anggota" class="text-xl font-bold mt-4"><?= $anggotaCount ?? 0 ?></h1>
-            <p class="text-sm md:text-md font-medium text-[#2563EB] line-clamp-1">Untuk Semua Role</p>
+            <p class="text-sm md:text-md font-medium text-[#2563EB] line-clamp-1">Across All Roles</p>
         </div>
         <div class="bg-white drop-shadow rounded-xl p-4">
             <div class="flex justify-between items-center">
-                <p class="text-lg font-medium text-gray-700">Total Postingan</p>
+                <p class="text-lg font-medium text-gray-700">Total Posts</p>
                 <img src="<?php echo BASEURL ?>/src/asset/icons/postAcctive.svg" class="size-10">
             </div>
             <h1 id="total-posts" class="text-xl font-bold mt-4"><?= $postCount ?? 0 ?></h1>
-            <p class="text-sm md:text-md font-medium text-[#4338CA] line-clamp-1">Dari Semua Pengguna</p>
+            <p class="text-sm md:text-md font-medium text-[#4338CA] line-clamp-1">From All Users</p>
         </div>
         <div class="bg-white drop-shadow rounded-xl p-4">
             <div class="flex justify-between items-center">
-                <p class="text-lg font-medium text-gray-700">Total Forum</p>
+                <p class="text-lg font-medium text-gray-700">Total Forums</p>
                 <img src="<?php echo BASEURL ?>/src/asset/icons/forums.svg" class="size-10">
             </div>
             <h1 id="total-forums" class="text-xl font-bold mt-4"><?= $forumCount ?? 0 ?></h1>
-            <p class="text-sm md:text-md font-medium text-[#7C3AED] line-clamp-1">Telah Dibuat</p>
+            <p class="text-sm md:text-md font-medium text-[#7C3AED] line-clamp-1">Created</p>
         </div>
         <div class="bg-white drop-shadow rounded-xl p-4">
             <div class="flex justify-between items-center">
-                <p class="text-lg font-medium text-gray-700">Laporan Masuk</p>
+                <p class="text-lg font-medium text-gray-700">Total Grop</p>
+                <img src="<?php echo BASEURL ?>/src/asset/icons/forums.svg" class="size-10">
+            </div>
+            <h1 id="total-forums" class="text-xl font-bold mt-4"><?= $groupCount ?? 0 ?></h1>
+            <p class="text-sm md:text-md font-medium text-[#7C3AED] line-clamp-1">Created</p>
+        </div>
+        <div class="bg-white drop-shadow rounded-xl p-4">
+            <div class="flex justify-between items-center">
+                <p class="text-lg font-medium text-gray-700">Reports</p>
                 <img src="<?php echo BASEURL ?>/src/asset/icons/reportCount.svg" class="size-10">
             </div>
             <h1 id="total-laporan" class="text-xl font-bold mt-4"><?= $laporanCount ?? 0 ?></h1>
-            <p class="text-sm md:text-md font-medium text-[#EF4444] line-clamp-1">Telah Diterima</p>
+            <p class="text-sm md:text-md font-medium text-[#EF4444] line-clamp-1">Received</p>
         </div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:mt-10 mt-4">

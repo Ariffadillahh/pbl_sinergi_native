@@ -206,12 +206,23 @@
 
                                 <?php else: ?>
                                     <?php if ($isPrivate): ?>
-                                        <button onclick="requestJoin('<?= $forum['ID'] ?>')" class="w-full bg-gray-900 hover:bg-black text-white font-medium py-2 px-4 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                            </svg>
-                                            Minta Bergabung
-                                        </button>
+                                        <div class="grid grid-cols-3 gap-2">
+                                            <button onclick="requestJoin('<?= $forum['ID'] ?>')" class="w-full col-span-2 bg-gray-900 hover:bg-black text-white font-medium py-2 px-4 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow cursor-default">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                                </svg>
+                                                <span>Private Forum</span>
+                                            </button>
+
+                                            <button onclick="requestJoinPrivate('<?= $forum['ID'] ?>')"
+                                                title="Kirim Permintaan Bergabung"
+                                                class="col-span-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-2 rounded-xl transition duration-200 flex items-center justify-center shadow-blue-200 shadow-md group">
+
+                                                <svg class="w-6 h-6 transform group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
 
                                     <?php else: ?>
                                         <div class="grid grid-cols-3 gap-2">
@@ -272,8 +283,52 @@
     <?php require_once 'app/views/components/forum/modalCreateForum.php'; ?>
     <?php require_once 'app/views/components/forum/modalJoinForum.php'; ?>
 
+    <div class="bg-green-100 border border-green-600 text-green-600 rounded-lg p-3 fixed top-5 right-5 hidden" id="succsesDiv"></div>
+    <div class="bg-red-100 border border-red-600 text-red-600 rounded-lg p-3 fixed top-5 right-5 hidden" id="errorDivReq"></div>
+
 
     <script>
+        const succsesDiv = document.getElementById("succsesDiv")
+        const errorDivReq = document.getElementById("errorDivReq")
+
+        async function requestJoinPrivate(forumId) {
+            try {
+
+                const response = await fetch('<?= BASEURL ?>/req-join', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        forum_id: forumId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    succsesDiv.classList.remove('hidden')
+                    succsesDiv.innerHTML = "Request sent successfully! Awaiting admin approval."
+
+                    setTimeout(() => {
+                        succsesDiv.classList.add("hidden")
+                    }, 2000)
+
+                } else {
+                    errorDivReq.classList.remove('hidden')
+                    errorDivReq.innerHTML = result.message
+
+                    setTimeout(() => {
+                        errorDivReq.classList.add("hidden")
+                    }, 2000)
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert("Terjadi kesalahan sistem saat mengirim permintaan.");
+            }
+        }
+
         async function joinForum(forumId) {
 
             const formData = new FormData();

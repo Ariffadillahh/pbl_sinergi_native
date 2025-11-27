@@ -10,9 +10,10 @@
             </div>
         </div>
 
-        <h2 class="text-xl font-bold text-center text-gray-800 mb-2">Beri Peringatan?</h2>
+        <h2 class="text-xl font-bold text-center text-gray-800 mb-2">Give a Warning?</h2>
 
-        <p class="text-gray-500 text-center mb-6">Postingan ini akan diberi peringatan dan pemiliknya akan dinotifikasi.</p>
+        <p class="text-gray-500 text-center mb-6">This post will receive a warning and the owner will be notified.</p>
+
 
         <form method="post" id="formWarning">
             <input type="hidden" id="warningId" name="target_id">
@@ -91,7 +92,7 @@
 
                 if (result.success) {
                     warningDivSucc.classList.remove("hidden");
-                    warningDivSucc.textContent = "Peringatan berhasil dikirim!";
+                    warningDivSucc.textContent = "Warning sent successfully!";
 
                     setTimeout(() => {
                         closeWarningModal();

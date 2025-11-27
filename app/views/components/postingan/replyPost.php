@@ -16,10 +16,14 @@
                         : BASEURL . "/homepage/user/profile/" . htmlspecialchars($post['USER_ID']);
                     ?>
 
-                 <a href="<?= $profileUrl ?>">
-                     <span class="text-gray-500">@<?= htmlspecialchars($post['USERNAME']) ?></span>
-                 </a>
-                 <span class="text-gray-400">· <?= date('d M Y', strtotime($post['CREATED_AT'])) ?></span>
+                 <div class="flex gap-1">
+                     <a href="<?= $profileUrl ?>">
+                         <span class="text-gray-500">@<?= htmlspecialchars($post['USERNAME']) ?></span> · 
+                     </a>
+                     <p class="text-sm text-gray-500 js-time-ago" data-time="<?= htmlspecialchars($post['CREATED_AT']) ?>">
+                         <?= htmlspecialchars($post['CREATED_AT']) ?>
+                     </p>
+                 </div>
              </div>
          </div>
          <div class="relative">
@@ -93,6 +97,40 @@
 
  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script>
  <script>
+     function timeAgo(dateString) {
+         const date = new Date(dateString.replace(/-/g, "/"));
+         const now = new Date();
+
+         if (isNaN(date.getTime())) return dateString;
+
+         const seconds = Math.floor((now - date) / 1000);
+
+         let interval = seconds / 31536000;
+         if (interval > 1) return Math.floor(interval) + "y ago";
+
+         interval = seconds / 2592000;
+         if (interval > 1) return Math.floor(interval) + "mo ago";
+
+         interval = seconds / 86400;
+         if (interval > 1) return Math.floor(interval) + "d ago";
+
+         interval = seconds / 3600;
+         if (interval > 1) return Math.floor(interval) + "h ago";
+
+         interval = seconds / 60;
+         if (interval > 1) return Math.floor(interval) + "m ago";
+
+         return "Just now";
+     }
+
+     const timeElements = document.querySelectorAll('.js-time-ago');
+     timeElements.forEach(function(el) {
+         const rawDate = el.getAttribute('data-time');
+         if (rawDate) {
+             el.textContent = timeAgo(rawDate);
+         }
+     });
+
      customElements.whenDefined('swiper-container').then(() => {
          const swiperElements = document.querySelectorAll('swiper-container.mySwiper');
 

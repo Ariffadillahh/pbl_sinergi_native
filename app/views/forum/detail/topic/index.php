@@ -95,7 +95,6 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
             $isLikedByUser = $topic['IS_LIKED'] ?? false;
             $totalLikes = $topic['TOTAL_LIKES'] ?? 0;
-            $totalComments = isset($comments) ? count($comments) : ($topic['TOTAL_COMMENTS'] ?? 0);
             ?>
 
             <div class="topic-card bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mb-8 hover:shadow-xl transition-shadow duration-300" id="topic-<?= $topic['ID'] ?? 0 ?>">
@@ -204,7 +203,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                             <span class="font-semibold"><?= $totalLikes ?> Likes</span>
                         </div>
                         <div class="font-semibold hover:text-blue-600 transition-colors cursor-pointer">
-                            <?= $totalComments ?> Komentar
+                            <?= $topic['TOTAL_COMMENTS'] ?> Commentar
                         </div>
                     </div>
                 </div>

@@ -435,4 +435,94 @@ class forumController
         ]);
         exit;
     }
+
+    public function getReqForum()
+    {
+        header('Content-Type: application/json');
+
+        if (!isset($_GET['forum_id'])) {
+            echo json_encode([]);
+            return;
+        }
+
+        $forumId = $_GET['forum_id'];
+
+        try {
+            $requests = $this->forumModel->getPendingRequests($forumId);
+
+            echo json_encode($requests);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
+
+
+    public function updateReqForum()
+    {
+        header('Content-Type: application/json');
+
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true);
+
+        if (!isset($data['id']) || !isset($data['status'])) {
+            echo json_encode(['success' => false, 'message' => 'Invalid input']);
+            return;
+        }
+
+        $requestId = $data['id'];
+        $statusAction = $data['status']; // 'accepted' atau 'rejected'
+
+        try {
+            $result = false;
+
+            if ($statusAction === 'accepted') {
+                // Update status jadi JOINED
+                $result = $this->forumModel->acceptMember($requestId);
+            } elseif ($statusAction === 'rejected') {
+                // Hapus row karena constraint hanya boleh JOINED/PENDING
+                $result = $this->forumModel->rejectMember($requestId);
+            }
+
+            if ($result) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Gagal update database']);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function reqJoin()
+    {
+        if (ob_get_length()) ob_clean();
+        header('Content-Type: application/json');
+
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Silakan login terlebih dahulu.']);
+            exit;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        $forumId = $input['forum_id'] ?? null;
+        $userId  = $_SESSION['user_id'];
+
+        if (!$forumId) {
+            echo json_encode(['success' => false, 'message' => 'Forum ID tidak valid.']);
+            exit;
+        }
+
+        try {
+            $result = $this->forumModel->sendJoinRequest($forumId, $userId);
+
+            echo json_encode($result);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
 }
