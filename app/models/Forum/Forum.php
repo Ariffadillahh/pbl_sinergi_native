@@ -684,4 +684,46 @@ class ForumModel extends BaseModel
 
         return $results;
     }
+
+    public function searchNonMembers($forumId, $search = '')
+{
+    $conn = self::getConnection();
+    
+    $searchParam = '%' . strtolower($search) . '%';
+    
+    $sql = "SELECT u.ID, u.USERNAME, u.FULL_NAME, u.PATH_PHOTO, u.ROLE
+            FROM USERS u
+            WHERE u.ID NOT IN (
+                SELECT fm.USER_ID 
+                FROM FORUM_MEMBERS fm 
+                WHERE fm.FORUM_ID = :forum_id
+            )
+            AND u.ID != (SELECT OWNER_ID FROM FORUMS WHERE ID = :forum_id2)";
+    
+    if (!empty($search)) {
+        $sql .= " AND (LOWER(u.FULL_NAME) LIKE :search OR LOWER(u.USERNAME) LIKE :search2)";
+    }
+    
+    $sql .= " ORDER BY u.FULL_NAME ASC";
+    
+    $stmt = oci_parse($conn, $sql);
+    oci_bind_by_name($stmt, ':forum_id', $forumId);
+    oci_bind_by_name($stmt, ':forum_id2', $forumId);
+    
+    if (!empty($search)) {
+        oci_bind_by_name($stmt, ':search', $searchParam);
+        oci_bind_by_name($stmt, ':search2', $searchParam);
+    }
+    
+    oci_execute($stmt);
+    
+    $users = [];
+    while ($row = oci_fetch_assoc($stmt)) {
+        $users[] = $row;
+    }
+    
+    oci_free_statement($stmt);
+    
+    return $users;
+}
 }

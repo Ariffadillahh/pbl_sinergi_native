@@ -16,6 +16,7 @@
 
     </div>
     <?php require_once 'app/views/components/modalInvite.php'; ?>
+    <?php require_once 'app/views/components/Forum/modalInviteForum.php'; ?>
     <?php require_once __DIR__ . '/../components/groups/modalCreateGroup.php'; ?>
     <?php require_once 'app/views/components/modalFinishSetup.php'; ?>
 
