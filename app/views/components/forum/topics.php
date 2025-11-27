@@ -1,54 +1,5 @@
 <?php
-// --- 1. LOGIC FUNGSI WAKTU ---
-function time_elapsed_string($datetime, $full = false)
-{
-    // Pastikan timezone sesuai
-    try {
-        $now = new DateTime('now', new DateTimeZone('Asia/Jakarta'));
-        $ago = new DateTime($datetime, new DateTimeZone('Asia/Jakarta'));
-    } catch (Exception $e) {
-        return "Waktu tidak valid";
-    }
 
-    $diff = $now->diff($ago);
-
-    // Hitung minggu manual
-    $weeks = floor($diff->d / 7);
-    $days = $diff->d - ($weeks * 7);
-
-    $string = array(
-        'y' => 'tahun',
-        'm' => 'bulan',
-        'w' => 'minggu',
-        'd' => 'hari',
-        'h' => 'jam',
-        'i' => 'menit',
-        's' => 'detik',
-    );
-
-    // Kita masukkan hasil hitungan ke array ini
-    $diffValues = [
-        'y' => $diff->y,
-        'm' => $diff->m,
-        'w' => $weeks,
-        'd' => $days,
-        'h' => $diff->h,
-        'i' => $diff->i,
-        's' => $diff->s,
-    ];
-
-    foreach ($string as $k => &$v) {
-        if (isset($diffValues[$k]) && $diffValues[$k]) {
-            $v = $diffValues[$k] . ' ' . $v;
-        } else {
-            unset($string[$k]);
-        }
-    }
-
-    if (!$full) $string = array_slice($string, 0, 1);
-
-    return $string ? implode(', ', $string) . ' yang lalu' : 'baru saja';
-}
 
 $visibleTopics = $topics;
 $hasMorePosts  = false;
@@ -77,29 +28,28 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
     <?php foreach ($visibleTopics as $topic): ?>
         <?php
         $allMedia = $topic['MEDIA'] ?? [];
-        $images = array_filter($allMedia, function ($m) {
-            return $m['MEDIA_TYPE'] === 'IMAGE';
-        });
-        $files = array_filter($allMedia, function ($m) {
-            return $m['MEDIA_TYPE'] === 'FILE';
-        });
-        $timeAgo = time_elapsed_string($topic['CREATED_AT']);
+        $images = array_filter($allMedia, fn($m) => $m['MEDIA_TYPE'] === 'IMAGE');
+        $files = array_filter($allMedia, fn($m) => $m['MEDIA_TYPE'] === 'FILE');
+
+        $isLikedByUser = isset($topic['IS_LIKED']) ? $topic['IS_LIKED'] : false;
         ?>
 
-        <div class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+        <div class="topic-card bg-white rounded-lg shadow border border-gray-200 overflow-hidden" id="topic-<?= $topic['ID'] ?>">
             <div class="p-4 pb-2">
                 <div class="flex items-start justify-between mb-3">
-
                     <div class="flex gap-3">
                         <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-gray-100">
                             <img src="<?= !empty($topic['PATH_PHOTO']) ? BASEURL . '/storage/users/photos/' . $topic['PATH_PHOTO'] : BASEURL . '/src/asset/image/default.png' ?>" class="w-full h-full object-cover">
                         </div>
                         <div>
                             <h4 class="font-semibold text-gray-900 leading-tight"><?= htmlspecialchars($topic['FULL_NAME']) ?></h4>
-                            <p class="text-sm text-gray-500 mt-0.5">@<?= htmlspecialchars($topic['USERNAME']) ?> · <?= $timeAgo ?></p>
+                            <p class="text-sm text-gray-500 mt-0.5">
+                                @<?= htmlspecialchars($topic['USERNAME']) ?> ·
+                                <span class="time-ago" data-time="<?= $topic['CREATED_AT'] ?>">
+                                    <?= $topic['CREATED_AT'] ?> </span>
+                            </p>
                         </div>
                     </div>
-
                     <?php include __DIR__ . '/dropDownTopic.php'; ?>
                 </div>
 
@@ -118,19 +68,22 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
             </div>
 
             <?php if (!empty($images)): ?>
-                <div class="mt-2 bg-black overflow-hidden">
-                    <div class="swiper myPostSwiper w-full h-96 min-h-[300px] max-h-[500px]">
+                <div class="bg-gradient-to-b from-gray-900 to-black overflow-hidden mb-2 -mx-4 sm:mx-0 ">
+                    <div class="swiper myPostSwiper w-full aspect-square sm:aspect-video sm:h-96 sm:min-h-[300px] sm:max-h-[500px]">
                         <div class="swiper-wrapper">
                             <?php foreach ($images as $img): ?>
                                 <div class="swiper-slide flex items-center justify-center bg-black">
-                                    <img src="<?= BASEURL ?>/storage/forums/topics/<?= $img['MEDIA_PATH'] ?>" alt="Post Image" class="w-full h-full object-contain">
+                                    <img src="<?= BASEURL ?>/storage/forums/topics/<?= $img['MEDIA_PATH'] ?>"
+                                        loading="lazy"
+                                        class="w-full h-full object-contain">
                                 </div>
                             <?php endforeach; ?>
                         </div>
                         <?php if (count($images) > 1): ?>
-                            <div class="swiper-button-next text-white"></div>
-                            <div class="swiper-button-prev text-white"></div>
-                            <div class="swiper-pagination"></div>
+                            <div class="swiper-button-next hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg"></div>
+                            <div class="swiper-button-prev hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg"></div>
+
+                            <div class="swiper-pagination !bottom-3"></div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -147,9 +100,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                                     </svg>
                                 </div>
                                 <div class="ml-4 flex-1 overflow-hidden">
-                                    <h5 class="text-sm font-bold text-gray-900 group-hover:text-blue-700 truncate">
-                                        <?= htmlspecialchars($file['ORIGINAL_FILENAME']) ?>
-                                    </h5>
+                                    <h5 class="text-sm font-bold text-gray-900 group-hover:text-blue-700 truncate"><?= htmlspecialchars($file['ORIGINAL_FILENAME']) ?></h5>
                                     <p class="text-xs text-gray-500">Klik untuk mengunduh</p>
                                 </div>
                                 <div class="flex-shrink-0 ml-3 text-gray-400 group-hover:text-blue-600">
@@ -165,13 +116,13 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
 
             <div class="border-t border-gray-100 px-4 py-2 mt-2">
                 <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
-                    <div class="flex items-center gap-1">
-                        <?php if ($topic['TOTAL_LIKES'] > 0): ?>
-                            <span class="bg-blue-500 text-white rounded-full p-0.5"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v7.333a2 2 0 01-.826 1.57l-2.174.43z" />
-                                </svg></span>
-                            <span><?= $topic['TOTAL_LIKES'] ?></span>
-                        <?php endif; ?>
+                    <div class="flex items-center gap-1 like-count-container">
+                        <span class="bg-blue-500 text-white rounded-full p-0.5">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v7.333a2 2 0 01-.826 1.57l-2.174.43z" />
+                            </svg>
+                        </span>
+                        <span class="like-count-display font-medium"><?= $topic['TOTAL_LIKES'] ?></span>
                     </div>
                     <div class="flex gap-3">
                         <span><?= $topic['TOTAL_COMMENTS'] ?> comments</span>
@@ -179,18 +130,25 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                 </div>
 
                 <div class="border-t border-gray-100 pt-1 flex justify-center gap-1 select-none">
-                    <button class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition hover:bg-gray-100 cursor-pointer group w-1/2">
-                        <svg class="w-5 h-5 text-gray-500 group-hover:text-red-500 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                    <button class="like-btn flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition hover:bg-gray-100 cursor-pointer group w-1/2"
+                        data-topic-id="<?= $topic['ID'] ?>"
+                        data-liked="<?= $isLikedByUser ? 'true' : 'false' ?>">
+
+                        <svg class="w-5 h-5 transition-all transform duration-200 <?= $isLikedByUser ? 'text-red-500 fill-red-500' : 'text-gray-500 group-hover:text-red-500' ?>"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
+
                         <span class="text-gray-600 group-hover:text-red-500 text-sm font-medium">Like</span>
                     </button>
-                    <button class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition hover:bg-gray-100 cursor-pointer group w-1/2">
+
+                    <a href="<?= BASEURL ?>/forum/topic/<?= $topic['ID'] ?>" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition hover:bg-gray-100 cursor-pointer group w-1/2">
                         <svg class="w-5 h-5 text-gray-500 group-hover:text-blue-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
                         <span class="text-gray-600 group-hover:text-blue-600 text-sm font-medium">Comment</span>
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -198,15 +156,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
 
     <?php if ($hasMorePosts): ?>
         <div class="bg-blue-50 border border-dashed border-blue-300 rounded-lg p-8 text-center mt-2">
-            <svg class="w-12 h-12 text-blue-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-            <h3 class="text-lg font-semibold text-blue-900">Ingin melihat lebih banyak?</h3>
-            <p class="text-sm text-blue-700 mt-1 mb-4">
-                Bergabunglah sebagai member forum ini untuk mengakses seluruh <?= count($topics) ?> diskusi.
-            </p>
-            <button onclick="joinForum('<?= $forumById['ID'] ?>')"
-                class="bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700 transition shadow-sm">
+            <button onclick="joinForum('<?= $forumById['ID'] ?>')" class="bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700 transition shadow-sm">
                 Bergabung Sekarang
             </button>
         </div>
@@ -228,6 +178,114 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
             },
             spaceBetween: 0,
             grabCursor: true,
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        function timeAgo(dateString) {
+            if (!dateString) return '';
+
+            const safeDateString = dateString.replace(' ', 'T');
+
+            const date = new Date(safeDateString);
+            const now = new Date();
+
+            if (isNaN(date.getTime())) {
+                console.error("Invalid date:", dateString);
+                return dateString;
+            }
+
+            const seconds = Math.floor((now - date) / 1000);
+
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + "y ago";
+
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + "mo ago";
+
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + "d ago";
+
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + "h ago";
+
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + "m ago";
+
+            return "Just now";
+        }
+
+        const timeElements = document.querySelectorAll('.time-ago');
+
+        timeElements.forEach(function(el) {
+            const rawDate = el.getAttribute('data-time');
+
+            if (rawDate) {
+                el.textContent = timeAgo(rawDate);
+            }
+        });
+
+        const likeButtons = document.querySelectorAll('.like-btn');
+
+        likeButtons.forEach(button => {
+            button.addEventListener('click', async function(e) {
+                e.preventDefault();
+
+                const topicId = this.getAttribute('data-topic-id');
+                const icon = this.querySelector('svg');
+
+                const card = this.closest('.topic-card');
+
+                const countSpan = card ? card.querySelector('.like-count-display') : null;
+
+                if (!card) console.error("Error: Tidak bisa menemukan elemen .topic-card");
+                if (!countSpan) console.error("Error: Tidak bisa menemukan elemen .like-count-display");
+
+                try {
+                    const res = await fetch('<?= BASEURL ?>/like/toggle/topic', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams({
+                            'topic_id': topicId
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (data.success) {
+                        const isLiked = data.action === 'liked';
+
+                        this.setAttribute('data-liked', isLiked ? 'true' : 'false');
+
+                        console.log("Like toggled:", data);
+
+                        if (countSpan) {
+                            countSpan.textContent = data.total_likes;
+
+                            countSpan.classList.add('scale-150', 'text-blue-600');
+                            setTimeout(() => countSpan.classList.remove('scale-150', 'text-blue-600'), 200);
+                        }
+
+                        if (isLiked) {
+                            icon.classList.remove('text-gray-500', 'group-hover:text-red-500');
+                            icon.classList.add('text-red-500', 'fill-red-500');
+                        } else {
+                            icon.classList.remove('text-red-500', 'fill-red-500');
+                            icon.classList.add('text-gray-500', 'group-hover:text-red-500');
+                        }
+
+                    } else {
+                        console.error("Server Error:", data.message);
+                    }
+                } catch (err) {
+                    console.error('Fetch Error:', err);
+                }
+            });
         });
     });
 </script>

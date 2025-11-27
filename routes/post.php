@@ -67,11 +67,29 @@ switch (true) {
         exit;
         break;
 
+    case $route === 'comment/deleteComment-topic':
+        requireLogin();
+        $commentController = new CommentController();
+        $commentController->deleteCommentTopic();
+        break;
+
+    case $route === 'comment/deleteReply-topic':
+        requireLogin();
+        $commentController = new CommentController();
+        $commentController->deleteReplyTopic();
+        break;
+
     case $route === 'like/toggle':
         requireLogin();
-        header('Content-Type: application/json');
         $likeController = new LikeController();
         $likeController->toggleLike();
+        exit;
+        break;
+
+    case $route === 'like/toggle/topic':
+        requireLogin();
+        $likeController = new LikeController();
+        $likeController->toggleLikeTopic();
         exit;
         break;
 

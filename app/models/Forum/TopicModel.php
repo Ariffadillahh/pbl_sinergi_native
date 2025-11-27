@@ -63,7 +63,7 @@ class TopicModel extends BaseModel
     {
         $conn = self::getConnection();
 
-        $sql = "SELECT t.ID, t.CONTENT, t.CREATED_AT, 
+        $sql = "SELECT t.ID, t.CONTENT, TO_CHAR(t.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT, 
                    u.FULL_NAME, u.PATH_PHOTO, u.ROLE, u.USERNAME, u.ID AS USER_ID, t.IS_PINNED,
                    (SELECT COUNT(*) FROM TOPIC_LIKES l WHERE l.TOPIC_ID = t.ID) AS TOTAL_LIKES,
                    (SELECT COUNT(*) FROM TOPIC_COMMENTS c WHERE c.TOPIC_ID = t.ID) AS TOTAL_COMMENTS
@@ -87,21 +87,6 @@ class TopicModel extends BaseModel
         }
 
         return $topics;
-    }
-
-    public function getMediaByTopicId($topicId)
-    {
-        $conn = self::getConnection();
-        $sql = "SELECT * FROM TOPIC_MEDIA WHERE TOPIC_ID = :topic_id ORDER BY CREATED_AT ASC";
-        $stmt = oci_parse($conn, $sql);
-        oci_bind_by_name($stmt, ":topic_id", $topicId);
-        oci_execute($stmt);
-
-        $media = [];
-        while ($row = oci_fetch_assoc($stmt)) {
-            $media[] = $row;
-        }
-        return $media;
     }
 
     public function deleteTopicById($topicId, $forumId)
@@ -251,5 +236,65 @@ class TopicModel extends BaseModel
         }
 
         return $pinnedTopics;
+    }
+
+    public function getTopicById($topicId)
+    {
+        $conn = self::getConnection();
+
+        $sql = "SELECT 
+                t.ID, 
+                t.FORUM_ID, 
+                t.CONTENT, 
+                TO_CHAR(t.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT, 
+                t.IS_PINNED,
+                u.FULL_NAME, 
+                u.PATH_PHOTO, 
+                u.ROLE, 
+                u.USERNAME, 
+                u.ID AS USER_ID,
+                (SELECT COUNT(*) FROM TOPIC_LIKES tl WHERE tl.TOPIC_ID = t.ID) AS TOTAL_LIKES,
+                (SELECT COUNT(*) FROM TOPIC_COMMENTS tc WHERE tc.TOPIC_ID = t.ID) AS TOTAL_COMMENTS
+            FROM FORUM_TOPICS t
+            JOIN USERS u ON t.USER_ID = u.ID  
+            WHERE t.ID = :topic_id";
+
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ":topic_id", $topicId);
+
+        if (!oci_execute($stmt)) {
+            return false;
+        }
+
+        $row = oci_fetch_assoc($stmt);
+
+        if ($row) {
+            if (isset($row['CONTENT']) && is_object($row['CONTENT'])) {
+                $row['CONTENT'] = $row['CONTENT']->load();
+            }
+
+            $row['MEDIA'] = $this->getMediaByTopicId($row['ID']);
+            $row['TOTAL_LIKES'] = (int) ($row['TOTAL_LIKES'] ?? 0);
+            $row['TOTAL_COMMENTS'] = (int) ($row['TOTAL_COMMENTS'] ?? 0);
+
+            return $row;
+        }
+
+        return false;
+    }
+
+    public function getMediaByTopicId($topicId)
+    {
+        $conn = self::getConnection();
+        $sql = "SELECT * FROM TOPIC_MEDIA WHERE TOPIC_ID = :topic_id ORDER BY CREATED_AT ASC";
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ":topic_id", $topicId);
+        oci_execute($stmt);
+
+        $media = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $media[] = $row;
+        }
+        return $media;
     }
 }

@@ -76,12 +76,12 @@
      </div>
  <?php endif; ?>
 
- <div id="deleteTopicModal" class="hidden fixed inset-0 z-[60] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+ <div id="deleteTopicModal" class="hidden fixed inset-0 z-[9999] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
      <div class="fixed inset-0 bg-black/50 transition-opacity backdrop-blur-sm"></div>
 
      <div class="bg-green-100 border border-green-700 text-green-700 p-3 px-5 fixed right-5 top-5 rounded-md hidden" id="divSuccsess"></div>
 
-     <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+     <div class="flex min-h-full justify-center p-4 text-center sm:p-0 items-start mt-20">
          <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
              <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                  <div class="sm:flex sm:items-start">
@@ -114,69 +114,65 @@
      </div>
  </div>
 
- <div id="editTopicModal" class="hidden fixed inset-0 z-[60] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-     <div class="fixed inset-0 bg-black/50 transition-opacity backdrop-blur-sm"></div>
+ <div id="editTopicModal" class="hidden flex fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50 p-5 md:p-0">
+     <div class="relative bg-white shadow-lg w-full max-w-xl drop-shadow rounded-xl">
+         <form id="editTopicForm" action="<?= BASEURL ?>/topic/update" method="POST" enctype="multipart/form-data">
+             <input type="hidden" name="topic_id" id="input_edit_topic_id">
 
-     <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-         <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+             <div id="deleted_media_container"></div>
 
-             <form id="editTopicForm" action="<?= BASEURL ?>/topic/update" method="POST" enctype="multipart/form-data">
-                 <input type="hidden" name="topic_id" id="input_edit_topic_id">
-
-                 <div id="deleted_media_container"></div>
-
-                 <div class="bg-white px-4 pb-4 pt-5 sm:p-6">
-                     <div class="flex items-center justify-between mb-4">
-                         <div class="flex items-center gap-3">
-                             <div class="mx-auto flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 sm:mx-0">
-                                 <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                 </svg>
-                             </div>
-                             <h3 class="text-lg font-semibold leading-6 text-gray-900">Edit Postingan</h3>
+             <div class=" px-4 pb-4 pt-5 sm:p-6 rounded-xl">
+                 <div class="flex items-center justify-between mb-4">
+                     <div class="flex items-center gap-3">
+                         <div class="mx-auto flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 sm:mx-0">
+                             <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                             </svg>
                          </div>
-                         <span id="edit_file_counter" class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">0/5 Media</span>
+                         <h3 class="text-lg font-semibold leading-6 text-gray-900">Edit Postingan</h3>
                      </div>
-
-                     <div class="mt-2">
-                         <label for="input_edit_topic_content" class="block text-sm font-medium text-gray-700 mb-1">Konten</label>
-                         <textarea name="content" id="input_edit_topic_content" rows="4"
-                             class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 bg-gray-50 border resize-none"
-                             placeholder="Apa yang Anda pikirkan?"></textarea>
-                     </div>
-
-                     <div class="mt-4">
-                         <label class="block text-sm font-medium text-gray-700 mb-2">Media</label>
-
-                         <div id="edit_media_preview_container" class="flex gap-2 overflow-x-auto pb-2 snap-x min-h-[100px] border border-dashed border-gray-300 rounded-lg p-2 bg-gray-50 items-center">
-                             <p id="edit_empty_msg" class="text-xs text-gray-400 w-full text-center">Tidak ada media</p>
-                         </div>
-
-                         <div class="mt-2 flex items-center justify-end">
-                             <input type="file" id="edit_image_input" name="new_media[]" multiple accept="image/*, .pdf, .doc, .docx, .xls, .xlsx, .zip" class="hidden">
-                             <label for="edit_image_input" id="btn_add_more_edit" class="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-medium hover:bg-blue-100 transition">
-                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                 </svg>
-                                 Tambah Media
-                             </label>
-                         </div>
-                         <p id="edit_limit_warning" class="hidden text-xs text-red-500 mt-1 text-right">Maksimal 5 file tercapai.</p>
-                     </div>
+                     <span id="edit_file_counter" class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">0/5 Media</span>
                  </div>
 
-                 <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                     <button type="submit" class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto transition">
-                         Simpan Perubahan
-                     </button>
-                     <button type="button" onclick="closeEditTopicModal()" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition">
-                         Batal
-                     </button>
+                 <div class="mt-2">
+                     <label for="input_edit_topic_content" class="block text-sm font-medium text-gray-700 mb-1">Konten</label>
+                     <textarea name="content" id="input_edit_topic_content" rows="4"
+                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 bg-gray-50 border resize-none"
+                         placeholder="Apa yang Anda pikirkan?"></textarea>
                  </div>
-             </form>
-         </div>
+
+                 <div class="mt-4">
+                     <label class="block text-sm font-medium text-gray-700 mb-2">Media</label>
+
+                     <div id="edit_media_preview_container" class="flex gap-2 overflow-x-auto pb-2 snap-x min-h-[100px] border border-dashed border-gray-300 rounded-lg p-2 bg-gray-50 items-center">
+                         <p id="edit_empty_msg" class="text-xs text-gray-400 w-full text-center">Tidak ada media</p>
+                     </div>
+
+                     <div class="mt-2 flex items-center justify-end">
+                         <input type="file" id="edit_image_input" name="new_media[]" multiple accept="image/*, .pdf, .doc, .docx, .xls, .xlsx, .zip" class="hidden">
+                         <label for="edit_image_input" id="btn_add_more_edit" class="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-medium hover:bg-blue-100 transition">
+                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                             </svg>
+                             Tambah Media
+                         </label>
+                     </div>
+                     <p id="edit_limit_warning" class="hidden text-xs text-red-500 mt-1 text-right">Maksimal 5 file tercapai.</p>
+                 </div>
+             </div>
+
+             <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 rounded-b-xl">
+                 <button type="submit" class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto transition">
+                     Simpan Perubahan
+                 </button>
+                 <button type="button" onclick="closeEditTopicModal()" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition">
+                     Batal
+                 </button>
+             </div>
+         </form>
      </div>
  </div>
+
 
  <script>
      function toggleDropdown(dropdownId) {
@@ -230,54 +226,56 @@
          }
      }
 
-     const formDeleteTopic = document.getElementById('formDeleteTopic');
-     const divSuccess = document.getElementById('divSuccsess');
+     {
+         const formDeleteTopic = document.getElementById('formDeleteTopic');
+         const divSuccess = document.getElementById('divSuccsess');
 
-     formDeleteTopic.addEventListener('submit', async function(event) {
-         event.preventDefault();
+         formDeleteTopic.addEventListener('submit', async function(event) {
+             event.preventDefault();
 
-         const deleteButton = this.querySelector('button[type="submit"]');
-         deleteButton.disabled = true;
-         deleteButton.innerHTML = 'Menghapus...';
+             const deleteButton = this.querySelector('button[type="submit"]');
+             deleteButton.disabled = true;
+             deleteButton.innerHTML = 'Menghapus...';
 
-         const formData = new FormData(this);
+             const formData = new FormData(this);
 
-         try {
-             const response = await fetch(this.action, {
-                 method: 'POST',
-                 body: formData
-             });
+             try {
+                 const response = await fetch(this.action, {
+                     method: 'POST',
+                     body: formData
+                 });
 
-             const result = await response.json();
+                 const result = await response.json();
 
-             if (result.success) {
-                 divSuccess.classList.remove('hidden');
-                 divSuccess.innerHTML = 'Topik berhasil dihapus!';
-                 setTimeout(() => {
-                     divSuccess.classList.add('hidden');
-                     location.reload();
-                 }, 1500);
-             } else {
-                 alert('Gagal menghapus topik: ' + result.message);
+                 if (result.success) {
+                     divSuccess.classList.remove('hidden');
+                     divSuccess.innerHTML = 'Topik berhasil dihapus!';
+                     setTimeout(() => {
+                         divSuccess.classList.add('hidden');
+                         location.reload();
+                     }, 1500);
+                 } else {
+                     alert('Gagal menghapus topik: ' + result.message);
+                     deleteButton.disabled = false;
+                     deleteButton.innerHTML = 'Ya, Hapus';
+                 }
+             } catch (error) {
+                 alert('Terjadi kesalahan saat menghapus topik.');
                  deleteButton.disabled = false;
                  deleteButton.innerHTML = 'Ya, Hapus';
              }
-         } catch (error) {
-             alert('Terjadi kesalahan saat menghapus topik.');
-             deleteButton.disabled = false;
-             deleteButton.innerHTML = 'Ya, Hapus';
-         }
-     });
+         });
+     }
 
      const pinButtons = document.querySelectorAll('.btn-pin-action');
 
      pinButtons.forEach(button => {
          button.addEventListener('click', async function(e) {
-             e.preventDefault(); 
+             e.preventDefault();
 
              const currentBtn = this;
              const topicId = currentBtn.getAttribute('data-id');
-             const originalContent = currentBtn.innerHTML; 
+             const originalContent = currentBtn.innerHTML;
 
              currentBtn.innerHTML = '<span class="text-xs">Processing...</span>';
              currentBtn.disabled = true;

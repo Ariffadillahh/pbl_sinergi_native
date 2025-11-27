@@ -54,7 +54,7 @@
                 </div>
             </div>
 
-            <form action="" method="GET" class="w-full md:w-auto relative">
+            <form action="" method="GET" class="w-full md:w-auto relative bg-white rounded-full shadow-sm">
                 <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
                 <div class="relative group">
                     <input type="text" name="search" value="<?= htmlspecialchars($search) ?>"
@@ -111,7 +111,7 @@
                 $bannerUrl = !empty($forum['PATH_THUMBNAIL'])
                     ? BASEURL . '/storage/forums/thumbnail/' . $forum['PATH_THUMBNAIL']
                     : null;
-                $iconUrl = !empty($forum['PATH_PHOTO']) ? BASEURL . '/storage/forums/photos/' . $forum['PATH_PHOTO'] : 'https://ui-avatars.com/api/?name=' . urlencode($forum['NAME']) . '&background=random';
+                $iconUrl = !empty($forum['PATH_PHOTO']) ? BASEURL . '/storage/forums/photos/' . $forum['PATH_PHOTO'] : 'https://ui-avatars.com/api/?name=' . urlencode($forum['NAME']) . '&background=3B82F6&color=fff';
 
                 $targetLink = $canAccess ? BASEURL . '/forum/' . $forum['ID'] : 'javascript:void(0)';
                 $cursorClass = $canAccess ? 'cursor-pointer' : 'cursor-not-allowed';

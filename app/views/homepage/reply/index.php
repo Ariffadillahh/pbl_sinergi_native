@@ -581,15 +581,29 @@ function organizeReplies($replies)
         });
 
         function timeAgo(dateString) {
+            const date = new Date(dateString.replace(/-/g, "/"));
             const now = new Date();
-            const past = new Date(dateString);
-            const diff = Math.floor((now - past) / 1000);
 
-            if (diff < 60) return `${diff}s ago`;
-            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-            if (diff < 2592000) return `${Math.floor(diff / 86400)}d ago`;
-            return past.toLocaleDateString();
+            if (isNaN(date.getTime())) return dateString;
+
+            const seconds = Math.floor((now - date) / 1000);
+
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + "y ago";
+
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + "mo ago";
+
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + "d ago";
+
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + "h ago";
+
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + "m ago";
+
+            return "Just now";
         }
 
         document.querySelectorAll('.time-ago').forEach(el => {

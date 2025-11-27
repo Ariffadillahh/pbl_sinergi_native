@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../app/controllers/ForumController.php';
 require_once __DIR__ . '/../app/controllers/TopicsController.php';
+require_once __DIR__ . '/../app/controllers/CommentController.php';
 
 switch (true) {
     case $route === 'forums':
@@ -39,6 +40,12 @@ switch (true) {
         $controller->update();
         break;
 
+    case $route ===  'forum/getAssets':
+        requireLogin();
+        $controller = new ForumController();
+        $controller->getAssetsJson();
+        break;
+
     case $route ===  'create/topics':
         requireLogin();
         $controller = new TopicsController();
@@ -57,10 +64,29 @@ switch (true) {
         $controller->pinTOpic();
         break;
 
+    case $route === 'comment/add-topic':
+        requireLogin();
+        $commentController = new CommentController();
+        $commentController->addCommentTopic();
+        break;
+
+    case $route === 'comment/reply-topic':
+        requireLogin();
+        $commentController = new CommentController();
+        $commentController->addReplyTopic();
+        break;
+
     case preg_match('#^forum/([a-zA-Z0-9\-]+)$#', $route, $matches):
         $forumId = $matches[1];
         requireLogin();
         $controller = new ForumController();
         $controller->forumById($forumId);
+        break;
+
+    case preg_match('#^forum/topic/([a-zA-Z0-9\-]+)$#', $route, $matches):
+        $topicId = $matches[1];
+        requireLogin();
+        $controller = new TopicsController();
+        $controller->index($topicId);
         break;
 }

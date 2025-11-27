@@ -47,7 +47,7 @@ class forumController
         }
 
         $currentUserId = $_SESSION['user_id'] ?? null;
-        $currentUserRole = $_SESSION['role'] ?? ''; 
+        $currentUserRole = $_SESSION['role'] ?? '';
 
         $forumOwnerId = $forumById['OWNER_ID'] ?? $forumById['USER_ID'] ?? null;
 
@@ -56,8 +56,7 @@ class forumController
         if ($currentUserId) {
             if ($currentUserRole === 'ADMIN' || $currentUserRole === 'DOSEN') {
                 $canUnpin = true;
-            }
-            elseif ($currentUserId == $forumOwnerId) {
+            } elseif ($currentUserId == $forumOwnerId) {
                 $canUnpin = true;
             }
         }
@@ -84,11 +83,11 @@ class forumController
             'membersForum'  => $membersForum,
             'isMember'      => $isMember,
             'postLimit'     => $postLimit,
-            'pinned_topics' => $pinned_topics, 
-            'topics'        => $topics,       
-            'can_unpin'     => $canUnpin      
+            'pinned_topics' => $pinned_topics,
+            'topics'        => $topics,
+            'can_unpin'     => $canUnpin
         ];
-      
+
         extract($data);
 
         $contentViewForum = __DIR__ . '/../views/forum/detail/index.php';
@@ -414,6 +413,26 @@ class forumController
         } else {
             echo json_encode(["success" => false, "message" => "Gagal menghapus data dari database."]);
         }
+        exit;
+    }
+
+    public function getAssetsJson()
+    {
+        $forumId = isset($_GET['forum_id']) ? $_GET['forum_id'] : null;
+
+        if (!$forumId) {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'message' => 'Forum ID required']);
+            exit;
+        }
+
+        $data = $this->forumModel->getGalleryMediaByForum($forumId);
+
+        header('Content-Type: application/json');
+        echo json_encode([
+            'status' => 'success',
+            'data' => $data
+        ]);
         exit;
     }
 }

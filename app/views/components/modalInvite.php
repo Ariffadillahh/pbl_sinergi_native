@@ -116,7 +116,7 @@
                     `${BASEURL}/storage/users/photos/${data.OWNER.PHOTO}` :
                     `${BASEURL}/src/asset/image/default.png`;
 
-                inviteMembers.innerHTML = data.MEMBERS.slice(0,7).map(m => {
+                inviteMembers.innerHTML = data.MEMBERS.slice(0, 7).map(m => {
                     const isDefault = !m.PHOTO;
 
                     return `

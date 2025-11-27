@@ -1,14 +1,45 @@
 <?php
 require_once __DIR__ . '/../models/Forum/TopicModel.php';
-
+require_once __DIR__ . '/../models/Forum/Forum.php';
+require_once __DIR__ . '/../models/Posts/CommentModel.php';
 
 class TopicsController
 {
     private $topicModel;
+    private $forumModel;
+    private $commentModel;
 
     public function __construct()
     {
         $this->topicModel = new TopicModel();
+        $this->forumModel = new ForumModel();
+        $this->commentModel = new CommentModel();
+    }
+
+    public function index($topicId)
+    {
+        $topic = $this->topicModel->getTopicById($topicId);
+
+        if (!$topicId) {
+            header("Location: " . BASEURL . "/forums");
+            exit;
+        }
+
+        $forumId = $topic['FORUM_ID'] ?? null;
+        $forumById = $this->forumModel->getForumById($forumId);
+        $comments = $this->commentModel->getCommentsByTopicId($topicId);
+
+        $data = [
+            'title'     => 'Detail Topik',
+            'forumById' => $forumById,
+            'topic'     => $topic,
+            'comments'  => $comments
+        ];
+
+        extract($data);
+
+        $contentViewForum = __DIR__ . '/../views/forum/detail/topic/index.php';
+        require_once __DIR__ . '/../views/forum/layout.php';
     }
 
     public function create()

@@ -11,7 +11,7 @@
             <div class="absolute bottom-0 left-0 right-0 px-6 translate-y-1/2 flex items-end justify-between z-10">
                 <div class="flex items-end gap-4">
                     <div class="relative group cursor-pointer">
-                        <img id="profilePreview" src="https://ui-avatars.com/api/?name=Grup+Baru&background=random&size=128"
+                        <img id="profilePreview" src="https://ui-avatars.com/api/?name=New+Group&&background=3B82F6&color=fff&size=128"
                             alt="Profile"
                             class="w-20 h-20 md:w-24 md:h-24 rounded-xl border-4 border-white bg-white shadow-lg object-cover">
                     </div>
@@ -200,10 +200,10 @@
         };
 
         nameInput.addEventListener('input', function() {
-            const name = this.value.trim() || "Grup Baru";
+            const name = this.value.trim() || "New Group";
             namePreview.textContent = name;
             if (!isCustomProfile) {
-                profilePreview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=128`;
+                profilePreview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3B82F6&color=fff&size=128`;
             }
         });
 
