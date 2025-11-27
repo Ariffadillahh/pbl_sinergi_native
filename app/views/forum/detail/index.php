@@ -83,14 +83,12 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                             </button>
 
                             <div class="flex gap-3">
-                                <button
-                                    id="btn-open-leave-forum"
-                                    class="w-full md:w-auto flex items-center justify-center gap-2 bg-white rounded-xl px-4 py-2 ring-1 ring-gray-200 hover:ring-blue-600 transition-all">
+                                <button id="btn-open-leave-forum" class="w-full md:w-auto flex items-center justify-center gap-2 bg-white rounded-xl px-4 py-2 ring-1 ring-gray-200 hover:ring-blue-600 transition-all">
                                     <img src="<?= BASEURL; ?>/src/asset/icons/logout-grey.svg" class="size-6" alt="icon">
-                                    <span class="font-medium text-sm text-heyhao-secondary">Leave Forum</span>
+                                    <span class="font-medium text-sm">Leave Forum</span>
                                 </button>
 
-                                <button
+                                <button id="btn-open-report-forum"
                                     class="w-full md:w-auto flex items-center justify-center bg-white rounded-xl px-4 py-2 ring-1 ring-gray-200 hover:ring-blue-600 transition-all">
                                     <img src="<?= BASEURL; ?>/src/asset/icons/report.png" class="size-6" alt="icon">
                                 </button>
@@ -357,6 +355,9 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
             </div>
         </div>
     </div>
+
+    <?php require_once 'app/views/components/forum/modalReportForum.php'; ?>
+
 
 
     <script>

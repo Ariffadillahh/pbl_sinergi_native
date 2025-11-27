@@ -3,7 +3,7 @@
         <div class="relative bg-white rounded-lg shadow-sm">
             <div class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t">
                 <h3 class="text-xl font-semibold text-gray-900">
-                    Report this Group
+                    Report this Forum
                 </h3>
                 <button type="button" id="btn-cancel-report-forum" class="text-gray-400 rounded-lg text-sm w-8 h-8 flex justify-center items-center cursor-pointer">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -12,6 +12,7 @@
                     <span class="sr-only">Close modal</span>
                 </button>
             </div>
+
             <div class="p-4 md:p-5">
                 <p id="report-forum-message" class="text-sm mb-3 p-3 rounded-lg hidden text-center"></p>
 
@@ -20,13 +21,13 @@
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
                     <p class="text-sm text-gray-600 mb-5">
-                        Why are you reporting this group "<?php echo htmlspecialchars($groupChatId['NAME'], ENT_QUOTES, 'UTF-8'); ?>"?
+                        Why are you reporting this forum "<?php echo htmlspecialchars($forumById['NAME'] ?? $groupChatId['NAME'], ENT_QUOTES, 'UTF-8'); ?>"?
                     </p>
                 </div>
 
                 <form id="form-report-forum" action="<?php echo BASEURL; ?>/report" method="post">
-                    <input type="hidden" name="target_id" value="<?php echo $groupChatId['ID']; ?>">
-                    <input type="hidden" name="target_type" value="GROUP">
+                    <input type="hidden" name="target_id" value="<?php echo $forumById['ID']; ?>">
+                    <input type="hidden" name="target_type" value="FORUM">
 
                     <h3 class="mb-3 font-semibold text-gray-900 text-left">Reason</h3>
 
@@ -82,7 +83,8 @@
 
 <script>
     const modalReportForum = document.getElementById("modal-report-forum");
-    const btnOpenReportModal = document.getElementById("reportForumButton");
+    const btnOpenReportModal = document.getElementById("btn-open-report-forum");
+
     const btnCloseReportForum = document.getElementById("btn-cancel-report-forum");
     const btnConfirmReportForum = document.getElementById("btn-confirm-report-forum");
     const formReportForum = document.getElementById("form-report-forum");
@@ -124,11 +126,18 @@
         otherReasonContainer.classList.add("hidden");
     };
 
-    btnOpenReportModal?.addEventListener("click", openModalReportForum);
+    if (btnOpenReportModal) {
+        btnOpenReportModal.addEventListener("click", openModalReportForum);
+    } else {
+        console.warn("Button with ID 'btn-open-report-forum' not found.");
+    }
+
     btnCloseReportForum.addEventListener("click", closeModalReportForum);
+
     modalReportForum.addEventListener("click", (e) => {
         if (e.target === modalReportForum) closeModalReportForum();
     });
+
     reasonRadios.forEach(radio => {
         radio.addEventListener("change", () => {
             otherReasonContainer.classList.toggle("hidden", radio.value !== "other");
@@ -136,7 +145,6 @@
     });
 
     btnConfirmReportForum.addEventListener("click", async () => {
-
         const formData = new FormData(formReportForum);
         const actionUrl = formReportForum.getAttribute("action");
         const selectedReason = formData.get("reason");
@@ -163,7 +171,6 @@
 
             if (result.success) {
                 showMessage(result.message || "Laporan berhasil dikirim!", "success");
-
                 setTimeout(() => {
                     closeModalReportForum();
                 }, 1000);
