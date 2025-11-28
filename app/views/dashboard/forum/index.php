@@ -47,25 +47,25 @@ $currentParams = [
                         <a href="<?= getTabLink('my-forums', $currentParams) ?>" id="tab-my-forums"
                             class="flex-1 lg:flex-none px-6 py-2 font-semibold rounded-lg transition-colors 
                             <?= $activeTab == 'my-forums' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100' ?>">
-                            Forum Saya
+                            My Forum
                         </a>
 
                         <a href="<?= getTabLink('all-forums', $currentParams) ?>" id="tab-all-forums"
                             class="flex-1 lg:flex-none px-6 py-2 font-semibold rounded-lg transition-colors 
                             <?= $activeTab == 'all-forums' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100' ?>">
-                            Semua Forum
+                            Users Forum
                         </a>
                     </div>
 
                     <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
                         <button onclick="openCreateForumModal()"
                             class="flex-1 sm:flex-none text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-4 py-2 whitespace-nowrap">
-                            Buat Forum
+                            Add Forum
                         </button>
 
                         <button onclick="openJoinForumModal()"
                             class="flex-1 sm:flex-none text-white bg-green-700 hover:bg-green-600 font-medium rounded-lg text-sm px-4 py-2 whitespace-nowrap">
-                            Tambahkan Anggota
+                            Add Member to forum
                         </button>
                     </div>
 

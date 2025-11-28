@@ -19,4 +19,22 @@ switch (true) {
         $controller = new ProfileController();
         $controller->updatePassword();
         break;
+
+    case $route === 'account/confirm-student-status':
+        requireLogin();
+        $controller = new ProfileController();
+        $controller->updateRoleMahasiswa();
+        break;
+
+    case $route === 'account/confirm-student-status/resend':
+        requireLogin();
+        $controller = new ProfileController();
+        $controller->resendStudentOtp();
+        break;
+
+    case $route === 'account/confirm-student-status/otp':
+        requireLogin();
+        $controller = new ProfileController();
+        $controller->verifyStudentOtp();
+        break;
 }

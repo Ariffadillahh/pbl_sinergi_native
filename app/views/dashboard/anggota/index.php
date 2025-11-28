@@ -22,7 +22,7 @@
                     </div>
                     <input type="search" id="default-search" name="q"
                         class="block w-full p-4 ps-10 text-sm text-gray-900 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Cari berdasarkan nama atau NIM...." autocomplete="off"
+                        placeholder="Search by name or NIM...." autocomplete="off"
                         value="<?= htmlspecialchars($data['keyword']) ?>" />
 
                     <button type="submit" class="hidden">Search</button>
@@ -31,7 +31,7 @@
 
             <button id="open-modal-btn"
                 class="text-white mt-2 md:mt-0 w-full md:w-fit bg-blue-900 focus:ring-4 focus:outline-none cursor-pointer font-medium rounded-lg text-sm px-4 py-2 text-center h-fit">
-                Add Anggota
+                Add Member
             </button>
         </div>
 
@@ -50,7 +50,7 @@
                     <?php if (empty($data['users'])) : ?>
                         <tr class="bg-white border-b border-gray-200">
                             <td colspan="5" class="px-6 py-4 text-center text-gray-500">
-                                Tidak ada data anggota ditemukan.
+                                No member data found.
                             </td>
                         </tr>
                     <?php else : ?>

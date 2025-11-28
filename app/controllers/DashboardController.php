@@ -112,7 +112,7 @@ class DashboardController
     {
         $keyword = $_GET['q'] ?? '';
         $currentPage = (int)($_GET['page'] ?? 1);
-        $limit = 5;
+        $limit = 2;
         $offset = ($currentPage - 1) * $limit;
 
         $totalUsers = $this->userModel->getTotalUsers($keyword);
@@ -143,7 +143,7 @@ class DashboardController
             exit;
         }
 
-        $required_fields = ['nama-lengkap', 'personal-number', 'email', 'password', 'role', 'username'];
+        $required_fields = ['nama-lengkap', 'personal-number', 'email', 'role', 'username'];
 
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
@@ -151,11 +151,6 @@ class DashboardController
                 echo json_encode(['success' => false, 'message' => "Field '" . ucwords($fieldName) . "' tidak boleh kosong."]);
                 exit;
             }
-        }
-
-        if (strlen($_POST['password']) < 6) {
-            echo json_encode(['success' => false, 'message' => 'Password harus minimal 6 karakter.']);
-            exit;
         }
 
         $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
@@ -173,7 +168,9 @@ class DashboardController
             exit;
         }
 
-        $hashedPassword = password_hash($_POST['password'], PASSWORD_BCRYPT);
+        $rawPassword = bin2hex(random_bytes(6));
+
+        $hashedPassword = password_hash($rawPassword, PASSWORD_BCRYPT);
 
         $registrationData = [
             'ID'              => uniqid(),
@@ -183,6 +180,7 @@ class DashboardController
             'EMAIL'           => $email,
             'PASSWORD'        => $hashedPassword,
             'ROLE'            => htmlspecialchars($_POST['role'], ENT_QUOTES, 'UTF-8'),
+            'STATUS'          => htmlspecialchars($_POST['status'], ENT_QUOTES, 'UTF-8'),
         ];
 
 
@@ -224,17 +222,23 @@ class DashboardController
             $mail->isHTML(true);
             $mail->Subject = 'Akun Anda di SINERGI Telah Dibuat';
 
-            $plainPassword = $_POST['password'];
+            $resetLink = BASEURL . '/forget-password';
 
             $mail->Body = "Halo <b>{$registrationData['FULL_NAME']}</b>,<br><br>"
                 . "Akun Anda untuk aplikasi SINERGI telah berhasil dibuat oleh administrator.<br><br>"
                 . "Anda dapat login menggunakan detail berikut:<br>"
-                . "<b>Email:</b> {$registrationData['EMAIL']}<br>"
-                . "<b>Password:</b> <b>{$plainPassword}</b><br><br>"
-                . "Silakan segera ganti password Anda.<br>"
+                . "<b>Email:</b> {$registrationData['EMAIL']}<br><br>"
+                . "Demi keamanan, silakan segera atur password Anda dengan mengklik tombol di bawah ini:<br><br>"
+
+                . "<a href='{$resetLink}' style='background-color: #2563eb; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; font-family: Arial, sans-serif;'>"
+                . "Atur Password Sekarang"
+                . "</a><br><br>"
+
+                . "Jika tombol di atas tidak berfungsi, silakan klik tautan berikut:<br>"
+                . "<a href='{$resetLink}'>{$resetLink}</a><br><br>"
                 . "Terima kasih.";
 
-            $mail->AltBody = "Akun Anda telah dibuat. Email: {$registrationData['EMAIL']}, Password: {$plainPassword}";
+            $mail->AltBody = "Akun Anda telah dibuat. Email: {$registrationData['EMAIL']}";
 
             $mail->send();
 

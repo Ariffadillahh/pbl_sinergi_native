@@ -10,7 +10,7 @@
              </div>
              <input type="search" id="search-all-forum"
                  class="block w-full p-2.5 ps-10 text-sm text-gray-900 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                 placeholder="Cari forum..." autocomplete="off" value="<?= htmlspecialchars($allSearch) ?>" />
+                 placeholder="Search forums..." autocomplete="off" value="<?= htmlspecialchars($allSearch) ?>" />
          </div>
      </div>
 
@@ -37,7 +37,7 @@
                                          <?= htmlspecialchars($forum['NAME']) ?>
                                      </h3>
                                      <p class="text-sm text-gray-500">
-                                         <?= $forum['TOTAL_MEMBERS'] ?> Anggota
+                                         <?= $forum['TOTAL_MEMBERS'] ?> Members
                                      </p>
                                  </div>
                                  <span class="px-2 py-1 <?= $forum['IS_PRIVATE'] == 1 ? 'bg-gray-100 text-gray-700' : 'bg-blue-100 text-blue-700' ?> text-xs rounded-full whitespace-nowrap">
@@ -45,7 +45,7 @@
                                  </span>
                              </div>
                              <p class="text-sm text-gray-600 italic">
-                                 Dibuat oleh <?= htmlspecialchars($forum['OWNER_NAME']) ?>
+                                 Created by <?= htmlspecialchars($forum['OWNER_NAME']) ?>
                              </p>
                          </div>
                      </div>

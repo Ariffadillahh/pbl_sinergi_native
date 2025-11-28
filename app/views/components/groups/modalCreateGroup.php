@@ -40,7 +40,7 @@
                             <label for="isPrivate" class="ml-2 text-sm text-gray-600">Make this group private</label>
                         </div>
                         <div class="relative my-3 hidden" id="keyForumContainer">
-                            <input type="text" id="keyGroupChats" name="keyGroupChats" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " />
+                            <input type="text" id="keyGroupChats" name="keyGroupChat" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " />
                             <label for="keyGroupChats" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4">Key Group</label>
                         </div>
                         <button type="submit" name="create" id="createForm" class="mt-6 w-full px-6 py-3.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors">Create Group</button>

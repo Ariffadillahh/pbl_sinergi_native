@@ -86,7 +86,7 @@ class UserModel extends BaseModel
             return ['success' => false, 'message' => $e['message']];
         }
     }
-    
+
     public function searchUsers($keyword)
     {
         $conn = self::getConnection();
@@ -113,5 +113,32 @@ class UserModel extends BaseModel
         }
 
         return $users;
+    }
+
+    public function updateToMahasiswa($userId)
+    {
+        $conn = self::getConnection();
+
+        $sql = "UPDATE USERS 
+                SET ROLE = 'MAHASISWA', 
+                    TAHUN_MASUK = TAHUN_MASUK + 1,
+                    STATUS = 'APPROVED'
+                WHERE ID = :id";
+
+        $stmt = oci_parse($conn, $sql);
+
+        oci_bind_by_name($stmt, ':id', $userId);
+
+        $result = oci_execute($stmt);
+
+        if ($result) {
+            oci_commit($conn);
+        } else {
+            oci_rollback($conn);
+        }
+
+        oci_free_statement($stmt);
+
+        return $result;
     }
 }

@@ -1,4 +1,7 @@
 <?php
+
+use PHPMailer\PHPMailer\PHPMailer;
+
 require_once __DIR__ . '/../models/Users/UserModel.php';
 require_once __DIR__ . '/../models/Posts/PostModel.php';
 require_once __DIR__ . '/../helpers/mentionHelper.php';
@@ -164,5 +167,174 @@ class ProfileController
             echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
         }
         exit;
+    }
+
+    public function updateRoleMahasiswa()
+    {
+        if (ob_get_length()) ob_clean();
+
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            exit;
+        }
+
+        $userId   = $_SESSION['user_id'] ?? null;
+        $email    = $_SESSION['email'] ?? null;
+        $fullName = $_SESSION['full_name'] ?? 'User';
+
+        if (!$userId || !$email) {
+            echo json_encode(['success' => false, 'message' => 'Sesi habis. Silakan login ulang.']);
+            exit;
+        }
+
+        $otp = rand(1000, 9999);
+        $_SESSION['otp_code'] = (string)$otp;
+        $_SESSION['otp_expiry'] = time() + 300;
+
+        try {
+            require_once __DIR__ . '/../../vendor/autoload.php';
+            $mailConfig = require __DIR__ . '/../../config/mail.php';
+
+            $mail = new PHPMailer(true);
+            $mail->isSMTP();
+            $mail->Host       = $mailConfig['host'];
+            $mail->SMTPAuth   = true;
+            $mail->Username   = $mailConfig['username'];
+            $mail->Password   = $mailConfig['password'];
+            $mail->SMTPSecure = $mailConfig['encryption'];
+            $mail->Port       = $mailConfig['port'];
+
+            $mail->setFrom($mailConfig['from_address'], $mailConfig['from_name']);
+            $mail->addAddress($email, $fullName);
+            $mail->isHTML(true);
+            $mail->Subject = 'Kode Verifikasi Perubahan Status Mahasiswa';
+            $mail->Body    = "Halo <b>{$fullName}</b>,<br>Kode OTP Anda: <b>{$otp}</b>";
+            $mail->send();
+
+            if (ob_get_length()) ob_clean();
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'OTP berhasil dikirim ke email Anda.'
+            ]);
+
+            exit;
+        } catch (Exception $e) {
+            if (ob_get_length()) ob_clean();
+            echo json_encode(['success' => false, 'message' => 'Gagal kirim email.']);
+            exit;
+        }
+    }
+
+    public function verifyStudentOtp()
+    {
+        if (ob_get_length()) ob_clean();
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            exit;
+        }
+
+        $inputOtp = $_POST['otp'] ?? '';
+        $userId   = $_SESSION['user_id'] ?? null;
+
+        if (!isset($_SESSION['otp_code']) || !isset($_SESSION['otp_expiry'])) {
+            echo json_encode(['success' => false, 'message' => 'Permintaan OTP tidak ditemukan. Silakan minta kode ulang.']);
+            exit;
+        }
+
+        if (time() > $_SESSION['otp_expiry']) {
+            unset($_SESSION['otp_code'], $_SESSION['otp_expiry']);
+            echo json_encode(['success' => false, 'message' => 'Kode OTP kadaluarsa. Silakan minta kode ulang.']);
+            exit;
+        }
+
+        if ((string)$inputOtp !== (string)$_SESSION['otp_code']) {
+            echo json_encode(['success' => false, 'message' => 'Kode OTP salah.']);
+            exit;
+        }
+
+        try {
+            $isUpdated = $this->userModel->updateToMahasiswa($userId);
+
+            if ($isUpdated) {
+                unset($_SESSION['otp_code'], $_SESSION['otp_expiry'], $_SESSION['otp_action']);
+
+                $_SESSION['role'] = 'MAHASISWA';
+
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Verifikasi berhasil. Status Anda telah kembali menjadi Mahasiswa.'
+                ]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Gagal mengupdate data ke database.']);
+            }
+            exit;
+        } catch (Exception $e) {
+            error_log("Update Error: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan sistem saat memperbarui status.']);
+            exit;
+        }
+    }
+
+    public function resendStudentOtp()
+    {
+        if (ob_get_length()) ob_clean();
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            exit;
+        }
+
+        $userId   = $_SESSION['user_id'] ?? null;
+        $email    = $_SESSION['email'] ?? null;
+        $fullName = $_SESSION['full_name'] ?? 'User';
+
+        if (!$userId || !$email) {
+            echo json_encode(['success' => false, 'message' => 'Sesi habis.']);
+            exit;
+        }
+
+        $otp = rand(1000, 9999);
+        $_SESSION['otp_code'] = (string)$otp;
+        $_SESSION['otp_expiry'] = time() + 300;
+
+        try {
+            require_once __DIR__ . '/../../vendor/autoload.php';
+            $mailConfig = require __DIR__ . '/../../config/mail.php';
+
+            $mail = new PHPMailer(true);
+            $mail->isSMTP();
+            $mail->Host       = $mailConfig['host'];
+            $mail->SMTPAuth   = true;
+            $mail->Username   = $mailConfig['username'];
+            $mail->Password   = $mailConfig['password'];
+            $mail->SMTPSecure = $mailConfig['encryption'];
+            $mail->Port       = $mailConfig['port'];
+
+            $mail->setFrom($mailConfig['from_address'], $mailConfig['from_name']);
+            $mail->addAddress($email, $fullName);
+            $mail->isHTML(true);
+
+            $mail->Subject = 'Kirim Ulang: Kode Verifikasi Status Mahasiswa';
+            $mail->Body    = "Halo <b>{$fullName}</b>,<br>Kode OTP Baru Anda: <b>{$otp}</b><br>Kode ini berlaku 5 menit.";
+            $mail->send();
+
+            if (ob_get_length()) ob_clean();
+            echo json_encode([
+                'success' => true,
+                'message' => 'Kode OTP baru berhasil dikirim.'
+            ]);
+            exit;
+        } catch (Exception $e) {
+            if (ob_get_length()) ob_clean();
+            echo json_encode(['success' => false, 'message' => 'Gagal mengirim ulang email.']);
+            exit;
+        }
     }
 }
