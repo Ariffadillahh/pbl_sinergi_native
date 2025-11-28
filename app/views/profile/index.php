@@ -313,6 +313,7 @@ $hiddenRoles = ['ADMIN', 'DOSEN', 'ALUMNI', 'MITRA'];
     </div>
 
     <?php require_once 'app/views/components/modalInvite.php'; ?>
+    <?php require_once 'app/views/components/Forum/modalInviteForum.php'; ?>
     <?php include_once 'app/views/components/modalEditProfile.php'; ?>
     <?php include_once 'app/views/components/modalUpdatePassword.php'; ?>
     <?php include_once 'app/views/components/postingan/modalDeletePost.php'; ?>

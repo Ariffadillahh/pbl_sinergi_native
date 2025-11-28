@@ -26,6 +26,11 @@ switch (true) {
         requireLogin();
         $controller = new ForumController();
         $controller->reqJoin();
+
+    case $route === 'forum/joinViaInvite':
+        requireLogin();
+        $controller = new ForumController();
+        $controller->joinViaInvite();
         break;
 
     case $route ===  'forum/leave':
@@ -44,6 +49,30 @@ switch (true) {
         requireLogin();
         $controller = new ForumController();
         $controller->update();
+        break;
+
+    case $route === 'forum/getForumInfo':
+        requireLogin();
+        $controller = new ForumController();
+        $controller->getForumInfo();
+        break;
+
+    case $route ===  'forum/searchAvailableUsers':
+        requireLogin();
+        $controller = new ForumController();
+        $controller->searchAvailableUsers();
+        break;
+
+    case $route ===  'forum/addMemberByOwner':
+        requireLogin();
+        $controller = new ForumController();
+        $controller->addMemberByOwner();
+        break;
+
+    case $route ===  'forum/removeMemberByOwner':
+        requireLogin();
+        $controller = new ForumController();
+        $controller->removeMemberByOwner();
         break;
 
     case $route ===  'forum/getAssets':
