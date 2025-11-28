@@ -11,17 +11,28 @@
 
     <div class="w-full p-8 lg:p-12">
 
+        <?php
+        $userRole = $_SESSION['role'] ?? '';
+
+        $isRestricted = in_array($userRole, ['MITRA', 'ALUMNI']);
+        ?>
+
         <div class="flex flex-col md:flex-row justify-between items-center mb-8">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">Forum Diskusi</h1>
                 <p class="text-gray-500 text-sm">Temukan komunitas dan bergabunglah dalam diskusi.</p>
             </div>
-            <button id="openModalBtn" class="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full shadow-lg hover:shadow-xl transition duration-300 flex items-center gap-2 font-medium">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Buat Forum Baru
-            </button>
+
+            <?php
+            if (!$isRestricted):
+            ?>
+                <button id="openModalBtn" class="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full shadow-lg hover:shadow-xl transition duration-300 flex items-center gap-2 font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Buat Forum Baru
+                </button>
+            <?php endif; ?>
         </div>
 
         <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
@@ -42,31 +53,45 @@
                     $inactiveClass = "bg-white text-gray-600 border-gray-300 hover:bg-gray-50 hover:text-blue-600";
                     ?>
 
-                    <a href="<?= buildUrl('filter', 'all') ?>" class="<?= $btnBase ?> <?= $filter === 'all' ? $activeClass : $inactiveClass ?>">
-                        All Forums
-                    </a>
+                    <?php
+                    if (!$isRestricted):
+                    ?>
+                        <a href="<?= buildUrl('filter', 'all') ?>" class="<?= $btnBase ?> <?= $filter === 'all' ? $activeClass : $inactiveClass ?>">
+                            All Forums
+                        </a>
+                    <?php endif; ?>
+
                     <a href="<?= buildUrl('filter', 'joined') ?>" class="<?= $btnBase ?> <?= $filter === 'joined' ? $activeClass : $inactiveClass ?>">
                         Joined Forum
                     </a>
-                    <a href="<?= buildUrl('filter', 'owned') ?>" class="<?= $btnBase ?> <?= $filter === 'owned' ? $activeClass : $inactiveClass ?>">
-                        Owned Forum
-                    </a>
+
+                    <?php
+                    if (!$isRestricted):
+                    ?>
+                        <a href="<?= buildUrl('filter', 'owned') ?>" class="<?= $btnBase ?> <?= $filter === 'owned' ? $activeClass : $inactiveClass ?>">
+                            Owned Forum
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
 
-            <form action="" method="GET" class="w-full md:w-auto relative bg-white rounded-full shadow-sm">
-                <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
-                <div class="relative group">
-                    <input type="text" name="search" value="<?= htmlspecialchars($search) ?>"
-                        placeholder="Cari forum..."
-                        class="w-full md:w-72 pl-10 pr-4 py-2.5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all shadow-sm">
-                    <div class="absolute left-3 top-3 text-gray-400 group-focus-within:text-blue-500 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
+            <?php
+            if (!$isRestricted):
+            ?>
+                <form action="" method="GET" class="w-full md:w-auto relative bg-white rounded-full shadow-sm">
+                    <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
+                    <div class="relative group">
+                        <input type="text" name="search" value="<?= htmlspecialchars($search) ?>"
+                            placeholder="Cari forum..."
+                            class="w-full md:w-72 pl-10 pr-4 py-2.5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all shadow-sm">
+                        <div class="absolute left-3 top-3 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            <?php endif; ?>
         </div>
 
         <?php if (empty($forums)): ?>

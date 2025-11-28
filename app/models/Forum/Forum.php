@@ -73,6 +73,7 @@ class ForumModel extends BaseModel
         oci_free_statement($stmt);
 
         $memberId = uniqid();
+        $status = "JOINED";
 
         $sql2 = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, STATUS, JOINED_AT)
              VALUES (:id, :forum_id, :user_id, :status ,SYSDATE)";
@@ -81,7 +82,7 @@ class ForumModel extends BaseModel
 
         oci_bind_by_name($stmt2, ":id", $memberId);
         oci_bind_by_name($stmt2, ":forum_id", $forumId);
-        oci_bind_by_name($stmt2, ":status", 'JOINED');
+        oci_bind_by_name($stmt2, ":status", $status);
         oci_bind_by_name($stmt2, ":user_id", $ownerId);
 
         $result2 = oci_execute($stmt2, OCI_NO_AUTO_COMMIT);
@@ -474,14 +475,17 @@ class ForumModel extends BaseModel
         }
 
         $stmt_insert = null;
+
         try {
             $id = uniqid();
-            $sql = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, JOINED_AT) 
-                VALUES (:id, :forum_id, :user_id, CURRENT_TIMESTAMP)";
+            $status = "JOINED";
+            $sql = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, STATUS, JOINED_AT) 
+                VALUES (:id, :forum_id, :user_id, :status, CURRENT_TIMESTAMP)";
 
             $stmt_insert = oci_parse($conn, $sql);
             oci_bind_by_name($stmt_insert, ':id', $id);
             oci_bind_by_name($stmt_insert, ':forum_id', $forumId);
+            oci_bind_by_name($stmt_insert, ':status', $status);
             oci_bind_by_name($stmt_insert, ':user_id', $userId);
 
             $result = oci_execute($stmt_insert);

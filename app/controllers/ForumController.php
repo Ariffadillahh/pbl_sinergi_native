@@ -19,8 +19,17 @@ class forumController
     {
         $myUserId = $_SESSION['user_id'] ?? null;
 
-        $filter = $_GET['filter'] ?? 'all';
-        $search = $_GET['search'] ?? '';
+        $userRole = $_SESSION['role'] ?? '';
+
+        if (in_array($userRole, ['MITRA', 'ALUMNI'])) {
+            $filter = 'joined';
+            $search = ''; 
+        } else {
+          
+            $filter = $_GET['filter'] ?? 'all';
+            $search = $_GET['search'] ?? '';
+        }
+
         $page   = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $limit  = 9;
 
@@ -28,6 +37,7 @@ class forumController
 
         $offset = ($page - 1) * $limit;
 
+        // Masukkan variabel $filter dan $search yang SUDAH DIAMANKAN di atas ke dalam Model
         $forums = $this->forumModel->getForumsWithFilter($myUserId, $filter, $search, $limit, $offset);
 
         $totalForums = $this->forumModel->countForumsWithFilter($myUserId, $filter, $search);
