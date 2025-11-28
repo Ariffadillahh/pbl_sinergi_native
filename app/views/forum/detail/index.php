@@ -62,9 +62,21 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                             </h1>
 
                             <p class="text-gray-600 text-sm md:text-base flex items-center justify-center md:justify-start gap-2 mt-1">
-                                <span>
-                                    <?= ($forumById['IS_PRIVATE'] == 1) ? '🔒 Private' : '🌐 Public' ?>
-                                </span>
+                                <?php if ($forumById['IS_PRIVATE'] == 1): ?>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                                        </svg>
+                                        Private
+                                    </span>
+                                <?php else: ?>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 18z" clip-rule="evenodd" />
+                                        </svg>
+                                        Public
+                                    </span>
+                                <?php endif; ?>
                                 <span>·</span>
                                 <span class="font-medium">
                                     <?= number_format($forumById['TOTAL_MEMBERS']) ?> Followings
@@ -168,52 +180,106 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
         <div class="max-w-7xl mx-auto mt-4 px-4 pb-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-                <!-- Left Sidebar -->
                 <div class="lg:col-span-1">
                     <div class="sticky top-4">
 
-                        <div class="bg-white rounded-lg shadow p-4 mb-4">
-                            <h3 class="font-bold text-lg mb-3">About</h3>
-                            <p class="text-gray-700 mb-3"><?= $forumById['ABOUT'] ?></p>
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-5 mb-4">
+                            <h3 class="font-bold text-lg text-gray-800 mb-4 border-b border-gray-200 pb-2">About Forum</h3>
 
-                            <div class="space-y-3 text-sm">
-                                <?php if ($forumById['IS_PRIVATE'] == 1): ?>
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-xl">🔒</span>
-                                        <div>
-                                            <p class="font-semibold">Private</p>
-                                            <p class="text-gray-600 text-xs">Only members can see who's in the group and what they post</p>
-                                        </div>
+                            <p class="text-gray-600 mb-6 leading-relaxed">
+                                <?= htmlspecialchars($forumById['ABOUT']) ?>
+                            </p>
+
+                            <div class="space-y-4 text-sm">
+
+                                <div class="flex items-start gap-4">
+                                    <div class="mt-1 p-2 rounded-full bg-gray-50 text-gray-600">
+                                        <?php if ($forumById['IS_PRIVATE'] == 1): ?>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                                            </svg>
+                                        <?php else: ?>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 18z" clip-rule="evenodd" />
+                                            </svg>
+                                        <?php endif; ?>
                                     </div>
-                                <?php else: ?>
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-xl">🌐</span>
-                                        <div>
-                                            <p class="font-semibold">Public</p>
-                                            <p class="text-gray-600 text-xs">Anyone can see who's in the group</p>
+                                    <div>
+                                        <p class="font-semibold text-gray-900">
+                                            <?= $forumById['IS_PRIVATE'] == 1 ? 'Private Group' : 'Public Group' ?>
+                                        </p>
+                                        <p class="text-gray-500 text-xs mt-0.5">
+                                            <?= $forumById['IS_PRIVATE'] == 1
+                                                ? "Only members can see posts and members."
+                                                : "Anyone can see who's in the group." ?>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start gap-4">
+                                    <div class="mt-1 p-2 rounded-full bg-gray-50 text-gray-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-900">
+                                            <?= $forumById['STATUS'] == 'ACTIVE' ? 'Visible' : 'Hidden / Non-Active' ?>
+                                        </p>
+                                        <p class="text-gray-500 text-xs mt-0.5">
+                                            <?= $forumById['STATUS'] == 'ACTIVE'
+                                                ? "Anyone can find this group."
+                                                : "This group is hidden from search." ?>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <?php
+                                $isPrivate = ($forumById['IS_PRIVATE'] == 1);
+
+                                $userRole = $_SESSION['role'] ?? '';
+                                $isAuthorized = ($forumById['OWNER_ID'] === $_SESSION['user_id']) ||
+                                    in_array($userRole, ['DOSEN', 'ADMIN']);
+
+                                if ($isPrivate && $isAuthorized) :
+                                ?>
+                                    <div class="flex items-start gap-4">
+                                        <div class="mt-1 p-2 rounded-full bg-gray-50 text-gray-600">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 010-2z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="font-semibold text-gray-900">Access Key</p>
+
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <div class="bg-gray-100 px-3 py-1.5 rounded text-gray-700 font-mono text-sm tracking-wide select-all" id="accessKeyText">
+                                                    <?= htmlspecialchars($forumById['ACCESS_KEY']) ?>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    id="btnCopyAccessKey"
+                                                    class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors duration-200"
+                                                    title="Copy Access Key">
+
+                                                    <span id="iconClipboard">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                                        </svg>
+                                                    </span>
+
+                                                    <span id="iconCheck" class="hidden text-green-600">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                        </svg>
+                                                    </span>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 <?php endif; ?>
-
-                                <?php if ($forumById['STATUS'] == 'ACTIVE'): ?>
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-xl">👁️</span>
-                                        <div>
-                                            <p class="font-semibold">Visible</p>
-                                            <p class="text-gray-600 text-xs">Anyone can find this group</p>
-                                        </div>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="flex items-start gap-3">
-                                        <span class="text-xl">👁️</span>
-                                        <div>
-                                            <p class="font-semibold">NONACTIVE</p>
-                                            <p class="text-gray-600 text-xs">Anyone can't find this group</p>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
-
-
                             </div>
                         </div>
 
@@ -402,6 +468,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
             const tabButtons = document.querySelectorAll('.tab-btn');
             const tabContents = document.querySelectorAll('.tab-content');
 
@@ -432,38 +499,66 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                 });
             }
 
+            const btnCopy = document.getElementById('btnCopyAccessKey');
+            const keyTextElement = document.getElementById('accessKeyText');
+            const iconClipboard = document.getElementById('iconClipboard');
+            const iconCheck = document.getElementById('iconCheck');
+
+            if (btnCopy && keyTextElement) {
+                btnCopy.addEventListener('click', function() {
+                    const keyText = keyTextElement.innerText.trim();
+
+                    navigator.clipboard.writeText(keyText).then(() => {
+                        iconClipboard.classList.add('hidden');
+                        iconCheck.classList.remove('hidden');
+
+                        setTimeout(() => {
+                            iconCheck.classList.add('hidden');
+                            iconClipboard.classList.remove('hidden');
+                        }, 2000);
+
+                    }).catch(err => {
+                        console.error('Gagal menyalin teks: ', err);
+                        alert('Gagal menyalin key secara otomatis.');
+                    });
+                });
+            }
+
             const modalLeave = document.getElementById("modal-leave-forum");
             const openLeaveBtn = document.getElementById("btn-open-leave-forum");
             const cancelLeaveBtn = document.getElementById("btn-cancel-leave-forum");
             const confirmLeaveBtn = document.getElementById("btn-confirm-leave-forum");
 
-            openLeaveBtn.addEventListener("click", () => {
-                modalLeave.classList.remove("hidden");
-                modalLeave.classList.add("flex");
-            });
+            if (openLeaveBtn && modalLeave) {
+                openLeaveBtn.addEventListener("click", () => {
+                    modalLeave.classList.remove("hidden");
+                    modalLeave.classList.add("flex");
+                });
 
-            cancelLeaveBtn.addEventListener("click", () => {
-                modalLeave.classList.add("hidden");
-                modalLeave.classList.remove("flex");
-            });
+                cancelLeaveBtn.addEventListener("click", () => {
+                    modalLeave.classList.add("hidden");
+                    modalLeave.classList.remove("flex");
+                });
 
-            confirmLeaveBtn.addEventListener("click", () => {
-                const formData = new FormData();
-                formData.append('forum_id', '<?= $forumById['ID'] ?>');
-                fetch('<?= BASEURL ?>/forum/leave', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.success) {
-                            location.href = '<?= BASEURL ?>/forums';
-                        } else {
-                            alert(result.message);
-                        }
-                    })
-            });
+                confirmLeaveBtn.addEventListener("click", () => {
+                    const formData = new FormData();
+                    formData.append('forum_id', '<?= $forumById['ID'] ?>');
 
+                    fetch('<?= BASEURL ?>/forum/leave', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.success) {
+                                location.href = '<?= BASEURL ?>/forums';
+                            } else {
+                                alert(result.message);
+                            }
+                        })
+                        .catch(err => console.error(err));
+                });
+            }
         });
     </script>
 </body>

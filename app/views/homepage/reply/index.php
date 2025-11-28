@@ -86,7 +86,7 @@ function organizeReplies($replies)
                             <div class="flex-1 w-full relative">
                                 <textarea name="message" rows="2"
                                     class="comment-textarea w-full hide-scrollbar bg-transparent text-base sm:text-lg text-gray-800 placeholder-gray-500 border-none focus:ring-0 focus:outline-none resize-none p-1"
-                                    placeholder="Add Comment...."></textarea>
+                                    placeholder="Add Comment...." maxlength="150"></textarea>
                                 <div class="mention-dropdown hidden absolute bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50 w-full mt-1"></div>
                             </div>
                             <div class="w-full sm:w-auto flex items-center justify-end sm:mt-2">
@@ -174,7 +174,7 @@ function organizeReplies($replies)
                                                                 : BASEURL . '/src/asset/image/default.png' ?>" alt="Your Profile" class="w-10 h-10 rounded-full">
                                             </div>
                                             <div class="flex-1 w-full relative">
-                                                <textarea name="message" rows="1"
+                                                <textarea name="message" rows="1" maxlength="150"
                                                     class="reply-textarea w-full hide-scrollbar bg-transparent text-sm sm:text-base text-gray-800 ring-1 placeholder-gray-500 border-none focus:ring-1 focus:outline-blue-600 rounded-2xl p-2 sm:p-2.5 ps-3"></textarea>
                                                 <div class="mention-dropdown hidden absolute bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50 w-full mt-1"></div>
                                             </div>

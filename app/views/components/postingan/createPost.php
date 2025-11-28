@@ -18,12 +18,18 @@
                 name="content"
                 rows="1"
                 placeholder="Apa yang sedang Anda pikirkan?"
-                class="w-full bg-gray-100 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 resize-none min-h-[3.5rem] max-h-48 overflow-y-auto"></textarea>
+                class="w-full bg-gray-100 rounded-lg px-4 py-3 pr-14 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 resize-none min-h-[3.5rem] max-h-48 overflow-y-auto"></textarea>
+
+            <span id="contentCounter"
+                class="absolute bottom-2 right-4 text-xs text-gray-500 pointer-events-none">
+                0/250
+            </span>
 
             <div id="mention"
                 class="hidden absolute bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50 w-full mt-1">
             </div>
         </div>
+
     </div>
 
     <div id="image-preview-container" class="mt-4 flex flex-nowrap gap-3 overflow-x-auto pb-2"></div>
@@ -349,6 +355,19 @@ if (isset($_SESSION['img_mood']) && !empty($_SESSION['img_mood'])) {
             }
         });
     });
+
+    const contentInput = document.getElementById('content');
+    const contentCounter = document.getElementById('contentCounter');
+    const CONTENT_MAX = 250;
+
+    contentInput.addEventListener('input', function() {
+        if (this.value.length > CONTENT_MAX) {
+            this.value = this.value.slice(0, CONTENT_MAX);
+        }
+
+        contentCounter.textContent = `${this.value.length}/${CONTENT_MAX}`;
+    });
+
 
     const textarea = document.getElementById('content');
     const mentionDropdown = document.getElementById('mention');

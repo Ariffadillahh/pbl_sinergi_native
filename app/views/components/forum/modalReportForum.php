@@ -66,7 +66,7 @@
 
                     <div id="other-reason-container" class="mt-4 hidden">
                         <label for="other-reason-text" class="block mb-2 text-sm font-medium text-gray-900">Please explain your reason:</label>
-                        <input id="other-reason-text" name="other_reason_text" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Write your specific reason here..." />
+                        <input id="other-reason-text" name="other_reason_text" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Write your specific reason here..." maxlength="80" />
                     </div>
 
                 </form>

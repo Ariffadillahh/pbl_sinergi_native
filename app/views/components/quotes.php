@@ -1,4 +1,4 @@
-<div id="quote-modal" class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50 p-5 md:p-0 backdrop-blur-sm">
+<div id="quote-modal" class="hidden fixed inset-0 z-[99999] justify-center items-center w-full h-full bg-black/50 p-5 md:p-0 backdrop-blur-sm">
     <div class="relative bg-gradient-to-br from-blue-500 via-indigo-700 to-blue-900 rounded-2xl shadow-lg p-8 w-full max-w-md">
         <div class="absolute -top-16 -right-10">
             <button id="close-quote-btn"

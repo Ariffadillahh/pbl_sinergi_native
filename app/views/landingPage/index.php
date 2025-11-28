@@ -21,7 +21,7 @@
                 <li><a href="#fitur" class="hover:text-blue-600 transition">Features</a></li>
                 <li><a href="#testimoni" class="hover:text-blue-600 transition">Review</a></li>
             </ul>
-            <a href="<?= BASEURL ?>/sign-in" class="border-2 border-blue-500 text-blue-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-500 hover:text-white transition duration-300">My Account</a>
+            <a href="<?= BASEURL ?>/sign-in" class="border-2 border-blue-500 text-blue-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-500 hover:text-white transition duration-300">Sign In</a>
         </nav>
 
         <section class="grid grid-cols-1 lg:grid-cols-2 px-6 lg:px-20 py-12 lg:py-20 gap-8 items-center" id="home">

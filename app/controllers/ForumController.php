@@ -667,11 +667,12 @@
 
             try {
                 $result = $this->forumModel->sendJoinRequest($forumId, $userId);
-
                 echo json_encode($result);
+                exit;
             } catch (Exception $e) {
                 http_response_code(500);
                 echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+                exit;
             }
         }
 

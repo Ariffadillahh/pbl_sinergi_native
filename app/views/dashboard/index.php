@@ -37,10 +37,10 @@
         <div class="bg-white drop-shadow rounded-xl p-4">
             <div class="flex justify-between items-center">
                 <p class="text-lg font-medium text-gray-700">Total Grop</p>
-                <img src="<?php echo BASEURL ?>/src/asset/icons/forums.svg" class="size-10">
+                <img src="<?php echo BASEURL ?>/src/asset/icons/group.svg" class="size-10">
             </div>
             <h1 id="total-forums" class="text-xl font-bold mt-4"><?= $groupCount ?? 0 ?></h1>
-            <p class="text-sm md:text-md font-medium text-[#7C3AED] line-clamp-1">Created</p>
+            <p class="text-sm md:text-md font-medium text-[#C163A6] line-clamp-1">Created</p>
         </div>
         <div class="bg-white drop-shadow rounded-xl p-4">
             <div class="flex justify-between items-center">

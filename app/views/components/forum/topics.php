@@ -44,9 +44,32 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                         <div>
                             <h4 class="font-semibold text-gray-900 leading-tight"><?= htmlspecialchars($topic['FULL_NAME']) ?></h4>
                             <p class="text-sm text-gray-500 mt-0.5">
-                                @<?= htmlspecialchars($topic['USERNAME']) ?> ·
-                                <span class="time-ago" data-time="<?= $topic['CREATED_AT'] ?>">
-                                    <?= $topic['CREATED_AT'] ?> </span>
+                                <?php
+                                $topicUserId = $topic['USER_ID'] ?? '';
+                                $topicUsername = $topic['USERNAME'] ?? 'username';
+
+                                $profileUrl = ($topicUserId === ($_SESSION['user_id'] ?? ''))
+                                    ? BASEURL . "/profile"
+                                    : BASEURL . "/homepage/user/profile/" . htmlspecialchars($topicUserId);
+
+                                $currentRole = $_SESSION['role'] ?? '';
+                                $allowedRoles = ['MAHASISWA', 'DOSEN', 'ADMIN'];
+                                $isLinkActive = in_array($currentRole, $allowedRoles);
+                                ?>
+
+                            <span class="text-sm text-gray-500">
+                                <?php if ($isLinkActive): ?>
+                                    <a href="<?= $profileUrl ?>" class="hover:underline hover:text-blue-600 transition-colors">
+                                        @<?= htmlspecialchars($topicUsername) ?>
+                                    </a>
+                                <?php else: ?>
+                                    <span class="cursor-default">
+                                        @<?= htmlspecialchars($topicUsername) ?>
+                                    </span>
+                                <?php endif; ?>
+                            </span> ·
+                            <span class="time-ago" data-time="<?= $topic['CREATED_AT'] ?>">
+                                <?= $topic['CREATED_AT'] ?> </span>
                             </p>
                         </div>
                     </div>
