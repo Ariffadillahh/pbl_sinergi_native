@@ -146,6 +146,12 @@ class AuthController
 
             $user = $this->loginModel->getUserByUsernameOrEmail($identifier);
 
+            if ($user['STATUS'] !== 'APPROVED') {
+                $_SESSION['login_error'] = "Username, Email, atau Password salah!";
+                header('Location: ' . BASEURL . '/sign-in');
+                exit();
+            }
+
             if ($user && password_verify($password, $user['PASSWORD'])) {
 
                 if ($user['ROLE'] == 'MAHASISWA') {

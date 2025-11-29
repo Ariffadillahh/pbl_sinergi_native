@@ -15,9 +15,9 @@
                             alt="Profile"
                             class="w-20 h-20 md:w-24 md:h-24 rounded-xl border-4 border-white bg-white shadow-lg object-cover">
                     </div>
-                    <div class="mb-1 md:mb-2 pt-16">
-                        <h2 id="groupNamePreview" class="text-xl md:text-2xl font-bold text-gray-900 leading-tight truncate max-w-[200px] md:max-w-xs">Grup Baru</h2>
-                        <p class="text-xs md:text-sm text-gray-500 font-medium flex items-center gap-1">
+                    <div class="mb-1 md:mb-2 pt-16 ">
+                        <h2 id="groupNamePreview" class="text-xl md:text-2xl font-bold text-gray-900 leading-tight truncate max-w-[200px] md:max-w-xs drop-shadow-sm bg-white/50 backdrop-blur-sm px-2 rounded-lg">Grup Baru</h2>
+                        <p class="mt-1 flex items-center gap-1 bg-white/80 backdrop-blur-md px-2 py-0.5 rounded-full w-max shadow-sm border border-gray-100">
                             <span id="privacyIcon" class="text-lg">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -43,12 +43,26 @@
 
             <div id="alertBox" class="hidden fixed top-10 right-10 mb-4 p-4 rounded-lg text-sm"></div>
 
-            <div class="mb-5">
+            <div class="mb-5 relative">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Forum</label>
-                <input type="text" id="groupNameInput" name="NAME" placeholder="Contoh: Komunitas Koding Indonesia"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                    required>
+
+                <div class="relative">
+                    <input
+                        type="text"
+                        id="groupNameInput"
+                        name="NAME"
+                        placeholder="Contoh: Komunitas Koding Indonesia"
+                        class="w-full px-4 py-3 pr-14 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                        required>
+                    <span
+                        id="nameCounter"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">
+                        0/15
+                    </span>
+                </div>
+
             </div>
+
 
             <div class="mb-5">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Privasi</label>
@@ -134,8 +148,23 @@
 
             <div class="mb-6">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi</label>
-                <textarea rows="3" name="ABOUT" placeholder="Jelaskan tujuan forum ini..." class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"></textarea>
+
+                <div class="relative">
+                    <textarea
+                        id="aboutText"
+                        rows="3"
+                        name="ABOUT"
+                        placeholder="Jelaskan tujuan forum ini..."
+                        class="w-full px-4 py-3 pr-14 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"></textarea>
+
+                    <span
+                        id="aboutCounter"
+                        class="absolute right-3 bottom-3 text-xs pt-3 text-gray-400 pointer-events-none">
+                        0/150
+                    </span>
+                </div>
             </div>
+
 
             <div class="flex justify-end gap-3 pt-2">
                 <button type="button" id="cancelBtn" class="px-6 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition">Batal</button>
@@ -175,8 +204,28 @@
         const privacyIcon = document.getElementById('privacyIcon');
         const profileInputPreview = document.getElementById('profileInputPreview');
         const bannerInputPreview = document.getElementById('bannerInputPreview');
+        const aboutText = document.getElementById('aboutText');
+        const aboutCounter = document.getElementById('aboutCounter');
+        const counter = document.getElementById('nameCounter');
 
         let isCustomProfile = false;
+
+        const MAX_LENGTH = 15;
+        const ABOUT_MAX = 150;
+
+        aboutText.addEventListener('input', function() {
+            if (this.value.length > ABOUT_MAX) {
+                this.value = this.value.slice(0, ABOUT_MAX);
+            }
+            aboutCounter.textContent = `${this.value.length}/${ABOUT_MAX}`;
+        });
+
+        nameInput.addEventListener('input', function() {
+            if (this.value.length > MAX_LENGTH) {
+                this.value = this.value.slice(0, MAX_LENGTH);
+            }
+            counter.textContent = `${this.value.length}/${MAX_LENGTH}`;
+        });
 
         function toggleModal(show) {
             if (show) {

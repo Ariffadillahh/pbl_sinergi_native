@@ -13,7 +13,7 @@
             <table class="w-full text-sm text-left rtl:text-right text-gray-500">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
-                        <th scope="col" class="px-6 py-3">Jumlah Laporan</th>
+                        <th scope="col" class="px-6 py-3">Report Count</th>
                         <th scope="col" class="px-6 py-3">Post Owner</th>
                         <th scope="col" class="px-6 py-3">Post Link</th>
                         <th scope="col" class="px-6 py-3">Reason</th>
@@ -24,7 +24,7 @@
                     <?php if (empty($report)) : ?>
                         <tr class="bg-white border-b border-gray-200">
                             <td colspan="5" class="px-6 py-4 text-center text-gray-500">
-                                Tidak ada Laporan Postingan ditemukan.
+                                Report Not Found
                             </td>
                         </tr>
                     <?php else : ?>

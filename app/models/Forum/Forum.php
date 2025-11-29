@@ -73,14 +73,16 @@ class ForumModel extends BaseModel
         oci_free_statement($stmt);
 
         $memberId = uniqid();
+        $status = "JOINED";
 
-        $sql2 = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, JOINED_AT)
-             VALUES (:id, :forum_id, :user_id, SYSDATE)";
+        $sql2 = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, STATUS, JOINED_AT)
+             VALUES (:id, :forum_id, :user_id, :status ,SYSDATE)";
 
         $stmt2 = oci_parse($conn, $sql2);
 
         oci_bind_by_name($stmt2, ":id", $memberId);
         oci_bind_by_name($stmt2, ":forum_id", $forumId);
+        oci_bind_by_name($stmt2, ":status", $status);
         oci_bind_by_name($stmt2, ":user_id", $ownerId);
 
         $result2 = oci_execute($stmt2, OCI_NO_AUTO_COMMIT);
@@ -157,12 +159,12 @@ class ForumModel extends BaseModel
         $bindings = [];
 
         $sql = "SELECT 
-            f.*, 
-            u.FULL_NAME AS OWNER_NAME,
-            (SELECT COUNT(*) FROM FORUM_MEMBERS fm WHERE fm.FORUM_ID = f.ID) AS TOTAL_MEMBERS,
-            (SELECT COUNT(*) FROM FORUM_MEMBERS fm2 WHERE fm2.FORUM_ID = f.ID AND fm2.USER_ID = :userid_check) AS IS_MEMBER
-        FROM FORUMS f
-        JOIN USERS u ON f.OWNER_ID = u.ID ";
+                f.*, 
+                u.FULL_NAME AS OWNER_NAME,
+                (SELECT COUNT(*) FROM FORUM_MEMBERS fm WHERE fm.FORUM_ID = f.ID AND fm.STATUS = 'JOINED') AS TOTAL_MEMBERS,
+                (SELECT COUNT(*) FROM FORUM_MEMBERS fm2 WHERE fm2.FORUM_ID = f.ID AND fm2.USER_ID = :userid_check AND fm2.STATUS = 'JOINED') AS IS_MEMBER
+            FROM FORUMS f
+            JOIN USERS u ON f.OWNER_ID = u.ID ";
 
         if ($filter === 'joined') {
             $sql .= " JOIN FORUM_MEMBERS fm_filter ON f.ID = fm_filter.FORUM_ID ";
@@ -176,6 +178,7 @@ class ForumModel extends BaseModel
 
         if ($filter === 'joined') {
             $sql .= " AND fm_filter.USER_ID = :userid_filter ";
+            $sql .= " AND fm_filter.STATUS = 'JOINED' ";
             $bindings[':userid_filter'] = $userId;
         } elseif ($filter === 'owned') {
             $sql .= " AND f.OWNER_ID = :owner_id ";
@@ -196,12 +199,13 @@ class ForumModel extends BaseModel
 
         $stmt = oci_parse($conn, $sql);
         foreach ($bindings as $key => $val) {
+            $tempVal = $val;
             oci_bind_by_name($stmt, $key, $bindings[$key]);
         }
         oci_execute($stmt);
 
         $forums = [];
-        while ($row = oci_fetch_assoc($stmt)) {
+        while ($row = oci_fetch_array($stmt, OCI_ASSOC + OCI_RETURN_NULLS)) {
             $forums[] = $row;
         }
         return $forums;
@@ -250,7 +254,8 @@ class ForumModel extends BaseModel
         $conn = self::getConnection();
 
         $sql = "SELECT f.*, 
-                   (SELECT COUNT(*) FROM FORUM_MEMBERS fm WHERE fm.FORUM_ID = f.ID) AS TOTAL_MEMBERS,
+                   (SELECT COUNT(*) FROM FORUM_MEMBERS fm WHERE fm.FORUM_ID = f.ID AND fm.STATUS = 'JOINED') AS TOTAL_MEMBERS,
+                   (SELECT COUNT(*) FROM FORUM_MEMBERS fm WHERE fm.FORUM_ID = f.ID AND fm.STATUS = 'PENDING') AS TOTAL_REQUESTS,
                    u.FULL_NAME AS OWNER_NAME,
                    u.PATH_PHOTO AS PATH_PHOTO_OWNER,
                    u.ROLE AS ROLE_OWNER
@@ -332,9 +337,10 @@ class ForumModel extends BaseModel
         $conn = self::getConnection();
 
         $sql = "SELECT COUNT(*) AS TOTAL 
-                FROM FORUM_MEMBERS 
-                WHERE FORUM_ID = :forum_id 
-                AND USER_ID = :user_id";
+            FROM FORUM_MEMBERS 
+            WHERE FORUM_ID = :forum_id 
+            AND USER_ID = :user_id
+            AND STATUS = 'JOINED'";
 
         $stmt = oci_parse($conn, $sql);
 
@@ -353,14 +359,16 @@ class ForumModel extends BaseModel
         $conn = self::getConnection();
 
         $id = uniqid('member_');
+        $status = 'JOINED';
 
-        $sql = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, JOINED_AT) 
-            VALUES (:id, :forum_id, :user_id, SYSDATE)";
+        $sql = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, STATUS, JOINED_AT) 
+            VALUES (:id, :forum_id, :user_id, :status, SYSDATE)";
 
         $stmt = oci_parse($conn, $sql);
 
         oci_bind_by_name($stmt, ":id", $id);
         oci_bind_by_name($stmt, ":forum_id", $forumId);
+        oci_bind_by_name($stmt, ":status", $status);
         oci_bind_by_name($stmt, ":user_id", $userId);
 
         $result = oci_execute($stmt, OCI_NO_AUTO_COMMIT);
@@ -387,7 +395,7 @@ class ForumModel extends BaseModel
                 u.ROLE 
             FROM FORUM_MEMBERS fm
             JOIN USERS u ON fm.USER_ID = u.ID
-            WHERE fm.FORUM_ID = :forum_id
+            WHERE fm.FORUM_ID = :forum_id AND fm.STATUS = 'JOINED'
             ORDER BY fm.JOINED_AT DESC";
 
         $stmt = oci_parse($conn, $sql);
@@ -467,14 +475,17 @@ class ForumModel extends BaseModel
         }
 
         $stmt_insert = null;
+
         try {
             $id = uniqid();
-            $sql = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, JOINED_AT) 
-                VALUES (:id, :forum_id, :user_id, CURRENT_TIMESTAMP)";
+            $status = "JOINED";
+            $sql = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, STATUS, JOINED_AT) 
+                VALUES (:id, :forum_id, :user_id, :status, CURRENT_TIMESTAMP)";
 
             $stmt_insert = oci_parse($conn, $sql);
             oci_bind_by_name($stmt_insert, ':id', $id);
             oci_bind_by_name($stmt_insert, ':forum_id', $forumId);
+            oci_bind_by_name($stmt_insert, ':status', $status);
             oci_bind_by_name($stmt_insert, ':user_id', $userId);
 
             $result = oci_execute($stmt_insert);
@@ -644,9 +655,6 @@ class ForumModel extends BaseModel
     {
         $conn = self::getConnection();
 
-        // HAPUS titik koma (;) di akhir query
-        // TAMBAHKAN m.ORIGINAL_FILENAME agar nama file muncul
-        // GANTI TO_CHAR(t.CONTENT) dengan DBMS_LOB.SUBSTR agar aman jika konten panjang
         $sql = "SELECT 
                 m.ID AS MEDIA_ID,
                 m.MEDIA_PATH,
@@ -663,7 +671,7 @@ class ForumModel extends BaseModel
             JOIN USERS u ON t.USER_ID = u.ID
             WHERE t.FORUM_ID = :forum_id 
             AND m.MEDIA_TYPE IN ('IMAGE', 'FILE') 
-            ORDER BY m.CREATED_AT DESC"; // Tidak boleh ada ; di sini
+            ORDER BY m.CREATED_AT DESC";
 
         $stid = oci_parse($conn, $sql);
 
@@ -685,6 +693,157 @@ class ForumModel extends BaseModel
         return $results;
     }
 
+    public function getPendingRequests($forumId)
+    {
+        $conn = self::getConnection();
+
+        $sql = "SELECT 
+                    FM.ID as \"id\",
+                    U.FULL_NAME as \"nama\",
+                    U.USERNAME as \"username\",
+                    U.ROLE as \"role\",
+                    U.PATH_PHOTO as \"photo\"
+                FROM FORUM_MEMBERS FM
+                JOIN USERS U ON FM.USER_ID = U.ID
+                WHERE FM.FORUM_ID = :forum_id 
+                AND FM.STATUS = 'PENDING'";
+
+        // 1. Prepare Statement
+        $stid = oci_parse($conn, $sql);
+        if (!$stid) {
+            $e = oci_error($conn);
+            throw new Exception($e['message']);
+        }
+
+        // 2. Bind Parameter
+        // Note: oci_bind_by_name butuh variable reference, jadi $forumId aman
+        oci_bind_by_name($stid, ':forum_id', $forumId);
+
+        // 3. Execute
+        oci_execute($stid);
+
+        // 4. Fetch All
+        // OCI_FETCHSTATEMENT_BY_ROW: Agar format arraynya per baris (seperti PDO::FETCH_ASSOC)
+        // OCI_ASSOC: Agar index arraynya nama kolom
+        $output = [];
+        oci_fetch_all($stid, $output, 0, -1, OCI_FETCHSTATEMENT_BY_ROW + OCI_ASSOC);
+
+        // Bersihkan statement
+        oci_free_statement($stid);
+
+        // Penting: Oracle return nama kolom UPPERCASE by default, 
+        // tapi karena kita pake alias di SQL (as "id"), biasanya aman jadi lowercase.
+        return $output;
+    }
+
+    public function acceptMember($requestId)
+    {
+        $conn = self::getConnection();
+
+        $sql = "UPDATE FORUM_MEMBERS 
+                SET STATUS = 'JOINED', JOINED_AT = SYSDATE 
+                WHERE ID = :id";
+
+        $stid = oci_parse($conn, $sql);
+        if (!$stid) {
+            $e = oci_error($conn);
+            throw new Exception($e['message']);
+        }
+
+        oci_bind_by_name($stid, ':id', $requestId);
+
+        // OCI_COMMIT_ON_SUCCESS: Auto commit jika tidak error
+        $result = oci_execute($stid, OCI_COMMIT_ON_SUCCESS);
+
+        oci_free_statement($stid);
+
+        return $result;
+    }
+
+    public function rejectMember($requestId)
+    {
+        $conn = self::getConnection();
+
+        $sql = "DELETE FROM FORUM_MEMBERS WHERE ID = :id";
+
+        $stid = oci_parse($conn, $sql);
+        if (!$stid) {
+            $e = oci_error($conn);
+            throw new Exception($e['message']);
+        }
+
+        oci_bind_by_name($stid, ':id', $requestId);
+
+        // OCI_COMMIT_ON_SUCCESS: Auto commit jika tidak error
+        $result = oci_execute($stid, OCI_COMMIT_ON_SUCCESS);
+
+        oci_free_statement($stid);
+
+        return $result;
+    }
+
+    public function checkMemberStatus($forumId, $userId)
+    {
+        $conn = self::getConnection();
+
+        $sql = "SELECT STATUS FROM FORUM_MEMBERS 
+                WHERE FORUM_ID = :forum_id 
+                AND USER_ID = :user_id";
+
+        $stmt = oci_parse($conn, $sql);
+
+        oci_bind_by_name($stmt, ":forum_id", $forumId);
+        oci_bind_by_name($stmt, ":user_id", $userId);
+
+        oci_execute($stmt);
+
+        $row = oci_fetch_array($stmt, OCI_ASSOC);
+
+        if ($row) {
+            return $row['STATUS'];
+        }
+
+        return null; 
+    }
+
+    public function sendJoinRequest($forumId, $userId)
+    {
+        $conn = self::getConnection();
+
+        $currentStatus = $this->checkMemberStatus($forumId, $userId);
+
+        if ($currentStatus === 'JOINED') {
+            return ['success' => false, 'message' => 'Anda sudah menjadi anggota forum ini.'];
+        }
+
+        if ($currentStatus === 'PENDING') {
+            return ['success' => false, 'message' => 'Your join request is already pending approval.'];
+        }
+
+        $id = uniqid('req_'); 
+        $status = 'PENDING'; 
+
+        $sql = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, STATUS, JOINED_AT) 
+                VALUES (:id, :forum_id, :user_id, :status, SYSDATE)";
+
+        $stmt = oci_parse($conn, $sql);
+
+        oci_bind_by_name($stmt, ":id", $id);
+        oci_bind_by_name($stmt, ":forum_id", $forumId);
+        oci_bind_by_name($stmt, ":user_id", $userId);
+        oci_bind_by_name($stmt, ":status", $status);
+
+        $result = oci_execute($stmt, OCI_NO_AUTO_COMMIT);
+
+        if ($result) {
+            oci_commit($conn);
+            return ['success' => true, 'message' => 'Permintaan berhasil dikirim.'];
+        } else {
+            $e = oci_error($stmt);
+            oci_rollback($conn);
+            return ['success' => false, 'message' => 'Database Error: ' . $e['message']];
+        }
+    }
     public function searchNonMembers($forumId, $search = '')
 {
     $conn = self::getConnection();

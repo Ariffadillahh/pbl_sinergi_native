@@ -123,7 +123,7 @@ $showArrow = ($isChild
                     <div class="relative flex-1 w-full">
                         <textarea name="message" rows="1"
                             class="reply-textarea w-full hide-scrollbar bg-transparent text-sm md:text-base text-gray-800 ring-1 ring-gray-300 placeholder-gray-500 border-none focus:ring-blue-600 focus:outline-none rounded-2xl p-2 md:p-2.5 ps-3 resize-none"
-                            placeholder="Reply..."></textarea>
+                            placeholder="Reply..." maxlength="150"></textarea>
                         <div class="mention-dropdown hidden absolute bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50 w-full mt-1"></div>
                     </div>
                 </div>

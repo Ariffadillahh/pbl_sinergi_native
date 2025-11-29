@@ -94,6 +94,50 @@ class ReportManage extends BaseModel
         return $reports;
     }
 
+    public function getReportGroup()
+    {
+        $conn = self::getConnection();
+
+        $sql = "
+            SELECT 
+                GC.ID AS GROUP_ID,
+                GC.NAME AS GROUP_NAME,
+                GC.OWNER_ID,
+                U.FULL_NAME AS OWNER_NAME,
+                COUNT(R.ID) AS TOTAL_REPORTS,
+                LISTAGG(R.ID, ', ') WITHIN GROUP (ORDER BY R.ID) AS REPORT_IDS
+            FROM REPORT R
+            JOIN GROUP_CHATS GC ON R.TARGET_ID = GC.ID
+            JOIN USERS U ON GC.OWNER_ID = U.ID
+            WHERE R.TARGET_TYPE = 'GROUP'
+            GROUP BY GC.ID, GC.NAME, GC.OWNER_ID, U.FULL_NAME
+            ORDER BY TOTAL_REPORTS DESC
+        ";
+
+
+        $stmt = oci_parse($conn, $sql);
+        if (!$stmt) {
+            $e = oci_error($conn);
+            throw new Exception('Oracle parse error: ' . htmlentities($e['message']));
+        }
+
+        $executed = oci_execute($stmt);
+        if (!$executed) {
+            $e = oci_error($stmt);
+            throw new Exception('Oracle execute error: ' . htmlentities($e['message']));
+        }
+
+        $reports = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $reports[] = $row;
+        }
+
+        oci_free_statement($stmt);
+        oci_close($conn);
+
+        return $reports;
+    }
+
     public function getReasonsByForumId($forumId)
     {
         $conn = self::getConnection();
@@ -123,6 +167,38 @@ class ReportManage extends BaseModel
 
         return $reasons;
     }
+
+    public function getReasonsByGroupId($groupId)
+    {
+        $conn = self::getConnection();
+
+        $sql = "
+            SELECT 
+                R.REASON,
+                U.FULL_NAME AS REPORTER_NAME,
+                U.PATH_PHOTO
+            FROM REPORT R
+            JOIN USERS U ON R.USER_ID = U.ID
+            WHERE R.TARGET_TYPE = 'GROUP'
+            AND R.TARGET_ID = :groupId
+            ORDER BY R.CREATED_AT DESC
+        ";
+
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ':groupId', $groupId);
+        oci_execute($stmt);
+
+        $reasons = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $reasons[] = $row;
+        }
+
+        oci_free_statement($stmt);
+        oci_close($conn);
+
+        return $reasons;
+    }
+
 
     public function getReasonsByPostId($postId)
     {

@@ -15,10 +15,12 @@
                 <div class="flex items-center justify-between gap-3 sm:gap-4">
 
                     <div class="flex items-center gap-2 flex-shrink-0">
-                        <h1 class="hidden sm:block text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+                        <h1 class="hidden lg:block text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
                             SINERGI
                         </h1>
-                        <img src="<?php echo BASEURL; ?>/src/asset/icons/logo-icon.svg" class="flex w-11 h-9 shrink-0 md:hidden" alt="logo">
+                        <a href="<?= BASEURL ?>/homepage">
+                            <img src="<?php echo BASEURL; ?>/src/asset/icons/logo-icon.svg" class="flex w-11 h-9 shrink-0 lg:hidden" alt="logo">
+                        </a>
                     </div>
 
                     <form id="searchForm" class="flex-1 max-w-2xl" onsubmit="return handleSearch(event)">

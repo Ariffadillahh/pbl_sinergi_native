@@ -213,7 +213,7 @@ class User extends BaseModel
 
         $sql = "SELECT ID, USERNAME, FULL_NAME, PATH_PHOTO, ROLE 
             FROM USERS 
-            WHERE ID != :id";
+            WHERE ID != :id AND STATUS = 'APPROVED'";
 
         $stmt = oci_parse($conn, $sql);
 
@@ -251,10 +251,10 @@ class User extends BaseModel
             return 0;
         }
 
-        $sql = "SELECT COUNT(*) as total FROM USERS";
+        $sql = "SELECT COUNT(*) as total FROM USERS WHERE STATUS = 'APPROVED'";
 
         if (!empty($keyword)) {
-            $sql .= " WHERE LOWER(FULL_NAME) LIKE :keyword OR LOWER(PERSONAL_NUMBER) LIKE :keyword";
+            $sql .= " AND LOWER(FULL_NAME) LIKE :keyword OR LOWER(PERSONAL_NUMBER) LIKE :keyword";
             $params[':keyword'] = "%" . strtolower($keyword) . "%";
         }
 
@@ -303,10 +303,10 @@ class User extends BaseModel
             return [];
         }
 
-        $sql = "SELECT * FROM users";
+        $sql = "SELECT * FROM users WHERE STATUS = 'APPROVED'";
 
         if (!empty($searchTerm)) {
-            $sql .= " WHERE LOWER(FULL_NAME) LIKE :keyword OR LOWER(PERSONAL_NUMBER) LIKE :keyword";
+            $sql .= " AND (LOWER(FULL_NAME) LIKE :keyword OR LOWER(PERSONAL_NUMBER) LIKE :keyword)";
         }
 
         $sql .= " ORDER BY FULL_NAME ASC";
@@ -326,7 +326,7 @@ class User extends BaseModel
         if (!empty($searchTerm)) {
             $searchKeyword = "%" . strtolower($searchTerm) . "%";
 
-            if (!oci_bind_by_name($stid, ':keyword', $searchKeyword, -1, SQLT_CHR)) {
+            if (!oci_bind_by_name($stid, ':keyword', $searchKeyword)) {
                 $e = oci_error($stid);
                 error_log("OCI Bind Error (keyword): " . $e['message']);
                 oci_free_statement($stid);
@@ -357,7 +357,6 @@ class User extends BaseModel
         }
 
         $users = [];
-
         while ($row = oci_fetch_assoc($stid)) {
             $users[] = $row;
         }

@@ -1,5 +1,4 @@
 <?php
-// Helper untuk membaca CLOB Oracle
 function loadLobSafe($data)
 {
     return ($data instanceof OCILob) ? $data->load() : $data;
@@ -10,20 +9,17 @@ function organizeReplies($replies)
     $repliesById = [];
     $roots = [];
 
-    // 1. Petakan semua reply berdasarkan ID agar mudah dicari
     foreach ($replies as $reply) {
-        $reply['children'] = []; // Siapkan array children kosong
+        $reply['children'] = []; 
         $repliesById[$reply['REPLY_ID']] = $reply;
     }
 
-    // 2. Pisahkan mana Bapak Utama (Root), mana Anak/Cucu
     foreach ($repliesById as $id => $reply) {
         if (empty($reply['PARENT_ID'])) {
             $roots[$id] = &$repliesById[$id];
         }
     }
 
-    // 3. Masukkan Anak, Cucu, Cicit ke dalam children milik Bapak Utama
     foreach ($repliesById as $id => $reply) {
         if (!empty($reply['PARENT_ID'])) {
             $currentParentId = $reply['PARENT_ID'];
@@ -75,13 +71,22 @@ function organizeReplies($replies)
                             <?= htmlspecialchars($comment['FULL_NAME']) ?>
                         </h1>
                         <?php
-                        $profileUrl = ($comment['USER_ID'] === $_SESSION['user_id'] ?? '')
+                        $profileUrl = ($comment['USER_ID'] === ($_SESSION['user_id'] ?? ''))
                             ? BASEURL . "/profile"
                             : BASEURL . "/homepage/user/profile/" . htmlspecialchars($comment['USER_ID']);
+
+                        $currentRole = $_SESSION['role'] ?? '';
+                        $allowedRoles = ['MAHASISWA', 'DOSEN', 'ADMIN'];
+                        $isLinkActive = in_array($currentRole, $allowedRoles);
                         ?>
-                        <a href="<?= $profileUrl ?>">
-                            <span class="text-gray-500 text-sm">@<?= htmlspecialchars($comment['USERNAME']) ?></span>
-                        </a>
+
+                        <?php if ($isLinkActive): ?>
+                            <a href="<?= $profileUrl ?>" class="hover:underline hover:text-blue-500 transition-colors">
+                                <span class="text-gray-500 text-sm">@<?= htmlspecialchars($comment['USERNAME']) ?></span>
+                            </a>
+                        <?php else: ?>
+                            <span class="text-gray-500 text-sm cursor-default">@<?= htmlspecialchars($comment['USERNAME']) ?></span>
+                        <?php endif; ?>
                     </div>
                 </div>
 

@@ -2,7 +2,7 @@
 define('DB_HOST', 'localhost');
 define('DB_PORT', '1521');
 define('DB_SERVICE_NAME', 'FREEPDB2');
-define('DB_USERNAME', 'pdbadmin');
+define('DB_USERNAME', 'PDBADMIN');
 define('DB_PASSWORD', 'hikki25');
 define('DB_CHARSET', 'AL32UTF8');
 

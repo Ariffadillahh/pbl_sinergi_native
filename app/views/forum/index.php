@@ -11,17 +11,28 @@
 
     <div class="w-full p-8 lg:p-12">
 
+        <?php
+        $userRole = $_SESSION['role'] ?? '';
+
+        $isRestricted = in_array($userRole, ['MITRA', 'ALUMNI']);
+        ?>
+
         <div class="flex flex-col md:flex-row justify-between items-center mb-8">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">Forum Diskusi</h1>
                 <p class="text-gray-500 text-sm">Temukan komunitas dan bergabunglah dalam diskusi.</p>
             </div>
-            <button id="openModalBtn" class="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full shadow-lg hover:shadow-xl transition duration-300 flex items-center gap-2 font-medium">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Buat Forum Baru
-            </button>
+
+            <?php
+            if (!$isRestricted):
+            ?>
+                <button id="openModalBtn" class="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full shadow-lg hover:shadow-xl transition duration-300 flex items-center gap-2 font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Buat Forum Baru
+                </button>
+            <?php endif; ?>
         </div>
 
         <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
@@ -42,31 +53,45 @@
                     $inactiveClass = "bg-white text-gray-600 border-gray-300 hover:bg-gray-50 hover:text-blue-600";
                     ?>
 
-                    <a href="<?= buildUrl('filter', 'all') ?>" class="<?= $btnBase ?> <?= $filter === 'all' ? $activeClass : $inactiveClass ?>">
-                        All Forums
-                    </a>
+                    <?php
+                    if (!$isRestricted):
+                    ?>
+                        <a href="<?= buildUrl('filter', 'all') ?>" class="<?= $btnBase ?> <?= $filter === 'all' ? $activeClass : $inactiveClass ?>">
+                            All Forums
+                        </a>
+                    <?php endif; ?>
+
                     <a href="<?= buildUrl('filter', 'joined') ?>" class="<?= $btnBase ?> <?= $filter === 'joined' ? $activeClass : $inactiveClass ?>">
                         Joined Forum
                     </a>
-                    <a href="<?= buildUrl('filter', 'owned') ?>" class="<?= $btnBase ?> <?= $filter === 'owned' ? $activeClass : $inactiveClass ?>">
-                        Owned Forum
-                    </a>
+
+                    <?php
+                    if (!$isRestricted):
+                    ?>
+                        <a href="<?= buildUrl('filter', 'owned') ?>" class="<?= $btnBase ?> <?= $filter === 'owned' ? $activeClass : $inactiveClass ?>">
+                            Owned Forum
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
 
-            <form action="" method="GET" class="w-full md:w-auto relative bg-white rounded-full shadow-sm">
-                <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
-                <div class="relative group">
-                    <input type="text" name="search" value="<?= htmlspecialchars($search) ?>"
-                        placeholder="Cari forum..."
-                        class="w-full md:w-72 pl-10 pr-4 py-2.5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all shadow-sm">
-                    <div class="absolute left-3 top-3 text-gray-400 group-focus-within:text-blue-500 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
+            <?php
+            if (!$isRestricted):
+            ?>
+                <form action="" method="GET" class="w-full md:w-auto relative bg-white rounded-full shadow-sm">
+                    <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
+                    <div class="relative group">
+                        <input type="text" name="search" value="<?= htmlspecialchars($search) ?>"
+                            placeholder="Cari forum..."
+                            class="w-full md:w-72 pl-10 pr-4 py-2.5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all shadow-sm">
+                        <div class="absolute left-3 top-3 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            <?php endif; ?>
         </div>
 
         <?php if (empty($forums)): ?>
@@ -206,12 +231,23 @@
 
                                 <?php else: ?>
                                     <?php if ($isPrivate): ?>
-                                        <button onclick="requestJoin('<?= $forum['ID'] ?>')" class="w-full bg-gray-900 hover:bg-black text-white font-medium py-2 px-4 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                            </svg>
-                                            Minta Bergabung
-                                        </button>
+                                        <div class="grid grid-cols-3 gap-2">
+                                            <button onclick="requestJoin('<?= $forum['ID'] ?>')" class="w-full col-span-2 bg-gray-900 hover:bg-black text-white font-medium py-2 px-4 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow cursor-default">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                                </svg>
+                                                <span>Private Forum</span>
+                                            </button>
+
+                                            <button onclick="requestJoinPrivate('<?= $forum['ID'] ?>')"
+                                                title="Kirim Permintaan Bergabung"
+                                                class="col-span-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-2 rounded-xl transition duration-200 flex items-center justify-center shadow-blue-200 shadow-md group">
+
+                                                <svg class="w-6 h-6 transform group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
 
                                     <?php else: ?>
                                         <div class="grid grid-cols-3 gap-2">
@@ -271,10 +307,53 @@
 
     <?php require_once 'app/views/components/forum/modalCreateForum.php'; ?>
     <?php require_once 'app/views/components/forum/modalJoinForum.php'; ?>
-    <?php require_once 'app/views/components/modalInvite.php'; ?>
-    <?php require_once 'app/views/components/Forum/modalInviteForum.php'; ?>  
+
+    <div class="bg-green-100 border border-green-600 text-green-600 rounded-lg p-3 fixed top-5 right-5 hidden" id="succsesDiv"></div>
+    <div class="bg-red-100 border border-red-600 text-red-600 rounded-lg p-3 fixed top-5 right-5 hidden" id="errorDivReq"></div>
+
 
     <script>
+        const succsesDiv = document.getElementById("succsesDiv")
+        const errorDivReq = document.getElementById("errorDivReq")
+
+        async function requestJoinPrivate(forumId) {
+            try {
+
+                const response = await fetch('<?= BASEURL ?>/req-join', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        forum_id: forumId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    succsesDiv.classList.remove('hidden')
+                    succsesDiv.innerHTML = "Request sent successfully! Awaiting admin approval."
+
+                    setTimeout(() => {
+                        succsesDiv.classList.add("hidden")
+                    }, 2000)
+
+                } else {
+                    errorDivReq.classList.remove('hidden')
+                    errorDivReq.innerHTML = result.message
+
+                    setTimeout(() => {
+                        errorDivReq.classList.add("hidden")
+                    }, 2000)
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert("Terjadi kesalahan sistem saat mengirim permintaan.");
+            }
+        }
+
         async function joinForum(forumId) {
 
             const formData = new FormData();

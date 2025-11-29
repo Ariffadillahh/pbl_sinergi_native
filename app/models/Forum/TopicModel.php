@@ -66,7 +66,14 @@ class TopicModel extends BaseModel
         $sql = "SELECT t.ID, t.CONTENT, TO_CHAR(t.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT, 
                    u.FULL_NAME, u.PATH_PHOTO, u.ROLE, u.USERNAME, u.ID AS USER_ID, t.IS_PINNED,
                    (SELECT COUNT(*) FROM TOPIC_LIKES l WHERE l.TOPIC_ID = t.ID) AS TOTAL_LIKES,
-                   (SELECT COUNT(*) FROM TOPIC_COMMENTS c WHERE c.TOPIC_ID = t.ID) AS TOTAL_COMMENTS
+                   (
+                (SELECT COUNT(*) FROM TOPIC_COMMENTS tc WHERE tc.TOPIC_ID = t.ID) 
+                + 
+                (SELECT COUNT(*) 
+                    FROM COMMENT_REPLIES cr 
+                    JOIN TOPIC_COMMENTS tc_parent ON cr.COMMENT_ID = tc_parent.ID 
+                    WHERE tc_parent.TOPIC_ID = t.ID)
+            ) AS TOTAL_COMMENTS
             FROM FORUM_TOPICS t
             JOIN USERS u ON t.USER_ID = u.ID  
             WHERE t.FORUM_ID = :forum_id
@@ -254,7 +261,15 @@ class TopicModel extends BaseModel
                 u.USERNAME, 
                 u.ID AS USER_ID,
                 (SELECT COUNT(*) FROM TOPIC_LIKES tl WHERE tl.TOPIC_ID = t.ID) AS TOTAL_LIKES,
-                (SELECT COUNT(*) FROM TOPIC_COMMENTS tc WHERE tc.TOPIC_ID = t.ID) AS TOTAL_COMMENTS
+                (
+                    (SELECT COUNT(*) FROM TOPIC_COMMENTS tc WHERE tc.TOPIC_ID = t.ID) 
+                    + 
+                    (SELECT COUNT(*) 
+                     FROM COMMENT_REPLIES cr 
+                     JOIN TOPIC_COMMENTS tc_parent ON cr.COMMENT_ID = tc_parent.ID 
+                     WHERE tc_parent.TOPIC_ID = t.ID)
+                ) AS TOTAL_COMMENTS
+
             FROM FORUM_TOPICS t
             JOIN USERS u ON t.USER_ID = u.ID  
             WHERE t.ID = :topic_id";

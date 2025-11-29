@@ -40,6 +40,13 @@
             $controller->laporanForum();
             break;
 
+        case $route === 'dashboard/laporan/group':
+            requireLogin();
+            checkRoleAccess(['ADMIN']);
+            $controller = new DashboardController();
+            $controller->laporanGroup();
+            break;
+
         case $route === 'admin/create-accout':
             requireLogin();
             checkRoleAccess(['ADMIN']);
@@ -73,6 +80,13 @@
             checkRoleAccess(['ADMIN']);
             $controller = new ReportController();
             $controller->deletePostByAdmin();
+            break;
+
+        case $route === 'report/delete/group':
+            requireLogin();
+            checkRoleAccess(['ADMIN']);
+            $controller = new ReportController();
+            $controller->deleteGroupByAdmin();
             break;
 
         case $route === 'report/warning':

@@ -13,7 +13,7 @@
             <table class="w-full text-sm text-left rtl:text-right text-gray-500">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                     <tr>
-                        <th scope="col" class="px-6 py-3">Jumlah Laporan</th>
+                        <th scope="col" class="px-6 py-3">Report Count</th>
                         <th scope="col" class="px-6 py-3">Forum Name</th>
                         <th scope="col" class="px-6 py-3">Forum Owner</th>
                         <th scope="col" class="px-6 py-3">Reason</th>
@@ -24,7 +24,7 @@
                     <?php if (empty($report)) : ?>
                         <tr class="bg-white border-b border-gray-200">
                             <td colspan="5" class="px-6 py-4 text-center text-gray-500">
-                                Tidak ada Laporan Forums ditemukan.
+                                Report Not Found
                             </td>
                         </tr>
                     <?php else : ?>
@@ -44,7 +44,7 @@
                                     <button
                                         class="reason-modal-btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm transition text-xs"
                                         data-id="<?= htmlspecialchars($data['FORUM_ID']) ?>">
-                                        See Reason
+                                        Reason
                                     </button>
                                 </td>
                                 <td class="px-6 py-4 flex items-center space-x-3">

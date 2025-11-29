@@ -87,7 +87,7 @@
 
                 if (result.success) {
                     divSucc.classList.remove("hidden");
-                    divSucc.textContent = "Forum dan report berhasil dihapus";
+                    divSucc.textContent = "Forum successfully deleted";
 
                     setTimeout(() => {
                         closeDelete();

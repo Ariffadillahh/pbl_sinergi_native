@@ -87,7 +87,7 @@
 
                 if (result.success) {
                     divSucc.classList.remove("hidden");
-                    divSucc.textContent = "Postingan dan report berhasil dihapus";
+                    divSucc.textContent = "Post successfully deleteds";
 
                     setTimeout(() => {
                         closeDelete();

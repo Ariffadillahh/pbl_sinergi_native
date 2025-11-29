@@ -21,7 +21,7 @@
                 <li><a href="#fitur" class="hover:text-blue-600 transition">Features</a></li>
                 <li><a href="#testimoni" class="hover:text-blue-600 transition">Review</a></li>
             </ul>
-            <a href="<?= BASEURL ?>/sign-in" class="border-2 border-blue-500 text-blue-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-500 hover:text-white transition duration-300">My Account</a>
+            <a href="<?= BASEURL ?>/sign-in" class="border-2 border-blue-500 text-blue-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-500 hover:text-white transition duration-300">Sign In</a>
         </nav>
 
         <section class="grid grid-cols-1 lg:grid-cols-2 px-6 lg:px-20 py-12 lg:py-20 gap-8 items-center" id="home">
@@ -94,11 +94,10 @@
                     </div>
                     <h3 class="font-bold text-lg mb-3 text-gray-900">Diskusi Interaktif</h3>
                     <p class="text-gray-500 text-sm leading-relaxed">
-                        Mulai percakapan, ajukan pertanyaan, dan dapatkan jawaban secara real-time dari komunitas akademik.
+                        Mulai percakapan, ajukan pertanyaan, dan dapatkan jawaban dari komunitas akademik.
                     </p>
                 </div>
 
-                <!-- Feature Card 2 -->
                 <div class="group bg-white rounded-2xl p-8 text-center border-2 border-gray-100 hover:border-blue-500 hover:shadow-2xl hover:-translate-y-3 transition-all duration-300">
                     <div class="flex justify-center mb-5">
                         <div class="p-4 rounded-full">
@@ -111,7 +110,6 @@
                     </p>
                 </div>
 
-                <!-- Feature Card 3 -->
                 <div class="group bg-white rounded-2xl p-8 text-center border-2 border-gray-100 hover:border-blue-500 hover:shadow-2xl hover:-translate-y-3 transition-all duration-300">
                     <div class="flex justify-center mb-5">
                         <div class="p-4 rounded-full">
@@ -124,7 +122,6 @@
                     </p>
                 </div>
 
-                <!-- Feature Card 4 -->
                 <div class="group bg-white rounded-2xl p-8 text-center border-2 border-gray-100 hover:border-blue-500 hover:shadow-2xl hover:-translate-y-3 transition-all duration-300">
                     <div class="flex justify-center mb-5">
                         <div class="p-4 rounded-full">

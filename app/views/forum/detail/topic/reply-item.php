@@ -33,10 +33,19 @@ $showArrow = ($isChild
                 $profileUrl = ($reply['USER_ID'] === $_SESSION['user_id'])
                     ? BASEURL . "/profile"
                     : BASEURL . "/homepage/user/profile/" . htmlspecialchars($reply['USER_ID']);
+
+                $currentRole = $_SESSION['role'] ?? '';
+                $allowedRoles = ['MAHASISWA', 'DOSEN', 'ADMIN'];
+                $isLinkActive = in_array($currentRole, $allowedRoles);
                 ?>
-                <a href="<?= $profileUrl ?>">
-                    <span class="text-gray-400 text-xs sm:text-sm">@<?= htmlspecialchars($reply['USERNAME']) ?></span>
-                </a>
+
+                <?php if ($isLinkActive): ?>
+                    <a href="<?= $profileUrl ?>" class="hover:underline hover:text-blue-500 transition-colors">
+                        <span class="text-gray-400 text-xs sm:text-sm">@<?= htmlspecialchars($reply['USERNAME']) ?></span>
+                    </a>
+                <?php else: ?>
+                    <span class="text-gray-400 text-xs sm:text-sm cursor-default">@<?= htmlspecialchars($reply['USERNAME']) ?></span>
+                <?php endif; ?>
 
                 <?php if ($showArrow): ?>
                     <div class="flex items-center gap-1 text-xs sm:text-sm mt-0.5">
@@ -46,19 +55,28 @@ $showArrow = ($isChild
 
                         <?php
                         $replyToUsername = htmlspecialchars($reply['REPLY_TO_USERNAME']);
-                        $replyToID = htmlspecialchars($reply['REPLY_TO_ID']); 
-                        $currentUsername = $_SESSION['username'];
+                        $replyToID = htmlspecialchars($reply['REPLY_TO_ID']);
+                        $currentUsername = $_SESSION['username'] ?? ''; 
 
                         $targetUrl = ($replyToUsername === $currentUsername)
                             ? BASEURL . '/profile'
                             : BASEURL . '/homepage/user/profile/' . urlencode($replyToID);
+
+                        $currentRole = $_SESSION['role'] ?? '';
+                        $allowedRoles = ['MAHASISWA', 'DOSEN', 'ADMIN'];
+                        $isLinkActive = in_array($currentRole, $allowedRoles);
                         ?>
 
                         <span class="text-blue-600">
-                            <a href="<?= $targetUrl ?>"
-                                class="hover:underline hover:text-blue-700 transition-colors">
-                                @<?= $replyToUsername ?>
-                            </a>
+                            <?php if ($isLinkActive): ?>
+                                <a href="<?= $targetUrl ?>" class="hover:underline hover:text-blue-700 transition-colors">
+                                    @<?= $replyToUsername ?>
+                                </a>
+                            <?php else: ?>
+                                <span class="cursor-default">
+                                    @<?= $replyToUsername ?>
+                                </span>
+                            <?php endif; ?>
                         </span>
                     </div>
                 <?php endif; ?>
@@ -126,7 +144,7 @@ $showArrow = ($isChild
                     <div class="relative flex-1 w-full">
                         <textarea name="message" rows="1"
                             class="reply-textarea w-full hide-scrollbar bg-transparent text-sm md:text-base text-gray-800 ring-1 ring-gray-300 placeholder-gray-500 border-none focus:ring-blue-600 focus:outline-none rounded-2xl p-2 md:p-2.5 ps-3 resize-none"
-                            placeholder="Reply..."></textarea>
+                            placeholder="Reply..." maxlength="150"></textarea>
                         <div class="mention-dropdown hidden absolute bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50 w-full mt-1"></div>
                     </div>
                 </div>

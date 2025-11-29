@@ -13,7 +13,9 @@ $accsesPages = in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']);
     <nav class="hidden lg:flex h-screen flex-col items-center justify-between min-w-[84px] shrink-0 bg-gray-200/70 px-5 py-[25px] z-[99999]">
         <ul class="flex flex-col gap-5">
             <li>
-                <img src="<?php echo BASEURL; ?>/src/asset/icons/logo-icon.svg" class="flex w-11 h-9 shrink-0" alt="logo">
+                <a href="<?= BASEURL ?>/homepage">
+                    <img src="<?php echo BASEURL; ?>/src/asset/icons/logo-icon.svg" class="flex w-11 h-9 shrink-0" alt="logo">
+                </a>
             </li>
 
             <?php if ($accsesPages) : ?>
@@ -35,7 +37,7 @@ $accsesPages = in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']);
                 <a href="<?php echo BASEURL ?>/forums"
                     class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[7px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
                     <svg xmlns="http://www.w3.org/2000/svg"
-                        class="h-7 w-7 transition-all duration-300 <?= $isForumsActive ? 'text-white' : 'text-gray-600' ?> group-hover:text-blue-600 group-[.active]:text-white"
+                        class="h-7 w-7 transition-all duration-300 <?= $isForumsActive ? 'text-white' : 'text-gray-500' ?> group-hover:text-blue-600 group-[.active]:text-white"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"

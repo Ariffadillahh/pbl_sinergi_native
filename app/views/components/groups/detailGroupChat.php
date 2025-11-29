@@ -1,5 +1,4 @@
 <div id="Chat-Navigation" class="flex items-center justify-between w-full border-b border-gray-200 p-5 gap-3 bg-white flex-shrink-0">
-    <!-- isi Chat-Navigation tetap sama -->
     <div id="Group-Title" class="flex items-center flex-1 gap-3">
         <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden items-center justify-center">
             <?php if (!empty($groupChatId['PATH_PHOTO'])): ?>

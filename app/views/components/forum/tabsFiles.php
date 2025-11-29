@@ -1,6 +1,5 @@
 <div class="tab-content hidden" data-content="files">
     <div id="files-loading" class="bg-white  rounded-lg shadow p-8 text-center">
-        <div class="text-4xl mb-4">⏳</div>
         <p class="text-gray-600 ">Loading files...</p>
     </div>
 

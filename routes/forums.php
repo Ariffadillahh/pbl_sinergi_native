@@ -22,7 +22,12 @@ switch (true) {
         $controller->joinForum();
         break;
 
-        case $route === 'forum/joinViaInvite':
+    case $route ===  'req-join':
+        requireLogin();
+        $controller = new ForumController();
+        $controller->reqJoin();
+
+    case $route === 'forum/joinViaInvite':
         requireLogin();
         $controller = new ForumController();
         $controller->joinViaInvite();
@@ -74,6 +79,18 @@ switch (true) {
         requireLogin();
         $controller = new ForumController();
         $controller->getAssetsJson();
+        break;
+
+    case $route ===  'get-req-forum':
+        requireLogin();
+        $controller = new ForumController();
+        $controller->getReqForum();
+        break;
+
+    case $route ===  'update-req-forum':
+        requireLogin();
+        $controller = new ForumController();
+        $controller->updateReqForum();
         break;
 
     case $route ===  'create/topics':

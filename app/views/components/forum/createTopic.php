@@ -19,11 +19,20 @@
                             alt="photo">
                     </div>
 
-                    <textarea
-                        id="content"
-                        name="content"
-                        placeholder="Apa yang Anda pikirkan?"
-                        class="flex-1 bg-gray-100 rounded-2xl px-4 py-3 hover:bg-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition resize-none h-24"></textarea>
+                    <div class="relative w-full">
+                        <textarea
+                            id="content"
+                            name="content"
+                            placeholder="Apa yang Anda pikirkan?"
+                            class="flex-1 w-full hide-scrollbar bg-gray-100 rounded-2xl px-4 py-3 pr-16 hover:bg-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition resize-none h-24"></textarea>
+
+                        <span
+                            id="contentCounter"
+                            class="absolute right-4 pt-3 bottom-3 text-xs text-gray-500 pointer-events-none">
+                            0/300
+                        </span>
+                    </div>
+
                 </div>
 
                 <div id="preview-wrapper" class="hidden mb-4">
@@ -71,12 +80,21 @@
         const previewContainer = document.getElementById("image-preview-container");
         const imageInput = document.getElementById("image-input");
         const uploadBtnWrapper = document.getElementById("upload-btn-wrapper");
+        const content = document.getElementById('content');
+        const contentCounter = document.getElementById('contentCounter');
+        const CONTENT_MAX = 300;
 
         const MAX_FILES = 5;
 
         let fileBuffer = [];
         let fileIdCounter = 0;
 
+        content.addEventListener('input', function() {
+            if (this.value.length > CONTENT_MAX) {
+                this.value = this.value.slice(0, CONTENT_MAX);
+            }
+            contentCounter.textContent = `${this.value.length}/${CONTENT_MAX}`;
+        });
 
         function showCreateLimitToast() {
             const toast = document.getElementById("toast-limit-create");

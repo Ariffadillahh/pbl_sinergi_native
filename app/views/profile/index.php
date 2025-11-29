@@ -161,10 +161,11 @@ $hiddenRoles = ['ADMIN', 'DOSEN', 'ALUMNI', 'MITRA'];
                                     <?php endif; ?>
                                 </div>
                             </div>
+
                         <?php endif; ?>
                     </div>
 
-                    <div class="flex gap-3 p-6">
+                    <div class="flex gap-3 px-6">
                         <button type="button" id="openModalEditProfile" class="text-white w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
                             Edit Profile
                         </button>
@@ -173,8 +174,25 @@ $hiddenRoles = ['ADMIN', 'DOSEN', 'ALUMNI', 'MITRA'];
                                 Update Password
                             </span>
                         </button>
-                    </div>
 
+                    </div>
+                    <?php
+                    $userRole  = $_SESSION['role'] ?? '';
+                    $userEmail = $_SESSION['email'] ?? '';
+
+                    $isAlumni = ($userRole === 'ALUMNI');
+
+
+                    $isTikStudent = preg_match('/\.tik\d+@stu\.pnj\.ac\.id$/', $userEmail);
+                    ?>
+
+                    <?php
+                    if ($isAlumni && $isTikStudent):
+                    ?>
+                        <div class="mt-2 text-center text-blue-500 underline cursor-pointer mb-4">
+                            <p onclick="openStudentModal()" class="text-sm"> Masih menjadi mahasiswa?</p>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
             </div>
@@ -339,6 +357,7 @@ $hiddenRoles = ['ADMIN', 'DOSEN', 'ALUMNI', 'MITRA'];
         <?php endif; ?>
 
 
+    <?php require_once 'app/views/components/modalReqRole.php'; ?>
     <?php require_once 'app/views/components/modalInvite.php'; ?>
     <?php require_once 'app/views/components/Forum/modalInviteForum.php'; ?>
     <?php include_once 'app/views/components/modalEditProfile.php'; ?>

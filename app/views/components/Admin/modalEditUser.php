@@ -4,7 +4,7 @@
         <div class="relative bg-white rounded-lg shadow-sm">
             <div class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t">
                 <h3 class="text-xl font-semibold text-gray-900">
-                    Edit Role Anggota
+                    Edit Members
                 </h3>
                 <button type="button" id="edit-modal-close-btn"
                     class="text-gray-400 rounded-lg text-sm w-8 h-8 flex justify-center items-center cursor-pointer">
@@ -28,7 +28,7 @@
                     <div class="my-6 max-w-md mx-auto space-y-4">
 
                         <div>
-                            <label for="edit-user-name" class="block mb-2 text-sm font-medium text-gray-500">Nama Lengkap</label>
+                            <label for="edit-user-name" class="block mb-2 text-sm font-medium text-gray-500">Full Name</label>
                             <input type="text" id="edit-user-name" name="full_name"
                                 class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 cursor-not-allowed"
                                 disabled>
@@ -46,7 +46,7 @@
                             <select id="edit-user-role" name="role"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                 required>
-                                <option value="" disabled>-- Pilih Role Baru --</option>
+                                <option value="" disabled>-- New Role --</option>
                                 <option value="ADMIN">ADMIN</option>
                                 <option value="MAHASISWA">MAHASISWA</option>
                                 <option value="DOSEN">DOSEN</option>
@@ -58,11 +58,11 @@
                         <div class="flex justify-end pt-4 gap-3">
                             <button type="button" id="edit-modal-cancel-btn"
                                 class="px-6 py-2 rounded-full bg-[#D9D9D9] text-[#6B7280] font-bold transition-colors">
-                                Batal
+                                Cancle
                             </button>
                             <button type="submit" id="edit-modal-submit-btn"
                                 class="px-6 py-2 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors">
-                                Simpan Perubahan
+                                Save
                             </button>
                         </div>
                     </div>

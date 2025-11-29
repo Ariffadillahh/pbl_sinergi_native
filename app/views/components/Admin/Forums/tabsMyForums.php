@@ -11,7 +11,7 @@
              </div>
              <input type="search" id="search-my-forum"
                  class="block w-full p-2.5 ps-10 text-sm text-gray-900 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                 placeholder="Cari forum saya..." autocomplete="off" value="<?= htmlspecialchars($mySearch) ?>" />
+                 placeholder="Search my forums..." autocomplete="off" value="<?= htmlspecialchars($mySearch) ?>" />
          </div>
      </div>
 
@@ -37,7 +37,7 @@
                                          <?= htmlspecialchars($forum['NAME']) ?>
                                      </h3>
                                      <p class="text-sm text-gray-500">
-                                         <?= $forum['TOTAL_MEMBERS'] ?> Anggota
+                                         <?= $forum['TOTAL_MEMBERS'] ?> Members
                                      </p>
                                  </div>
                                  <span class="px-2 py-1 

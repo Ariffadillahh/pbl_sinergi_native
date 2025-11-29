@@ -50,7 +50,7 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
 
 <div id="editModalOverlay" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] hidden opacity-0 transition-opacity duration-300">
 
-   
+
     <div id="editAlertBox" class="fixed right-5 top-5  mb-4 p-4 rounded-lg text-sm hidden"></div>
 
 
@@ -105,12 +105,24 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
             </div>
 
 
-            <div class="mb-5">
+            <div class="mb-5 relative">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Forum</label>
-                <input type="text" id="editGroupNameInput" name="NAME"
-                    value="<?= htmlspecialchars($forumById['NAME']) ?>"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                    required maxlength="50">
+
+                <div class="relative">
+                    <input
+                        type="text"
+                        id="editGroupNameInput"
+                        name="NAME"
+                        placeholder="Contoh: Komunitas Koding Indonesia"
+                        class="w-full px-4 py-3 pr-14 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                        required>
+                    <span
+                        id="nameCounter"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">
+                        0/15
+                    </span>
+                </div>
+
             </div>
 
             <div class="mb-5">
@@ -175,7 +187,21 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
 
             <div class="mb-6">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi</label>
-                <textarea rows="3" name="ABOUT" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none"><?= htmlspecialchars($forumById['ABOUT']) ?></textarea>
+
+                <div class="relative">
+                    <textarea
+                        id="aboutText"
+                        rows="3"
+                        name="ABOUT"
+                        placeholder="Jelaskan tujuan forum ini..."
+                        class="w-full px-4 py-3 pr-14 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"></textarea>
+
+                    <span
+                        id="aboutCounter"
+                        class="absolute right-3 bottom-3 text-xs pt-3 text-gray-400 pointer-events-none">
+                        0/150
+                    </span>
+                </div>
             </div>
 
             <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 mt-4">
@@ -238,6 +264,25 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
     const deleteModal = document.getElementById('deleteModalOverlay');
     const deleteModalContent = deleteModal ? deleteModal.querySelector('div') : null;
     const btnConfirmDelete = document.getElementById('btnConfirmDelete');
+    const aboutText = document.getElementById('aboutText');
+    const counter = document.getElementById('nameCounter');
+
+    const MAX_LENGTH = 15;
+    const ABOUT_MAX = 150;
+
+    aboutText.addEventListener('input', function() {
+        if (this.value.length > ABOUT_MAX) {
+            this.value = this.value.slice(0, ABOUT_MAX);
+        }
+        aboutCounter.textContent = `${this.value.length}/${ABOUT_MAX}`;
+    });
+
+    editNameInput.addEventListener('input', function() {
+        if (this.value.length > MAX_LENGTH) {
+            this.value = this.value.slice(0, MAX_LENGTH);
+        }
+        counter.textContent = `${this.value.length}/${MAX_LENGTH}`;
+    });
 
     function openDeleteModal() {
         deleteModal.classList.remove('hidden');

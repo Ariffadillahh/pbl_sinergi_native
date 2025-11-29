@@ -1,7 +1,6 @@
 <div class="tab-content hidden" data-content="media">
     <div id="media-loading" class="bg-white rounded-lg shadow p-8 text-center">
-        <div class="text-4xl mb-4 animate-bounce">🖼️</div>
-        <p class="text-gray-600">Memuat galeri...</p>
+        <p class="text-gray-600">Loading Media...</p>
     </div>
 
     <div id="media-grid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1 hidden bg-white p-5 rounded-lg drop-shadow">

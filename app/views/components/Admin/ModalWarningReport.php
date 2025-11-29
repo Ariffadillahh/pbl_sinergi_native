@@ -10,9 +10,10 @@
             </div>
         </div>
 
-        <h2 class="text-xl font-bold text-center text-gray-800 mb-2">Beri Peringatan?</h2>
+        <h2 class="text-xl font-bold text-center text-gray-800 mb-2">Give a Warning?</h2>
 
-        <p class="text-gray-500 text-center mb-6">Forum ini akan diberi peringatan dan pemiliknya akan dinotifikasi.</p>
+        <p class="text-gray-500 text-center mb-6">This forum will receive a warning and the owner will be notified.</p>
+
 
         <form method="post" id="formWarning">
             <input type="hidden" id="warningId" name="target_id">
@@ -74,11 +75,6 @@
 
             const formData = new FormData(warningForm);
 
-            console.log("=== FormData Warning ===");
-            for (const [key, value] of formData.entries()) {
-                console.log(`${key}:`, value);
-            }
-
             try {
                 const response = await fetch("<?= BASEURL ?>/report/warning", {
                     method: "POST",
@@ -91,7 +87,7 @@
 
                 if (result.success) {
                     warningDivSucc.classList.remove("hidden");
-                    warningDivSucc.textContent = "Peringatan berhasil dikirim!";
+                    warningDivSucc.textContent = "Warning sent successfully!";
 
                     setTimeout(() => {
                         closeWarningModal();
