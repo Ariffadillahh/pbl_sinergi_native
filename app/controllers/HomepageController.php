@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../models/Posts/PostModel.php';
 require_once __DIR__ . '/../models/Posts/CommentModel.php';
 require_once __DIR__ . '/../models/Users/UserModel.php';
@@ -30,8 +31,8 @@ class HomepageController
     {
         return [
             'trending' => $this->fypageModel->getTrendingPosts(),
-            'hot'      => $this->fypageModel->getHotForums(),
-            'new'      => $this->fypageModel->getNewForums(),
+            'forums'   => $this->fypageModel->getYourForums(),
+            'groups'   => $this->fypageModel->getYourGroups(),
         ];
     }
 
@@ -40,9 +41,13 @@ class HomepageController
     {
         $posts = $this->postController->fetchPosts();
 
+        // Get sidebar data
         $sidebarData = $this->getSidebarData();
-        extract($sidebarData);
+        $trending = $sidebarData['trending'];
+        $forums = $sidebarData['forums'];
+        $groups = $sidebarData['groups'];
 
+        // Format mentions in posts
         foreach ($posts as &$post) {
             $post['CONTENT_FORMATTED'] = mentionHelper::formatMentions($post['CONTENT']);
         }
@@ -80,8 +85,11 @@ class HomepageController
         }
         unset($comment);
 
+        // Get sidebar data
         $sidebarData = $this->getSidebarData();
-        extract($sidebarData);
+        $trending = $sidebarData['trending'];
+        $forums = $sidebarData['forums'];
+        $groups = $sidebarData['groups'];
 
         $contentViewPost = __DIR__ . '/../views/homePage/reply/index.php';
         require_once __DIR__ . '/../views/homePage/layout.php';
@@ -103,8 +111,11 @@ class HomepageController
 
         $userById = $this->signInModel->getUserByUsernameOrEmail($id);
 
+        // Get sidebar data
         $sidebarData = $this->getSidebarData();
-        extract($sidebarData);
+        $trending = $sidebarData['trending'];
+        $forums = $sidebarData['forums'];
+        $groups = $sidebarData['groups'];
 
         $contentViewPost = __DIR__ . '/../views/homePage/profile/index.php';
         require_once __DIR__ . '/../views/homePage/layout.php';
@@ -114,8 +125,12 @@ class HomepageController
     public function searchPage()
     {
         $keyword = $_GET['keyword'] ?? '';
+        
+        // Get sidebar data
         $sidebarData = $this->getSidebarData();
-        extract($sidebarData);
+        $trending = $sidebarData['trending'];
+        $forums = $sidebarData['forums'];
+        $groups = $sidebarData['groups'];
 
         $contentViewPost = __DIR__ . '/../views/homePage/search/index.php';
         require_once __DIR__ . '/../views/homePage/layout.php';
@@ -138,4 +153,3 @@ class HomepageController
         exit;
     }
 }
-

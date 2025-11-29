@@ -271,7 +271,8 @@
 
     <?php require_once 'app/views/components/forum/modalCreateForum.php'; ?>
     <?php require_once 'app/views/components/forum/modalJoinForum.php'; ?>
-
+    <?php require_once 'app/views/components/modalInvite.php'; ?>
+    <?php require_once 'app/views/components/Forum/modalInviteForum.php'; ?>  
 
     <script>
         async function joinForum(forumId) {

@@ -40,6 +40,23 @@
             require_once __DIR__ . '/../views/forum/layout.php';
         }
 
+        public function checkMembership()
+        {
+            header('Content-Type: application/json');
+            $forumId = $_GET['forum_id'] ?? null;
+            $userId = $_SESSION['user_id'] ?? null;
+
+            if (!$forumId || !$userId) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid request.']);
+                return;
+            }
+
+            $isMember = $this->forumModel->isMember($forumId, $userId);
+            echo json_encode(['is_member' => $isMember]);
+        }
+
+
         public function forumById($forumId)
         {
             $forumById = $this->forumModel->getForumById($forumId);

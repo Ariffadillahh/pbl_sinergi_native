@@ -317,7 +317,8 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
             </div>
         </div>
-
+        <?php require_once 'app/views/components/modalInvite.php'; ?>
+        <?php require_once 'app/views/components/Forum/modalInviteForum.php'; ?>  
     </div>
 
     <!-- Overlay -->
@@ -357,6 +358,8 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
             </div>
         </div>
     </div>
+
+    
 
 
     <script>
