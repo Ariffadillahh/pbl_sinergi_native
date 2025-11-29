@@ -12,11 +12,42 @@
             $controller->index();
             break;
 
-        case $route === 'dashboard/anggota':
+        case $route === 'dashboard/anggota/allusers':
             requireLogin();
             checkRoleAccess(['ADMIN']);
             $controller = new DashboardController();
             $controller->anggota();
+            break;
+
+        case $route === 'dashboard/anggota/requested-accounts':
+            requireLogin();
+            checkRoleAccess(['ADMIN']);
+            $controller = new DashboardController();
+            $controller->requestedAccounts();
+            break;
+        case $route === 'dashboard/anggota/get-pending-requests-count':
+            requireLogin();
+            checkRoleAccess(['ADMIN']);
+            $controller = new DashboardController();
+            $controller->getPendingRequestsCount();
+            break;
+        case $route === 'dashboard/anggota/get-pending-requests':
+            requireLogin();
+            checkRoleAccess(['ADMIN']);
+            $controller = new DashboardController();
+            $controller->getPendingRequests();
+            break;
+        case $route === 'dashboard/anggota/approve-mitra-request':
+            requireLogin();
+            checkRoleAccess(['ADMIN']);
+            $controller = new DashboardController();
+            $controller->approveMitraRequest();
+            break;
+        case $route === 'dashboard/anggota/reject-mitra-request':
+            requireLogin();
+            checkRoleAccess(['ADMIN']);
+            $controller = new DashboardController();
+            $controller->rejectMitraRequest();
             break;
 
         case $route === 'dashboard/forums':
@@ -47,7 +78,7 @@
             $controller->laporanGroup();
             break;
 
-        case $route === 'admin/create-accout':
+        case $route === 'admin/create-account':
             requireLogin();
             checkRoleAccess(['ADMIN']);
             $controller = new DashboardController();

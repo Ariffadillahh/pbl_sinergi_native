@@ -7,19 +7,20 @@ if (strlen($current_route) > 1) {
 
 $isDashboardActive = ($current_route === 'dashboard');
 
-$isAnggotaActive = (strpos($current_route, 'dashboard/anggota') === 0);
+// Members parent dan submenu
+$isMembersParentActive = (strpos($current_route, 'dashboard/anggota') === 0 || strpos($current_route, 'dashboard/anggota/requested-accounts') === 0);
+$isAnggotaActive = ($current_route === 'dashboard/anggota/allusers');
+$isRequestedActive = (strpos($current_route, 'dashboard/anggota/requested-accounts') === 0);
+
 $isForumsActive = (strpos($current_route, 'dashboard/forums') === 0);
-
 $isLaporanParentActive = (strpos($current_route, 'dashboard/laporan') === 0);
-
 $isLaporanActiveForum = ($current_route === 'dashboard/laporan/forum');
-
 $isLaporanActiveGroup = ($current_route === 'dashboard/laporan/group');
-
 $isLaporanActivePostingan = ($current_route === 'dashboard/laporan/postingan');
 
 $pageTitle = "Dashboard Overview";
 if ($isAnggotaActive) $pageTitle = "Manajemen Anggota";
+if ($isRequestedActive) $pageTitle = "Requested Accounts";
 if ($isForumsActive) $pageTitle = "Manajemen Forums";
 if ($isLaporanActiveForum) $pageTitle = "Laporan Forums";
 if ($isLaporanActivePostingan) $pageTitle = "Laporan Postingan";
@@ -58,15 +59,43 @@ if ($isLaporanActivePostingan) $pageTitle = "Laporan Postingan";
                     <span>Dashboard</span>
                 </a>
             </li>
-            <li>
-                <a href="<?php echo BASEURL; ?>/dashboard/anggota"
-                    class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors duration-200 <?php echo getLinkClass($isAnggotaActive); ?>">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+
+            <!-- Members Parent Menu dengan Submenu -->
+            <li class="relative">
+                <button
+                    type="button"
+                    class="flex w-full items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-200 group <?php echo getLinkClass($isMembersParentActive); ?>"
+                    onclick="toggleSubmenu(this)">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5 <?php echo $isMembersParentActive ? 'text-blue-600' : 'text-gray-500 group-hover:text-gray-800' ?> transition-colors duration-200"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <span class="font-medium">Members</span>
+                    </div>
+                    <svg class="w-4 h-4 text-gray-400 transition-transform duration-200 <?php echo $isMembersParentActive ? 'rotate-90' : ''; ?>"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
-                    <span>Members</span>
-                </a>
+                </button>
+
+                <div class="submenu ml-8 mt-1 overflow-hidden transition-all duration-300 <?php echo $isMembersParentActive ? 'max-h-40' : 'max-h-0'; ?>">
+                    <a href="<?php echo BASEURL; ?>/dashboard/anggota/allusers"
+                        class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors duration-200 hover:bg-gray-100 <?php echo getLinkClass($isAnggotaActive); ?>">
+                        <span>All Members</span>
+                    </a>
+
+                    <a href="<?php echo BASEURL; ?>/dashboard/anggota/requested-accounts"
+                        class="flex items-center justify-between px-4 py-2.5 rounded-lg transition-colors duration-200 hover:bg-gray-100 <?php echo getLinkClass($isRequestedActive); ?>">
+                        <span>Requested Accounts</span>
+                        <!-- Badge Notifikasi -->
+                        <span id="requested-account-badge" class="hidden inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-600 rounded-full">
+                            0
+                        </span>
+                    </a>
+                </div>
             </li>
+
             <li>
                 <a href="<?php echo BASEURL; ?>/dashboard/forums"
                     class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors duration-200 <?php echo getLinkClass($isForumsActive); ?>">
@@ -76,15 +105,12 @@ if ($isLaporanActivePostingan) $pageTitle = "Laporan Postingan";
                     <span>Forums</span>
                 </a>
             </li>
+
             <li class="relative">
                 <button
                     type="button"
-                    class="flex w-full items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-200 group <?php
-                                                                                                                                // [PERUBAHAN 1] Ganti $isLaporanActive menjadi $isLaporanParentActive
-                                                                                                                                echo getLinkClass($isLaporanParentActive);
-                                                                                                                                ?>"
+                    class="flex w-full items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-200 group <?php echo getLinkClass($isLaporanParentActive); ?>"
                     onclick="toggleSubmenu(this)">
-
                     <div class="flex items-center gap-3">
                         <svg class="w-5 h-5 <?php echo $isLaporanParentActive ? 'text-blue-600' : 'text-gray-500 group-hover:text-gray-800' ?> transition-colors duration-200"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -95,9 +121,7 @@ if ($isLaporanActivePostingan) $pageTitle = "Laporan Postingan";
                         </svg>
                         <span class="font-medium">Reports</span>
                     </div>
-                    <svg class="w-4 h-4 text-gray-400 transition-transform duration-200 <?php
-                                                                                        echo $isLaporanParentActive ? 'rotate-90' : '';
-                                                                                        ?>"
+                    <svg class="w-4 h-4 text-gray-400 transition-transform duration-200 <?php echo $isLaporanParentActive ? 'rotate-90' : ''; ?>"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -157,4 +181,27 @@ if ($isLaporanActivePostingan) $pageTitle = "Laporan Postingan";
         submenu.classList.toggle('max-h-40');
         icon.classList.toggle('rotate-90');
     }
+
+    // Fetch jumlah pending requests
+    async function fetchPendingRequestsCount() {
+        try {
+            const response = await fetch('<?= BASEURL ?>/dashboard/anggota/get-pending-requests-count');
+            const result = await response.json();
+            
+            if (result.success && result.count > 0) {
+                const badge = document.getElementById('requested-account-badge');
+                badge.textContent = result.count;
+                badge.classList.remove('hidden');
+            } else {
+                const badge = document.getElementById('requested-account-badge');
+                badge.classList.add('hidden');
+            }
+        } catch (error) {
+            console.error('Error fetching pending requests:', error);
+        }
+    }
+
+    // Check setiap 30 detik
+    fetchPendingRequestsCount();
+    setInterval(fetchPendingRequestsCount, 30000);
 </script>

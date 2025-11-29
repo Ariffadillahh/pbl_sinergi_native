@@ -88,7 +88,6 @@ class FypageModel extends BaseModel
 
         $conn = self::getConnection();
         
-        // Get groups user has joined, ordered by latest message
         $sql = "
             SELECT DISTINCT
                 GC.ID,

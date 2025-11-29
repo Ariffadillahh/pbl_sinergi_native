@@ -113,12 +113,11 @@
     </div>
 </div>
 
-<<<<<<< HEAD
 <?php include __DIR__ . '/modalDeletePost.php'; ?>
 <?php include __DIR__ . '/modalReportPost.php'; ?>
-=======
+
  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script>
- <script>
+<script>
      function timeAgo(dateString) {
          const date = new Date(dateString.replace(/-/g, "/"));
          const now = new Date();
@@ -153,12 +152,6 @@
          }
      });
 
-     customElements.whenDefined('swiper-container').then(() => {
-         const swiperElements = document.querySelectorAll('swiper-container.mySwiper');
->>>>>>> 7dfcbfed98c5e508fc17e2cccd20fc8f294d74f0
-
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script>
-<script>
     customElements.whenDefined('swiper-container').then(() => {
         const swiperElements = document.querySelectorAll('swiper-container.mySwiper');
 
@@ -200,7 +193,8 @@
             Object.assign(swiperEl, swiperParams);
             swiperEl.initialize();
         });
-    });
+     });
+
 
     function toggleDropdown(id) {
         // Close all other dropdowns first

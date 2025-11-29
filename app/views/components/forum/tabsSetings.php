@@ -18,6 +18,26 @@
         </div>
 
         <div class="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center w-full">
+            <div class="flex items-center justify-center w-20 h-20 rounded-full bg-green-50 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+            </div>
+
+            <h3 class="text-2xl font-bold mb-2">Buat Akun Mitra</h3>
+            <p class="text-gray-600 text-sm mb-6 max-w-xs">
+                Buat akun mitra industri untuk berkolaborasi dalam forum ini dan mengembangkan jaringan profesional.
+            </p>
+
+            <button onclick="openRequestMitraModal()" class="bg-green-100 border-green-600 border text-green-600 px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 shadow transition hover:bg-green-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Request Akun Mitra
+            </button>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center w-full">
             <div class="flex items-center justify-center w-20 h-20 rounded-full bg-red-50 mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M12 3a9 9 0 110 18 9 9 0 010-18z" />
@@ -36,7 +56,7 @@
                 Hapus Forum Ini
             </button>
         </div>
-
+    <?php require_once 'app/views/components/forum/modalRequestMitra.php'; ?>
     </div>
 </div>
 

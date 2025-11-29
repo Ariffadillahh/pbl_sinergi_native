@@ -845,44 +845,90 @@ class ForumModel extends BaseModel
         }
     }
     public function searchNonMembers($forumId, $search = '')
-{
-    $conn = self::getConnection();
-    
-    $searchParam = '%' . strtolower($search) . '%';
-    
-    $sql = "SELECT u.ID, u.USERNAME, u.FULL_NAME, u.PATH_PHOTO, u.ROLE
-            FROM USERS u
-            WHERE u.ID NOT IN (
-                SELECT fm.USER_ID 
-                FROM FORUM_MEMBERS fm 
-                WHERE fm.FORUM_ID = :forum_id
-            )
-            AND u.ID != (SELECT OWNER_ID FROM FORUMS WHERE ID = :forum_id2)";
-    
-    if (!empty($search)) {
-        $sql .= " AND (LOWER(u.FULL_NAME) LIKE :search OR LOWER(u.USERNAME) LIKE :search2)";
+    {
+        $conn = self::getConnection();
+        
+        $searchParam = '%' . strtolower($search) . '%';
+        
+        $sql = "SELECT u.ID, u.USERNAME, u.FULL_NAME, u.PATH_PHOTO, u.ROLE
+                FROM USERS u
+                WHERE u.ID NOT IN (
+                    SELECT fm.USER_ID 
+                    FROM FORUM_MEMBERS fm 
+                    WHERE fm.FORUM_ID = :forum_id
+                )
+                AND u.ID != (SELECT OWNER_ID FROM FORUMS WHERE ID = :forum_id2)";
+        
+        if (!empty($search)) {
+            $sql .= " AND (LOWER(u.FULL_NAME) LIKE :search OR LOWER(u.USERNAME) LIKE :search2)";
+        }
+        
+        $sql .= " ORDER BY u.FULL_NAME ASC";
+        
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ':forum_id', $forumId);
+        oci_bind_by_name($stmt, ':forum_id2', $forumId);
+        
+        if (!empty($search)) {
+            oci_bind_by_name($stmt, ':search', $searchParam);
+            oci_bind_by_name($stmt, ':search2', $searchParam);
+        }
+        
+        oci_execute($stmt);
+        
+        $users = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $users[] = $row;
+        }
+        
+        oci_free_statement($stmt);
+        
+        return $users;
     }
-    
-    $sql .= " ORDER BY u.FULL_NAME ASC";
-    
-    $stmt = oci_parse($conn, $sql);
-    oci_bind_by_name($stmt, ':forum_id', $forumId);
-    oci_bind_by_name($stmt, ':forum_id2', $forumId);
-    
-    if (!empty($search)) {
-        oci_bind_by_name($stmt, ':search', $searchParam);
-        oci_bind_by_name($stmt, ':search2', $searchParam);
+
+    public function addPendingMemberToForum($forumId, $userId)
+    {
+        $conn = self::getConnection();
+
+        if (!$conn) {
+            error_log("Gagal mendapatkan koneksi database.");
+            return false;
+        }
+
+        // Generate unique ID untuk member
+        $id = uniqid('member_');
+        $status = 'PENDING';
+
+        $sql = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, STATUS, JOINED_AT) 
+                VALUES (:id, :forum_id, :user_id, :status, SYSDATE)";
+
+        $stmt = oci_parse($conn, $sql);
+
+        if (!$stmt) {
+            $e = oci_error($conn);
+            error_log("OCI Parse Error addPendingMemberToForum: " . $e['message']);
+            return false;
+        }
+
+        // Bind parameters
+        oci_bind_by_name($stmt, ":id", $id);
+        oci_bind_by_name($stmt, ":forum_id", $forumId);
+        oci_bind_by_name($stmt, ":user_id", $userId);
+        oci_bind_by_name($stmt, ":status", $status);
+
+        // Execute dengan NO_AUTO_COMMIT untuk transaction control
+        $result = oci_execute($stmt, OCI_NO_AUTO_COMMIT);
+
+        if ($result) {
+            oci_commit($conn);
+            oci_free_statement($stmt);
+            return true;
+        } else {
+            $e = oci_error($stmt);
+            error_log("Database Error addPendingMemberToForum: " . $e['message']);
+            oci_rollback($conn);
+            oci_free_statement($stmt);
+            return false;
+        }
     }
-    
-    oci_execute($stmt);
-    
-    $users = [];
-    while ($row = oci_fetch_assoc($stmt)) {
-        $users[] = $row;
-    }
-    
-    oci_free_statement($stmt);
-    
-    return $users;
-}
 }
