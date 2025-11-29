@@ -51,6 +51,12 @@ switch (true) {
         $controller->update();
         break;
 
+    case $route ===  'topic/update-topic':
+        requireLogin();
+        $controller = new ForumController();
+        $controller->updateTopic();
+        break;
+
     case $route === 'forum/getForumInfo':
         requireLogin();
         $controller = new ForumController();

@@ -312,4 +312,127 @@ class TopicModel extends BaseModel
         }
         return $media;
     }
+
+    public function updateTopic($topicId, $content, $newFiles = [], $deletedMediaIds = [])
+    {
+        $conn = self::getConnection();
+
+        try {
+            // 1. Update konten topic
+            $sqlUpdate = "UPDATE FORUM_TOPICS 
+                         SET CONTENT = :content 
+                         WHERE ID = :id";
+            
+            $stmt = oci_parse($conn, $sqlUpdate);
+            oci_bind_by_name($stmt, ":id", $topicId);
+            
+            $clob = oci_new_descriptor($conn, OCI_D_LOB);
+            oci_bind_by_name($stmt, ":content", $clob, -1, OCI_B_CLOB);
+            $clob->writeTemporary($content ?? '');
+            
+            if (!oci_execute($stmt, OCI_NO_AUTO_COMMIT)) {
+                throw new Exception("Gagal update konten topic.");
+            }
+            $clob->close();
+            oci_free_statement($stmt);
+
+            // 2. Hapus media yang dipilih untuk dihapus
+            if (!empty($deletedMediaIds)) {
+                // Ambil path file untuk dihapus dari filesystem
+                $sqlGetPath = "SELECT MEDIA_PATH FROM TOPIC_MEDIA WHERE ID = :id";
+                $stmtPath = oci_parse($conn, $sqlGetPath);
+                
+                foreach ($deletedMediaIds as $mediaId) {
+                    oci_bind_by_name($stmtPath, ":id", $mediaId);
+                    oci_execute($stmtPath, OCI_NO_AUTO_COMMIT);
+                    
+                    if ($row = oci_fetch_assoc($stmtPath)) {
+                        $filePath = __DIR__ . '/../../../storage/forums/topics/' . $row['MEDIA_PATH'];
+                        if (file_exists($filePath)) {
+                            unlink($filePath);
+                        }
+                    }
+                }
+                oci_free_statement($stmtPath);
+
+                // Hapus dari database
+                $sqlDelete = "DELETE FROM TOPIC_MEDIA WHERE ID = :id";
+                $stmtDelete = oci_parse($conn, $sqlDelete);
+                
+                foreach ($deletedMediaIds as $mediaId) {
+                    oci_bind_by_name($stmtDelete, ":id", $mediaId);
+                    if (!oci_execute($stmtDelete, OCI_NO_AUTO_COMMIT)) {
+                        throw new Exception("Gagal menghapus media.");
+                    }
+                }
+                oci_free_statement($stmtDelete);
+            }
+            
+            if (!empty($newFiles)) {
+                $sqlMedia = "INSERT INTO TOPIC_MEDIA (ID, TOPIC_ID, MEDIA_PATH, MEDIA_TYPE, ORIGINAL_FILENAME) 
+                            VALUES (:id, :topic_id, :path, :type, :filename)";
+                
+                $stmtMedia = oci_parse($conn, $sqlMedia);
+
+                foreach ($newFiles as $file) {
+                    $mediaId = uniqid("media_");
+
+                    oci_bind_by_name($stmtMedia, ":id", $mediaId);
+                    oci_bind_by_name($stmtMedia, ":topic_id", $topicId);
+                    oci_bind_by_name($stmtMedia, ":path", $file['path']);
+                    oci_bind_by_name($stmtMedia, ":type", $file['type']);
+                    oci_bind_by_name($stmtMedia, ":filename", $file['original_filename']);
+
+                    if (!oci_execute($stmtMedia, OCI_NO_AUTO_COMMIT)) {
+                        throw new Exception("Gagal menyimpan media baru.");
+                    }
+                }
+                oci_free_statement($stmtMedia);
+            }
+
+            oci_commit($conn);
+            return ['status' => true, 'message' => 'Topic berhasil diupdate!'];
+            
+        } catch (Exception $e) {
+            oci_rollback($conn);
+            return ['status' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    public function isTopicOwner($topicId, $userId)
+    {
+        $conn = self::getConnection();
+        
+        $sql = "SELECT COUNT(*) AS TOTAL 
+                FROM FORUM_TOPICS 
+                WHERE ID = :topic_id AND USER_ID = :user_id";
+        
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ":topic_id", $topicId);
+        oci_bind_by_name($stmt, ":user_id", $userId);
+        oci_execute($stmt);
+        
+        $row = oci_fetch_assoc($stmt);
+        oci_free_statement($stmt);
+        
+        return ($row['TOTAL'] > 0);
+    }
+
+    public function canPinMoreTopics($forumId)
+    {
+        $conn = self::getConnection();
+        
+        $sql = "SELECT COUNT(*) AS TOTAL_PINNED 
+                FROM FORUM_TOPICS 
+                WHERE FORUM_ID = :forum_id AND IS_PINNED = 1";
+        
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ":forum_id", $forumId);
+        oci_execute($stmt);
+        
+        $row = oci_fetch_assoc($stmt);
+        oci_free_statement($stmt);
+        
+        return (int)$row['TOTAL_PINNED'] < 3;
+    }
 }

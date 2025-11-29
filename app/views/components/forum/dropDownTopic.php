@@ -116,7 +116,7 @@
 
  <div id="editTopicModal" class="hidden flex fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50 p-5 md:p-0">
      <div class="relative bg-white shadow-lg w-full max-w-xl drop-shadow rounded-xl">
-         <form id="editTopicForm" action="<?= BASEURL ?>/topic/update" method="POST" enctype="multipart/form-data">
+         <form id="editTopicForm" action="<?= BASEURL ?>/forum/update-topic" method="POST" enctype="multipart/form-data">
              <input type="hidden" name="topic_id" id="input_edit_topic_id">
 
              <div id="deleted_media_container"></div>
@@ -197,19 +197,6 @@
          document.getElementById('deleteTopicModal').classList.add('hidden');
      }
 
-     function openEditTopicModal(topicId, content) {
-         document.querySelectorAll('[id^="dropdown-"]').forEach(d => d.classList.add('hidden'));
-
-         document.getElementById('input_edit_topic_id').value = topicId;
-         document.getElementById('input_edit_topic_content').value = content;
-
-         document.getElementById('editTopicModal').classList.remove('hidden');
-     }
-
-     function closeEditTopicModal() {
-         document.getElementById('editTopicModal').classList.add('hidden');
-     }
-
      window.onclick = function(event) {
          if (!event.target.closest('.relative')) {
              document.querySelectorAll('[id^="dropdown-"]').forEach(d => d.classList.add('hidden'));
@@ -218,11 +205,6 @@
          const delModal = document.getElementById('deleteTopicModal');
          if (delModal && event.target === delModal.querySelector('.fixed.inset-0.bg-gray-500')) {
              closeDeleteTopicModal();
-         }
-
-         const editModal = document.getElementById('editTopicModal');
-         if (editModal && event.target === editModal.querySelector('.fixed.inset-0.bg-gray-500')) {
-             closeEditTopicModal();
          }
      }
 
@@ -308,4 +290,316 @@
              }
          });
      });
+
+    let existingMediaData = [];
+    let filesToDelete = [];
+    const MAX_FILES = 5;
+
+    /**
+     * Open edit modal dan populate data
+     */
+    function openEditTopicModal(topicId, content, mediaArray) {
+        // Reset state
+        existingMediaData = mediaArray || [];
+        filesToDelete = [];
+        
+        // Set form data
+        document.getElementById('input_edit_topic_id').value = topicId;
+        document.getElementById('input_edit_topic_content').value = content;
+        
+        // Clear deleted media container
+        document.getElementById('deleted_media_container').innerHTML = '';
+        
+        // Clear file input
+        document.getElementById('edit_image_input').value = '';
+        
+        // Render existing media
+        renderExistingMedia();
+        
+        // Update counter
+        updateFileCounter();
+        
+        // Show modal
+        const modal = document.getElementById('editTopicModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex', 'justify-center', 'items-center');
+        }
+    }
+
+    /**
+     * Close edit modal
+     */
+    function closeEditTopicModal() {
+       const modal = document.getElementById('editTopicModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex', 'justify-center', 'items-center'); // Hapus kelas display dan centering
+            }
+        existingMediaData = [];
+        filesToDelete = [];
+    }
+
+    /**
+     * Render media yang sudah ada dari database
+     */
+    function renderExistingMedia() {
+        const container = document.getElementById('edit_media_preview_container');
+        const emptyMsg = document.getElementById('edit_empty_msg');
+        
+        container.querySelectorAll(':scope > :not(#edit_empty_msg)').forEach(el => el.remove());
+
+        
+        if (existingMediaData.length === 0) {
+            emptyMsg.classList.remove('hidden');
+            return;
+        }
+        
+        emptyMsg.classList.add('hidden');
+        
+        existingMediaData.forEach(media => {
+            const mediaEl = createMediaPreviewElement(media, true);
+            container.appendChild(mediaEl);
+        });
+    }
+
+    /**
+     * Create preview element untuk media
+     */
+    function createMediaPreviewElement(media, isExisting = false) {
+        const div = document.createElement('div');
+        div.className = 'relative flex-shrink-0 snap-start group';
+        
+        const mediaId = isExisting ? media.ID : `new_${Date.now()}`;
+        const mediaPath = isExisting ? 
+            `<?= BASEURL ?>/storage/forums/topics/${media.MEDIA_PATH}` : 
+            media.preview;
+        
+        let mediaContent = '';
+        
+        if (media.MEDIA_TYPE === 'IMAGE' || media.type?.startsWith('image/')) {
+            mediaContent = `
+                <img src="${mediaPath}" 
+                    alt="${media.ORIGINAL_FILENAME || media.name}" 
+                    class="w-32 h-32 object-cover rounded-lg border-2 border-gray-200">
+            `;
+        } else {
+            const fileName = media.ORIGINAL_FILENAME || media.name;
+            const fileExt = fileName.split('.').pop().toUpperCase();
+            
+            mediaContent = `
+                <div class="w-32 h-32 flex flex-col items-center justify-center bg-gray-100 rounded-lg border-2 border-gray-200">
+                    <svg class="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    <span class="text-xs font-bold text-gray-600">${fileExt}</span>
+                    <span class="text-xs text-gray-500 px-2 truncate w-full text-center">${fileName}</span>
+                </div>
+            `;
+        }
+        
+        div.innerHTML = `
+            ${mediaContent}
+            <button type="button" 
+                    onclick="removeMedia('${mediaId}', ${isExisting})"
+                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        `;
+        
+        div.dataset.mediaId = mediaId;
+        
+        return div;
+    }
+
+    /**
+     * Remove media (mark for deletion atau remove dari preview)
+     */
+    function removeMedia(mediaId, isExisting) {
+        if (isExisting) {
+            // Tandai untuk dihapus
+            filesToDelete.push(mediaId);
+            
+            // Remove dari existingMediaData
+            existingMediaData = existingMediaData.filter(m => m.ID !== mediaId);
+            
+            // Add hidden input untuk deleted media
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'deleted_media[]';
+            input.value = mediaId;
+            document.getElementById('deleted_media_container').appendChild(input);
+        }
+        
+        // Remove element dari DOM
+        const element = document.querySelector(`[data-media-id="${mediaId}"]`);
+        if (element) {
+            element.remove();
+        }
+        
+        // Update counter dan check empty state
+        updateFileCounter();
+        checkEmptyState();
+    }
+
+    /**
+     * Handle new file selection
+     */
+    document.getElementById('edit_image_input')?.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        const container = document.getElementById('edit_media_preview_container');
+        
+        // Hitung total media
+        const currentTotal = existingMediaData.length + 
+                            container.querySelectorAll('[data-media-id^="new_"]').length;
+        const newTotal = currentTotal + files.length;
+        
+        if (newTotal > MAX_FILES) {
+            alert(`Maksimal ${MAX_FILES} file. Anda sudah memiliki ${currentTotal} file.`);
+            e.target.value = '';
+            return;
+        }
+        
+        // Remove empty message
+        document.getElementById('edit_empty_msg').classList.add('hidden');
+        
+        files.forEach(file => {
+            // Validasi tipe file
+            const allowedTypes = [
+                'image/jpeg', 'image/png', 'image/jpg', 'image/gif',
+                'application/pdf', 'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/zip'
+            ];
+            
+            if (!allowedTypes.includes(file.type)) {
+                alert(`Tipe file tidak diizinkan: ${file.name}`);
+                return;
+            }
+            
+            // Validasi ukuran (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert(`File terlalu besar: ${file.name} (max 10MB)`);
+                return;
+            }
+            
+            // Create preview
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const mediaData = {
+                    name: file.name,
+                    type: file.type,
+                    preview: file.type.startsWith('image/') ? event.target.result : null
+                };
+                
+                const previewEl = createMediaPreviewElement(mediaData, false);
+                container.appendChild(previewEl);
+                
+                updateFileCounter();
+            };
+            
+            if (file.type.startsWith('image/')) {
+                reader.readAsDataURL(file);
+            } else {
+                // Untuk non-image, langsung create preview
+                const mediaData = {
+                    name: file.name,
+                    type: file.type,
+                    preview: null
+                };
+                
+                const previewEl = createMediaPreviewElement(mediaData, false);
+                container.appendChild(previewEl);
+                
+                updateFileCounter();
+            }
+        });
+    });
+
+    /**
+     * Update file counter
+     */
+    function updateFileCounter() {
+        const container = document.getElementById('edit_media_preview_container');
+        const total = existingMediaData.length + 
+                    container.querySelectorAll('[data-media-id^="new_"]').length;
+        
+        document.getElementById('edit_file_counter').textContent = `${total}/${MAX_FILES} Media`;
+        
+        // Toggle warning dan button
+        const warning = document.getElementById('edit_limit_warning');
+        const addButton = document.getElementById('btn_add_more_edit');
+        
+        if (total >= MAX_FILES) {
+            warning.classList.remove('hidden');
+            addButton.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+        } else {
+            warning.classList.add('hidden');
+            addButton.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+        }
+    }
+
+    /**
+     * Check empty state
+     */
+    function checkEmptyState() {
+        const container = document.getElementById('edit_media_preview_container');
+        const emptyMsg = document.getElementById('edit_empty_msg');
+        const hasMedia = container.querySelectorAll('[data-media-id]').length > 0;
+        
+        if (!hasMedia) {
+            emptyMsg.classList.remove('hidden');
+        }
+    }
+
+    /**
+     * Handle form submission
+     */
+    document.getElementById('editTopicForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Menyimpan...';
+        
+        const formData = new FormData(this);
+        
+        // Append deleted media sebagai JSON
+        if (filesToDelete.length > 0) {
+            formData.append('deleted_media', JSON.stringify(filesToDelete));
+        }
+        
+        try {
+            const response = await fetch('<?= BASEURL ?>/topic/update-topic', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showGlobalAlert("Berhasil menyimpan perubahan!");
+                location.reload();
+            } else {
+                alert(result.message || 'Gagal mengupdate topic');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat mengupdate topic');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateFileCounter();
+    });
  </script>

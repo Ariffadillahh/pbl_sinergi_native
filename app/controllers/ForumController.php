@@ -886,4 +886,140 @@
             }
             exit;
         }
+
+        public function updateTopic()
+    {
+        header('Content-Type: application/json');
+        
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+            exit;
+        }
+
+        $topicId = $_POST['topic_id'] ?? null;
+        $content = $_POST['content'] ?? '';
+        $deletedMedia = isset($_POST['deleted_media']) ? json_decode($_POST['deleted_media'], true) : [];
+
+        if (!$topicId) {
+            echo json_encode(['success' => false, 'message' => 'Topic ID tidak ditemukan']);
+            exit;
+        }
+
+        // Cek kepemilikan topic
+        if (!$this->topicModel->isTopicOwner($topicId, $_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Anda bukan pemilik topic ini']);
+            exit;
+        }
+
+        // Hitung total media yang tersisa
+        $currentMedia = $this->topicModel->getMediaByTopicId($topicId);
+        $remainingMedia = count($currentMedia) - count($deletedMedia);
+        
+        // Hitung media baru
+        $newMediaCount = isset($_FILES['new_media']) ? count($_FILES['new_media']['name']) : 0;
+        $totalMedia = $remainingMedia + $newMediaCount;
+
+        if ($totalMedia > 5) {
+            echo json_encode(['success' => false, 'message' => 'Maksimal 5 media per topic']);
+            exit;
+        }
+
+        // Handle upload media baru
+        $uploadedFiles = [];
+        if (isset($_FILES['new_media']) && !empty($_FILES['new_media']['name'][0])) {
+            $uploadResult = $this->handleMultipleFileUpload($_FILES['new_media']);
+            
+            if (!$uploadResult['success']) {
+                echo json_encode(['success' => false, 'message' => $uploadResult['message']]);
+                exit;
+            }
+            
+            $uploadedFiles = $uploadResult['files'];
+        }
+
+        // Update topic
+        $result = $this->topicModel->updateTopic($topicId, $content, $uploadedFiles, $deletedMedia);
+
+        if ($result['status']) {
+            echo json_encode(['success' => true, 'message' => $result['message']]);
+        } else {
+            // Hapus file yang sudah diupload jika gagal
+            foreach ($uploadedFiles as $file) {
+                $filePath = __DIR__ . '/../../storage/forums/topics/' . $file['path'];
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+            
+            echo json_encode(['success' => false, 'message' => $result['message']]);
+        }
+        exit;
+    }
+
+    /**
+     * Handle multiple file upload untuk media topic
+     */
+    private function handleMultipleFileUpload($files)
+    {
+        $uploadDir = __DIR__ . '/../../storage/forums/topics/';
+        
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        $allowedImageTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+        $allowedFileTypes = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/zip'
+        ];
+
+        $uploadedFiles = [];
+        $fileCount = count($files['name']);
+
+        for ($i = 0; $i < $fileCount; $i++) {
+            if ($files['error'][$i] !== UPLOAD_ERR_OK) {
+                continue;
+            }
+
+            $fileName = $files['name'][$i];
+            $fileTmpName = $files['tmp_name'][$i];
+            $fileSize = $files['size'][$i];
+            $fileMimeType = mime_content_type($fileTmpName);
+
+            // Validasi tipe file
+            if (!in_array($fileMimeType, array_merge($allowedImageTypes, $allowedFileTypes))) {
+                return ['success' => false, 'message' => "Tipe file tidak diizinkan: $fileName"];
+            }
+
+            // Validasi ukuran (10MB max)
+            if ($fileSize > 10 * 1024 * 1024) {
+                return ['success' => false, 'message' => "File terlalu besar: $fileName (max 10MB)"];
+            }
+
+            // Tentukan tipe media
+            $mediaType = in_array($fileMimeType, $allowedImageTypes) ? 'IMAGE' : 'FILE';
+
+            // Generate nama file unik
+            $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+            $newFileName = uniqid() . '.' . $fileExtension;
+            $targetPath = $uploadDir . $newFileName;
+
+            // Upload file
+            if (!move_uploaded_file($fileTmpName, $targetPath)) {
+                return ['success' => false, 'message' => "Gagal upload file: $fileName"];
+            }
+
+            $uploadedFiles[] = [
+                'path' => $newFileName,
+                'type' => $mediaType,
+                'original_filename' => $fileName
+            ];
+        }
+
+        return ['success' => true, 'files' => $uploadedFiles];
+    }
     }

@@ -459,15 +459,21 @@ class DashboardController
 
                     $resetLink = BASEURL . '/forget-password';
 
-                    $mail->Body = "Halo <b>{$userData['FULL_NAME']}</b>,<br><br>"
-                        . "Selamat! Akun mitra Anda untuk aplikasi SINERGI telah disetujui oleh administrator.<br><br>"
+                    $mail->Body = "Halo <b>{$registrationData['FULL_NAME']}</b>,<br><br>"
+                        . "Akun Anda untuk aplikasi SINERGI telah berhasil dibuat oleh administrator.<br><br>"
                         . "Anda dapat login menggunakan detail berikut:<br>"
-                        . "<b>Email:</b> {$userData['EMAIL']}<br><br>"
-                        . "Silakan atur password Anda dengan mengklik tombol di bawah ini:<br><br>"
-                        . "<a href='{$resetLink}' style='background-color: #2563eb; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;'>"
-                        . "Atur Password"
+                        . "<b>Email:</b> {$registrationData['EMAIL']}<br><br>"
+                        . "Demi keamanan, silakan segera atur password Anda dengan mengklik tombol di bawah ini:<br><br>"
+
+                        . "<a href='{$resetLink}' style='background-color: #2563eb; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; font-family: Arial, sans-serif;'>"
+                        . "Atur Password Sekarang"
                         . "</a><br><br>"
+
+                        . "Jika tombol di atas tidak berfungsi, silakan klik tautan berikut:<br>"
+                        . "<a href='{$resetLink}'>{$resetLink}</a><br><br>"
                         . "Terima kasih.";
+
+                    $mail->AltBody = "Akun Anda telah dibuat. Email: {$registrationData['EMAIL']}";
 
                     $mail->send();
                 } catch (Exception $e) {
