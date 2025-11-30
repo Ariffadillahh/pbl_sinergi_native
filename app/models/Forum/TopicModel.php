@@ -62,37 +62,67 @@ class TopicModel extends BaseModel
     public function getTopicsByForumId($forumId)
     {
         $conn = self::getConnection();
-
-        $sql = "SELECT t.ID, t.CONTENT, TO_CHAR(t.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT, 
-                   u.FULL_NAME, u.PATH_PHOTO, u.ROLE, u.USERNAME, u.ID AS USER_ID, t.IS_PINNED,
-                   (SELECT COUNT(*) FROM TOPIC_LIKES l WHERE l.TOPIC_ID = t.ID) AS TOTAL_LIKES,
-                   (
-                (SELECT COUNT(*) FROM TOPIC_COMMENTS tc WHERE tc.TOPIC_ID = t.ID) 
-                + 
-                (SELECT COUNT(*) 
-                    FROM COMMENT_REPLIES cr 
-                    JOIN TOPIC_COMMENTS tc_parent ON cr.COMMENT_ID = tc_parent.ID 
-                    WHERE tc_parent.TOPIC_ID = t.ID)
-            ) AS TOTAL_COMMENTS
-            FROM FORUM_TOPICS t
-            JOIN USERS u ON t.USER_ID = u.ID  
-            WHERE t.FORUM_ID = :forum_id
-            ORDER BY t.CREATED_AT DESC";
-
+        $userId = $_SESSION['user_id'] ?? null;
+        
+        // Build SQL with IS_LIKED check
+        $sql = "SELECT 
+                    t.ID, 
+                    t.CONTENT, 
+                    TO_CHAR(t.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT, 
+                    u.FULL_NAME, 
+                    u.PATH_PHOTO, 
+                    u.ROLE, 
+                    u.USERNAME, 
+                    u.ID AS USER_ID, 
+                    t.IS_PINNED,
+                    (SELECT COUNT(*) FROM TOPIC_LIKES l WHERE l.TOPIC_ID = t.ID) AS TOTAL_LIKES,
+                    (
+                        (SELECT COUNT(*) FROM TOPIC_COMMENTS tc WHERE tc.TOPIC_ID = t.ID) 
+                        + 
+                        (SELECT COUNT(*) 
+                            FROM COMMENT_REPLIES cr 
+                            JOIN TOPIC_COMMENTS tc_parent ON cr.COMMENT_ID = tc_parent.ID 
+                            WHERE tc_parent.TOPIC_ID = t.ID)
+                    ) AS TOTAL_COMMENTS";
+        
+        // Add IS_LIKED check if user is logged in
+        if ($userId) {
+            $sql .= ",
+                    CASE WHEN EXISTS (
+                        SELECT 1 FROM TOPIC_LIKES 
+                        WHERE TOPIC_ID = t.ID AND USER_ID = :user_id
+                    ) THEN 1 ELSE 0 END as IS_LIKED";
+        } else {
+            $sql .= ", 0 as IS_LIKED";
+        }
+        
+        $sql .= " FROM FORUM_TOPICS t
+                JOIN USERS u ON t.USER_ID = u.ID  
+                WHERE t.FORUM_ID = :forum_id
+                ORDER BY t.CREATED_AT DESC";
+        
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ":forum_id", $forumId);
+        
+        if ($userId) {
+            oci_bind_by_name($stmt, ":user_id", $userId);
+        }
+        
         oci_execute($stmt);
-
+        
         $topics = [];
         while ($row = oci_fetch_assoc($stmt)) {
             if (is_object($row['CONTENT'])) {
                 $row['CONTENT'] = $row['CONTENT']->load();
             }
-
             $row['MEDIA'] = $this->getMediaByTopicId($row['ID']);
+            
+            // Ensure IS_LIKED is integer
+            $row['IS_LIKED'] = (int) ($row['IS_LIKED'] ?? 0);
+            
             $topics[] = $row;
         }
-
+        
         return $topics;
     }
 
@@ -249,53 +279,72 @@ class TopicModel extends BaseModel
     public function getTopicById($topicId)
     {
         $conn = self::getConnection();
-
+        $userId = $_SESSION['user_id'] ?? null;
+        
         $sql = "SELECT 
-                t.ID, 
-                t.FORUM_ID, 
-                t.CONTENT, 
-                TO_CHAR(t.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT, 
-                t.IS_PINNED,
-                u.FULL_NAME, 
-                u.PATH_PHOTO, 
-                u.ROLE, 
-                u.USERNAME, 
-                u.ID AS USER_ID,
-                (SELECT COUNT(*) FROM TOPIC_LIKES tl WHERE tl.TOPIC_ID = t.ID) AS TOTAL_LIKES,
-                (
-                    (SELECT COUNT(*) FROM TOPIC_COMMENTS tc WHERE tc.TOPIC_ID = t.ID) 
-                    + 
-                    (SELECT COUNT(*) 
-                     FROM COMMENT_REPLIES cr 
-                     JOIN TOPIC_COMMENTS tc_parent ON cr.COMMENT_ID = tc_parent.ID 
-                     WHERE tc_parent.TOPIC_ID = t.ID)
-                ) AS TOTAL_COMMENTS
-
-            FROM FORUM_TOPICS t
-            JOIN USERS u ON t.USER_ID = u.ID  
-            WHERE t.ID = :topic_id";
-
+                    t.ID, 
+                    t.FORUM_ID, 
+                    t.CONTENT, 
+                    TO_CHAR(t.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') as CREATED_AT, 
+                    t.IS_PINNED,
+                    u.FULL_NAME, 
+                    u.PATH_PHOTO, 
+                    u.ROLE, 
+                    u.USERNAME, 
+                    u.ID AS USER_ID,
+                    (SELECT COUNT(*) FROM TOPIC_LIKES tl WHERE tl.TOPIC_ID = t.ID) AS TOTAL_LIKES,
+                    (
+                        (SELECT COUNT(*) FROM TOPIC_COMMENTS tc WHERE tc.TOPIC_ID = t.ID) 
+                        + 
+                        (SELECT COUNT(*) 
+                        FROM COMMENT_REPLIES cr 
+                        JOIN TOPIC_COMMENTS tc_parent ON cr.COMMENT_ID = tc_parent.ID 
+                        WHERE tc_parent.TOPIC_ID = t.ID)
+                    ) AS TOTAL_COMMENTS";
+        
+        // Add IS_LIKED check if user is logged in
+        if ($userId) {
+            $sql .= ",
+                    CASE WHEN EXISTS (
+                        SELECT 1 FROM TOPIC_LIKES 
+                        WHERE TOPIC_ID = t.ID AND USER_ID = :user_id
+                    ) THEN 1 ELSE 0 END as IS_LIKED";
+        } else {
+            $sql .= ", 0 as IS_LIKED";
+        }
+        
+        $sql .= " FROM FORUM_TOPICS t
+                JOIN USERS u ON t.USER_ID = u.ID  
+                WHERE t.ID = :topic_id";
+        
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ":topic_id", $topicId);
-
+        
+        if ($userId) {
+            oci_bind_by_name($stmt, ":user_id", $userId);
+        }
+        
         if (!oci_execute($stmt)) {
             return false;
         }
-
+        
         $row = oci_fetch_assoc($stmt);
-
+        
         if ($row) {
             if (isset($row['CONTENT']) && is_object($row['CONTENT'])) {
                 $row['CONTENT'] = $row['CONTENT']->load();
             }
-
+            
             $row['MEDIA'] = $this->getMediaByTopicId($row['ID']);
             $row['TOTAL_LIKES'] = (int) ($row['TOTAL_LIKES'] ?? 0);
             $row['TOTAL_COMMENTS'] = (int) ($row['TOTAL_COMMENTS'] ?? 0);
-
+            
+            // Ensure IS_LIKED is integer
+            $row['IS_LIKED'] = (int) ($row['IS_LIKED'] ?? 0);
+            
             return $row;
         }
-
+        
         return false;
     }
 

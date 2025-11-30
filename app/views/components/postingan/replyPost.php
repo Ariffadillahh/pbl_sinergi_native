@@ -8,10 +8,27 @@
                 alt="Profile" class="w-12 h-12 rounded-full object-cover flex-shrink-0">
 
             <div class="flex-1">
-                <div class="text-lg">
+                <!-- FIX: Tambah badge role -->
+                <div class="flex items-center gap-2">
                     <span class="font-semibold text-gray-700"><?= htmlspecialchars($post['FULL_NAME']) ?></span>
+                    
+                    <?php
+                    $role = $post['ROLE'] ?? 'MAHASISWA';
+                    $roleClasses = [
+                        "MAHASISWA" => "bg-blue-100 text-blue-800",
+                        "ADMIN"     => "bg-red-100 text-red-800",
+                        "DOSEN"     => "bg-green-100 text-green-800",
+                        "MITRA"     => "bg-gray-100 text-gray-800",
+                        "ALUMNI"    => "bg-yellow-100 text-yellow-800"
+                    ];
+                    $colorClass = $roleClasses[$role] ?? "bg-gray-100 text-gray-800";
+                    ?>
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium <?= $colorClass ?>">
+                        <?= htmlspecialchars($role) ?>
+                    </span>
                 </div>
-                <div class="text-sm">
+                
+                <div class="text-sm mt-0.5">
                     <?php
                     $profileUrl = ($post['USER_ID'] === $_SESSION['user_id'])
                         ? BASEURL . "/profile"
@@ -19,9 +36,14 @@
                     ?>
 
                     <a href="<?= $profileUrl ?>">
-                        <span class="text-gray-500">@<?= htmlspecialchars($post['USERNAME']) ?></span>
+                        <span class="text-gray-500 hover:underline">@<?= htmlspecialchars($post['USERNAME']) ?></span>
                     </a>
-                    <span class="text-gray-400">· <?= date('d M Y', strtotime($post['CREATED_AT'])) ?></span>
+
+                    <!-- FIX: Ubah ke time ago format -->
+                    <span class="text-gray-400">· </span>
+                    <span class="text-gray-400 time-ago" data-time="<?= $post['CREATED_AT'] ?>">
+                        <?= date('d M Y', strtotime($post['CREATED_AT'])) ?>
+                    </span>
                 </div>
             </div>
             
@@ -116,41 +138,50 @@
 <?php include __DIR__ . '/modalDeletePost.php'; ?>
 <?php include __DIR__ . '/modalReportPost.php'; ?>
 
- <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script>
 <script>
-     function timeAgo(dateString) {
-         const date = new Date(dateString.replace(/-/g, "/"));
-         const now = new Date();
+    // FIX: Time ago function
+    function timeAgo(dateString) {
+        if (!dateString) return '';
+        
+        // Handle different date formats
+        const safeDateString = dateString.replace(' ', 'T');
+        const date = new Date(safeDateString);
+        const now = new Date();
 
-         if (isNaN(date.getTime())) return dateString;
+        if (isNaN(date.getTime())) {
+            console.error("Invalid date:", dateString);
+            return dateString;
+        }
 
-         const seconds = Math.floor((now - date) / 1000);
+        const seconds = Math.floor((now - date) / 1000);
 
-         let interval = seconds / 31536000;
-         if (interval > 1) return Math.floor(interval) + "y ago";
+        let interval = seconds / 31536000;
+        if (interval > 1) return Math.floor(interval) + "y ago";
 
-         interval = seconds / 2592000;
-         if (interval > 1) return Math.floor(interval) + "mo ago";
+        interval = seconds / 2592000;
+        if (interval > 1) return Math.floor(interval) + "mo ago";
 
-         interval = seconds / 86400;
-         if (interval > 1) return Math.floor(interval) + "d ago";
+        interval = seconds / 86400;
+        if (interval > 1) return Math.floor(interval) + "d ago";
 
-         interval = seconds / 3600;
-         if (interval > 1) return Math.floor(interval) + "h ago";
+        interval = seconds / 3600;
+        if (interval > 1) return Math.floor(interval) + "h ago";
 
-         interval = seconds / 60;
-         if (interval > 1) return Math.floor(interval) + "m ago";
+        interval = seconds / 60;
+        if (interval > 1) return Math.floor(interval) + "m ago";
 
-         return "Just now";
-     }
+        return "Just now";
+    }
 
-     const timeElements = document.querySelectorAll('.js-time-ago');
-     timeElements.forEach(function(el) {
-         const rawDate = el.getAttribute('data-time');
-         if (rawDate) {
-             el.textContent = timeAgo(rawDate);
-         }
-     });
+    // Apply time ago to all elements
+    const timeElements = document.querySelectorAll('.time-ago');
+    timeElements.forEach(function(el) {
+        const rawDate = el.getAttribute('data-time');
+        if (rawDate) {
+            el.textContent = timeAgo(rawDate);
+        }
+    });
 
     customElements.whenDefined('swiper-container').then(() => {
         const swiperElements = document.querySelectorAll('swiper-container.mySwiper');
@@ -193,33 +224,32 @@
             Object.assign(swiperEl, swiperParams);
             swiperEl.initialize();
         });
-     });
-
-
-    function toggleDropdown(id) {
-        // Close all other dropdowns first
-        document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
-            if (d.id !== id) d.classList.add('hidden');
-        });
-        // Toggle the clicked dropdown
-        const dropdown = document.getElementById(id);
-        if (dropdown) {
-            dropdown.classList.toggle('hidden');
-        }
-    }
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(event) {
-        const isDropdownButton = event.target.closest('button[onclick^="toggleDropdown"]');
-        const isDropdownContent = event.target.closest('[id^="dropdown-"]');
-        
-        if (!isDropdownButton && !isDropdownContent) {
-            document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
-                d.classList.add('hidden');
-            });
-        }
     });
 
+    // Initialize like button states
+    function initializeLikeButtons() {
+        const likeButtons = document.querySelectorAll('.like-btn');
+        
+        likeButtons.forEach(button => {
+            const isLiked = button.getAttribute('data-liked') === 'true';
+            const icon = button.querySelector('svg');
+            
+            if (isLiked) {
+                icon.classList.remove('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
+                icon.classList.add('text-red-500', 'fill-red-500');
+                icon.setAttribute('fill', 'currentColor');
+            } else {
+                icon.classList.remove('text-red-500', 'fill-red-500');
+                icon.classList.add('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
+                icon.setAttribute('fill', 'none');
+            }
+        });
+    }
+
+    // Initialize on load
+    initializeLikeButtons();
+
+    // Like button handler
     document.querySelectorAll('.like-btn').forEach(button => {
         button.addEventListener('click', async function(e) {
             e.preventDefault();
@@ -239,7 +269,9 @@
                 return;
             }
 
-            console.log('Toggling like for post:', postId);
+            // Disable button
+            this.disabled = true;
+            this.style.opacity = '0.6';
 
             try {
                 const res = await fetch('<?= BASEURL ?>/like/toggle', {
@@ -253,39 +285,64 @@
                 });
 
                 const data = await res.json();
-                console.log('Response:', data);
 
                 if (data.success) {
                     const isLiked = data.action === 'liked';
                     this.setAttribute('data-liked', isLiked ? 'true' : 'false');
                     
-                    // Update count dengan animasi
+                    // Update count
                     countSpan.textContent = data.total_likes + ' Likes';
                     countSpan.classList.add('scale-110', 'text-blue-600');
                     setTimeout(() => {
                         countSpan.classList.remove('scale-110', 'text-blue-600');
-                    }, 200);
+                    }, 300);
 
-                    // Update icon dengan animasi
+                    // Update icon
+                    icon.style.transition = 'all 0.3s ease';
+                    
                     if (isLiked) {
-                        icon.classList.remove('text-gray-600', 'group-hover:text-red-500');
-                        icon.classList.add('text-red-500', 'fill-red-500', 'animate-pulse');
+                        icon.classList.remove('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
+                        icon.classList.add('text-red-500', 'fill-red-500', 'scale-110');
                         icon.setAttribute('fill', 'currentColor');
-                        setTimeout(() => icon.classList.remove('animate-pulse'), 600);
+                        setTimeout(() => icon.classList.remove('scale-110'), 300);
                     } else {
-                        icon.classList.remove('text-red-500', 'fill-red-500', 'animate-pulse');
-                        icon.classList.add('text-gray-600', 'group-hover:text-red-500');
+                        icon.classList.remove('text-red-500', 'fill-red-500');
+                        icon.classList.add('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
                         icon.setAttribute('fill', 'none');
                     }
                 } else {
-                    console.error('Server Error:', data.message);
+                    console.error('Server error:', data.message);
                     alert(data.message || 'Gagal update like.');
                 }
             } catch (err) {
-                console.error('Fetch Error:', err);
+                console.error('Fetch error:', err);
                 alert('Terjadi kesalahan saat memproses like.');
+            } finally {
+                this.disabled = false;
+                this.style.opacity = '1';
             }
         });
+    });
+
+    function toggleDropdown(id) {
+        document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
+            if (d.id !== id) d.classList.add('hidden');
+        });
+        const dropdown = document.getElementById(id);
+        if (dropdown) {
+            dropdown.classList.toggle('hidden');
+        }
+    }
+
+    document.addEventListener('click', function(event) {
+        const isDropdownButton = event.target.closest('button[onclick^="toggleDropdown"]');
+        const isDropdownContent = event.target.closest('[id^="dropdown-"]');
+        
+        if (!isDropdownButton && !isDropdownContent) {
+            document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
+                d.classList.add('hidden');
+            });
+        }
     });
 
     function openEditPostModal(postId, content, mediaPaths = []) {
@@ -327,8 +384,24 @@
         modal.classList.add("flex");
         document.getElementById("delete-post-id").value = postId;
     }
-
-    function reportPost(postId) {
-        alert("Report post: " + postId);
-    }
 </script>
+
+<style>
+/* Smooth transition untuk like button */
+.like-btn svg {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.like-btn:active svg {
+    transform: scale(0.9);
+}
+
+.like-btn:disabled {
+    cursor: not-allowed;
+}
+
+/* Animation untuk like count */
+.like-count-display {
+    transition: all 0.3s ease;
+}
+</style>

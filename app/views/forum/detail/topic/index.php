@@ -1,4 +1,6 @@
 <?php
+// File: app/views/forum/detail/index.php
+// COPY PASTE FILE INI, REPLACE YANG LAMA
 
 $hasBanner = !empty($forumById['PATH_THUMBNAIL']);
 $bannerUrl = $hasBanner
@@ -43,8 +45,6 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                 <?php endif; ?>
 
             </div>
-
-
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-0">
                 <div class="flex flex-col md:flex-row items-center md:items-end justify-between -mt-16 md:-mt-20 mb-4">
@@ -93,8 +93,6 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                     </div>
 
                 </div>
-
-
             </div>
         </div>
 
@@ -105,7 +103,8 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
             $images = array_filter($allMedia, fn($m) => $m['MEDIA_TYPE'] === 'IMAGE');
             $files = array_filter($allMedia, fn($m) => $m['MEDIA_TYPE'] === 'FILE');
 
-            $isLikedByUser = $topic['IS_LIKED'] ?? false;
+            // FIX: Ambil IS_LIKED dari database
+            $isLikedByUser = !empty($topic['IS_LIKED']);
             $totalLikes = $topic['TOTAL_LIKES'] ?? 0;
             ?>
 
@@ -123,9 +122,28 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                             </div>
 
                             <div>
-                                <h4 class="font-bold text-lg text-gray-900 leading-tight hover:text-blue-600 transition-colors cursor-pointer">
-                                    <?= htmlspecialchars($topic['FULL_NAME'] ?? 'User') ?>
-                                </h4>
+                                <!-- FIX: Tambah badge role -->
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-bold text-lg text-gray-900 leading-tight hover:text-blue-600 transition-colors cursor-pointer">
+                                        <?= htmlspecialchars($topic['FULL_NAME'] ?? 'User') ?>
+                                    </h4>
+                                    
+                                    <?php
+                                    $role = $topic['ROLE'] ?? 'MAHASISWA';
+                                    $roleClasses = [
+                                        "MAHASISWA" => "bg-blue-100 text-blue-800",
+                                        "ADMIN"     => "bg-red-100 text-red-800",
+                                        "DOSEN"     => "bg-green-100 text-green-800",
+                                        "MITRA"     => "bg-gray-100 text-gray-800",
+                                        "ALUMNI"    => "bg-yellow-100 text-yellow-800"
+                                    ];
+                                    $colorClass = $roleClasses[$role] ?? "bg-gray-100 text-gray-800";
+                                    ?>
+                                    <span class="px-2 py-0.5 rounded-full text-xs font-medium <?= $colorClass ?>">
+                                        <?= htmlspecialchars($role) ?>
+                                    </span>
+                                </div>
+
                                 <div class="flex items-center gap-2 mt-1">
                                     <?php
                                     $topicUserId = $topic['USER_ID'] ?? '';
@@ -170,7 +188,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                     <!-- Content Section -->
                     <?php if (!empty($topic['CONTENT'])): ?>
                         <div class="text-gray-800 leading-relaxed text-[15.5px]">
-                            <?= htmlspecialchars($topic['CONTENT']) ?>
+                            <?= nl2br(htmlspecialchars($topic['CONTENT'])) ?>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -235,10 +253,11 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                                     </svg>
                                 </span>
                             </div>
-                            <span class="font-semibold"><?= $totalLikes ?> Likes</span>
+                            <span class="font-semibold like-count-display"><?= $totalLikes ?></span>
+                            <span>Likes</span>
                         </div>
                         <div class="font-semibold hover:text-blue-600 transition-colors cursor-pointer">
-                            <?= $topic['TOTAL_COMMENTS'] ?> Commentar
+                            <?= $topic['TOTAL_COMMENTS'] ?> Comments
                         </div>
                     </div>
                 </div>
@@ -249,6 +268,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                         data-topic-id="<?= $topic['ID'] ?? 0 ?>"
                         data-liked="<?= $isLikedByUser ? 'true' : 'false' ?>">
                         <div class="absolute inset-0 bg-gradient-to-r from-red-500/0 to-pink-500/0 group-hover:from-red-500/5 group-hover:to-pink-500/5 transition-all duration-300"></div>
+                        
                         <svg class="w-5 h-5 transition-all duration-300 relative z-10 <?= $isLikedByUser ? 'text-red-500 fill-red-500 animate-pulse' : 'text-gray-600 group-hover:text-red-500 group-hover:scale-110' ?>"
                             fill="<?= $isLikedByUser ? 'currentColor' : 'none' ?>"
                             stroke="currentColor"
@@ -272,8 +292,6 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
             <!-- Comment Form -->
             <?php require_once 'app/views/components/forum/createTopicComment.php'; ?>
 
-
-
             <!-- Comments Section -->
             <?php require_once 'app/views/components/forum/listTopicComment.php'; ?>
 
@@ -286,6 +304,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        // Swiper initialization
         var swiper = new Swiper(".myPostSwiper", {
             pagination: {
                 el: ".swiper-pagination",
@@ -299,6 +318,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
             grabCursor: true,
         });
 
+        // Time ago function
         function timeAgo(dateString) {
             const date = new Date(dateString.replace(/-/g, "/"));
             const now = new Date();
@@ -332,5 +352,119 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                 el.textContent = timeAgo(rawDate);
             }
         });
+
+        // FIX: Initialize like button state
+        function initializeLikeButton() {
+            const likeButton = document.querySelector('.like-btn');
+            if (!likeButton) return;
+
+            const isLiked = likeButton.getAttribute('data-liked') === 'true';
+            const icon = likeButton.querySelector('svg');
+            
+            // Set initial state
+            if (isLiked) {
+                icon.classList.remove('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
+                icon.classList.add('text-red-500', 'fill-red-500', 'animate-pulse');
+                icon.setAttribute('fill', 'currentColor');
+            } else {
+                icon.classList.remove('text-red-500', 'fill-red-500', 'animate-pulse');
+                icon.classList.add('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
+                icon.setAttribute('fill', 'none');
+            }
+        }
+
+        // Initialize on load
+        initializeLikeButton();
+
+        // Like button handler
+        const likeBtn = document.querySelector('.like-btn');
+        if (likeBtn) {
+            likeBtn.addEventListener('click', async function(e) {
+                e.preventDefault();
+
+                const topicId = this.getAttribute('data-topic-id');
+                const icon = this.querySelector('svg');
+                const countSpan = document.querySelector('.like-count-display');
+
+                // Disable button
+                this.disabled = true;
+                this.style.opacity = '0.6';
+
+                try {
+                    const res = await fetch('<?= BASEURL ?>/like/toggle/topic', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams({
+                            'topic_id': topicId
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (data.success) {
+                        const isLiked = data.action === 'liked';
+
+                        // Update data-liked
+                        this.setAttribute('data-liked', isLiked ? 'true' : 'false');
+
+                        // Update count
+                        if (countSpan) {
+                            countSpan.textContent = data.total_likes;
+                            countSpan.classList.add('scale-150', 'text-blue-600');
+                            setTimeout(() => {
+                                countSpan.classList.remove('scale-150', 'text-blue-600');
+                            }, 300);
+                        }
+
+                        // Update icon
+                        icon.style.transition = 'all 0.3s ease';
+                        
+                        if (isLiked) {
+                            icon.classList.remove('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
+                            icon.classList.add('text-red-500', 'fill-red-500', 'animate-pulse', 'scale-110');
+                            icon.setAttribute('fill', 'currentColor');
+                            setTimeout(() => icon.classList.remove('scale-110'), 300);
+                        } else {
+                            icon.classList.remove('text-red-500', 'fill-red-500', 'animate-pulse');
+                            icon.classList.add('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
+                            icon.setAttribute('fill', 'none');
+                        }
+
+                    } else {
+                        console.error("Server Error:", data.message);
+                        alert('Gagal memproses like');
+                    }
+                } catch (err) {
+                    console.error('Fetch Error:', err);
+                    alert('Terjadi kesalahan');
+                } finally {
+                    // Re-enable button
+                    this.disabled = false;
+                    this.style.opacity = '1';
+                }
+            });
+        }
     });
 </script>
+
+<style>
+/* Smooth transition untuk like button */
+.like-btn svg {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.like-btn:active svg {
+    transform: scale(0.9);
+}
+
+.like-btn:disabled {
+    cursor: not-allowed;
+}
+
+/* Animation untuk like count */
+.like-count-display {
+    transition: all 0.3s ease;
+}
+</style>

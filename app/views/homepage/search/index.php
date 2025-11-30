@@ -144,6 +144,37 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
       if (kw) performSearch();
     });
 
+    function timeAgo(dateString) {
+      if (!dateString) return '';
+      
+      const safeDateString = dateString.replace(' ', 'T');
+      const date = new Date(safeDateString);
+      const now = new Date();
+
+      if (isNaN(date.getTime())) {
+        console.error("Invalid date:", dateString);
+        return dateString;
+      }
+
+      const seconds = Math.floor((now - date) / 1000);
+
+      let interval = seconds / 31536000;
+      if (interval > 1) return Math.floor(interval) + "y ago";
+
+      interval = seconds / 2592000;
+      if (interval > 1) return Math.floor(interval) + "mo ago";
+
+      interval = seconds / 86400;
+      if (interval > 1) return Math.floor(interval) + "d ago";
+
+      interval = seconds / 3600;
+      if (interval > 1) return Math.floor(interval) + "h ago";
+
+      interval = seconds / 60;
+      if (interval > 1) return Math.floor(interval) + "m ago";
+
+      return "Just now";
+    }
 
     async function performSearch() {
       const keyword = document.getElementById('searchInput').value.trim();
@@ -226,25 +257,50 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
           return;
         }
 
-        resultsDiv.innerHTML = data.data.map(p => `
-          <div class="my-6 bg-white border border-gray-200 rounded-2xl shadow-sm p-4 hover:shadow-md hover:border-blue-200 transition-all duration-200 group relative overflow-hidden cursor-pointer"
+        resultsDiv.innerHTML = data.data.map(p => {
+          // Role badge mapping
+          const role = p.ROLE || 'MAHASISWA';
+          const roleClasses = {
+            "MAHASISWA": "bg-blue-100 text-blue-800",
+            "ADMIN": "bg-red-100 text-red-800",
+            "DOSEN": "bg-green-100 text-green-800",
+            "MITRA": "bg-gray-100 text-gray-800",
+            "ALUMNI": "bg-yellow-100 text-yellow-800"
+          };
+          const colorClass = roleClasses[role] || "bg-gray-100 text-gray-800";
+          
+          return `
+          <div class="my-6 bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden hover:shadow-md hover:border-blue-200 transition-all duration-200 group relative cursor-pointer"
            onclick="window.location.href='${BASEURL}/homepage/reply/${p.POST_ID}'">
 
-              <div class="flex items-center gap-3">
-                <img src="${p.PATH_PHOTO ? BASEURL + '/storage/users/photos/' + p.PATH_PHOTO : BASEURL + '/src/asset/image/default.png'}" class="w-10 h-10 rounded-full object-cover">
-                <div>
-                  <p class="font-semibold text-gray-800">${escapeHtml(p.FULL_NAME)}</p>
-                  <p class="text-sm text-gray-500">@${escapeHtml(p.USERNAME)}</p>
+            <div class="p-4">
+              <div class="flex items-start gap-3">
+                <img src="${p.PATH_PHOTO ? BASEURL + '/storage/users/photos/' + p.PATH_PHOTO : BASEURL + '/src/asset/image/default.png'}" 
+                     class="w-12 h-12 rounded-full object-cover flex-shrink-0">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-semibold text-gray-800">${escapeHtml(p.FULL_NAME)}</span>
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium ${colorClass}">
+                      ${escapeHtml(role)}
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-1 text-sm mt-0.5">
+                    <span class="text-gray-500">@${escapeHtml(p.USERNAME)}</span>
+                    <span class="text-gray-400">·</span>
+                    <span class="text-gray-400 time-ago" data-time="${p.CREATED_AT}">
+                      ${new Date(p.CREATED_AT).toLocaleDateString()}
+                    </span>
+                  </div>
                 </div>
               </div>
 
+              <p class="mt-3 text-gray-700 text-sm leading-relaxed">${p.CONTENT ?? ''}</p>
+            </div>
 
-          <p class="mt-2 text-gray-700 text-sm leading-relaxed">${p.CONTENT ?? ''}</p>
-
-          ${p.MEDIA && p.MEDIA.length > 0 ? `
-              <div class="mt-3 rounded-2xl overflow-hidden border border-gray-100 pointer-events-auto"
+            ${p.MEDIA && p.MEDIA.length > 0 ? `
+              <div class="bg-gradient-to-b from-gray-900 to-black overflow-hidden pointer-events-auto"
                   onclick="event.stopPropagation()">
-                <swiper-container class="mySwiper w-full aspect-video">
+                <swiper-container class="mySwiper w-full aspect-video" init="false">
                   ${p.MEDIA.map(path => `
                     <swiper-slide>
                       <img src="${BASEURL + '/' + path}" class="w-full h-full object-contain bg-gray-50">
@@ -252,13 +308,41 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
                 </swiper-container>
               </div>` : ''}
 
-              <div class="mt-4 flex items-center justify-between text-gray-500 text-sm border-t border-gray-100 pt-3">
-                  <div class="flex items-center space-x-6">
-                      <button class="like-btn flex items-center hover:text-red-500 transition-colors group cursor-pointer" data-post-id="${p.POST_ID}" data-liked="${p.IS_LIKED ? 'true' : 'false'}" onclick="event.stopPropagation()"><div class="p-2"><svg class="w-5 h-5 ${p.IS_LIKED ? 'text-red-500 fill-red-500' : ''}" fill="${p.IS_LIKED ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></div><span class="like-count">${p.TOTAL_LIKES ?? 0}</span></button>
-                      <a href="${BASEURL}/homepage/reply/${p.POST_ID}" class="flex items-center hover:text-blue-600 transition-colors group cursor-pointer" onclick="event.stopPropagation()"><div class="p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></div><span>${p.TOTAL_COMMENT ?? 0}</span></a>
-                  </div>
-              </div>
-          </div>`).join('');
+            <div class="border-t border-gray-100 p-2 flex justify-center gap-2 bg-white">
+              <button class="like-btn flex items-center justify-center gap-2.5 px-5 py-2.5 rounded-xl transition-all hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 cursor-pointer group w-1/2 relative overflow-hidden" 
+                      data-post-id="${p.POST_ID}" 
+                      data-liked="${p.IS_LIKED ? 'true' : 'false'}" 
+                      onclick="event.stopPropagation()">
+                <div class="absolute inset-0 bg-gradient-to-r from-red-500/0 to-pink-500/0 group-hover:from-red-500/5 group-hover:to-pink-500/5 transition-all duration-300"></div>
+                <svg class="w-5 h-5 transition-all duration-300 relative z-10 ${p.IS_LIKED ? 'text-red-500 fill-red-500' : 'text-gray-600 group-hover:text-red-500 group-hover:scale-110'}" 
+                     fill="${p.IS_LIKED ? 'currentColor' : 'none'}" 
+                     stroke="currentColor" 
+                     viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                </svg>
+                <span class="like-count text-gray-700 group-hover:text-red-500 text-sm font-semibold transition-colors relative z-10">${p.TOTAL_LIKES ?? 0}</span>
+              </button>
+              
+              <a href="${BASEURL}/homepage/reply/${p.POST_ID}" 
+                 class="flex items-center justify-center gap-2.5 px-5 py-2.5 rounded-xl transition-all hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 cursor-pointer group w-1/2 relative overflow-hidden"
+                 onclick="event.stopPropagation()">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-cyan-500/0 group-hover:from-blue-500/5 group-hover:to-cyan-500/5 transition-all duration-300"></div>
+                <svg class="w-5 h-5 text-gray-600 group-hover:text-blue-600 group-hover:scale-110 transition-all duration-300 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+                <span class="text-gray-700 group-hover:text-blue-600 text-sm font-semibold transition-colors relative z-10">${p.TOTAL_COMMENT ?? 0}</span>
+              </a>
+            </div>
+          </div>`;
+        }).join('');
+
+        // Apply time ago
+        document.querySelectorAll('.time-ago').forEach(el => {
+          const rawDate = el.getAttribute('data-time');
+          if (rawDate) {
+            el.textContent = timeAgo(rawDate);
+          }
+        });
 
         customElements.whenDefined('swiper-container').then(() => {
           const swiperElements = document.querySelectorAll('swiper-container.mySwiper');
@@ -269,11 +353,12 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
               opacity: 0;
               transition: opacity 0.3s ease;
               color: #ffffff; 
-              background-color: rgba(0, 0, 0, 0.3); 
+              padding: 6px;
+              background-color: rgba(0, 0, 0, 0.2); 
               border-radius: 50%;
-              width: 40px;
-              height: 40px;
-              --swiper-navigation-size: 20px; 
+              width: 15px;
+              height: 15px;
+              --swiper-navigation-size: 16px; 
             }
 
             :host(:hover) .swiper-button-next,
@@ -294,22 +379,26 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
               dynamicBullets: true,
             },
             injectStyles: [style],
-            loop: false
           };
 
           swiperElements.forEach(swiperEl => {
-            if (swiperEl.swiper) return;
             Object.assign(swiperEl, swiperParams);
             swiperEl.initialize();
           });
         });
 
+        // Initialize like buttons
         document.querySelectorAll('.like-btn').forEach(btn => {
           btn.addEventListener('click', async e => {
             e.stopPropagation();
             const postId = btn.dataset.postId;
             const icon = btn.querySelector('svg');
             const countSpan = btn.querySelector('.like-count');
+            
+            // Disable button during request
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            
             try {
               const res = await fetch(`${BASEURL}/like/toggle`, {
                 method: 'POST',
@@ -319,15 +408,36 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
                 credentials: 'same-origin'
               });
               const data = await res.json();
+              
               if (data.success) {
                 const isLiked = data.action === 'liked';
+                btn.dataset.liked = isLiked ? 'true' : 'false';
                 countSpan.textContent = data.total_likes ?? 0;
-                icon.classList.toggle('text-red-500', isLiked);
-                icon.classList.toggle('fill-red-500', isLiked);
-                icon.setAttribute('fill', isLiked ? 'currentColor' : 'none');
+                
+                // Animate count
+                countSpan.classList.add('scale-110', 'text-blue-600');
+                setTimeout(() => {
+                  countSpan.classList.remove('scale-110', 'text-blue-600');
+                }, 200);
+                
+                // Update icon
+                if (isLiked) {
+                  icon.classList.remove('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
+                  icon.classList.add('text-red-500', 'fill-red-500', 'scale-110');
+                  icon.setAttribute('fill', 'currentColor');
+                  setTimeout(() => icon.classList.remove('scale-110'), 300);
+                } else {
+                  icon.classList.remove('text-red-500', 'fill-red-500');
+                  icon.classList.add('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
+                  icon.setAttribute('fill', 'none');
+                }
               }
             } catch (err) {
               console.error(err);
+              alert('Gagal memproses like');
+            } finally {
+              btn.disabled = false;
+              btn.style.opacity = '1';
             }
           });
         });
@@ -355,6 +465,26 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
       } [m]));
     }
   </script>
+
+  <style>
+    /* Smooth transition untuk like button */
+    .like-btn svg {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .like-btn:active svg {
+      transform: scale(0.9);
+    }
+
+    .like-btn:disabled {
+      cursor: not-allowed;
+    }
+
+    /* Animation untuk like count */
+    .like-count {
+      transition: all 0.3s ease;
+    }
+  </style>
 </body>
 
 </html>
