@@ -38,7 +38,7 @@
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            <p class="mt-2 text-gray-500">Memuat pesan...</p>
+                            <p class="mt-2 text-gray-500">Loading messages...</p>
                         </div>
                     </div>
 
@@ -82,11 +82,11 @@
 
                             <div class="absolute flex right-2 bottom-2 gap-1.5 sm:gap-2">
                                 <button type="button" id="Upload-Image"
-                                    class="size-10 sm:size-11 flex shrink-0 bg-white rounded-xl p-2 sm:p-[10px] items-center justify-center ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300">
-                                    <img src="<?php echo BASEURL; ?>/src/asset/icons/gallery-import.svg" class="w-5 h-5 sm:w-6 sm:h-6" alt="icon">
+                                    class="size-10 sm:size-11 flex shrink-0 bg-white rounded-xl p-2 sm:p-[10px] items-center justify-center ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 cursor-pointer">
+                                    <img src="<?php echo BASEURL; ?>/src/asset/icons/gallery-import.svg" class="w-5 h-5 sm:w-6 sm:h-6" alt="Upload icon">
                                 </button>
-                                <button type="submit" id="kirim" class="flex shrink-0 w-10 sm:w-11">
-                                    <img src="<?php echo BASEURL; ?>/src/asset/icons/Send-Button-blue-bg.svg" class="object-contain" alt="icon">
+                                <button type="submit" id="kirim" class="flex shrink-0 w-10 sm:w-11 cursor-pointer">
+                                    <img src="<?php echo BASEURL; ?>/src/asset/icons/Send-Button-blue-bg.svg" class="object-contain" alt="Send icon">
                                 </button>
                             </div>
                         </div>
@@ -106,7 +106,7 @@
 
             <div class="absolute top-4 right-4 flex gap-2 z-10">
                 <a id="downloadButton" href="" download
-                    class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full font-bold transition-all w-10 h-10 flex items-center justify-center shadow-lg">
+                    class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full font-bold transition-all w-10 h-10 flex items-center justify-center shadow-lg cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                     </svg>
@@ -127,10 +127,7 @@
         </div>
     </div>
 
-
-
-
-    <script>
+<script>
         function openImageModal(src) {
             document.getElementById("modalImage").src = src;
             document.getElementById("downloadButton").href = src;
@@ -178,6 +175,14 @@
                 sent: `<svg class="size-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`,
                 failed: `<svg class="size-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 9.586V6z" clip-rule="evenodd"></path></svg>`,
             };
+            
+            // Map Indonesian roles to English (Capitalized for display)
+            const roleTranslations = {
+                'ADMIN': 'ADMIN',
+                'DOSEN': 'LECTURER',
+                'MAHASISWA': 'STUDENT',
+                'ALUMNI': 'ALUMNI'
+            };
 
             function renderMessage(msg) {
                 const chatMessagesContainer = document.querySelector("#Chat-Messages article");
@@ -218,8 +223,11 @@
                         };
 
                         const styles = roleStyles[msg.ROLE] || roleStyles['default'];
+                        
+                        // Use the translated role
+                        const translatedRole = roleTranslations[msg.ROLE] || roleTranslations['default'];
 
-                        roleHtml = `<span class="text-xs font-semibold px-2 py-0.5 rounded-full ${styles}">${msg.ROLE}</span>`;
+                        roleHtml = `<span class="text-xs font-semibold px-2 py-0.5 rounded-full ${styles}">${translatedRole}</span>`;
                     }
 
 
@@ -230,10 +238,10 @@
                             </div>
                            <div class="flex items-center gap-1 text-xs sm:text-sm ${isOutgoing ? 'flex-row-reverse' : ''} min-w-0">
                                 <span class="font-bold text-black truncate 
-                                            max-w-[90px] 
-                                            sm:max-w-[160px] 
-                                            md:max-w-[240px] 
-                                            lg:max-w-none">
+                                        max-w-[90px] 
+                                        sm:max-w-[160px] 
+                                        md:max-w-[240px] 
+                                        lg:max-w-none">
                                     ${senderName}
                                 </span>
                                 ${roleHtml}
@@ -252,9 +260,9 @@
                                     class="rounded-lg w-full h-auto object-cover" 
                                     alt="Image" loading="lazy">
                                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 
-                                        flex items-center justify-center text-white font-semibold 
-                                        transition-all rounded-lg pointer-events-none">
-                                    Lihat
+                                            flex items-center justify-center text-white font-semibold 
+                                            transition-all rounded-lg pointer-events-none">
+                                    View
                                 </div>
                             </div>
                         `;
@@ -351,7 +359,7 @@
 
                 if (newStatus === 'failed') {
                     const messageCard = messageElement.querySelector('.message-card');
-                    messageCard.title = "Pesan gagal terkirim.";
+                    messageCard.title = "Message failed to send."; 
                 }
             }
 
@@ -412,13 +420,13 @@
 
                     if (!response.ok) {
                         errorDiv.classList.remove('hidden')
-                        errorDiv.innerHTML = result.error || "Server mengalami masalah."
+                        errorDiv.innerHTML = result.error || "The server encountered an issue." 
                         updateMessageStatus(tempId, 'failed');
                         return;
                     }
                     updateMessageStatus(tempId, 'sent', result);
                 } catch (error) {
-                    console.error("Gagal mengirim pesan:", error);
+                    console.error("Failed to send message:", error); 
                     updateMessageStatus(tempId, 'failed');
                 }
             }
@@ -449,6 +457,7 @@
                     previewImage.src = file.type.startsWith("image/") ? URL.createObjectURL(file) : fileIconUrl;
                     previewContainer.classList.remove("hidden");
                 });
+                removePreviewButton.classList.add("cursor-pointer"); 
                 removePreviewButton.addEventListener("click", elements.removePreview);
                 chatForm.addEventListener("submit", (event) => handleSendMessage(event, elements));
                 elements.updateTextInputState();
@@ -461,12 +470,12 @@
                     if (response.status === 403) {
                         const errorData = await response.json();
 
-                        console.warn("User di-kick/bukan member. Stop Polling.");
+                        console.warn("User was kicked/is not a member. Stop Polling."); 
 
                         const errorMessage = document.getElementById('error-message');
                         if (errorMessage) {
                             errorMessage.classList.remove('hidden');
-                            errorMessage.innerHTML = errorData.error || "Anda telah dikeluarkan dari group.";
+                            errorMessage.innerHTML = errorData.error || "You have been removed from the group."; 
                         }
 
                         return;
@@ -499,7 +508,7 @@
                     longPoll();
 
                 } catch (error) {
-                    console.error('Long polling error (Network/Script):', error);
+                    console.error('Long polling error (Network/Script):', error); 
                     await new Promise(resolve => setTimeout(resolve, 5000));
                     longPoll();
                 }
@@ -514,7 +523,7 @@
                 try {
                     const response = await fetch(`${BASEURL}/groups/getInitialMessages/${GROUP_CHAT_ID}`);
                     if (!response.ok) {
-                        throw new Error('Gagal mengambil data pesan.');
+                        throw new Error('Failed to fetch initial messages.'); 
                     }
                     const messages = await response.json();
                     loadingIndicator.style.display = 'none';
@@ -528,8 +537,8 @@
                     }
 
                 } catch (error) {
-                    console.error('Gagal memuat pesan awal:', error);
-                    loadingIndicator.innerHTML = '<p class="text-red-500">Gagal memuat pesan. Coba muat ulang halaman.</p>';
+                    console.error('Failed to load initial messages:', error); 
+                    loadingIndicator.innerHTML = '<p class="text-red-500">Failed to load messages. Try reloading the page.</p>'; 
                 } finally {
                     longPoll();
                 }

@@ -32,19 +32,19 @@
                     <span class="bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">Gagasan & Inovasi</span>
                 </h1>
                 <p class="text-gray-600 text-base lg:text-lg leading-relaxed">
-                    SINERGI menghubungkan mahasiswa, dosen, admin, alumni, dan mitra industri dalam satu ekosistem digital
-                    untuk mendukung aktivitas akademik dan kolaborasi.
+                    SINERGI connects students, lecturers, admins, alumni, and industry partners in one digital ecosystem
+                    to support academic activities and collaboration.
                 </p>
 
                 <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 pt-2">
                     <a href="<?= BASEURL ?>/sign-up" class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-8 py-3.5 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition duration-300 font-semibold">
-                        Daftar Sekarang
+                        Register Now
                     </a>
                     <a href="#fitur" class="border-2 border-blue-500 text-blue-600 px-8 py-3.5 rounded-lg hover:bg-blue-50 transition duration-300 flex items-center justify-center gap-2 font-semibold">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
-                        Lihat Fitur
+                        See Features
                     </a>
                 </div>
             </div>
@@ -68,7 +68,7 @@
 
                         <img
                             src="<?php echo BASEURL; ?>/src/asset/image/wow.png"
-                            alt="Dashboard SINERGI"
+                            alt="SINERGI Dashboard"
                             class="w-full">
                     </div>
                 </div>
@@ -77,10 +77,10 @@
 
         <section id="fitur" class="py-16 lg:py-24 px-6 lg:px-24 bg-gradient-to-b from-white to-gray-50">
             <div class="text-center mb-16">
-                <span class="text-blue-600 font-semibold text-sm uppercase tracking-wider">Fitur Unggulan</span>
-                <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mt-3">Solusi Lengkap untuk Akademik Modern</h2>
+                <span class="text-blue-600 font-semibold text-sm uppercase tracking-wider">Featured Features</span>
+                <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mt-3">Complete Solution for Modern Academics</h2>
                 <p class="text-gray-500 mt-3 max-w-2xl mx-auto">
-                    Teknologi terdepan yang dirancang khusus untuk meningkatkan produktivitas dan kolaborasi akademik
+                    Leading technology specifically designed to enhance academic productivity and collaboration.
                 </p>
             </div>
 
@@ -92,9 +92,9 @@
                             <img src="<?php echo BASEURL; ?>/src/asset/icons/icon-diskusi.svg" class="w-14 h-14 group-hover:scale-110 transition duration-300" alt="">
                         </div>
                     </div>
-                    <h3 class="font-bold text-lg mb-3 text-gray-900">Diskusi Interaktif</h3>
+                    <h3 class="font-bold text-lg mb-3 text-gray-900">Interactive Discussion</h3>
                     <p class="text-gray-500 text-sm leading-relaxed">
-                        Mulai percakapan, ajukan pertanyaan, dan dapatkan jawaban dari komunitas akademik.
+                        Start conversations, ask questions, and get answers from the academic community.
                     </p>
                 </div>
 
@@ -104,9 +104,9 @@
                             <img src="<?php echo BASEURL; ?>/src/asset/icons/icon-post.svg" class="w-14 h-14 group-hover:scale-110 transition duration-300" alt="">
                         </div>
                     </div>
-                    <h3 class="font-bold text-lg mb-3 text-gray-900">Postingan Interaktif</h3>
+                    <h3 class="font-bold text-lg mb-3 text-gray-900">Interactive Posts</h3>
                     <p class="text-gray-500 text-sm leading-relaxed">
-                        Berbagi pemikiran, ide, dan pengalaman antar sesama civitas akademika.
+                        Share thoughts, ideas, and experiences among fellow academic members.
                     </p>
                 </div>
 
@@ -116,9 +116,9 @@
                             <img src="<?php echo BASEURL; ?>/src/asset/icons/icon-kolaborasi.svg" class="w-14 h-14 group-hover:scale-110 transition duration-300" alt="">
                         </div>
                     </div>
-                    <h3 class="font-bold text-lg mb-3 text-gray-900">Kolaborasi Akademik</h3>
+                    <h3 class="font-bold text-lg mb-3 text-gray-900">Academic Collaboration</h3>
                     <p class="text-gray-500 text-sm leading-relaxed">
-                        Temukan partner untuk tugas, riset, atau proyek bersama.
+                        Find partners for assignments, research, or collaborative projects.
                     </p>
                 </div>
 
@@ -128,9 +128,9 @@
                             <img src="<?php echo BASEURL; ?>/src/asset/icons/icon-notifikasi.svg" class="w-14 h-14 group-hover:scale-110 transition duration-300" alt="">
                         </div>
                     </div>
-                    <h3 class="font-bold text-lg mb-3 text-gray-900">Notifikasi Real-time</h3>
+                    <h3 class="font-bold text-lg mb-3 text-gray-900">Real-time Notifications</h3>
                     <p class="text-gray-500 text-sm leading-relaxed">
-                        Dapatkan update instan setiap ada balasan atau thread terbaru.
+                        Get instant updates whenever there is a reply or a new thread.
                     </p>
                 </div>
 
@@ -141,17 +141,15 @@
 
     <section id="testimoni" class="py-16 lg:py-24 bg-gradient-to-b from-gray-50 to-white overflow-hidden">
         <div class="text-center mb-14">
-            <h2 class="text-3xl font-bold text-gray-900">Testimoni Pengguna</h2>
+            <h2 class="text-3xl font-bold text-gray-900">User Testimonials</h2>
             <p class="text-gray-500 mt-2">
-                Dengarkan pengalaman mereka yang telah menggunakan SINERGI
+                Hear the experiences of those who have used SINERGI
             </p>
         </div>
 
-        <!-- Infinite Scroll Wrapper -->
         <div class="relative w-full overflow-hidden">
             <div class="flex gap-6 animate-scroll">
 
-                <!-- Card 1 -->
                 <div class="bg-white rounded-2xl p-8 w-[380px] flex-shrink-0 border-2 border-gray-100 hover:border-blue-500 hover:shadow-2xl transition-all duration-300">
                     <div class="flex items-center gap-4 mb-5">
                         <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
@@ -159,67 +157,13 @@
                         </div>
                         <div>
                             <h3 class="font-bold text-gray-900">Dr. Sari Wulandari, M.Pd</h3>
-                            <span class="text-blue-600 text-sm">Dosen Teknik Informatika</span>
+                            <span class="text-blue-600 text-sm">Informatics Engineering Lecturer</span>
                         </div>
                     </div>
                     <div class="flex text-yellow-400 mb-4 text-lg">⭐⭐⭐⭐⭐</div>
                     <p class="text-gray-600 text-sm leading-relaxed">
-                        "SINERGI sangat membantu saya dalam mengelola kelas dan berkomunikasi dengan mahasiswa.
-                        Interface yang intuitif membuat pekerjaan administratif menjadi lebih efisien."
-                    </p>
-                </div>
-
-                <!-- Card 2 -->
-                <div class="bg-white rounded-2xl p-8 w-[380px] flex-shrink-0 border-2 border-gray-100 hover:border-blue-500 hover:shadow-2xl transition-all duration-300">
-                    <div class="flex items-center gap-4 mb-5">
-                        <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                            A
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-gray-900">Ahmad Faris</h3>
-                            <span class="text-blue-600 text-sm">Mahasiswa Teknik Informatika</span>
-                        </div>
-                    </div>
-                    <div class="flex text-yellow-400 mb-4 text-lg">⭐⭐⭐⭐⭐</div>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        "Dengan SINERGI, saya bisa mengakses semua informasi akademik dengan mudah.
-                        Fitur notifikasi dan reminder sangat membantu saya tidak melewatkan deadline tugas."
-                    </p>
-                </div>
-
-                <!-- Card 3 -->
-                <div class="bg-white rounded-2xl p-8 w-[380px] flex-shrink-0 border-2 border-gray-100 hover:border-blue-500 hover:shadow-2xl transition-all duration-300">
-                    <div class="flex items-center gap-4 mb-5">
-                        <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                            R
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-gray-900">Rizky Santoso</h3>
-                            <span class="text-blue-600 text-sm">Alumni Teknik Komputer</span>
-                        </div>
-                    </div>
-                    <div class="flex text-yellow-400 mb-4 text-lg">⭐⭐⭐⭐⭐</div>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        "Platform ini membantu saya tetap terhubung dengan kampus dan mahasiswa untuk proyek kolaboratif.
-                        Sangat berguna untuk networking dan berbagi pengalaman."
-                    </p>
-                </div>
-
-                <!-- Duplicate cards for seamless loop -->
-                <div class="bg-white rounded-2xl p-8 w-[380px] flex-shrink-0 border-2 border-gray-100 hover:border-blue-500 hover:shadow-2xl transition-all duration-300">
-                    <div class="flex items-center gap-4 mb-5">
-                        <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                            S
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-gray-900">Dr. Sari Wulandari, M.Pd</h3>
-                            <span class="text-blue-600 text-sm">Dosen Teknik Informatika</span>
-                        </div>
-                    </div>
-                    <div class="flex text-yellow-400 mb-4 text-lg">⭐⭐⭐⭐⭐</div>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        "SINERGI sangat membantu saya dalam mengelola kelas dan berkomunikasi dengan mahasiswa.
-                        Interface yang intuitif membuat pekerjaan administratif menjadi lebih efisien."
+                        "SINERGI greatly helps me in managing classes and communicating with students.
+                        The intuitive interface makes administrative work more efficient."
                     </p>
                 </div>
 
@@ -230,13 +174,13 @@
                         </div>
                         <div>
                             <h3 class="font-bold text-gray-900">Ahmad Faris</h3>
-                            <span class="text-blue-600 text-sm">Mahasiswa Teknik Informatika</span>
+                            <span class="text-blue-600 text-sm">Informatics Engineering Student</span>
                         </div>
                     </div>
                     <div class="flex text-yellow-400 mb-4 text-lg">⭐⭐⭐⭐⭐</div>
                     <p class="text-gray-600 text-sm leading-relaxed">
-                        "Dengan SINERGI, saya bisa mengakses semua informasi akademik dengan mudah.
-                        Fitur notifikasi dan reminder sangat membantu saya tidak melewatkan deadline tugas."
+                        "With SINERGI, I can access all academic information easily.
+                        The notification and reminder features really help me not to miss assignment deadlines."
                     </p>
                 </div>
 
@@ -247,13 +191,64 @@
                         </div>
                         <div>
                             <h3 class="font-bold text-gray-900">Rizky Santoso</h3>
-                            <span class="text-blue-600 text-sm">Alumni Teknik Komputer</span>
+                            <span class="text-blue-600 text-sm">Computer Engineering Alumnus</span>
                         </div>
                     </div>
                     <div class="flex text-yellow-400 mb-4 text-lg">⭐⭐⭐⭐⭐</div>
                     <p class="text-gray-600 text-sm leading-relaxed">
-                        "Platform ini membantu saya tetap terhubung dengan kampus dan mahasiswa untuk proyek kolaboratif.
-                        Sangat berguna untuk networking dan berbagi pengalaman."
+                        "This platform helps me stay connected with the campus and students for collaborative projects.
+                        Very useful for networking and sharing experiences."
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 w-[380px] flex-shrink-0 border-2 border-gray-100 hover:border-blue-500 hover:shadow-2xl transition-all duration-300">
+                    <div class="flex items-center gap-4 mb-5">
+                        <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                            S
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900">Dr. Sari Wulandari, M.Pd</h3>
+                            <span class="text-blue-600 text-sm">Informatics Engineering Lecturer</span>
+                        </div>
+                    </div>
+                    <div class="flex text-yellow-400 mb-4 text-lg">⭐⭐⭐⭐⭐</div>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        "SINERGI greatly helps me in managing classes and communicating with students.
+                        The intuitive interface makes administrative work more efficient."
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 w-[380px] flex-shrink-0 border-2 border-gray-100 hover:border-blue-500 hover:shadow-2xl transition-all duration-300">
+                    <div class="flex items-center gap-4 mb-5">
+                        <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                            A
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900">Ahmad Faris</h3>
+                            <span class="text-blue-600 text-sm">Informatics Engineering Student</span>
+                        </div>
+                    </div>
+                    <div class="flex text-yellow-400 mb-4 text-lg">⭐⭐⭐⭐⭐</div>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        "With SINERGI, I can access all academic information easily.
+                        The notification and reminder features really help me not to miss assignment deadlines."
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 w-[380px] flex-shrink-0 border-2 border-gray-100 hover:border-blue-500 hover:shadow-2xl transition-all duration-300">
+                    <div class="flex items-center gap-4 mb-5">
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                            R
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900">Rizky Santoso</h3>
+                            <span class="text-blue-600 text-sm">Computer Engineering Alumnus</span>
+                        </div>
+                    </div>
+                    <div class="flex text-yellow-400 mb-4 text-lg">⭐⭐⭐⭐⭐</div>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        "This platform helps me stay connected with the campus and students for collaborative projects.
+                        Very useful for networking and sharing experiences."
                     </p>
                 </div>
 
@@ -272,11 +267,10 @@
                     <span class="text-white font-bold text-xl">SINERGI</span>
                 </div>
                 <p class="text-sm text-gray-400 leading-relaxed max-w-sm">
-                    Platform akademik terpadu yang menghubungkan mahasiswa dan dosen dalam satu ekosistem digital yang modern dan efisien.
+                    An integrated academic platform that connects students and lecturers in a modern and efficient digital ecosystem.
                 </p>
             </div>
 
-            <!-- Menu -->
             <div class="pl-0 md:pl-12">
                 <h3 class="text-white font-bold mb-4">Menu</h3>
                 <ul class="space-y-3 text-sm">
@@ -294,7 +288,7 @@
             </div>
 
             <div>
-                <h3 class="text-white font-bold mb-4">Ikuti Kami</h3>
+                <h3 class="text-white font-bold mb-4">Follow Us</h3>
                 <div class="flex gap-3">
                     <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-600 transition duration-300">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -308,7 +302,7 @@
                     </a>
                     <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-pink-600 transition duration-300">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073z" />
                         </svg>
                     </a>
                     <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-700 transition duration-300">
@@ -322,7 +316,7 @@
         </div>
 
         <div class="border-t border-gray-800 mt-10 pt-6 text-center text-sm text-gray-500">
-            © 2025 <span class="text-blue-400 font-semibold">SINERGI</span>. Semua hak dilindungi.
+            © 2025 <span class="text-blue-400 font-semibold">SINERGI</span>. All rights reserved.
         </div>
     </footer>
 </body>

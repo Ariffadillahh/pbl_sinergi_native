@@ -36,7 +36,7 @@
         </div>
         <div class="bg-white drop-shadow rounded-xl p-4">
             <div class="flex justify-between items-center">
-                <p class="text-lg font-medium text-gray-700">Total Grop</p>
+                <p class="text-lg font-medium text-gray-700">Total Groups</p>
                 <img src="<?php echo BASEURL ?>/src/asset/icons/group.svg" class="size-10">
             </div>
             <h1 id="total-forums" class="text-xl font-bold mt-4"><?= $groupCount ?? 0 ?></h1>

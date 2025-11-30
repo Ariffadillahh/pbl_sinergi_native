@@ -1,19 +1,28 @@
 <div class="bg-white text-gray-900 border border-gray-200 rounded-2xl shadow-sm overflow-hidden" id="post-<?= $post['POST_ID'] ?>">
-    <!-- Header Section -->
     <div class="p-4">
         <div class="flex items-start space-x-3">
             <img src="<?= !empty($post['PATH_PHOTO'])
-                           ? BASEURL . '/storage/users/photos/' . $post['PATH_PHOTO']
-                           : BASEURL . '/src/asset/image/default.png' ?>"
+                            ? BASEURL . '/storage/users/photos/' . $post['PATH_PHOTO']
+                            : BASEURL . '/src/asset/image/default.png' ?>"
                 alt="Profile" class="w-12 h-12 rounded-full object-cover flex-shrink-0">
 
             <div class="flex-1">
-                <!-- FIX: Tambah badge role -->
                 <div class="flex items-center gap-2">
                     <span class="font-semibold text-gray-700"><?= htmlspecialchars($post['FULL_NAME']) ?></span>
                     
                     <?php
                     $role = $post['ROLE'] ?? 'MAHASISWA';
+                    
+                    // Mapping Indonesian roles to English for display
+                    $roleDisplay = [
+                        "MAHASISWA" => "STUDENT",
+                        "ADMIN"     => "ADMIN",
+                        "DOSEN"     => "LECTURER",
+                        "MITRA"     => "PARTNER",
+                        "ALUMNI"    => "ALUMNI",
+                    ][$role] ?? 'STUDENT';
+
+                    // Mapping original roles to CSS classes
                     $roleClasses = [
                         "MAHASISWA" => "bg-blue-100 text-blue-800",
                         "ADMIN"     => "bg-red-100 text-red-800",
@@ -24,8 +33,7 @@
                     $colorClass = $roleClasses[$role] ?? "bg-gray-100 text-gray-800";
                     ?>
                     <span class="px-2 py-0.5 rounded-full text-xs font-medium <?= $colorClass ?>">
-                        <?= htmlspecialchars($role) ?>
-                    </span>
+                        <?= htmlspecialchars($roleDisplay) ?> </span>
                 </div>
                 
                 <div class="text-sm mt-0.5">
@@ -39,7 +47,6 @@
                         <span class="text-gray-500 hover:underline">@<?= htmlspecialchars($post['USERNAME']) ?></span>
                     </a>
 
-                    <!-- FIX: Ubah ke time ago format -->
                     <span class="text-gray-400">· </span>
                     <span class="text-gray-400 time-ago" data-time="<?= $post['CREATED_AT'] ?>">
                         <?= date('d M Y', strtotime($post['CREATED_AT'])) ?>
@@ -50,7 +57,7 @@
             <div class="relative">
                 <div class="relative inline-block text-left">
                     <button
-                        class="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                        class="p-2 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
                         onclick="toggleDropdown('dropdown-<?= $post['POST_ID'] ?>')">
                         <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
                             <circle cx="5" cy="12" r="2" />
@@ -66,30 +73,26 @@
                         if ($isOwner): ?>
                             <button
                                 type="button"
-                                class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
+                                class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 cursor-pointer"
                                 onclick="openDeletePostModal('<?= $post['POST_ID'] ?>')">
-                                Hapus
-                            </button>
+                                Delete </button>
                         <?php else: ?>
                             <button
                                 type="button"
-                                class="report-btn w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-100"
+                                class="report-btn w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-100 cursor-pointer"
                                 data-post-id="<?= $post['POST_ID']; ?>">
-                                Report
-                            </button>
+                                Report </button>
                         <?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Content -->
         <div class="mt-3">
             <p class="text-black text-[15px] leading-relaxed"><?= $post['CONTENT_FORMATTED'] ?? '' ?></p>
         </div>
     </div>
 
-    <!-- Media Section -->
     <?php if (!empty($post['MEDIA'])): ?>
         <div class="bg-gradient-to-b from-gray-900 to-black overflow-hidden">
             <swiper-container class="mySwiper aspect-video w-full min-h-[250px] md:min-h-[400px]" init="false">
@@ -102,7 +105,6 @@
         </div>
     <?php endif; ?>
 
-    <!-- Stats Bar -->
     <div class="px-4 py-3 border-t border-gray-100 bg-gray-50/50">
         <div class="flex items-center justify-between text-sm text-gray-600">
             <div class="flex items-center gap-2 hover:text-blue-600 transition-colors cursor-pointer">
@@ -118,7 +120,6 @@
         </div>
     </div>
 
-    <!-- Action Buttons -->
     <div class="border-t border-gray-100 p-2 flex justify-center gap-2 bg-white">
         <button class="like-btn flex items-center justify-center gap-2.5 px-5 py-2.5 rounded-xl transition-all hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 cursor-pointer group w-full relative overflow-hidden"
             data-post-id="<?= $post['POST_ID'] ?>"
@@ -132,7 +133,7 @@
             </svg>
             <span class="text-gray-700 group-hover:text-red-500 text-sm font-semibold transition-colors relative z-10">Like</span>
         </button>
-    </div>
+        </div>
 </div>
 
 <?php include __DIR__ . '/modalDeletePost.php'; ?>

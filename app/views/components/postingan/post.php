@@ -1,8 +1,7 @@
 <?php if (empty($posts)): ?>
     <div class="bg-white p-6 rounded-xl mt-6 flex flex-col items-center justify-center shadow-sm">
         <img src="<?= BASEURL ?>/src/asset/image/empty-folder.png" alt="icon" width="100" class="mb-2">
-        <h1 class="text-gray-600 text-center text-sm">Saat ini belum ada postingan.</h1>
-    </div>
+        <h1 class="text-gray-600 text-center text-sm">There are currently no posts.</h1> </div>
 <?php else: ?>
     <?php
     $currentUserId = $_SESSION['user_id'] ?? null;
@@ -11,33 +10,48 @@
     ?>
         <div class="my-5" id="post-<?= $post['POST_ID'] ?>">
             <div class="bg-white text-gray-900 border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-                <!-- Header Section -->
                 <div class="p-4">
                     <div class="flex items-start space-x-3">
                         <img src="<?= !empty($post['PATH_PHOTO'])
-                                        ? BASEURL . '/storage/users/photos/' . $post['PATH_PHOTO']
-                                        : BASEURL . '/src/asset/image/default.png' ?>"
+                                            ? BASEURL . '/storage/users/photos/' . $post['PATH_PHOTO']
+                                            : BASEURL . '/src/asset/image/default.png' ?>"
                             alt="Profile" class="w-12 h-12 rounded-full object-cover flex-shrink-0">
 
                         <div class="flex-1">
-                            <!-- FIX: Tambah badge role -->
                             <div class="flex items-center gap-2">
                                 <span class="font-semibold text-gray-700"><?= htmlspecialchars($post['FULL_NAME']) ?></span>
                                 
                                 <?php
-                                $role = $post['ROLE'] ?? 'MAHASISWA';
+                                $role = $post['ROLE'] ?? 'STUDENT'; // Changed default to 'STUDENT'
+                                
+                                // Mapping roles from Indonesian to English for display, and setting classes
+                                $roleDisplay = [
+                                    "MAHASISWA" => "STUDENT",
+                                    "ADMIN"     => "ADMIN",
+                                    "DOSEN"     => "LECTURER",
+                                    "MITRA"     => "PARTNER",
+                                    "ALUMNI"    => "ALUMNI",
+                                ][$post['ROLE']] ?? 'STUDENT';
+                                
                                 $roleClasses = [
-                                    "MAHASISWA" => "bg-blue-100 text-blue-800",
-                                    "ADMIN"     => "bg-red-100 text-red-800",
-                                    "DOSEN"     => "bg-green-100 text-green-800",
-                                    "MITRA"     => "bg-gray-100 text-gray-800",
-                                    "ALUMNI"    => "bg-yellow-100 text-yellow-800"
+                                    "STUDENT" => "bg-blue-100 text-blue-800",
+                                    "ADMIN"   => "bg-red-100 text-red-800",
+                                    "LECTURER" => "bg-green-100 text-green-800",
+                                    "PARTNER" => "bg-gray-100 text-gray-800",
+                                    "ALUMNI"  => "bg-yellow-100 text-yellow-800"
                                 ];
-                                $colorClass = $roleClasses[$role] ?? "bg-gray-100 text-gray-800";
+                                
+                                // Use the original role to determine the color class, but use the English display name
+                                $colorKey = $roleDisplay;
+                                if ($role === 'MAHASISWA') $colorKey = 'STUDENT';
+                                else if ($role === 'DOSEN') $colorKey = 'LECTURER';
+                                else if ($role === 'MITRA') $colorKey = 'PARTNER';
+                                else if ($role === 'ALUMNI') $colorKey = 'ALUMNI';
+                                
+                                $colorClass = $roleClasses[$colorKey] ?? "bg-gray-100 text-gray-800";
                                 ?>
                                 <span class="px-2 py-0.5 rounded-full text-xs font-medium <?= $colorClass ?>">
-                                    <?= htmlspecialchars($role) ?>
-                                </span>
+                                    <?= htmlspecialchars($roleDisplay) ?> </span>
                             </div>
                             
                             <div class="text-sm mt-0.5">
@@ -51,7 +65,6 @@
                                     <span class="text-gray-500 hover:underline">@<?= htmlspecialchars($post['USERNAME']) ?></span>
                                 </a>
 
-                                <!-- FIX: Ubah ke time ago format -->
                                 <span class="text-gray-400">· </span>
                                 <span class="text-gray-400 time-ago" data-time="<?= $post['CREATED_AT'] ?>">
                                     <?= date('d M Y', strtotime($post['CREATED_AT'])) ?>
@@ -63,7 +76,7 @@
                         <div class="relative">
                             <div class="relative inline-block text-left">
                                 <button
-                                    class="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                                    class="p-2 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
                                     onclick="toggleDropdown('dropdown-<?= $post['POST_ID'] ?>')">
                                     <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
                                         <circle cx="5" cy="12" r="2" />
@@ -78,14 +91,13 @@
                                     <?php if ($isOwner): ?>
                                         <button
                                             type="button"
-                                            class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
+                                            class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 cursor-pointer"
                                             onclick="openDeletePostModal('<?= $post['POST_ID'] ?>')">
-                                            Hapus
-                                        </button>
+                                            Delete </button>
                                     <?php else: ?>
                                         <button
                                             type="button"
-                                            class="report-btn w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-100"
+                                            class="report-btn w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-100 cursor-pointer"
                                             data-post-id="<?= $post['POST_ID']; ?>">
                                             Report
                                         </button>
@@ -95,13 +107,11 @@
                         </div>
                     </div>
 
-                    <!-- Content -->
                     <div class="mt-3">
                         <p class="text-black text-[15px] leading-relaxed"><?= $post['CONTENT_FORMATTED'] ?? '' ?></p>
                     </div>
                 </div>
 
-                <!-- Media Section -->
                 <?php if (!empty($post['MEDIA'])): ?>
                     <div class="bg-gradient-to-b from-gray-900 to-black overflow-hidden">
                         <swiper-container class="mySwiper aspect-video w-full min-h-[250px] md:min-h-[400px]" init="false">
@@ -114,7 +124,6 @@
                     </div>
                 <?php endif; ?>
 
-                <!-- Stats Bar -->
                 <div class="px-4 py-3 border-t border-gray-100 bg-gray-50/50">
                     <div class="flex items-center justify-between text-sm text-gray-600">
                         <div class="flex items-center gap-2 hover:text-blue-600 transition-colors cursor-pointer">
@@ -128,12 +137,10 @@
                             <span class="like-count-display font-semibold"><?= htmlspecialchars($post['TOTAL_LIKES'] ?? 0) ?> Likes</span>
                         </div>
                         <div class="font-semibold hover:text-blue-600 transition-colors cursor-pointer">
-                            <?= htmlspecialchars($post['TOTAL_COMMENT'] ?? 0) ?> Komentar
-                        </div>
+                            <?= htmlspecialchars($post['TOTAL_COMMENT'] ?? 0) ?> Comments </div>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
                 <div class="border-t border-gray-100 p-2 flex justify-center gap-2 bg-white">
                     <button class="like-btn flex items-center justify-center gap-2.5 px-5 py-2.5 rounded-xl transition-all hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 cursor-pointer group w-1/2 relative overflow-hidden"
                         data-post-id="<?= $post['POST_ID'] ?>"

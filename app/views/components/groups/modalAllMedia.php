@@ -6,9 +6,9 @@
         <div id="modalContentBox" class="relative bg-white rounded-xl shadow-xl max-w-3xl w-full p-4">
 
             <div class="flex justify-between items-center mb-4">
-                <h1 class="font-semibold text-xl">Media, Files & Links</h1>
+                <h1 class="font-semibold text-xl">Media and Files</h1>
 
-                <button id="clsModalPreview" class="hover:bg-gray-100 rounded-lg p-1 transition-colors">
+                <button id="clsModalPreview" class="hover:bg-gray-100 rounded-lg p-1 transition-colors cursor-pointer">
                     <img src="<?= BASEURL ?>/src/asset/icons/close-circle-grey.svg" class="w-7 h-7">
                 </button>
             </div>
@@ -61,7 +61,7 @@
             const mediaContainer = document.getElementById("mediaContainer");
 
             if (mediaItems.length === 0) {
-                mediaContainer.innerHTML = '<p class="text-gray-500 p-4 text-center">Tidak ada media yang ditemukan.</p>';
+                mediaContainer.innerHTML = '<p class="text-gray-500 p-4 text-center">Media not found.</p>';
                 return;
             }
 
@@ -103,10 +103,10 @@
                             </p>
                             
                             <p class="text-sm text-gray-600 mt-1">
-                                Dikirim oleh: <span class="font-medium text-gray-800">${senderName}</span>
+                                Send by: <span class="font-medium text-gray-800">${senderName}</span>
                             </p>
                             <p class="text-xs text-gray-500">
-                                Pada: ${createdAt}
+                                at: ${createdAt}
                             </p>
                         </div>
                         

@@ -23,7 +23,7 @@
                 <form id="registerForm" action="<?php echo BASEURL ?>/sign-up/action" method="POST" class="flex flex-col gap-10">
                     <div class="flex flex-col gap-8">
                         <header class="flex flex-col gap-3 text-center">
-                            <h1 class="font-semibold text-2xl md:text-3xl text-gray-900">Hey🙌🏻, Welcome Aboard!</h1>
+                            <h1 class="font-semibold text-2xl md:text-3xl text-gray-900">Hey, Welcome Aboard!</h1>
                             <p class="font-medium text-gray-500">Create your account to continue!</p>
                         </header>
 
@@ -32,7 +32,7 @@
                                 <img id="photo-container" src="src/asset/image/default.png" alt="User avatar" class="object-cover w-full h-full" />
                             </div>
                             <input type="file" id="file-input" name="photo" class="hidden" accept="image/*" />
-                            <button type="button" id="add-photo" class="flex items-center gap-2 px-6 py-3.5 rounded-full bg-gray-900 text-white font-bold hover:bg-gray-700 transition-colors">
+                            <button type="button" id="add-photo" class="flex items-center gap-2 px-6 py-3.5 rounded-full bg-gray-900 text-white font-bold hover:bg-gray-700 transition-colors cursor-pointer">
                                 <img src="src/asset/icons/edit-2-white-fill.svg" alt="Edit icon" class="size-6" />
                                 <span>Change Avatar</span>
                             </button>
@@ -52,7 +52,7 @@
                                 <div class="relative w-full  mb-6 md:mb-0">
                                     <div class="group relative">
                                         <input type="text" id="username" name="username" class="w-full h-[72px] pl-[80px] pr-6 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all" placeholder=" " required />
-                                        <label for="username" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">username</label>
+                                        <label for="username" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">Username</label>
                                         <img src="<?php echo BASEURL; ?>/src/asset/image/@.png" alt="User icon" class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
                                         <div class="absolute left-[64px] top-1/2 -translate-y-1/2 w-[1.5px] h-6 bg-gray-300"></div>
                                     </div>
@@ -77,24 +77,48 @@
                                 </div>
                             </div>
 
-                            <div class="relative">
+                            <div class="relative w-full max-w-md">
                                 <div class="group relative">
-                                    <input type="password" id="password" name="password" class="w-full h-[72px] pl-[80px] pr-14 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all" placeholder=" " required />
+                                    <input
+                                        type="password"
+                                        id="password"
+                                        name="password"
+                                        minlength="6"
+                                        class="w-full h-[72px] pl-[80px] pr-14 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all"
+                                        placeholder=" "
+                                        required />
+
                                     <label for="password" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">Password</label>
-                                    <img src="src/asset/icons/lock-grey.svg" alt="Password icon" class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
+
+                                    <img src="src/asset/icons/lock-grey.svg" alt="" class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
                                     <div class="absolute left-[64px] top-1/2 -translate-y-1/2 w-[1.5px] h-6 bg-gray-300"></div>
-                                    <button type="button" id="show-password" class="absolute right-6 top-1/2 -translate-y-1/2 cursor-pointer">
-                                        <img src="src/asset/icons/eye-grey.svg" alt="Show password" id="show-icon" class="size-6" />
-                                        <img src="src/asset/icons/eye-slash-black.svg" alt="Hide password" id="hide-icon" class="size-6 hidden" />
+
+                                    <button type="button" id="show-password" class="absolute right-6 top-1/2 -translate-y-1/2 cursor-pointer focus:outline-none">
+                                        <svg id="show-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-gray-500">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <svg id="hide-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-gray-500 hidden">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                                        </svg>
                                     </button>
+                                </div>
+
+                                <div class="mt-3 px-2 hidden" id="strengthPassword">
+                                    <div class="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                        <div id="strength-bar" class="h-full w-0 transition-all duration-300 ease-out bg-red-500"></div>
+                                    </div>
+                                    <p id="strength-text" class="text-xs text-gray-500 mt-1.5 font-medium text-right">
+                                        Minimum 6 characters
+                                    </p>
                                 </div>
                             </div>
                         </section>
                     </div>
 
                     <section class="flex flex-col gap-6">
-                        <button type="submit" id="registerBtn" class="w-full bg-blue-800 text-white font-bold py-4 rounded-full hover:bg-blue-700 transition-all">Create Account</button>
-                        <p class="font-semibold text-center">Already Have Account? <a href="<?php echo BASEURL; ?>/sign-in" class="text-blue-500 hover:underline">Sign in Now</a></p>
+                        <button type="submit" id="registerBtn" class="w-full bg-blue-800 text-white font-bold py-4 rounded-full hover:bg-blue-700 transition-all cursor-pointer">Create Account</button>
+                        <p class="font-semibold text-center">Already Have Account? <a href="<?php echo BASEURL; ?>/sign-in" class="text-blue-500 hover:underline cursor-pointer">Sign in Now</a></p>
                     </section>
                 </form>
             </div>
@@ -106,6 +130,80 @@
     <script src="<?php echo BASEURL; ?>/src/js/main.js"></script>
 
     <script>
+        const strengthBar = document.getElementById('strength-bar');
+        const strengthText = document.getElementById('strength-text');
+        const passwordInput = document.getElementById('password');
+
+        const strengthPassword = document.getElementById('strengthPassword');
+
+        if (passwordInput && strengthBar && strengthText) {
+            passwordInput.addEventListener('input', () => {
+                const val = passwordInput.value;
+                const len = val.length;
+                strengthPassword.classList.remove('hidden')
+
+                len === 0 ? strengthPassword.classList.add('hidden') : strengthPassword.classList.remove('hidden')
+
+                strengthBar.classList.remove('bg-red-500', 'bg-yellow-500', 'bg-green-500');
+
+                if (len === 0) {
+                    strengthBar.style.width = '0%';
+                    strengthText.innerText = 'Minimum 6 characters with combination';
+                    strengthText.className = 'text-xs text-gray-500 mt-1.5 font-medium text-right';
+                    return;
+                }
+
+                if (len < 6) {
+                    strengthBar.style.width = '20%';
+                    strengthBar.classList.add('bg-red-500');
+                    strengthText.innerText = `Too short (needs ${6 - len} more)`;
+                    strengthText.className = 'text-xs text-red-500 mt-1.5 font-medium text-right';
+                    return;
+                }
+
+                let score = 0;
+                let missing = [];
+
+                if (val.match(/[a-z]/)) score++;
+                else missing.push("lowercase letter");
+                if (val.match(/[A-Z]/)) score++;
+                else missing.push("uppercase letter");
+                if (val.match(/[0-9]/)) score++;
+                else missing.push("number");
+                if (val.match(/[^a-zA-Z0-9]/)) score++;
+                else missing.push("symbol");
+                if (len > 8) score++;
+
+                let saran = missing.length > 0 ? missing[0] : '';
+
+                if (missing.length > 1 && score > 2) {
+                    saran = missing.slice(0, 2).join(' or ');
+                }
+
+                if (score <= 2) {
+                    strengthBar.style.width = '30%';
+                    strengthBar.classList.add('bg-red-500');
+
+                    strengthText.innerText = `Weak: Try adding ${saran || 'another combination'}`;
+                    strengthText.className = 'text-xs text-red-500 mt-1.5 font-medium text-right';
+
+                } else if (score <= 4) {
+                    strengthBar.style.width = '70%';
+                    strengthBar.classList.add('bg-yellow-500');
+
+                    strengthText.innerText = `Medium: Add ${saran} to make it stronger`;
+                    strengthText.className = 'text-xs text-yellow-600 mt-1.5 font-medium text-right';
+
+                } else {
+                    strengthBar.style.width = '100%';
+                    strengthBar.classList.add('bg-green-500');
+
+                    strengthText.innerText = 'Very Strong & Secure!';
+                    strengthText.className = 'text-xs text-green-600 mt-1.5 font-bold text-right';
+                }
+            });
+        }
+
         function handleRegist() {
             const formRegist = document.getElementById("registerForm");
             const modalOtp = document.getElementById("modal-otp");
@@ -159,7 +257,7 @@
                             startCooldown();
                         }
                     } else {
-                        errorNotif.textContent = result.message || "Terjadi kesalahan.";
+                        errorNotif.textContent = result.message || "An error occurred.";
                         errorNotif.classList.remove('hidden');
 
                         setTimeout(() => {
@@ -168,7 +266,7 @@
                     }
                 } catch (error) {
                     console.error("Fetch Error:", error);
-                    errorNotif.textContent = "Tidak dapat terhubung ke server. Periksa koneksi Anda.";
+                    errorNotif.textContent = "Could not connect to the server. Check your connection.";
                     errorNotif.classList.remove("hidden");
 
                     setTimeout(() => {

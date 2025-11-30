@@ -17,14 +17,14 @@
 
                     <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                         <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                            Konfirmasi Status Mahasiswa
+                            Confirm Student Status
                         </h3>
                         <div class="mt-2">
                             <p class="text-sm text-gray-500">
-                                Sistem mendeteksi Anda menggunakan email institusi PNJ. Apakah Anda ingin memperbarui status Anda kembali menjadi Mahasiswa Aktif?
+                                System detected that you are using a PNJ institutional email. Would you like to update your status back to Active Student?
                             </p>
                             <div class="mt-3 p-3 bg-gray-50 rounded-md border border-gray-200 text-left">
-                                <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide">Email Terdeteksi:</p>
+                                <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide">Detected Email:</p>
                                 <p class="text-sm font-mono text-gray-800 break-all">
                                     <?= htmlspecialchars($userEmail) ?>
                                 </p>
@@ -36,12 +36,12 @@
             </div>
 
             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" id="confirmBtn" class="w-full sm:w-auto sm:ml-3 inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm">
-                    Konfirmasi
+                <button type="button" id="confirmBtn" class="w-full sm:w-auto sm:ml-3 inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm cursor-pointer">
+                    Confirm
                 </button>
 
-                <button type="button" onclick="closeStudentModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                    Batal
+                <button type="button" onclick="closeStudentModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm cursor-pointer">
+                    Cancel
                 </button>
             </div>
         </div>
@@ -87,8 +87,8 @@
                         modalOtp.classList.remove('hidden');
 
                     } else {
-                        console.warn("Element dengan ID 'modalOtp' tidak ditemukan di halaman ini.");
-                        alert("Permintaan berhasil, silakan cek email Anda untuk OTP.");
+                        console.warn("Element with ID 'modalOtp' was not found on this page.");
+                        alert("Request successful, please check your email for the OTP.");
                     }
 
                     if (typeof startCooldown === 'function') {
@@ -96,12 +96,12 @@
                     }
 
                 } else {
-                    alert(result.message || "Terjadi kesalahan saat memproses permintaan.");
+                    alert(result.message || "An error occurred while processing the request.");
                 }
 
             } catch (error) {
                 console.error("Error:", error);
-                alert("Gagal terhubung ke server. Silakan coba lagi.");
+                alert("Failed to connect to the server. Please try again.");
             } finally {
                 confirmBtn.disabled = false;
                 confirmBtn.innerText = originalText;

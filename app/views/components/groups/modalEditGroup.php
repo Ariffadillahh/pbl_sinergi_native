@@ -49,7 +49,7 @@ $placeholder = "data:image/svg+xml;utf8,"
                         <button
                             type="button"
                             id="btn-edit-forum-change-photo"
-                            class="flex items-center gap-2 px-6 py-3.5 rounded-full bg-gray-900 text-white font-bold hover:bg-gray-700 transition-colors">
+                            class="flex items-center gap-2 px-6 py-3.5 rounded-full bg-gray-900 text-white font-bold hover:bg-gray-700 transition-color cursor-pointer">
                             <img src="<?php echo BASEURL; ?>/src/asset/icons/edit-2-white-fill.svg" alt="Edit icon" class="size-6" />
                             <span>Change Photo</span>
                         </button>
@@ -66,7 +66,7 @@ $placeholder = "data:image/svg+xml;utf8,"
                                 class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                                 placeholder=" " required />
                             <label for="edit-forum-name"
-                                class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600 peer-placeholder-shown:top-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4">
+                                class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600 peer-placeholder-shown:top-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 cursor-pointer">
                                 Group Name
                             </label>
                         </div>
@@ -88,6 +88,7 @@ $placeholder = "data:image/svg+xml;utf8,"
                         <div class="flex items-center">
                             <input
                                 type="checkbox"
+                                class="cursor-pointer"
                                 name="isPrivate"
                                 id="edit-forum-isPrivate"
                                 <?php if (!empty($groupChatId['IS_PRIVATE']) && $groupChatId['IS_PRIVATE']) echo 'checked'; ?> />
@@ -112,7 +113,7 @@ $placeholder = "data:image/svg+xml;utf8,"
                             type="submit"
                             name="edit"
                             id="btn-submit-edit-forum"
-                            class="mt-6 w-full px-6 py-3.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors">
+                            class="mt-6 w-full px-6 py-3.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors cursor-pointer">
                             Edit Group
                         </button>
                     </div>

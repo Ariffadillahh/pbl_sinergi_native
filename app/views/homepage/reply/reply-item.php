@@ -81,7 +81,7 @@ $showArrow = ($isChild
         <div class="mt-3 ml-1 pl-8 sm:pl-12 flex items-center justify-between text-gray-500 text-xs sm:text-sm">
             <div class="flex gap-3 sm:gap-4 items-center">
                 <p class="text-gray-400 time-ago" data-time="<?= htmlspecialchars($reply['CREATED_AT']) ?>"></p>
-                <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold"
+                <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold cursor-pointer"
                     data-username="<?= htmlspecialchars($reply['USERNAME']) ?>"> Reply
                 </button>
             </div>
@@ -129,7 +129,7 @@ $showArrow = ($isChild
                 </div>
                 <div class="flex justify-end w-full md:w-auto">
                     <button type="submit"
-                        class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-full transition-colors w-full md:w-auto">
+                        class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-full transition-colors w-full md:w-auto cursor-pointer">
                         Reply
                     </button>
                 </div>

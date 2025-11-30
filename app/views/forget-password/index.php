@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="<?php echo BASEURL; ?>/src/css/output.css" rel="stylesheet">
-    <title>Forget Password | SINERGI</title>
+    <title>Forgot Password | SINERGI</title>
 </head>
 
 <body>
@@ -15,15 +15,18 @@
         <main class="flex flex-1 items-center justify-center px-4 bg-white/50 md:bg-white z-10 lg:rounded-l-4xl ">
             <div class="w-full max-w-[435px] relative mt-6 md:mt-0">
 
-                <div id="error-notification" class="absolute bottom-[calc(100%+-10px)] md:bottom-[calc(100%+15px)] w-full text-center bg-red-500/90 py-3 px-6 rounded-2xl shadow-lg hidden z-[999] text-white">
+                <div id="error-notification"
+                    class="absolute bottom-[calc(100%+-10px)] md:bottom-[calc(100%+15px)] w-full text-center bg-red-500/90 py-3 px-6 rounded-2xl shadow-lg hidden z-[999] text-white">
 
                 </div>
 
-                <section class="flex flex-col gap-10 bg-white md:bg-transparent md:p-0 md:drop-shadow-none p-5 rounded-xl drop-shadow-2xl">
+                <section
+                    class="flex flex-col gap-10 bg-white md:bg-transparent md:p-0 md:drop-shadow-none p-5 rounded-xl drop-shadow-2xl">
                     <form id="resetForm" class="flex flex-col gap-10" method="POST">
                         <div class="flex flex-col gap-8">
                             <header class="flex flex-col gap-3 text-center">
-                                <img src="<?php echo BASEURL; ?>/src/asset/icons/logo-icon.svg" class="w-12 h-10 shrink-0 mx-auto" alt="logo">
+                                <img src="<?php echo BASEURL; ?>/src/asset/icons/logo-icon.svg"
+                                    class="w-12 h-10 shrink-0 mx-auto" alt="logo">
                                 <h1 class="font-light text-2xl">SINERGI</h1>
                                 <p class="font-medium text-gray-500">Change Your Password Now</p>
                             </header>
@@ -69,39 +72,57 @@
                                         </button>
                                     </div>
                                 </div>
+                                <div class="px-2 -mt-3 hidden" id="strengthPassword">
+                                    <div class="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                        <div id="strength-bar"
+                                            class="h-full w-0 transition-all duration-300 ease-out bg-red-500"></div>
+                                    </div>
+                                    <p id="strength-text"
+                                        class="text-xs text-gray-500 mt-1.5 font-medium text-right">
+                                        Minimum 6 characters
+                                    </p>
+                                </div>
 
                                 <div class="relative">
                                     <div class="group relative">
                                         <input type="password" id="confirmPassword" name="confirm_password"
                                             class="w-full h-[72px] pl-[80px] pr-14 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all"
                                             placeholder=" " required />
+
                                         <label for="confirmPassword"
                                             class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">
                                             Confirm Password
                                         </label>
+
                                         <img src="src/asset/icons/lock-grey.svg" alt="Password icon"
                                             class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
+
                                         <div
                                             class="absolute left-[64px] top-1/2 -translate-y-1/2 w-[1.5px] h-6 bg-gray-300">
                                         </div>
+
                                         <button type="button" id="toggleConfirm"
-                                            class="absolute right-6 top-1/2 -translate-y-1/2 cursor-pointer">
+                                            class="absolute right-6 top-1/2 -translate-y-1/2 cursor-pointer focus:outline-none z-20">
                                             <img src="src/asset/icons/eye-grey.svg" alt="Show password"
                                                 id="showIconConfirm" class="size-6" />
                                             <img src="src/asset/icons/eye-slash-black.svg" alt="Hide password"
                                                 id="hideIconConfirm" class="size-6 hidden" />
                                         </button>
                                     </div>
+
+                                    <p id="match-text" class="text-xs mt-1.5 font-medium text-right hidden"></p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="flex flex-col gap-6">
                             <button type="submit" id="btnForget"
-                                class="w-full bg-blue-800 text-white font-bold py-4 rounded-full hover:bg-blue-700 transition-all">
+                                class="w-full bg-blue-800 text-white font-bold py-4 rounded-full hover:bg-blue-700 transition-all cursor-pointer">
                                 Submit
                             </button>
-                            <p class="font-semibold text-center">Already Have Account? <a href="<?php echo BASEURL; ?>/sign-in" class="text-blue-500 hover:underline">Sign in Now</a></p>
+                            <p class="font-semibold text-center">Already Have Account? <a
+                                    href="<?php echo BASEURL; ?>/sign-in"
+                                    class="text-blue-500 hover:underline cursor-pointer">Sign in Now</a></p>
 
                         </div>
                     </form>
@@ -117,6 +138,117 @@
         const passwordInput = document.getElementById("password");
         const showIconPassword = document.getElementById("showIconPassword");
         const hideIconPassword = document.getElementById("hideIconPassword");
+        const strengthBar = document.getElementById('strength-bar');
+        const strengthText = document.getElementById('strength-text');
+        const strengthPassword = document.getElementById('strengthPassword');
+        const confirmInput = document.getElementById('confirmPassword');
+        const matchText = document.getElementById('match-text');
+
+        function checkMatch() {
+            const passVal = passwordInput.value;
+            const confirmVal = confirmInput.value;
+
+            if (confirmVal.length === 0) {
+                matchText.classList.add('hidden');
+                confirmInput.classList.remove('border-red-500', 'border-green-500', 'focus:border-red-500', 'focus:border-green-500');
+                confirmInput.classList.add('focus:border-blue-500');
+                return;
+            }
+
+            matchText.classList.remove('hidden');
+
+            if (passVal === confirmVal) {
+                matchText.innerText = "Password Match! ✅";
+                matchText.className = "text-xs mt-6 font-medium text-right text-green-600 mt";
+
+                confirmInput.classList.remove('border-red-500', 'focus:border-blue-500', 'focus:border-red-500');
+                confirmInput.classList.add('border-green-500', 'focus:border-green-500');
+            } else {
+                matchText.innerText = "Passwords Don't Match ❌";
+                matchText.className = "text-xs mt-6 font-medium text-right text-red-500";
+
+                confirmInput.classList.remove('border-green-500', 'focus:border-blue-500', 'focus:border-green-500');
+                confirmInput.classList.add('border-red-500', 'focus:border-red-500');
+            }
+        }
+
+        if (confirmInput && passwordInput) {
+            confirmInput.addEventListener('input', checkMatch);
+
+            passwordInput.addEventListener('input', () => {
+                if (confirmInput.value.length > 0) {
+                    checkMatch();
+                }
+            });
+        }
+
+        if (passwordInput && strengthBar && strengthText) {
+            passwordInput.addEventListener('input', () => {
+                const val = passwordInput.value;
+                const len = val.length;
+                strengthPassword.classList.remove('hidden')
+
+                len === 0 ? strengthPassword.classList.add('hidden') : strengthPassword.classList.remove('hidden')
+
+                strengthBar.classList.remove('bg-red-500', 'bg-yellow-500', 'bg-green-500');
+
+                if (len === 0) {
+                    strengthBar.style.width = '0%';
+                    strengthText.innerText = 'Minimum 6 characters with combination';
+                    strengthText.className = 'text-xs text-gray-500 mt-1.5 font-medium text-right';
+                    return;
+                }
+
+                if (len < 6) {
+                    strengthBar.style.width = '20%';
+                    strengthBar.classList.add('bg-red-500');
+                    strengthText.innerText = `Too short (needs ${6 - len} more)`;
+                    strengthText.className = 'text-xs text-red-500 mt-1.5 font-medium text-right';
+                    return;
+                }
+
+                let score = 0;
+                let missing = [];
+
+                if (val.match(/[a-z]/)) score++;
+                else missing.push("lowercase letter");
+                if (val.match(/[A-Z]/)) score++;
+                else missing.push("uppercase letter");
+                if (val.match(/[0-9]/)) score++;
+                else missing.push("number");
+                if (val.match(/[^a-zA-Z0-9]/)) score++;
+                else missing.push("symbol");
+                if (len > 8) score++;
+
+                let saran = missing.length > 0 ? missing[0] : '';
+
+                if (missing.length > 1 && score > 2) {
+                    saran = missing.slice(0, 2).join(' or ');
+                }
+
+                if (score <= 2) {
+                    strengthBar.style.width = '30%';
+                    strengthBar.classList.add('bg-red-500');
+
+                    strengthText.innerText = `Weak: Try adding ${saran || 'another combination'}`;
+                    strengthText.className = 'text-xs text-red-500 mt-1.5 font-medium text-right';
+
+                } else if (score <= 4) {
+                    strengthBar.style.width = '70%';
+                    strengthBar.classList.add('bg-yellow-500');
+
+                    strengthText.innerText = `Medium: Add ${saran} to make it stronger`;
+                    strengthText.className = 'text-xs text-yellow-600 mt-1.5 font-medium text-right';
+
+                } else {
+                    strengthBar.style.width = '100%';
+                    strengthBar.classList.add('bg-green-500');
+
+                    strengthText.innerText = 'Very Strong & Secure! 🔒';
+                    strengthText.className = 'text-xs text-green-600 mt-1.5 font-bold text-right';
+                }
+            });
+        }
 
         if (togglePassword) {
             togglePassword.addEventListener("click", () => {
@@ -165,7 +297,7 @@
                 errorNotif.classList.add("hidden");
 
                 if (passwordInput.value !== confirmPasswordInput.value) {
-                    errorNotif.textContent = "Password dan konfirmasi password tidak sama.";
+                    errorNotif.textContent = "Password and confirmation password do not match.";
                     errorNotif.classList.remove("hidden");
                     return;
                 }
@@ -207,12 +339,12 @@
                             startCooldown();
                         }
                     } else {
-                        errorNotif.textContent = result.message || "Terjadi kesalahan.";
+                        errorNotif.textContent = result.message || "An error occurred.";
                         errorNotif.classList.remove("hidden");
                     }
                 } catch (error) {
                     console.error("Fetch Error:", error);
-                    errorNotif.textContent = "Tidak dapat terhubung ke server. Periksa koneksi Anda.";
+                    errorNotif.textContent = "Could not connect to the server. Check your connection.";
                     errorNotif.classList.remove("hidden");
                 } finally {
                     submitButton.textContent = "Submit";
@@ -238,6 +370,7 @@
             const hiddenOtpInput = document.getElementById('otp-full-value');
             const otpMessageDiv = document.getElementById("otpMessage");
             const verifyBtn = document.getElementById("verifyOtpBtn");
+            const resendBtn = document.getElementById("resendBtn"); // Assuming resendBtn exists in the included modal
 
             otpInputs.forEach((input, index) => {
                 input.addEventListener('input', () => {
@@ -271,6 +404,7 @@
                 otpMessageDiv.className = 'w-full bg-blue-500 text-white p-2 rounded-xl mb-3';
                 otpMessageDiv.classList.remove('hidden');
                 resendBtn.disabled = true
+                resendBtn.classList.add("cursor-not-allowed"); // Ensure resend button also respects cursor pointer rules
 
                 try {
                     const response = await fetch('<?php echo BASEURL; ?>/forget-password/resend-otp', {
@@ -284,10 +418,14 @@
                     } else {
                         otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
                         otpMessageDiv.textContent = result.message;
+                        resendBtn.disabled = false
+                        resendBtn.classList.remove("cursor-not-allowed");
                     }
                 } catch (error) {
                     otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
                     otpMessageDiv.textContent = 'Failed to connect to the server.';
+                    resendBtn.disabled = false
+                    resendBtn.classList.remove("cursor-not-allowed");
                 }
             });
 
@@ -301,8 +439,9 @@
                 hiddenOtpInput.value = otpValue;
 
                 if (otpValue.length < 4) {
-                    otpMessageDiv.textContent = "Harap isi semua kolom OTP.";
+                    otpMessageDiv.textContent = "Please fill in all OTP fields.";
                     otpMessageDiv.classList.remove('hidden');
+                    otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
                     return;
                 }
 
@@ -318,6 +457,7 @@
                 `;
 
                 verifyBtn.disabled = true;
+                verifyBtn.classList.add("cursor-not-allowed");
                 otpMessageDiv.classList.add("hidden");
 
                 try {
@@ -336,12 +476,13 @@
                     }
                 } catch (error) {
                     console.error("OTP Verify Error:", error);
-                    otpMessageDiv.textContent = 'Koneksi ke server gagal.';
+                    otpMessageDiv.textContent = 'Connection to the server failed.';
                     otpMessageDiv.classList.remove('hidden');
                     otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
                 } finally {
-                    verifyBtn.textContent = "Verify email";
+                    verifyBtn.textContent = "Verify Email";
                     verifyBtn.disabled = false;
+                    verifyBtn.classList.remove("cursor-not-allowed");
                 }
             });
         }
@@ -349,7 +490,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             handleForget();
             setupOtpModal();
-            startCooldown();
+            // startCooldown(); // Disabled, as the function is not provided, but it's called after successful 'action'
         });
     </script>
 

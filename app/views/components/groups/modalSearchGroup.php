@@ -171,7 +171,7 @@ function renderResults(data) {
                     </div>
                     ${!isJoined ? `
                         <button 
-                            class="join-forum-btn bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 self-center flex-shrink-0 whitespace-nowrap"
+                            class="join-forum-btn bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 self-center flex-shrink-0 whitespace-nowrap cursor-pointer"
                             data-forum-id="${groupChat.ID}"
                             data-is-private="${isPrivate ? '1' : '0'}">
                             Join${lockIcon}
@@ -360,7 +360,7 @@ accessKeyForm.addEventListener('submit', function(event) {
     const accessKey = accessKeyInput.value.trim();
 
     if (!accessKey) {
-        keyWornNotif.textContent = "Kunci akses tidak boleh kosong";
+        keyWornNotif.textContent = "Access key must not be empty";
         keyWornNotif.classList.remove("hidden");
         return;
     }

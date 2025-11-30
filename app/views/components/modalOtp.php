@@ -24,12 +24,12 @@
 
             <input type="hidden" name="otp" id="otp-full-value">
 
-            <button type="submit" id="verifyOtpBtn" class="w-full py-4 rounded-xl bg-blue-600 text-white font-bold text-lg hover:bg-blue-700 transition-colors">Verify email</button>
+            <button type="submit" id="verifyOtpBtn" class="w-full py-4 rounded-xl bg-blue-600 text-white font-bold text-lg hover:bg-blue-700 transition-colors cursor-pointer">Verify email</button>
         </form>
 
         <p class="text-sm text-gray-500 mt-8">
             Didn't get a code?
-            <button type="button" id="resend-otp-btn" class="font-semibold text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline" disabled>
+            <button type="button" id="resend-otp-btn" class="font-semibold text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline cursor-pointer" disabled>
                 Resend
             </button>
             <span id="resend-timer" class="text-gray-500 font-medium"></span>
@@ -50,6 +50,7 @@
 
         let cooldown = 60;
         resendBtn.disabled = true;
+        resendBtn.textContent = 'Resend'; 
         timerSpan.textContent = `in ${cooldown}s`;
 
         cooldownInterval = setInterval(() => {
@@ -119,6 +120,7 @@
             otpMessageDiv.className = 'w-full bg-blue-500 text-white p-2 rounded-xl mb-3';
             otpMessageDiv.classList.remove('hidden');
             resendBtn.disabled = true;
+            resendBtn.textContent = 'Sending...';
 
             try {
                 const response = await fetch('<?php echo BASEURL; ?>/sign-up/resend-otp', {
@@ -128,16 +130,19 @@
 
                 if (result.success) {
                     otpMessageDiv.textContent = result.message;
+                    otpMessageDiv.className = 'w-full bg-green-500 text-white p-2 rounded-xl mb-3';
                     startCooldown(); 
                 } else {
                     otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
                     otpMessageDiv.textContent = result.message;
                     resendBtn.disabled = false;
+                    resendBtn.textContent = 'Resend';
                 }
             } catch (error) {
                 otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
                 otpMessageDiv.textContent = 'Failed to connect to the server.';
                 resendBtn.disabled = false;
+                resendBtn.textContent = 'Resend';
             }
         });
 
@@ -148,7 +153,7 @@
             if (otp.length < otpInputs.length) {
                 otpMessageDiv.classList.remove("hidden");
                 otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
-                otpMessageDiv.textContent = 'Harap isi semua 4 digit OTP.';
+                otpMessageDiv.textContent = 'Please fill in all 4 OTP digits.';
                 return;
             }
 
@@ -193,7 +198,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        handleRegist();
         setupOtpModal();
     });
 </script>
