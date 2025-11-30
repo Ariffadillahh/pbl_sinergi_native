@@ -51,6 +51,12 @@ switch (true) {
         $controller->update();
         break;
 
+    case $route ===  'topic/update-topic':
+        requireLogin();
+        $controller = new ForumController();
+        $controller->updateTopic();
+        break;
+
     case $route === 'forum/getForumInfo':
         requireLogin();
         $controller = new ForumController();
@@ -67,6 +73,12 @@ switch (true) {
         requireLogin();
         $controller = new ForumController();
         $controller->addMemberByOwner();
+        break;
+
+    case $route ===  'forum/request-mitra-account':
+        requireLogin();
+        $controller = new ForumController();
+        $controller->requestMitraAccount();
         break;
 
     case $route ===  'forum/removeMemberByOwner':

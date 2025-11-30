@@ -21,7 +21,7 @@
                 <p id="add-user-error" class="bg-red-600 p-2 text-white text-center rounded-lg hidden mb-4"></p>
                 <p id="add-user-succses" class="bg-green-600 p-2 text-white text-center rounded-lg hidden mb-4"></p>
 
-                <form action="<?= BASEURL ?>/admin/create-accout" method="POST" class="my-5" id="add-member-form">
+                <form action="<?= BASEURL ?>/admin/create-account" method="POST" class="my-5" id="add-member-form">
                     <div class="my-6 max-w-md mx-auto space-y-4">
                         <div>
                             <label for="nama-lengkap" class="block mb-2 text-sm font-medium text-gray-900">Nama

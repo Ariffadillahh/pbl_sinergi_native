@@ -58,6 +58,23 @@
             require_once __DIR__ . '/../views/forum/layout.php';
         }
 
+        public function checkMembership()
+        {
+            header('Content-Type: application/json');
+            $forumId = $_GET['forum_id'] ?? null;
+            $userId = $_SESSION['user_id'] ?? null;
+
+            if (!$forumId || !$userId) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid request.']);
+                return;
+            }
+
+            $isMember = $this->forumModel->isMember($forumId, $userId);
+            echo json_encode(['is_member' => $isMember]);
+        }
+
+
         public function forumById($forumId)
         {
             $forumById = $this->forumModel->getForumById($forumId);
@@ -758,4 +775,251 @@
             }
             exit;
         }
+
+        public function requestMitraAccount()
+        {
+            header('Content-Type: application/json');
+            
+            if (!isset($_SESSION['user_id'])) {
+                echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+                exit;
+            }
+            
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+                exit;
+            }
+            
+            $forumId = $_POST['forum_id'] ?? null;
+            $forumName = $_POST['forum_name'] ?? '';
+            $namaLengkap = trim($_POST['nama_lengkap'] ?? '');
+            $username = trim($_POST['username'] ?? '');
+            $personalNumber = trim($_POST['personal_number'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            
+            // Validasi
+            if (empty($forumId) || empty($namaLengkap) || empty($username) || empty($personalNumber) || empty($email)) {
+                echo json_encode(['success' => false, 'message' => 'Semua field wajib diisi']);
+                exit;
+            }
+            
+            // Validasi email
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                echo json_encode(['success' => false, 'message' => 'Format email tidak valid']);
+                exit;
+            }
+            
+            // Verifikasi user adalah owner forum
+            $forum = $this->forumModel->getForumById($forumId);
+            if (!$forum || $forum['OWNER_ID'] !== $_SESSION['user_id']) {
+                echo json_encode(['success' => false, 'message' => 'Hanya owner forum yang dapat membuat request']);
+                exit;
+            }
+            
+            // Cek apakah username/email/personal_number sudah ada di USERS
+            require_once __DIR__ . '/../models/Auth/SignIn.php';
+            $loginModel = new SignInModel();
+            
+            if ($loginModel->getUserByUsernameOrEmail($email)) {
+                echo json_encode(['success' => false, 'message' => 'Email sudah terdaftar']);
+                exit;
+            }
+            
+            if ($loginModel->getUserByUsernameOrEmail($username)) {
+                echo json_encode(['success' => false, 'message' => 'Username sudah digunakan']);
+                exit;
+            }
+            
+            if ($loginModel->getUserByUsernameOrEmail($personalNumber)) {
+                echo json_encode(['success' => false, 'message' => 'Nomor mitra sudah terdaftar']);
+                exit;
+            }
+            
+            try {
+                require_once __DIR__ . '/../models/Auth/SignUp.php';
+                $userModel = new User();
+                
+                $userId = uniqid('mitra_');
+                $userData = [
+                    'ID'              => $userId,
+                    'USERNAME'        => htmlspecialchars($username, ENT_QUOTES, 'UTF-8'),
+                    'PERSONAL_NUMBER' => htmlspecialchars($personalNumber, ENT_QUOTES, 'UTF-8'),
+                    'FULL_NAME'       => htmlspecialchars($namaLengkap, ENT_QUOTES, 'UTF-8'),
+                    'EMAIL'           => $email,
+                    'PASSWORD'        => password_hash(bin2hex(random_bytes(8)), PASSWORD_BCRYPT),
+                    'ROLE'            => 'MITRA',
+                    'STATUS'          => 'PENDING',
+                ];
+                
+                // Buat user dengan status pending
+                $result = $userModel->createPendingMitraRequest($userData);
+                
+                if ($result) {
+                    // Langsung tambahkan user ke forum dengan status PENDING
+                    $memberAdded = $this->forumModel->addPendingMemberToForum($forumId, $userId);
+                    
+                    if ($memberAdded) {
+                        echo json_encode([
+                            'success' => true, 
+                            'message' => 'Request berhasil dikirim. Akun mitra akan otomatis bergabung ke forum setelah disetujui admin.'
+                        ]);
+                    } else {
+                        // Rollback: hapus user jika gagal menambahkan ke forum
+                        $userModel->deletePendingUser($userId);
+                        echo json_encode([
+                            'success' => false, 
+                            'message' => 'Gagal menambahkan mitra ke forum'
+                        ]);
+                    }
+                } else {
+                    echo json_encode([
+                        'success' => false, 
+                        'message' => 'Gagal mengirim request'
+                    ]);
+                }
+            } catch (Exception $e) {
+                error_log("Request Mitra Error: " . $e->getMessage());
+                echo json_encode([
+                    'success' => false, 
+                    'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
+                ]);
+            }
+            exit;
+        }
+
+        public function updateTopic()
+    {
+        header('Content-Type: application/json');
+        
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+            exit;
+        }
+
+        $topicId = $_POST['topic_id'] ?? null;
+        $content = $_POST['content'] ?? '';
+        $deletedMedia = isset($_POST['deleted_media']) ? json_decode($_POST['deleted_media'], true) : [];
+
+        if (!$topicId) {
+            echo json_encode(['success' => false, 'message' => 'Topic ID tidak ditemukan']);
+            exit;
+        }
+
+        // Cek kepemilikan topic
+        if (!$this->topicModel->isTopicOwner($topicId, $_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Anda bukan pemilik topic ini']);
+            exit;
+        }
+
+        // Hitung total media yang tersisa
+        $currentMedia = $this->topicModel->getMediaByTopicId($topicId);
+        $remainingMedia = count($currentMedia) - count($deletedMedia);
+        
+        // Hitung media baru
+        $newMediaCount = isset($_FILES['new_media']) ? count($_FILES['new_media']['name']) : 0;
+        $totalMedia = $remainingMedia + $newMediaCount;
+
+        if ($totalMedia > 5) {
+            echo json_encode(['success' => false, 'message' => 'Maksimal 5 media per topic']);
+            exit;
+        }
+
+        // Handle upload media baru
+        $uploadedFiles = [];
+        if (isset($_FILES['new_media']) && !empty($_FILES['new_media']['name'][0])) {
+            $uploadResult = $this->handleMultipleFileUpload($_FILES['new_media']);
+            
+            if (!$uploadResult['success']) {
+                echo json_encode(['success' => false, 'message' => $uploadResult['message']]);
+                exit;
+            }
+            
+            $uploadedFiles = $uploadResult['files'];
+        }
+
+        // Update topic
+        $result = $this->topicModel->updateTopic($topicId, $content, $uploadedFiles, $deletedMedia);
+
+        if ($result['status']) {
+            echo json_encode(['success' => true, 'message' => $result['message']]);
+        } else {
+            // Hapus file yang sudah diupload jika gagal
+            foreach ($uploadedFiles as $file) {
+                $filePath = __DIR__ . '/../../storage/forums/topics/' . $file['path'];
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+            
+            echo json_encode(['success' => false, 'message' => $result['message']]);
+        }
+        exit;
+    }
+
+    /**
+     * Handle multiple file upload untuk media topic
+     */
+    private function handleMultipleFileUpload($files)
+    {
+        $uploadDir = __DIR__ . '/../../storage/forums/topics/';
+        
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        $allowedImageTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+        $allowedFileTypes = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/zip'
+        ];
+
+        $uploadedFiles = [];
+        $fileCount = count($files['name']);
+
+        for ($i = 0; $i < $fileCount; $i++) {
+            if ($files['error'][$i] !== UPLOAD_ERR_OK) {
+                continue;
+            }
+
+            $fileName = $files['name'][$i];
+            $fileTmpName = $files['tmp_name'][$i];
+            $fileSize = $files['size'][$i];
+            $fileMimeType = mime_content_type($fileTmpName);
+
+            // Validasi tipe file
+            if (!in_array($fileMimeType, array_merge($allowedImageTypes, $allowedFileTypes))) {
+                return ['success' => false, 'message' => "Tipe file tidak diizinkan: $fileName"];
+            }
+
+            // Validasi ukuran (10MB max)
+            if ($fileSize > 10 * 1024 * 1024) {
+                return ['success' => false, 'message' => "File terlalu besar: $fileName (max 10MB)"];
+            }
+
+            // Tentukan tipe media
+            $mediaType = in_array($fileMimeType, $allowedImageTypes) ? 'IMAGE' : 'FILE';
+
+            // Generate nama file unik
+            $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+            $newFileName = uniqid() . '.' . $fileExtension;
+            $targetPath = $uploadDir . $newFileName;
+
+            // Upload file
+            if (!move_uploaded_file($fileTmpName, $targetPath)) {
+                return ['success' => false, 'message' => "Gagal upload file: $fileName"];
+            }
+
+            $uploadedFiles[] = [
+                'path' => $newFileName,
+                'type' => $mediaType,
+                'original_filename' => $fileName
+            ];
+        }
+
+        return ['success' => true, 'files' => $uploadedFiles];
+    }
     }

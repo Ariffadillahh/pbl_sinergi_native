@@ -168,6 +168,7 @@
 </style>
 
 <script>
+const BASEURL = '<?php echo BASEURL; ?>';
 (function() {
     'use strict';
 
@@ -265,6 +266,7 @@
             inviteContent.classList.remove('hidden');
         }
 
+        
         // Open modal with forum ID
         function openPreviewForum(forumId) {
             if (!forumId) {

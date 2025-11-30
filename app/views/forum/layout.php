@@ -10,6 +10,8 @@
 <body class="bg-gray-100 h-screen flex">
 
     <?php require_once 'app/views/components/sidebars.php'; ?>
+    <?php require_once 'app/views/components/modalInvite.php'; ?>
+    <?php require_once 'app/views/components/Forum/modalInviteForum.php'; ?>  
 
     <div class="w-full flex flex-1 justify-center ">
         <?php require_once $contentViewForum; ?>

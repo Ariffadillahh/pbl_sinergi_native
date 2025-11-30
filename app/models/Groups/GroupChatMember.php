@@ -50,7 +50,7 @@ public function isMember($groupChatId, $userId)
 
     $stmt = oci_parse($conn, $sql);
 
-    oci_bind_by_name($stmt, "GROUP_CHAT_ID_bv", $groupChatId);
+    oci_bind_by_name($stmt, "group_chat_id_bv", $groupChatId);
     oci_bind_by_name($stmt, "user_id_bv", $userId);
 
     if (!oci_execute($stmt)) {
