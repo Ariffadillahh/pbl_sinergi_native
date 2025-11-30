@@ -37,7 +37,7 @@
                 </button>
             </div>
 
-            <div class="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center w-full">
+            <div class="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center w-full md:col-span-2">
                 <div class="flex items-center justify-center w-20 h-20 rounded-full bg-red-50 mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M12 3a9 9 0 110 18 9 9 0 010-18z" />
@@ -56,7 +56,7 @@
                     Hapus Forum Ini
                 </button>
             </div>
-        <?php require_once 'app/views/components/forum/modalRequestMitra.php'; ?>
+            <?php require_once 'app/views/components/forum/modalRequestMitra.php'; ?>
         </div>
     </div>
 
@@ -133,6 +133,7 @@
                             type="text"
                             id="editGroupNameInput"
                             name="NAME"
+                            value="<?= htmlspecialchars($forumById['NAME'] ?? '') ?>"
                             placeholder="Contoh: Komunitas Koding Indonesia"
                             class="w-full px-4 py-3 pr-14 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                             required>
@@ -214,7 +215,7 @@
                             rows="3"
                             name="ABOUT"
                             placeholder="Jelaskan tujuan forum ini..."
-                            class="w-full px-4 py-3 pr-14 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"></textarea>
+                            class="w-full px-4 py-3 pr-14 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"><?= htmlspecialchars($forumById['ABOUT'] ?? '') ?></textarea>
 
                         <span
                             id="aboutCounter"
@@ -300,12 +301,16 @@
             aboutCounter.textContent = `${this.value.length}/${ABOUT_MAX}`;
         });
 
+        aboutText.dispatchEvent(new Event('input'));
+
         editNameInput.addEventListener('input', function() {
             if (this.value.length > MAX_LENGTH) {
                 this.value = this.value.slice(0, MAX_LENGTH);
             }
             counter.textContent = `${this.value.length}/${MAX_LENGTH}`;
         });
+
+        editNameInput.dispatchEvent(new Event('input'))
 
         function showGlobalAlert(message, refresh = true) {
             const alertBox = document.getElementById('globalAlert');

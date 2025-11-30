@@ -41,7 +41,7 @@
             requireLogin();
             checkRoleAccess(['ADMIN']);
             $controller = new DashboardController();
-            $controller->approveMitraRequest();
+            $controller->approveAccountRequest();
             break;
         case $route === 'dashboard/anggota/reject-mitra-request':
             requireLogin();

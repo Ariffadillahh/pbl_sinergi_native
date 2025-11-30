@@ -8,15 +8,15 @@ class User extends BaseModel
     public function getUserById($userId)
     {
         $conn = self::getConnection();
-        
+
         $sql = "SELECT * FROM USERS WHERE ID = :id";
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ':id', $userId);
         oci_execute($stmt);
-        
+
         $user = oci_fetch_assoc($stmt);
         oci_free_statement($stmt);
-        
+
         return $user;
     }
 
@@ -487,18 +487,18 @@ class User extends BaseModel
         return $affectedRows > 0;
     }
 
-    public function createPendingMitraRequest($userData) 
+    public function createPendingMitraAllumniRequest($userData)
     {
         $conn = self::getConnection();
-        
+
         $sql = "INSERT INTO USERS (
                     ID, USERNAME, PERSONAL_NUMBER, FULL_NAME, EMAIL, PASSWORD, ROLE, STATUS
                 ) VALUES (
                     :id, :username, :personal_number, :full_name, :email, :password, :role, :status
                 )";
-        
+
         $stmt = oci_parse($conn, $sql);
-        
+
         oci_bind_by_name($stmt, ":id", $userData['ID']);
         oci_bind_by_name($stmt, ":username", $userData['USERNAME']);
         oci_bind_by_name($stmt, ":personal_number", $userData['PERSONAL_NUMBER']);
@@ -507,39 +507,38 @@ class User extends BaseModel
         oci_bind_by_name($stmt, ":password", $userData['PASSWORD']);
         oci_bind_by_name($stmt, ":role", $userData['ROLE']);
         oci_bind_by_name($stmt, ":status", $userData['STATUS']);
-        
+
         $result = oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
         oci_free_statement($stmt);
-        
+
         return $result;
     }
 
     public function getPendingMitraRequestsCount()
     {
         $conn = self::getConnection();
-        
-        $sql = "SELECT COUNT(*) AS TOTAL FROM USERS WHERE STATUS = 'PENDING' AND ROLE = 'MITRA'";
+
+        $sql = "SELECT COUNT(*) AS TOTAL FROM USERS WHERE STATUS = 'PENDING'";
         $stmt = oci_parse($conn, $sql);
         oci_execute($stmt);
-        
+
         $row = oci_fetch_assoc($stmt);
         oci_free_statement($stmt);
-        
+
         return $row['TOTAL'] ?? 0;
     }
 
     public function getPendingMitraRequests()
     {
         $conn = self::getConnection();
-        
-        // Query dengan JOIN ke FORUM_MEMBERS untuk mendapatkan FORUM_ID
+
         $sql = "SELECT 
                     u.ID,
                     u.FULL_NAME,
                     u.USERNAME,
                     u.PERSONAL_NUMBER,
                     u.EMAIL,
-                    -- TO_CHAR(u.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
+                    u.ROLE,
                     fm.FORUM_ID,
                     f.NAME AS FORUM_NAME,
                     f.OWNER_ID,
@@ -548,60 +547,98 @@ class User extends BaseModel
                 LEFT JOIN FORUM_MEMBERS fm ON u.ID = fm.USER_ID AND fm.STATUS = 'PENDING'
                 LEFT JOIN FORUMS f ON fm.FORUM_ID = f.ID
                 LEFT JOIN USERS owner ON f.OWNER_ID = owner.ID
-                WHERE u.STATUS = 'PENDING' AND u.ROLE = 'MITRA'
+                WHERE u.STATUS = 'PENDING'
                 ORDER BY u.ID DESC";
-        
+
         $stmt = oci_parse($conn, $sql);
-        
+
         if (!$stmt) {
             $e = oci_error($conn);
             error_log("OCI Parse Error getPendingMitraRequests: " . $e['message']);
             return [];
         }
-        
+
         $result = oci_execute($stmt);
-        
+
         if (!$result) {
             $e = oci_error($stmt);
             error_log("OCI Execute Error getPendingMitraRequests: " . $e['message']);
             oci_free_statement($stmt);
             return [];
         }
-        
+
         $requests = [];
         while ($row = oci_fetch_assoc($stmt)) {
             $requests[] = $row;
         }
-        
+
         oci_free_statement($stmt);
-        
+
         return $requests;
+    }
+
+    public function getPendingRequestsById($userId)
+    {
+        $conn = self::getConnection();
+
+        $sql = "SELECT 
+                u.ID,
+                u.FULL_NAME,
+                u.USERNAME,
+                u.PERSONAL_NUMBER,
+                u.EMAIL,
+                u.ROLE
+            FROM USERS u
+            WHERE u.ID = :id AND u.STATUS = 'PENDING'";
+
+        $stmt = oci_parse($conn, $sql);
+
+        if (!$stmt) {
+            $e = oci_error($conn);
+            error_log("OCI Parse Error: " . $e['message']);
+            return false;
+        }
+
+        oci_bind_by_name($stmt, ":id", $userId);
+
+        $result = oci_execute($stmt);
+
+        if (!$result) {
+            $e = oci_error($stmt);
+            error_log("OCI Execute Error: " . $e['message']);
+            oci_free_statement($stmt);
+            return false;
+        }
+
+        $row = oci_fetch_assoc($stmt);
+
+        oci_free_statement($stmt);
+
+        return $row; 
     }
 
     public function approvePendingUser($userId)
     {
         $conn = self::getConnection();
-        
-        // Update status user menjadi APPROVED
+
         $sql = "UPDATE USERS SET STATUS = 'APPROVED' WHERE ID = :id";
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ':id', $userId);
-        
+
         $result = oci_execute($stmt, OCI_NO_AUTO_COMMIT);
-        
+
         if (!$result) {
             oci_rollback($conn);
             oci_free_statement($stmt);
             return false;
         }
-        
-        // Update semua FORUM_MEMBERS dengan user ini dari PENDING ke JOINED
+
         $sql2 = "UPDATE FORUM_MEMBERS SET STATUS = 'JOINED', JOINED_AT = SYSDATE WHERE USER_ID = :id AND STATUS = 'PENDING'";
         $stmt2 = oci_parse($conn, $sql2);
         oci_bind_by_name($stmt2, ':id', $userId);
-        
+
         $result2 = oci_execute($stmt2, OCI_NO_AUTO_COMMIT);
-        
+
         if ($result2) {
             oci_commit($conn);
             oci_free_statement($stmt);
@@ -618,27 +655,27 @@ class User extends BaseModel
     public function deletePendingUser($userId)
     {
         $conn = self::getConnection();
-        
+
         // Hapus dulu dari FORUM_MEMBERS
         $sql1 = "DELETE FROM FORUM_MEMBERS WHERE USER_ID = :id";
         $stmt1 = oci_parse($conn, $sql1);
         oci_bind_by_name($stmt1, ':id', $userId);
-        
+
         $result1 = oci_execute($stmt1, OCI_NO_AUTO_COMMIT);
-        
+
         if (!$result1) {
             oci_rollback($conn);
             oci_free_statement($stmt1);
             return false;
         }
-        
+
         // Baru hapus user
         $sql2 = "DELETE FROM USERS WHERE ID = :id AND STATUS = 'PENDING'";
         $stmt2 = oci_parse($conn, $sql2);
         oci_bind_by_name($stmt2, ':id', $userId);
-        
+
         $result2 = oci_execute($stmt2, OCI_NO_AUTO_COMMIT);
-        
+
         if ($result2) {
             oci_commit($conn);
             oci_free_statement($stmt1);
@@ -651,5 +688,4 @@ class User extends BaseModel
             return false;
         }
     }
-
 }

@@ -16,6 +16,9 @@
     ?>
 
  <?php if ($canEdit || $canDelete || $canPin): ?>
+     <div class="bg-green-100 border border-green-700 text-green-700 p-3 px-5 fixed right-5 top-5 rounded-md hidden z-[99999]" id="divSuccsessPin"></div>
+     <div class="bg-red-100 border border-red-700 text-red-700 p-3 px-5 fixed right-5 top-5 rounded-md hidden z-[99999]" id="divErrorPin"></div>
+
      <div class="relative">
          <button onclick="toggleDropdown('dropdown-<?= $topic['ID'] ?>')"
              class="text-gray-400 hover:bg-gray-100 rounded-full p-2 transition focus:outline-none">
@@ -41,7 +44,7 @@
                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                          </svg>
-                         <span>Pin Topik</span>
+                         <span>Pin Topic</span>
                      <?php endif; ?>
 
                  </button>
@@ -58,7 +61,7 @@
                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                      </svg>
-                     Edit Postingan
+                     Edit Topic
                  </button>
              <?php endif; ?>
 
@@ -114,8 +117,10 @@
      </div>
  </div>
 
- <div id="editTopicModal" class="hidden flex fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50 p-5 md:p-0">
+ <div id="editTopicModal" class="hidden flex fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50 p-5 md:p-0 backdrop-blur-sm">
+     <div class="bg-green-100 border border-green-700 text-green-700 p-3 px-5 fixed right-5 top-5 rounded-md hidden" id="divSuccsessEdit"></div>
      <div class="relative bg-white shadow-lg w-full max-w-xl drop-shadow rounded-xl">
+
          <form id="editTopicForm" action="<?= BASEURL ?>/forum/update-topic" method="POST" enctype="multipart/form-data">
              <input type="hidden" name="topic_id" id="input_edit_topic_id">
 
@@ -249,145 +254,151 @@
          });
      }
 
-     const pinButtons = document.querySelectorAll('.btn-pin-action');
+     document.addEventListener("DOMContentLoaded", function() {
+         const pinButtons = document.querySelectorAll('.btn-pin-action');
 
-     pinButtons.forEach(button => {
-         button.addEventListener('click', async function(e) {
-             e.preventDefault();
+         const divSuccsessPin = document.getElementById("divSuccsessPin")
+         const divErrorPin = document.getElementById('divErrorPin')
 
-             const currentBtn = this;
-             const topicId = currentBtn.getAttribute('data-id');
-             const originalContent = currentBtn.innerHTML;
+         pinButtons.forEach(button => {
+             button.addEventListener('click', async function(e) {
+                 e.preventDefault();
+                 e.stopPropagation();
 
-             currentBtn.innerHTML = '<span class="text-xs">Processing...</span>';
-             currentBtn.disabled = true;
+                 const currentBtn = this;
+                 const topicId = currentBtn.getAttribute('data-id');
+                 const originalContent = currentBtn.innerHTML;
 
-             const formData = new FormData();
-             formData.append('topic_id', topicId);
+                 currentBtn.innerHTML = '<span class="text-xs text-gray-500">Processing...</span>';
+                 currentBtn.disabled = true;
 
-             try {
-                 const response = await fetch(`<?= BASEURL ?>/topic/pin`, {
-                     method: 'POST',
-                     body: formData
-                 });
+                 const formData = new FormData();
+                 formData.append('topic_id', topicId);
 
-                 const result = await response.json();
+                 try {
+                     const response = await fetch(`<?= BASEURL ?>/topic/pin`, {
+                         method: 'POST',
+                         body: formData
+                     });
 
-                 if (result.success) {
-                     window.location.reload(); // Reload agar posisi topik berpindah (naik/turun) & icon berubah
-                 } else {
-                     alert(result.message);
+                     const result = await response.json();
 
-                     currentBtn.innerHTML = originalContent;
-                     currentBtn.disabled = false;
+                     if (result.success) {
+                         divSuccsessPin.classList.remove('hidden')
+                         divSuccsessPin.innerHTML = "Status pin topik telah berhasil diubah!"
+
+                         setTimeout(() => {
+                             window.location.reload();
+                         }, 2000)
+
+                     } else {
+                         divErrorPin.classList.remove('hidden')
+                         divErrorPin.innerHTML = result.message
+
+                         setTimeout(() => {
+                             divErrorPin.classList.add('hidden')
+                             currentBtn.innerHTML = originalContent;
+                             currentBtn.disabled = false;
+                         }, 2000)
+
+                     }
+
+                 } catch (error) {
+                     console.error(error);
+                     divErrorPin.classList.add('hidden')
+                     divErrorPin.classList.remove('hidden')
+                     divErrorPin.innerHTML = "Terjadi kesalahan koneksi."
+
+                     setTimeout(() => {
+                         currentBtn.innerHTML = originalContent;
+                         currentBtn.disabled = false;
+                     }, 2000)
                  }
-
-             } catch (error) {
-                 console.error(error);
-                 alert("Terjadi kesalahan koneksi.");
-                 currentBtn.innerHTML = originalContent;
-                 currentBtn.disabled = false;
-             }
+             });
          });
      });
 
-    let existingMediaData = [];
-    let filesToDelete = [];
-    const MAX_FILES = 5;
+     let existingMediaData = [];
+     let filesToDelete = [];
+     const MAX_FILES = 5;
 
-    /**
-     * Open edit modal dan populate data
-     */
-    function openEditTopicModal(topicId, content, mediaArray) {
-        // Reset state
-        existingMediaData = mediaArray || [];
-        filesToDelete = [];
-        
-        // Set form data
-        document.getElementById('input_edit_topic_id').value = topicId;
-        document.getElementById('input_edit_topic_content').value = content;
-        
-        // Clear deleted media container
-        document.getElementById('deleted_media_container').innerHTML = '';
-        
-        // Clear file input
-        document.getElementById('edit_image_input').value = '';
-        
-        // Render existing media
-        renderExistingMedia();
-        
-        // Update counter
-        updateFileCounter();
-        
-        // Show modal
-        const modal = document.getElementById('editTopicModal');
-        if (modal) {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex', 'justify-center', 'items-center');
-        }
-    }
 
-    /**
-     * Close edit modal
-     */
-    function closeEditTopicModal() {
-       const modal = document.getElementById('editTopicModal');
-            if (modal) {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex', 'justify-center', 'items-center'); // Hapus kelas display dan centering
-            }
-        existingMediaData = [];
-        filesToDelete = [];
-    }
+     function openEditTopicModal(topicId, content, mediaArray) {
+         existingMediaData = mediaArray || [];
+         filesToDelete = [];
 
-    /**
-     * Render media yang sudah ada dari database
-     */
-    function renderExistingMedia() {
-        const container = document.getElementById('edit_media_preview_container');
-        const emptyMsg = document.getElementById('edit_empty_msg');
-        
-        container.querySelectorAll(':scope > :not(#edit_empty_msg)').forEach(el => el.remove());
+         document.getElementById('input_edit_topic_id').value = topicId;
+         document.getElementById('input_edit_topic_content').value = content;
 
-        
-        if (existingMediaData.length === 0) {
-            emptyMsg.classList.remove('hidden');
-            return;
-        }
-        
-        emptyMsg.classList.add('hidden');
-        
-        existingMediaData.forEach(media => {
-            const mediaEl = createMediaPreviewElement(media, true);
-            container.appendChild(mediaEl);
-        });
-    }
+         document.getElementById('deleted_media_container').innerHTML = '';
 
-    /**
-     * Create preview element untuk media
-     */
-    function createMediaPreviewElement(media, isExisting = false) {
-        const div = document.createElement('div');
-        div.className = 'relative flex-shrink-0 snap-start group';
-        
-        const mediaId = isExisting ? media.ID : `new_${Date.now()}`;
-        const mediaPath = isExisting ? 
-            `<?= BASEURL ?>/storage/forums/topics/${media.MEDIA_PATH}` : 
-            media.preview;
-        
-        let mediaContent = '';
-        
-        if (media.MEDIA_TYPE === 'IMAGE' || media.type?.startsWith('image/')) {
-            mediaContent = `
+         document.getElementById('edit_image_input').value = '';
+
+         renderExistingMedia();
+
+         updateFileCounter();
+
+         const modal = document.getElementById('editTopicModal');
+         if (modal) {
+             modal.classList.remove('hidden');
+             modal.classList.add('flex', 'justify-center', 'items-center');
+         }
+     }
+
+
+     function closeEditTopicModal() {
+         const modal = document.getElementById('editTopicModal');
+         if (modal) {
+             modal.classList.add('hidden');
+             modal.classList.remove('flex', 'justify-center', 'items-center');
+         }
+         existingMediaData = [];
+         filesToDelete = [];
+     }
+
+     function renderExistingMedia() {
+         const container = document.getElementById('edit_media_preview_container');
+         const emptyMsg = document.getElementById('edit_empty_msg');
+
+         container.querySelectorAll(':scope > :not(#edit_empty_msg)').forEach(el => el.remove());
+
+
+         if (existingMediaData.length === 0) {
+             emptyMsg.classList.remove('hidden');
+             return;
+         }
+
+         emptyMsg.classList.add('hidden');
+
+         existingMediaData.forEach(media => {
+             const mediaEl = createMediaPreviewElement(media, true);
+             container.appendChild(mediaEl);
+         });
+     }
+
+
+     function createMediaPreviewElement(media, isExisting = false) {
+         const div = document.createElement('div');
+         div.className = 'relative flex-shrink-0 snap-start group';
+
+         const mediaId = isExisting ? media.ID : `new_${Date.now()}`;
+         const mediaPath = isExisting ?
+             `<?= BASEURL ?>/storage/forums/topics/${media.MEDIA_PATH}` :
+             media.preview;
+
+         let mediaContent = '';
+
+         if (media.MEDIA_TYPE === 'IMAGE' || media.type?.startsWith('image/')) {
+             mediaContent = `
                 <img src="${mediaPath}" 
                     alt="${media.ORIGINAL_FILENAME || media.name}" 
                     class="w-32 h-32 object-cover rounded-lg border-2 border-gray-200">
             `;
-        } else {
-            const fileName = media.ORIGINAL_FILENAME || media.name;
-            const fileExt = fileName.split('.').pop().toUpperCase();
-            
-            mediaContent = `
+         } else {
+             const fileName = media.ORIGINAL_FILENAME || media.name;
+             const fileExt = fileName.split('.').pop().toUpperCase();
+
+             mediaContent = `
                 <div class="w-32 h-32 flex flex-col items-center justify-center bg-gray-100 rounded-lg border-2 border-gray-200">
                     <svg class="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -397,9 +408,9 @@
                     <span class="text-xs text-gray-500 px-2 truncate w-full text-center">${fileName}</span>
                 </div>
             `;
-        }
-        
-        div.innerHTML = `
+         }
+
+         div.innerHTML = `
             ${mediaContent}
             <button type="button" 
                     onclick="removeMedia('${mediaId}', ${isExisting})"
@@ -409,197 +420,180 @@
                 </svg>
             </button>
         `;
-        
-        div.dataset.mediaId = mediaId;
-        
-        return div;
-    }
 
-    /**
-     * Remove media (mark for deletion atau remove dari preview)
-     */
-    function removeMedia(mediaId, isExisting) {
-        if (isExisting) {
-            // Tandai untuk dihapus
-            filesToDelete.push(mediaId);
-            
-            // Remove dari existingMediaData
-            existingMediaData = existingMediaData.filter(m => m.ID !== mediaId);
-            
-            // Add hidden input untuk deleted media
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'deleted_media[]';
-            input.value = mediaId;
-            document.getElementById('deleted_media_container').appendChild(input);
-        }
-        
-        // Remove element dari DOM
-        const element = document.querySelector(`[data-media-id="${mediaId}"]`);
-        if (element) {
-            element.remove();
-        }
-        
-        // Update counter dan check empty state
-        updateFileCounter();
-        checkEmptyState();
-    }
+         div.dataset.mediaId = mediaId;
 
-    /**
-     * Handle new file selection
-     */
-    document.getElementById('edit_image_input')?.addEventListener('change', function(e) {
-        const files = Array.from(e.target.files);
-        const container = document.getElementById('edit_media_preview_container');
-        
-        // Hitung total media
-        const currentTotal = existingMediaData.length + 
-                            container.querySelectorAll('[data-media-id^="new_"]').length;
-        const newTotal = currentTotal + files.length;
-        
-        if (newTotal > MAX_FILES) {
-            alert(`Maksimal ${MAX_FILES} file. Anda sudah memiliki ${currentTotal} file.`);
-            e.target.value = '';
-            return;
-        }
-        
-        // Remove empty message
-        document.getElementById('edit_empty_msg').classList.add('hidden');
-        
-        files.forEach(file => {
-            // Validasi tipe file
-            const allowedTypes = [
-                'image/jpeg', 'image/png', 'image/jpg', 'image/gif',
-                'application/pdf', 'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'application/vnd.ms-excel',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'application/zip'
-            ];
-            
-            if (!allowedTypes.includes(file.type)) {
-                alert(`Tipe file tidak diizinkan: ${file.name}`);
-                return;
-            }
-            
-            // Validasi ukuran (10MB)
-            if (file.size > 10 * 1024 * 1024) {
-                alert(`File terlalu besar: ${file.name} (max 10MB)`);
-                return;
-            }
-            
-            // Create preview
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const mediaData = {
-                    name: file.name,
-                    type: file.type,
-                    preview: file.type.startsWith('image/') ? event.target.result : null
-                };
-                
-                const previewEl = createMediaPreviewElement(mediaData, false);
-                container.appendChild(previewEl);
-                
-                updateFileCounter();
-            };
-            
-            if (file.type.startsWith('image/')) {
-                reader.readAsDataURL(file);
-            } else {
-                // Untuk non-image, langsung create preview
-                const mediaData = {
-                    name: file.name,
-                    type: file.type,
-                    preview: null
-                };
-                
-                const previewEl = createMediaPreviewElement(mediaData, false);
-                container.appendChild(previewEl);
-                
-                updateFileCounter();
-            }
-        });
-    });
+         return div;
+     }
 
-    /**
-     * Update file counter
-     */
-    function updateFileCounter() {
-        const container = document.getElementById('edit_media_preview_container');
-        const total = existingMediaData.length + 
-                    container.querySelectorAll('[data-media-id^="new_"]').length;
-        
-        document.getElementById('edit_file_counter').textContent = `${total}/${MAX_FILES} Media`;
-        
-        // Toggle warning dan button
-        const warning = document.getElementById('edit_limit_warning');
-        const addButton = document.getElementById('btn_add_more_edit');
-        
-        if (total >= MAX_FILES) {
-            warning.classList.remove('hidden');
-            addButton.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
-        } else {
-            warning.classList.add('hidden');
-            addButton.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
-        }
-    }
 
-    /**
-     * Check empty state
-     */
-    function checkEmptyState() {
-        const container = document.getElementById('edit_media_preview_container');
-        const emptyMsg = document.getElementById('edit_empty_msg');
-        const hasMedia = container.querySelectorAll('[data-media-id]').length > 0;
-        
-        if (!hasMedia) {
-            emptyMsg.classList.remove('hidden');
-        }
-    }
+     function removeMedia(mediaId, isExisting) {
+         if (isExisting) {
+             filesToDelete.push(mediaId);
 
-    /**
-     * Handle form submission
-     */
-    document.getElementById('editTopicForm')?.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Menyimpan...';
-        
-        const formData = new FormData(this);
-        
-        // Append deleted media sebagai JSON
-        if (filesToDelete.length > 0) {
-            formData.append('deleted_media', JSON.stringify(filesToDelete));
-        }
-        
-        try {
-            const response = await fetch('<?= BASEURL ?>/topic/update-topic', {
-                method: 'POST',
-                body: formData
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                showGlobalAlert("Berhasil menyimpan perubahan!");
-                location.reload();
-            } else {
-                alert(result.message || 'Gagal mengupdate topic');
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan saat mengupdate topic');
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
-        }
-    });
+             existingMediaData = existingMediaData.filter(m => m.ID !== mediaId);
 
-    document.addEventListener('DOMContentLoaded', function() {
-        updateFileCounter();
-    });
+             const input = document.createElement('input');
+             input.type = 'hidden';
+             input.name = 'deleted_media[]';
+             input.value = mediaId;
+             document.getElementById('deleted_media_container').appendChild(input);
+         }
+
+         const element = document.querySelector(`[data-media-id="${mediaId}"]`);
+         if (element) {
+             element.remove();
+         }
+
+         updateFileCounter();
+         checkEmptyState();
+     }
+
+
+     document.getElementById('edit_image_input')?.addEventListener('change', function(e) {
+         const files = Array.from(e.target.files);
+         const container = document.getElementById('edit_media_preview_container');
+
+         const currentTotal = existingMediaData.length +
+             container.querySelectorAll('[data-media-id^="new_"]').length;
+         const newTotal = currentTotal + files.length;
+
+         if (newTotal > MAX_FILES) {
+             alert(`Maksimal ${MAX_FILES} file. Anda sudah memiliki ${currentTotal} file.`);
+             e.target.value = '';
+             return;
+         }
+
+         document.getElementById('edit_empty_msg').classList.add('hidden');
+
+         files.forEach(file => {
+             const allowedTypes = [
+                 'image/jpeg', 'image/png', 'image/jpg', 'image/gif',
+                 'application/pdf', 'application/msword',
+                 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                 'application/vnd.ms-excel',
+                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                 'application/zip'
+             ];
+
+             if (!allowedTypes.includes(file.type)) {
+                 alert(`Tipe file tidak diizinkan: ${file.name}`);
+                 return;
+             }
+
+             if (file.size > 10 * 1024 * 1024) {
+                 alert(`File terlalu besar: ${file.name} (max 10MB)`);
+                 return;
+             }
+
+             const reader = new FileReader();
+             reader.onload = function(event) {
+                 const mediaData = {
+                     name: file.name,
+                     type: file.type,
+                     preview: file.type.startsWith('image/') ? event.target.result : null
+                 };
+
+                 const previewEl = createMediaPreviewElement(mediaData, false);
+                 container.appendChild(previewEl);
+
+                 updateFileCounter();
+             };
+
+             if (file.type.startsWith('image/')) {
+                 reader.readAsDataURL(file);
+             } else {
+                 const mediaData = {
+                     name: file.name,
+                     type: file.type,
+                     preview: null
+                 };
+
+                 const previewEl = createMediaPreviewElement(mediaData, false);
+                 container.appendChild(previewEl);
+
+                 updateFileCounter();
+             }
+         });
+     });
+
+
+     function updateFileCounter() {
+         const container = document.getElementById('edit_media_preview_container');
+         const total = existingMediaData.length +
+             container.querySelectorAll('[data-media-id^="new_"]').length;
+
+         document.getElementById('edit_file_counter').textContent = `${total}/${MAX_FILES} Media`;
+
+         const warning = document.getElementById('edit_limit_warning');
+         const addButton = document.getElementById('btn_add_more_edit');
+
+         if (total >= MAX_FILES) {
+             warning.classList.remove('hidden');
+             addButton.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+         } else {
+             warning.classList.add('hidden');
+             addButton.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+         }
+     }
+
+
+     function checkEmptyState() {
+         const container = document.getElementById('edit_media_preview_container');
+         const emptyMsg = document.getElementById('edit_empty_msg');
+         const hasMedia = container.querySelectorAll('[data-media-id]').length > 0;
+
+         if (!hasMedia) {
+             emptyMsg.classList.remove('hidden');
+         }
+     }
+
+     document.getElementById('editTopicForm')?.addEventListener('submit', async function(e) {
+         e.preventDefault();
+
+         const submitBtn = this.querySelector('button[type="submit"]');
+         const divSuccsesEdit = document.getElementById('divSuccsessEdit')
+
+         const originalText = submitBtn.textContent;
+         submitBtn.disabled = true;
+         submitBtn.textContent = 'Menyimpan...';
+
+         const formData = new FormData(this);
+
+         if (filesToDelete.length > 0) {
+             formData.append('deleted_media', JSON.stringify(filesToDelete));
+         }
+
+         try {
+             const response = await fetch('<?= BASEURL ?>/topic/update-topic', {
+                 method: 'POST',
+                 body: formData
+             });
+
+             const result = await response.json();
+
+             if (result.success) {
+                 divSuccsesEdit.classList.remove('hidden')
+                 divSuccsesEdit.innerHTML = "Edit topic berhasil"
+
+                 setTimeout(() => {
+                     location.reload();
+                 }, 2000)
+
+             } else {
+                 alert(result.message || 'Gagal mengupdate topic');
+                 submitBtn.disabled = false;
+                 submitBtn.textContent = originalText;
+             }
+         } catch (error) {
+             console.error('Error:', error);
+             alert('Terjadi kesalahan saat mengupdate topic');
+             submitBtn.disabled = false;
+             submitBtn.textContent = originalText;
+         }
+     });
+
+     document.addEventListener('DOMContentLoaded', function() {
+         updateFileCounter();
+     });
  </script>

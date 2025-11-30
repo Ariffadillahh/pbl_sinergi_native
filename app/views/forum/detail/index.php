@@ -113,12 +113,12 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
 
                             <div class="flex gap-3">
-                                <button id="btn-open-leave-forum" class="w-full md:w-auto flex items-center justify-center gap-2 bg-white rounded-xl px-4 py-2 ring-1 ring-gray-200 hover:ring-blue-600 transition-all">
-                                    <img src="<?= BASEURL; ?>/src/asset/icons/logout-grey.svg" class="size-6" alt="icon">
-                                    <span class="font-medium text-sm">Leave Forum</span>
-                                </button>
-
                                 <?php if ($forumById['OWNER_ID'] !== $_SESSION['user_id']) : ?>
+                                    <button id="btn-open-leave-forum" class="w-full md:w-auto flex items-center justify-center gap-2 bg-white rounded-xl px-4 py-2 ring-1 ring-gray-200 hover:ring-blue-600 transition-all">
+                                        <img src="<?= BASEURL; ?>/src/asset/icons/logout-grey.svg" class="size-6" alt="icon">
+                                        <span class="font-medium text-sm">Leave Forum</span>
+                                    </button>
+
                                     <button id="btn-open-report-forum"
                                         class="w-full md:w-auto flex items-center justify-center bg-white rounded-xl px-4 py-2 ring-1 ring-gray-200 hover:ring-blue-600 transition-all">
                                         <img src="<?= BASEURL; ?>/src/asset/icons/report.png" class="size-6" alt="icon">
@@ -308,8 +308,8 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                                         <img src="<?= $userPhoto ? BASEURL . '/storage/users/photos/' . $userPhoto : BASEURL . '/src/asset/image/default.png' ?>"
                                             class="w-8 h-8 rounded-full object-cover">
                                         <div>
-                                            <p class="font-bold text-sm text-gray-900"><?= htmlspecialchars($pin['USERNAME']) ?></p>
-                                            <p class="text-xs text-gray-500"><?= date('d M Y H:i', strtotime($pin['CREATED_AT'])) ?></p>
+                                            <p class="font-bold text-sm text-gray-900"><?= htmlspecialchars($pin['FULL_NAME']) ?></p>
+                                            <p class="text-xs text-gray-500"><?= date('d M Y', strtotime($pin['CREATED_AT'])) ?></p>
                                         </div>
                                     </div>
 
@@ -346,7 +346,9 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                                     <?php endif; ?>
 
                                     <div class="border-t pt-2 flex items-center justify-between text-gray-500 text-xs">
-                                        <span><?= $topic['TOTAL_COMMENTS'] ?> Comments</span>
+                                        <a href="<?= BASEURL ?>/forum/topic/<?= $pin['ID'] ?>" class="hover:underline">
+                                            <span><?= $pin['TOTAL_COMMENTS'] ?> Comments</span>
+                                        </a>
                                         <div class="flex items-center gap-1">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />

@@ -8,8 +8,8 @@
 <body>
     <div class="bg-white rounded-xl p-4 drop-shadow">
         <div class="mb-6">
-            <h2 class="text-2xl font-bold text-gray-900">Requested Mitra Accounts</h2>
-            <p class="text-sm text-gray-600 mt-1">Kelola permintaan pembuatan akun mitra dari owner forum</p>
+            <h2 class="text-2xl font-bold text-gray-900">Requested Accounts</h2>
+            <p class="text-sm text-gray-600 mt-1">Kelola permintaan pembuatan akun mitra dan alumni dari owner forum</p>
         </div>
 
         <!-- Search Bar -->
@@ -22,7 +22,7 @@
                 </div>
                 <input type="text" id="search-input" 
                     class="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                    placeholder="Cari berdasarkan nama mitra, username, email, requester, atau forum...">
+                    placeholder="Cari berdasarkan nama , username, email, requester, atau forum...">
                 <button id="clear-search" class="absolute inset-y-0 right-0 flex items-center pr-3 hidden">
                     <svg class="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -42,12 +42,11 @@
                         <th scope="col" class="px-6 py-3">Nama Mitra</th>
                         <th scope="col" class="px-6 py-3">Username</th>
                         <th scope="col" class="px-6 py-3">Email</th>
-                        <th scope="col" class="px-6 py-3">Tanggal Request</th>
+                        <th scope="col" class="px-6 py-3">Role</th>
                         <th scope="col" class="px-6 py-3">Action</th>
                     </tr>
                 </thead>
                 <tbody id="requests-table-body">
-                    <!-- Data akan dimuat dengan JavaScript -->
                 </tbody>
             </table>
         </div>
@@ -94,7 +93,7 @@
                             <p class="text-sm text-gray-600">
                                 Requested by: <span id="modal-requester" class="font-medium"></span><br>
                                 Forum: <span id="modal-forum" class="font-medium"></span><br>
-                                Tanggal: <span id="modal-date" class="font-medium"></span>
+                                Role: <span id="modal-role" class="font-medium"></span>
                             </p>
                         </div>
                     </div>
@@ -146,7 +145,7 @@
 
     <script>
     let currentRequestId = null;
-    let allRequests = []; // Store all requests for filtering
+    let allRequests = [];
 
     async function loadRequests() {
         try {
@@ -176,18 +175,7 @@
 
         if (requests.length > 0) {
             tbody.innerHTML = requests.map(req => {
-                // Format tanggal
-                const tanggal = req.CREATED_AT ? 
-                    new Date(req.CREATED_AT).toLocaleDateString('id-ID', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    }) : 
-                    '-';
-                
-                // Escape data untuk JSON
+                                
                 const reqJson = JSON.stringify(req).replace(/'/g, "&apos;");
                 
                 return `
@@ -201,7 +189,7 @@
                         <td class="px-6 py-4 font-medium">${req.FULL_NAME}</td>
                         <td class="px-6 py-4">${req.USERNAME}</td>
                         <td class="px-6 py-4">${req.EMAIL}</td>
-                        <td class="px-6 py-4 text-gray-600">${tanggal}</td>
+                        <td class="px-6 py-4">${req.ROLE}</td>
                         <td class="px-6 py-4">
                             <button onclick='openApproveModal(${reqJson})' 
                                 class="text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors">
@@ -288,17 +276,7 @@
         document.getElementById('modal-requester').textContent = request.REQUESTER_NAME || 'Unknown';
         document.getElementById('modal-forum').textContent = request.FORUM_NAME || 'Unknown';
         
-        // Format tanggal untuk modal
-        const tanggal = request.CREATED_AT ? 
-            new Date(request.CREATED_AT).toLocaleDateString('id-ID', {
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            }) : 
-            '-';
-        document.getElementById('modal-date').textContent = tanggal;
+        document.getElementById('modal-role').textContent = request.ROLE || 'MITRA/ALUMNI';
 
         document.getElementById('approve-modal').classList.remove('hidden');
     }
@@ -361,9 +339,6 @@
     });
 
     async function rejectRequest() {
-        if (!confirm('Apakah Anda yakin ingin menolak request ini?')) {
-            return;
-        }
 
         const rejectBtn = document.getElementById('reject-btn');
         rejectBtn.disabled = true;

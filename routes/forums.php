@@ -75,10 +75,10 @@ switch (true) {
         $controller->addMemberByOwner();
         break;
 
-    case $route ===  'forum/request-mitra-account':
+    case $route ===  'forum/owner-request-account':
         requireLogin();
         $controller = new ForumController();
-        $controller->requestMitraAccount();
+        $controller->ownerRequestAccount();
         break;
 
     case $route ===  'forum/removeMemberByOwner':

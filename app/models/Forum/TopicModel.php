@@ -208,6 +208,7 @@ class TopicModel extends BaseModel
                 t.CONTENT, 
                 t.CREATED_AT, 
                 u.USERNAME, 
+                u.FULL_NAME,
                 u.ID AS USER_ID,
                 u.PATH_PHOTO AS PROFILE_PIC,
                 (SELECT COUNT(*) FROM TOPIC_COMMENTS c WHERE c.TOPIC_ID = t.ID) AS TOTAL_COMMENTS,

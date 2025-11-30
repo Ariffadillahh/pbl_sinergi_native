@@ -256,6 +256,81 @@ class DashboardController
         }
     }
 
+    public function accAccoutByAdmin()
+    {
+        if (!isset($_POST['id_user'])) {
+            echo json_encode(['success' => false, 'message' => 'ID User tidak ditemukan.']);
+            return;
+        }
+
+        $idUser = $_POST['id_user'];
+
+        $userPending = $this->userModel->getPendingRequestsById($idUser);
+
+        if (!$userPending) {
+            echo json_encode(['success' => false, 'message' => 'Data user tidak ditemukan atau status bukan pending.']);
+            return;
+        }
+
+        $updateSuccess = $this->userModel->approvePendingUser($idUser);
+
+        if (!$updateSuccess) {
+            echo json_encode(['success' => false, 'message' => 'Gagal mengaktifkan akun di database.']);
+            return;
+        }
+
+        try {
+            require_once __DIR__ . '/../../vendor/autoload.php';
+            $mailConfig = require __DIR__ . '/../../config/mail.php';
+            $mail = new PHPMailer(true);
+
+            $mail->isSMTP();
+            $mail->Host       = $mailConfig['host'];
+            $mail->SMTPAuth   = true;
+            $mail->Username   = $mailConfig['username'];
+            $mail->Password   = $mailConfig['password'];
+            $mail->SMTPSecure = $mailConfig['encryption'];
+            $mail->Port       = $mailConfig['port'];
+
+            $mail->setFrom($mailConfig['from_address'], $mailConfig['from_name']);
+
+            $mail->addAddress($userPending['EMAIL'], $userPending['FULL_NAME']);
+
+            $mail->isHTML(true);
+            $mail->Subject = 'Akun Anda di SINERGI Telah Dibuat';
+
+            $resetLink = BASEURL . '/forget-password';
+
+            $mail->Body = "Halo <b>{$userPending['FULL_NAME']}</b>,<br><br>"
+                . "Akun Anda untuk aplikasi SINERGI telah berhasil dibuat dan diaktifkan oleh administrator.<br><br>"
+                . "Anda dapat login menggunakan detail berikut:<br>"
+                . "<b>Email:</b> {$userPending['EMAIL']}<br><br>"
+                . "Demi keamanan, silakan segera atur password Anda dengan mengklik tombol di bawah ini:<br><br>"
+                . "<a href='{$resetLink}' style='background-color: #2563eb; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; font-family: Arial, sans-serif;'>"
+                . "Atur Password Sekarang"
+                . "</a><br><br>"
+                . "Jika tombol di atas tidak berfungsi, silakan klik tautan berikut:<br>"
+                . "<a href='{$resetLink}'>{$resetLink}</a><br><br>"
+                . "Terima kasih.";
+
+            $mail->AltBody = "Akun Anda telah aktif. Email: {$userPending['EMAIL']}. Silakan reset password Anda.";
+
+            $mail->send();
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Akun berhasil diaktifkan dan email notifikasi telah dikirim.'
+            ]);
+        } catch (Exception $e) {
+            error_log("PHPMailer Error: " . $mail->ErrorInfo);
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Akun berhasil diaktifkan, namun email notifikasi gagal dikirim. Hubungi user secara manual.'
+            ]);
+        }
+    }
+
     public function updateRoleByAdmin()
     {
         header('Content-Type: application/json');
@@ -358,12 +433,12 @@ class DashboardController
     public function getPendingRequestsCount()
     {
         header('Content-Type: application/json');
-        
+
         if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'ADMIN') {
             echo json_encode(['success' => false, 'count' => 0]);
             exit;
         }
-        
+
         try {
             $count = $this->userModel->getPendingMitraRequestsCount();
             echo json_encode(['success' => true, 'count' => $count]);
@@ -376,12 +451,12 @@ class DashboardController
     public function getPendingRequests()
     {
         header('Content-Type: application/json');
-        
+
         if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'ADMIN') {
             echo json_encode(['success' => false, 'message' => 'Unauthorized']);
             exit;
         }
-        
+
         try {
             $requests = $this->userModel->getPendingMitraRequests();
             echo json_encode(['success' => true, 'requests' => $requests]);
@@ -391,7 +466,7 @@ class DashboardController
         }
     }
 
-    public function approveMitraRequest()
+    public function approveAccountRequest()
     {
         header('Content-Type: application/json');
 
@@ -408,8 +483,6 @@ class DashboardController
         }
 
         $userId = $_POST['user_id'] ?? null;
-        $forumId = $_POST['forum_id'] ?? null;
-        $ownerId = $_POST['owner_id'] ?? null;
 
         if (empty($userId)) {
             echo json_encode(['success' => false, 'message' => 'User ID tidak ditemukan']);
@@ -417,27 +490,16 @@ class DashboardController
         }
 
         try {
-            // Update status user menjadi APPROVED
             $updateResult = $this->userModel->approvePendingUser($userId);
-            
+
             if (!$updateResult) {
                 echo json_encode(['success' => false, 'message' => 'Gagal approve user']);
                 exit;
             }
-            
-            // Join ke forum jika ada forum_id
-            if (!empty($forumId)) {
-                $joinResult = $this->forumModel->joinForum($forumId, $userId);
-                if (!$joinResult['success']) {
-                    error_log("Gagal join forum: " . $joinResult['message']);
-                }
-            }
 
-            // Get user data untuk email
             $userData = $this->userModel->getUserById($userId);
-            
+
             if ($userData) {
-                // Send email
                 try {
                     require_once __DIR__ . '/../../vendor/autoload.php';
                     $mailConfig = require __DIR__ . '/../../config/mail.php';
@@ -452,6 +514,7 @@ class DashboardController
                     $mail->Port       = $mailConfig['port'];
 
                     $mail->setFrom($mailConfig['from_address'], $mailConfig['from_name']);
+
                     $mail->addAddress($userData['EMAIL'], $userData['FULL_NAME']);
 
                     $mail->isHTML(true);
@@ -459,10 +522,11 @@ class DashboardController
 
                     $resetLink = BASEURL . '/forget-password';
 
-                    $mail->Body = "Halo <b>{$registrationData['FULL_NAME']}</b>,<br><br>"
+                  
+                    $mail->Body = "Halo <b>{$userData['FULL_NAME']}</b>,<br><br>"
                         . "Akun Anda untuk aplikasi SINERGI telah berhasil dibuat oleh administrator.<br><br>"
                         . "Anda dapat login menggunakan detail berikut:<br>"
-                        . "<b>Email:</b> {$registrationData['EMAIL']}<br><br>"
+                        . "<b>Email:</b> {$userData['EMAIL']}<br><br>" // Ubah di sini juga
                         . "Demi keamanan, silakan segera atur password Anda dengan mengklik tombol di bawah ini:<br><br>"
 
                         . "<a href='{$resetLink}' style='background-color: #2563eb; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; font-family: Arial, sans-serif;'>"
@@ -473,11 +537,12 @@ class DashboardController
                         . "<a href='{$resetLink}'>{$resetLink}</a><br><br>"
                         . "Terima kasih.";
 
-                    $mail->AltBody = "Akun Anda telah dibuat. Email: {$registrationData['EMAIL']}";
+                    $mail->AltBody = "Akun Anda telah dibuat. Email: {$userData['EMAIL']}";
 
                     $mail->send();
                 } catch (Exception $e) {
                     error_log("PHPMailer Error: " . $mail->ErrorInfo);
+                    
                 }
             }
 
@@ -485,7 +550,6 @@ class DashboardController
                 'success' => true,
                 'message' => 'Akun mitra berhasil disetujui dan notifikasi email telah dikirim'
             ]);
-
         } catch (Exception $e) {
             error_log("Approve Mitra Error: " . $e->getMessage());
             echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan server']);

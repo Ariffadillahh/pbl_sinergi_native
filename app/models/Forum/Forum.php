@@ -254,11 +254,21 @@ class ForumModel extends BaseModel
         $conn = self::getConnection();
 
         $sql = "SELECT f.*, 
-                   (SELECT COUNT(*) FROM FORUM_MEMBERS fm WHERE fm.FORUM_ID = f.ID AND fm.STATUS = 'JOINED') AS TOTAL_MEMBERS,
-                   (SELECT COUNT(*) FROM FORUM_MEMBERS fm WHERE fm.FORUM_ID = f.ID AND fm.STATUS = 'PENDING') AS TOTAL_REQUESTS,
-                   u.FULL_NAME AS OWNER_NAME,
-                   u.PATH_PHOTO AS PATH_PHOTO_OWNER,
-                   u.ROLE AS ROLE_OWNER
+                (SELECT COUNT(*) 
+                 FROM FORUM_MEMBERS fm 
+                 WHERE fm.FORUM_ID = f.ID 
+                 AND fm.STATUS = 'JOINED') AS TOTAL_MEMBERS,
+                 
+                (SELECT COUNT(*) 
+                 FROM FORUM_MEMBERS fm 
+                 JOIN USERS req_u ON fm.USER_ID = req_u.ID
+                 WHERE fm.FORUM_ID = f.ID 
+                 AND fm.STATUS = 'PENDING'
+                 AND req_u.STATUS = 'APPROVED') AS TOTAL_REQUESTS,
+                 
+                u.FULL_NAME AS OWNER_NAME,
+                u.PATH_PHOTO AS PATH_PHOTO_OWNER,
+                u.ROLE AS ROLE_OWNER
             FROM FORUMS f 
             JOIN USERS u ON f.OWNER_ID = u.ID
             WHERE f.ID = :id";
@@ -706,33 +716,23 @@ class ForumModel extends BaseModel
                 FROM FORUM_MEMBERS FM
                 JOIN USERS U ON FM.USER_ID = U.ID
                 WHERE FM.FORUM_ID = :forum_id 
-                AND FM.STATUS = 'PENDING'";
+                AND FM.STATUS = 'PENDING' AND U.STATUS = 'APPROVED'";
 
-        // 1. Prepare Statement
         $stid = oci_parse($conn, $sql);
         if (!$stid) {
             $e = oci_error($conn);
             throw new Exception($e['message']);
         }
 
-        // 2. Bind Parameter
-        // Note: oci_bind_by_name butuh variable reference, jadi $forumId aman
         oci_bind_by_name($stid, ':forum_id', $forumId);
 
-        // 3. Execute
         oci_execute($stid);
 
-        // 4. Fetch All
-        // OCI_FETCHSTATEMENT_BY_ROW: Agar format arraynya per baris (seperti PDO::FETCH_ASSOC)
-        // OCI_ASSOC: Agar index arraynya nama kolom
         $output = [];
         oci_fetch_all($stid, $output, 0, -1, OCI_FETCHSTATEMENT_BY_ROW + OCI_ASSOC);
 
-        // Bersihkan statement
         oci_free_statement($stid);
 
-        // Penting: Oracle return nama kolom UPPERCASE by default, 
-        // tapi karena kita pake alias di SQL (as "id"), biasanya aman jadi lowercase.
         return $output;
     }
 
@@ -803,7 +803,7 @@ class ForumModel extends BaseModel
             return $row['STATUS'];
         }
 
-        return null; 
+        return null;
     }
 
     public function sendJoinRequest($forumId, $userId)
@@ -820,8 +820,8 @@ class ForumModel extends BaseModel
             return ['success' => false, 'message' => 'Your join request is already pending approval.'];
         }
 
-        $id = uniqid('req_'); 
-        $status = 'PENDING'; 
+        $id = uniqid('req_');
+        $status = 'PENDING';
 
         $sql = "INSERT INTO FORUM_MEMBERS (ID, FORUM_ID, USER_ID, STATUS, JOINED_AT) 
                 VALUES (:id, :forum_id, :user_id, :status, SYSDATE)";
@@ -847,9 +847,9 @@ class ForumModel extends BaseModel
     public function searchNonMembers($forumId, $search = '')
     {
         $conn = self::getConnection();
-        
+
         $searchParam = '%' . strtolower($search) . '%';
-        
+
         $sql = "SELECT u.ID, u.USERNAME, u.FULL_NAME, u.PATH_PHOTO, u.ROLE
                 FROM USERS u
                 WHERE u.ID NOT IN (
@@ -858,31 +858,31 @@ class ForumModel extends BaseModel
                     WHERE fm.FORUM_ID = :forum_id
                 )
                 AND u.ID != (SELECT OWNER_ID FROM FORUMS WHERE ID = :forum_id2)";
-        
+
         if (!empty($search)) {
             $sql .= " AND (LOWER(u.FULL_NAME) LIKE :search OR LOWER(u.USERNAME) LIKE :search2)";
         }
-        
+
         $sql .= " ORDER BY u.FULL_NAME ASC";
-        
+
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ':forum_id', $forumId);
         oci_bind_by_name($stmt, ':forum_id2', $forumId);
-        
+
         if (!empty($search)) {
             oci_bind_by_name($stmt, ':search', $searchParam);
             oci_bind_by_name($stmt, ':search2', $searchParam);
         }
-        
+
         oci_execute($stmt);
-        
+
         $users = [];
         while ($row = oci_fetch_assoc($stmt)) {
             $users[] = $row;
         }
-        
+
         oci_free_statement($stmt);
-        
+
         return $users;
     }
 
