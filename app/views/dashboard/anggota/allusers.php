@@ -63,7 +63,7 @@
                                     ?>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <?= htmlspecialchars($user['PRODI'])
+                                    <?= htmlspecialchars($user['PRODI'] ?? '')
                                     ?>
                                 </td>
                                 <td class="px-6 py-4">

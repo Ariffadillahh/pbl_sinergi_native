@@ -77,16 +77,40 @@
                                 </div>
                             </div>
 
-                            <div class="relative">
+                            <div class="relative w-full max-w-md">
                                 <div class="group relative">
-                                    <input type="password" id="password" name="password" class="w-full h-[72px] pl-[80px] pr-14 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all" placeholder=" " required />
+                                    <input
+                                        type="password"
+                                        id="password"
+                                        name="password"
+                                        minlength="6"
+                                        class="w-full h-[72px] pl-[80px] pr-14 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all"
+                                        placeholder=" "
+                                        required />
+
                                     <label for="password" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">Password</label>
-                                    <img src="src/asset/icons/lock-grey.svg" alt="Password icon" class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
+
+                                    <img src="src/asset/icons/lock-grey.svg" alt="" class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
                                     <div class="absolute left-[64px] top-1/2 -translate-y-1/2 w-[1.5px] h-6 bg-gray-300"></div>
-                                    <button type="button" id="show-password" class="absolute right-6 top-1/2 -translate-y-1/2 cursor-pointer">
-                                        <img src="src/asset/icons/eye-grey.svg" alt="Show password" id="show-icon" class="size-6" />
-                                        <img src="src/asset/icons/eye-slash-black.svg" alt="Hide password" id="hide-icon" class="size-6 hidden" />
+
+                                    <button type="button" id="show-password" class="absolute right-6 top-1/2 -translate-y-1/2 cursor-pointer focus:outline-none">
+                                        <svg id="show-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-gray-500">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <svg id="hide-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-gray-500 hidden">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                                        </svg>
                                     </button>
+                                </div>
+
+                                <div class="mt-3 px-2 hidden" id="strengthPassword">
+                                    <div class="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                        <div id="strength-bar" class="h-full w-0 transition-all duration-300 ease-out bg-red-500"></div>
+                                    </div>
+                                    <p id="strength-text" class="text-xs text-gray-500 mt-1.5 font-medium text-right">
+                                        Minimal 6 karakter
+                                    </p>
                                 </div>
                             </div>
                         </section>
@@ -106,6 +130,80 @@
     <script src="<?php echo BASEURL; ?>/src/js/main.js"></script>
 
     <script>
+        const strengthBar = document.getElementById('strength-bar');
+        const strengthText = document.getElementById('strength-text');
+        const passwordInput = document.getElementById('password');
+
+        const strengthPassword = document.getElementById('strengthPassword');
+
+        if (passwordInput && strengthBar && strengthText) {
+            passwordInput.addEventListener('input', () => {
+                const val = passwordInput.value;
+                const len = val.length;
+                strengthPassword.classList.remove('hidden')
+
+                len === 0 ? strengthPassword.classList.add('hidden') : strengthPassword.classList.remove('hidden')
+
+                strengthBar.classList.remove('bg-red-500', 'bg-yellow-500', 'bg-green-500');
+
+                if (len === 0) {
+                    strengthBar.style.width = '0%';
+                    strengthText.innerText = 'Minimal 6 karakter dengan kombinasi';
+                    strengthText.className = 'text-xs text-gray-500 mt-1.5 font-medium text-right';
+                    return;
+                }
+
+                if (len < 6) {
+                    strengthBar.style.width = '20%';
+                    strengthBar.classList.add('bg-red-500');
+                    strengthText.innerText = `Terlalu pendek (kurang ${6 - len} lagi)`;
+                    strengthText.className = 'text-xs text-red-500 mt-1.5 font-medium text-right';
+                    return;
+                }
+
+                let score = 0;
+                let missing = [];
+
+                if (val.match(/[a-z]/)) score++;
+                else missing.push("huruf kecil");
+                if (val.match(/[A-Z]/)) score++;
+                else missing.push("huruf besar");
+                if (val.match(/[0-9]/)) score++;
+                else missing.push("angka");
+                if (val.match(/[^a-zA-Z0-9]/)) score++;
+                else missing.push("simbol");
+                if (len > 8) score++;
+
+                let saran = missing.length > 0 ? missing[0] : '';
+
+                if (missing.length > 1 && score > 2) {
+                    saran = missing.slice(0, 2).join(' atau ');
+                }
+
+                if (score <= 2) {
+                    strengthBar.style.width = '30%';
+                    strengthBar.classList.add('bg-red-500');
+
+                    strengthText.innerText = `Lemah: Coba tambah ${saran || 'kombinasi lain'}`;
+                    strengthText.className = 'text-xs text-red-500 mt-1.5 font-medium text-right';
+
+                } else if (score <= 4) {
+                    strengthBar.style.width = '70%';
+                    strengthBar.classList.add('bg-yellow-500');
+
+                    strengthText.innerText = `Sedang: Tambahkan ${saran} agar kuat`;
+                    strengthText.className = 'text-xs text-yellow-600 mt-1.5 font-medium text-right';
+
+                } else {
+                    strengthBar.style.width = '100%';
+                    strengthBar.classList.add('bg-green-500');
+
+                    strengthText.innerText = 'Sangat Kuat & Aman! 🔒';
+                    strengthText.className = 'text-xs text-green-600 mt-1.5 font-bold text-right';
+                }
+            });
+        }
+
         function handleRegist() {
             const formRegist = document.getElementById("registerForm");
             const modalOtp = document.getElementById("modal-otp");

@@ -69,29 +69,41 @@
                                         </button>
                                     </div>
                                 </div>
+                                <div class="px-2 -mt-3 hidden" id="strengthPassword">
+                                    <div class="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                        <div id="strength-bar" class="h-full w-0 transition-all duration-300 ease-out bg-red-500"></div>
+                                    </div>
+                                    <p id="strength-text" class="text-xs text-gray-500 mt-1.5 font-medium text-right">
+                                        Minimal 6 karakter
+                                    </p>
+                                </div>
 
                                 <div class="relative">
                                     <div class="group relative">
                                         <input type="password" id="confirmPassword" name="confirm_password"
                                             class="w-full h-[72px] pl-[80px] pr-14 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all"
                                             placeholder=" " required />
+
                                         <label for="confirmPassword"
                                             class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">
                                             Confirm Password
                                         </label>
+
                                         <img src="src/asset/icons/lock-grey.svg" alt="Password icon"
                                             class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
-                                        <div
-                                            class="absolute left-[64px] top-1/2 -translate-y-1/2 w-[1.5px] h-6 bg-gray-300">
-                                        </div>
+
+                                        <div class="absolute left-[64px] top-1/2 -translate-y-1/2 w-[1.5px] h-6 bg-gray-300"></div>
+
                                         <button type="button" id="toggleConfirm"
-                                            class="absolute right-6 top-1/2 -translate-y-1/2 cursor-pointer">
+                                            class="absolute right-6 top-1/2 -translate-y-1/2 cursor-pointer focus:outline-none z-20">
                                             <img src="src/asset/icons/eye-grey.svg" alt="Show password"
                                                 id="showIconConfirm" class="size-6" />
                                             <img src="src/asset/icons/eye-slash-black.svg" alt="Hide password"
                                                 id="hideIconConfirm" class="size-6 hidden" />
                                         </button>
                                     </div>
+
+                                    <p id="match-text" class="text-xs mt-1.5 font-medium text-right hidden"></p>
                                 </div>
                             </div>
                         </div>
@@ -117,6 +129,117 @@
         const passwordInput = document.getElementById("password");
         const showIconPassword = document.getElementById("showIconPassword");
         const hideIconPassword = document.getElementById("hideIconPassword");
+        const strengthBar = document.getElementById('strength-bar');
+        const strengthText = document.getElementById('strength-text');
+        const strengthPassword = document.getElementById('strengthPassword');
+        const confirmInput = document.getElementById('confirmPassword');
+        const matchText = document.getElementById('match-text');
+
+        function checkMatch() {
+            const passVal = passwordInput.value;
+            const confirmVal = confirmInput.value;
+
+            if (confirmVal.length === 0) {
+                matchText.classList.add('hidden');
+                confirmInput.classList.remove('border-red-500', 'border-green-500', 'focus:border-red-500', 'focus:border-green-500');
+                confirmInput.classList.add('focus:border-blue-500');
+                return;
+            }
+
+            matchText.classList.remove('hidden');
+
+            if (passVal === confirmVal) {
+                matchText.innerText = "Password Cocok! ✅";
+                matchText.className = "text-xs mt-1.5 font-medium text-right text-green-600";
+
+                confirmInput.classList.remove('border-red-500', 'focus:border-blue-500', 'focus:border-red-500');
+                confirmInput.classList.add('border-green-500', 'focus:border-green-500');
+            } else {
+                matchText.innerText = "Password Belum Sama ❌";
+                matchText.className = "text-xs mt-1.5 font-medium text-right text-red-500";
+
+                confirmInput.classList.remove('border-green-500', 'focus:border-blue-500', 'focus:border-green-500');
+                confirmInput.classList.add('border-red-500', 'focus:border-red-500');
+            }
+        }
+
+        if (confirmInput && passwordInput) {
+            confirmInput.addEventListener('input', checkMatch);
+
+            passwordInput.addEventListener('input', () => {
+                if (confirmInput.value.length > 0) {
+                    checkMatch();
+                }
+            });
+        }
+
+        if (passwordInput && strengthBar && strengthText) {
+            passwordInput.addEventListener('input', () => {
+                const val = passwordInput.value;
+                const len = val.length;
+                strengthPassword.classList.remove('hidden')
+
+                len === 0 ? strengthPassword.classList.add('hidden') : strengthPassword.classList.remove('hidden')
+
+                strengthBar.classList.remove('bg-red-500', 'bg-yellow-500', 'bg-green-500');
+
+                if (len === 0) {
+                    strengthBar.style.width = '0%';
+                    strengthText.innerText = 'Minimal 6 karakter dengan kombinasi';
+                    strengthText.className = 'text-xs text-gray-500 mt-1.5 font-medium text-right';
+                    return;
+                }
+
+                if (len < 6) {
+                    strengthBar.style.width = '20%';
+                    strengthBar.classList.add('bg-red-500');
+                    strengthText.innerText = `Terlalu pendek (kurang ${6 - len} lagi)`;
+                    strengthText.className = 'text-xs text-red-500 mt-1.5 font-medium text-right';
+                    return;
+                }
+
+                let score = 0;
+                let missing = [];
+
+                if (val.match(/[a-z]/)) score++;
+                else missing.push("huruf kecil");
+                if (val.match(/[A-Z]/)) score++;
+                else missing.push("huruf besar");
+                if (val.match(/[0-9]/)) score++;
+                else missing.push("angka");
+                if (val.match(/[^a-zA-Z0-9]/)) score++;
+                else missing.push("simbol");
+                if (len > 8) score++;
+
+                let saran = missing.length > 0 ? missing[0] : '';
+
+                if (missing.length > 1 && score > 2) {
+                    saran = missing.slice(0, 2).join(' atau ');
+                }
+
+                if (score <= 2) {
+                    strengthBar.style.width = '30%';
+                    strengthBar.classList.add('bg-red-500');
+
+                    strengthText.innerText = `Lemah: Coba tambah ${saran || 'kombinasi lain'}`;
+                    strengthText.className = 'text-xs text-red-500 mt-1.5 font-medium text-right';
+
+                } else if (score <= 4) {
+                    strengthBar.style.width = '70%';
+                    strengthBar.classList.add('bg-yellow-500');
+
+                    strengthText.innerText = `Sedang: Tambahkan ${saran} agar kuat`;
+                    strengthText.className = 'text-xs text-yellow-600 mt-1.5 font-medium text-right';
+
+                } else {
+                    strengthBar.style.width = '100%';
+                    strengthBar.classList.add('bg-green-500');
+
+                    strengthText.innerText = 'Sangat Kuat & Aman! 🔒';
+                    strengthText.className = 'text-xs text-green-600 mt-1.5 font-bold text-right';
+                }
+            });
+        }
 
         if (togglePassword) {
             togglePassword.addEventListener("click", () => {
