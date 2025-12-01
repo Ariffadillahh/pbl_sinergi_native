@@ -98,7 +98,7 @@
             </div>
         </main>
         <?php require_once 'app/views/components/modalInvite.php'; ?>
-        <?php require_once 'app/views/components/Forum/modalInviteForum.php'; ?>
+        <?php require_once 'app/views/components/forum/modalInviteForum.php'; ?>
     </div>
 
     <div id="imageModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-[9999] backdrop-blur-sm">

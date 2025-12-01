@@ -90,7 +90,7 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                     </span>
                 </div>
                 <?php require_once 'app/views/components/modalInvite.php'; ?>
-                <?php require_once 'app/views/components/Forum/modalInviteForum.php'; ?>
+                <?php require_once 'app/views/components/forum/modalInviteForum.php'; ?>
             </div>
 
             <main class="w-full min-h-screen overflow-y-auto border-gray-200 hide-scrollbar">

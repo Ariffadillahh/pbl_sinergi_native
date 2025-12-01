@@ -93,9 +93,9 @@
         </div>
     </div>
 
-    <?php require_once 'app/views/components/Admin/modalReasonLaporanGroup.php' ?>
-    <?php require_once 'app/views/components/Admin/ModalDeleteReportGroup.php' ?>
-    <?php require_once 'app/views/components/Admin/ModalWarningReportGroup.php' ?>
+    <?php require_once 'app/views/components/admin/modalReasonLaporanGroup.php' ?>
+    <?php require_once 'app/views/components/admin/ModalDeleteReportGroup.php' ?>
+    <?php require_once 'app/views/components/admin/ModalWarningReportGroup.php' ?>
 </body>
 
 </html>

@@ -374,7 +374,7 @@ function translateRole($role) {
 
         <?php require_once 'app/views/components/modalReqRole.php'; ?>
         <?php require_once 'app/views/components/modalInvite.php'; ?>
-        <?php require_once 'app/views/components/Forum/modalInviteForum.php'; ?>
+        <?php require_once 'app/views/components/forum/modalInviteForum.php'; ?>
         <?php include_once 'app/views/components/modalEditProfile.php'; ?>
         <?php include_once 'app/views/components/modalUpdatePassword.php'; ?>
         <?php include_once 'app/views/components/postingan/modalDeletePost.php'; ?>
