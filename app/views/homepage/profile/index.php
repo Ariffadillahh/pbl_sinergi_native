@@ -3,6 +3,17 @@ $posts = $posts ?? [];
 $userById = $userById ?? [];
 $role = htmlspecialchars($userById['ROLE'] ?? '-');
 
+// Translated role display names
+$roleDisplay = [
+    'ADMIN' => 'ADMIN',
+    'DOSEN' => 'LECTURER',
+    'MAHASISWA' => 'STUDENT',
+    'MITRA' => 'PARTNER',
+    'ALUMNI' => 'ALUMNI',
+];
+$roleEnglish = $roleDisplay[$role] ?? htmlspecialchars($userById['ROLE'] ?? '-');
+
+
 $roleClasses = [
     'ADMIN' => 'bg-red-100 text-red-800',
     'DOSEN' => 'bg-green-100 text-green-800',
@@ -18,7 +29,7 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile @<?= $userById['USERNAME'] ?></title>
+    <title>Profile @<?= $userById['USERNAME'] ?></title> 
 </head>
 
 <body>
@@ -31,7 +42,7 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                     alt="icon" class="w-4 h-4 md:w-6 md:h-6">
 
                 <h1 class="block max-w-[80%] truncate text-base lg:text-xl">
-                    Profile <span class="text-blue-600"><?= $userById['FULL_NAME'] ?></span>
+                    Profile <span class="text-blue-600"><?= htmlspecialchars($userById['FULL_NAME'] ?? '-') ?></span>
                 </h1>
 
             </button>
@@ -42,8 +53,8 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                 <div class="absolute -bottom-16 left-6">
                     <div class="relative">
                         <img src="<?= !empty($userById['PATH_PHOTO'])
-                                        ? BASEURL . '/storage/users/photos/' . $userById['PATH_PHOTO']
-                                        : BASEURL . '/src/asset/image/default.png' ?>"
+                                            ? BASEURL . '/storage/users/photos/' . $userById['PATH_PHOTO']
+                                            : BASEURL . '/src/asset/image/default.png' ?>"
                             alt="<?= htmlspecialchars($userById['FULL_NAME'] ?? '-') ?>"
                             class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover bg-white">
                         <?php if (!empty($userById['IS_ONLINE'])): ?>
@@ -64,7 +75,7 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                                 @<?= htmlspecialchars($userById['USERNAME'] ?? '-') ?>
                             </p>
                             <p class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold <?= $badgeClass ?>">
-                                <?= $role ?>
+                                <?= $roleEnglish ?>
                             </p>
                         </div>
                     </div>
@@ -79,7 +90,7 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                     </span>
                 </div>
                 <?php require_once 'app/views/components/modalInvite.php'; ?>
-                <?php require_once 'app/views/components/Forum/modalInviteForum.php'; ?>
+                <?php require_once 'app/views/components/forum/modalInviteForum.php'; ?>
             </div>
 
             <main class="w-full min-h-screen overflow-y-auto border-gray-200 hide-scrollbar">
@@ -91,13 +102,13 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                             </div>
-                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Belum ada postingan</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">No posts yet</h3>
+                            <p class="text-gray-500 text-center text-sm max-w-sm">This user hasn't created any posts.</p>
                         </div>
                     <?php else: ?>
                         <?php foreach ($posts as $post): ?>
                             <div class="my-5" id="post-<?= $post['POST_ID'] ?>">
                                 <div class="bg-white text-gray-900 border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-                                    <!-- Header Section -->
                                     <div class="p-4">
                                         <div class="flex items-start space-x-3">
                                             <img src="<?= !empty($userById['PATH_PHOTO'])
@@ -111,43 +122,44 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                                                 </div>
                                                 <div class="text-sm">
                                                     <span class="text-gray-500">@<?= htmlspecialchars($userById['USERNAME']) ?></span>
-                                                    <span class="text-gray-400">· <?= date('d M Y', strtotime($post['CREATED_AT'])) ?></span>
+                                                    <span class="text-gray-400">· </span>
+                                                    <span class="text-gray-400 time-ago" data-time="<?= $post['CREATED_AT'] ?>">
+                                                        <?= date('d M Y', strtotime($post['CREATED_AT'])) ?>
+                                                    </span>
                                                 </div>
                                             </div>
 
                                             <div class="relative">
                                                 <div class="relative inline-block text-left">
                                                     <button
-                                                        class="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                                                        onclick="toggleDropdown('dropdown-<?= $post['POST_ID'] ?>')">
-                                                        <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-                                                            <circle cx="5" cy="12" r="2" />
-                                                            <circle cx="12" cy="12" r="2" />
-                                                            <circle cx="19" cy="12" r="2" />
-                                                        </svg>
-                                                    </button>
+                                                         class="p-2 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+                                                         onclick="toggleDropdown('dropdown-<?= $post['POST_ID'] ?>')">
+                                                         <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                                                             <circle cx="5" cy="12" r="2" />
+                                                             <circle cx="12" cy="12" r="2" />
+                                                             <circle cx="19" cy="12" r="2" />
+                                                         </svg>
+                                                     </button>
 
                                                     <div
-                                                        id="dropdown-<?= $post['POST_ID'] ?>"
-                                                        class="hidden absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
-                                                        <button
-                                                            type="button"
-                                                            class="report-btn w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-100"
-                                                            data-post-id="<?= $post['POST_ID']; ?>">
-                                                            Report
-                                                        </button>
-                                                    </div>
+                                                         id="dropdown-<?= $post['POST_ID'] ?>"
+                                                         class="hidden absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
+                                                         <button
+                                                             type="button"
+                                                             class="report-btn w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-100 cursor-pointer"
+                                                             data-post-id="<?= $post['POST_ID']; ?>">
+                                                             Report
+                                                         </button>
+                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <!-- Content -->
                                         <div class="mt-3">
                                             <p class="text-black text-[15px] leading-relaxed"><?= $post['CONTENT_FORMATTED'] ?? '' ?></p>
                                         </div>
                                     </div>
 
-                                    <!-- Media Section -->
                                     <?php if (!empty($post['MEDIA'])): ?>
                                         <div class="bg-gradient-to-b from-gray-900 to-black overflow-hidden">
                                             <swiper-container class="mySwiper aspect-video w-full min-h-[250px] md:min-h-[400px]" init="false">
@@ -160,7 +172,6 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                                         </div>
                                     <?php endif; ?>
 
-                                    <!-- Stats Bar -->
                                     <div class="px-4 py-3 border-t border-gray-100 bg-gray-50/50">
                                         <div class="flex items-center justify-between text-sm text-gray-600">
                                             <div class="flex items-center gap-2 hover:text-blue-600 transition-colors cursor-pointer">
@@ -174,12 +185,11 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                                                 <span class="like-count-display font-semibold"><?= htmlspecialchars($post['TOTAL_LIKES'] ?? 0) ?> Likes</span>
                                             </div>
                                             <div class="font-semibold hover:text-blue-600 transition-colors cursor-pointer">
-                                                <?= htmlspecialchars($post['TOTAL_COMMENT'] ?? 0) ?> Komentar
+                                                <?= htmlspecialchars($post['TOTAL_COMMENT'] ?? 0) ?> Comments
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Action Buttons -->
                                     <div class="border-t border-gray-100 p-2 flex justify-center gap-2 bg-white">
                                         <button class="like-btn flex items-center justify-center gap-2.5 px-5 py-2.5 rounded-xl transition-all hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 cursor-pointer group w-1/2 relative overflow-hidden"
                                             data-post-id="<?= $post['POST_ID'] ?>"
@@ -259,6 +269,46 @@ $badgeClass = $roleClasses[$role] ?? 'bg-gray-100 text-gray-800';
                 swiperEl.initialize();
             });
         });
+
+        function timeAgo(dateString) {
+            if (!dateString) return '';
+            
+            const safeDateString = dateString.replace(' ', 'T');
+            const date = new Date(safeDateString);
+            const now = new Date();
+
+            if (isNaN(date.getTime())) {
+                console.error("Invalid date:", dateString);
+                return dateString;
+            }
+
+            const seconds = Math.floor((now - date) / 1000);
+
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + "y ago";
+
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + "mo ago";
+
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + "d ago";
+
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + "h ago";
+
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + "m ago";
+
+            return "Just now";
+        }
+
+        const timeElements = document.querySelectorAll('.time-ago');
+            timeElements.forEach(function(el) {
+                const rawDate = el.getAttribute('data-time');
+                if (rawDate) {
+                    el.textContent = timeAgo(rawDate);
+                }
+            });
 
         document.querySelectorAll('.like-btn').forEach(button => {
             button.addEventListener('click', async function(e) {

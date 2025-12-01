@@ -4,7 +4,7 @@
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100">
 
         <button id="invite-group-close" 
-                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10 cursor-pointer"
                 aria-label="Close modal">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -23,7 +23,7 @@
             <h3 class="text-lg font-semibold text-gray-900 mb-2">Failed to Load Group</h3>
             <p id="invite-group-error-message" class="text-gray-600 mb-4">Something went wrong. Please try again.</p>
             <button id="invite-group-error-retry" 
-                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer">
                 Retry
             </button>
         </div>
@@ -96,12 +96,12 @@
 
             <div class="flex gap-3">
                 <button id="invite-group-decline"
-                    class="flex-1 px-4 py-3 text-sm font-medium rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors duration-200">
+                    class="flex-1 px-4 py-3 text-sm font-medium rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors duration-200 cursor-pointer">
                     Maybe Later
                 </button>
 
                 <button id="invite-group-join"
-                    class="flex-1 px-4 py-3 text-sm font-medium rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    class="flex-1 px-4 py-3 text-sm font-medium rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                     </svg>

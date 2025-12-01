@@ -55,7 +55,7 @@ class ProfileController
 
             if ($_SESSION['personal_number'] != $personalNumber) {
                 if ($user) {
-                    echo json_encode(['success' => false, 'message' => 'NIM/NIP sudah ada']);
+                    echo json_encode(['success' => false, 'message' => 'NIM/NIP already exists']); // Changed
                     exit;
                 }
             }
@@ -73,7 +73,7 @@ class ProfileController
 
                 $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
                 if (!in_array($_FILES['profileFoto']['type'], $allowedTypes)) {
-                    echo json_encode(['success' => false, 'message' => 'Format foto tidak didukung.']);
+                    echo json_encode(['success' => false, 'message' => 'Unsupported photo format.']); // Changed
                     exit;
                 }
 
@@ -126,31 +126,31 @@ class ProfileController
             $newPassword = $_POST['new_password'] ?? '';
 
             if (empty($currentPassword) || empty($newPassword)) {
-                echo json_encode(['success' => false, 'message' => 'Semua field wajib diisi.']);
+                echo json_encode(['success' => false, 'message' => 'All fields are required.']); // Changed
                 exit;
             }
 
             if (strlen($newPassword) < 6) {
-                echo json_encode(['success' => false, 'message' => 'Password baru minimal harus 6 karakter.']);
+                echo json_encode(['success' => false, 'message' => 'New password must be at least 6 characters long.']); // Changed
                 exit;
             }
 
             $userData = $this->userModel->getUserById($userId);
 
             if (!$userData) {
-                echo json_encode(['success' => false, 'message' => 'User tidak ditemukan.']);
+                echo json_encode(['success' => false, 'message' => 'User not found.']); // Changed
                 exit;
             }
 
             $hashedPasswordFromDb = $userData['PASSWORD'];
 
             if (!password_verify($currentPassword, $hashedPasswordFromDb)) {
-                echo json_encode(['success' => false, 'message' => 'Password Anda saat ini salah.']);
+                echo json_encode(['success' => false, 'message' => 'Your current password is incorrect.']); // Changed
                 exit;
             }
 
             if (password_verify($newPassword, $hashedPasswordFromDb)) {
-                echo json_encode(['success' => false, 'message' => 'Password baru tidak boleh sama dengan password lama.']);
+                echo json_encode(['success' => false, 'message' => 'New password cannot be the same as the old password.']); // Changed
                 exit;
             }
 
@@ -159,7 +159,7 @@ class ProfileController
             $result = $this->userModel->updatePassword($userId, $newHashedPassword);
 
             if ($result['success']) {
-                echo json_encode(['success' => true, 'message' => 'Password berhasil diubah.']);
+                echo json_encode(['success' => true, 'message' => 'Password updated successfully.']); // Changed
             } else {
                 echo json_encode(['success' => false, 'message' => $result['message']]);
             }
@@ -185,7 +185,7 @@ class ProfileController
         $fullName = $_SESSION['full_name'] ?? 'User';
 
         if (!$userId || !$email) {
-            echo json_encode(['success' => false, 'message' => 'Sesi habis. Silakan login ulang.']);
+            echo json_encode(['success' => false, 'message' => 'Session expired. Please log in again.']); // Changed
             exit;
         }
 
@@ -209,21 +209,22 @@ class ProfileController
             $mail->setFrom($mailConfig['from_address'], $mailConfig['from_name']);
             $mail->addAddress($email, $fullName);
             $mail->isHTML(true);
-            $mail->Subject = 'Kode Verifikasi Perubahan Status Mahasiswa';
-            $mail->Body    = "Halo <b>{$fullName}</b>,<br>Kode OTP Anda: <b>{$otp}</b>";
+            $mail->Subject = 'Student Status Change Verification Code'; // Changed
+            $mail->Body    = "Hello <b>{$fullName}</b>,<br>Your OTP code is: <b>{$otp}</b>";
+
             $mail->send();
 
             if (ob_get_length()) ob_clean();
 
             echo json_encode([
                 'success' => true,
-                'message' => 'OTP berhasil dikirim ke email Anda.'
+                'message' => 'OTP sent successfully to your email.' // Changed
             ]);
 
             exit;
         } catch (Exception $e) {
             if (ob_get_length()) ob_clean();
-            echo json_encode(['success' => false, 'message' => 'Gagal kirim email.']);
+            echo json_encode(['success' => false, 'message' => 'Failed to send email.']); // Changed
             exit;
         }
     }
@@ -243,18 +244,18 @@ class ProfileController
         $userId   = $_SESSION['user_id'] ?? null;
 
         if (!isset($_SESSION['otp_code']) || !isset($_SESSION['otp_expiry'])) {
-            echo json_encode(['success' => false, 'message' => 'Permintaan OTP tidak ditemukan. Silakan minta kode ulang.']);
+            echo json_encode(['success' => false, 'message' => 'OTP request not found. Please request the code again.']); // Changed
             exit;
         }
 
         if (time() > $_SESSION['otp_expiry']) {
             unset($_SESSION['otp_code'], $_SESSION['otp_expiry']);
-            echo json_encode(['success' => false, 'message' => 'Kode OTP kadaluarsa. Silakan minta kode ulang.']);
+            echo json_encode(['success' => false, 'message' => 'OTP code expired. Please request the code again.']); // Changed
             exit;
         }
 
         if ((string)$inputOtp !== (string)$_SESSION['otp_code']) {
-            echo json_encode(['success' => false, 'message' => 'Kode OTP salah.']);
+            echo json_encode(['success' => false, 'message' => 'Incorrect OTP code.']); // Changed
             exit;
         }
 
@@ -268,15 +269,15 @@ class ProfileController
 
                 echo json_encode([
                     'success' => true,
-                    'message' => 'Verifikasi berhasil. Status Anda telah kembali menjadi Mahasiswa.'
+                    'message' => 'Verification successful. Your status has been changed back to Student.' // Changed
                 ]);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Gagal mengupdate data ke database.']);
+                echo json_encode(['success' => false, 'message' => 'Failed to update data in the database.']); // Changed
             }
             exit;
         } catch (Exception $e) {
             error_log("Update Error: " . $e->getMessage());
-            echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan sistem saat memperbarui status.']);
+            echo json_encode(['success' => false, 'message' => 'A system error occurred while updating the status.']); // Changed
             exit;
         }
     }
@@ -296,7 +297,7 @@ class ProfileController
         $fullName = $_SESSION['full_name'] ?? 'User';
 
         if (!$userId || !$email) {
-            echo json_encode(['success' => false, 'message' => 'Sesi habis.']);
+            echo json_encode(['success' => false, 'message' => 'Session expired.']); // Changed
             exit;
         }
 
@@ -321,19 +322,20 @@ class ProfileController
             $mail->addAddress($email, $fullName);
             $mail->isHTML(true);
 
-            $mail->Subject = 'Kirim Ulang: Kode Verifikasi Status Mahasiswa';
-            $mail->Body    = "Halo <b>{$fullName}</b>,<br>Kode OTP Baru Anda: <b>{$otp}</b><br>Kode ini berlaku 5 menit.";
+            $mail->Subject = 'Resend: Student Status Verification Code'; // Changed
+            $mail->Body    = "Hello <b>{$fullName}</b>,<br>Your New OTP Code is: <b>{$otp}</b><br>This code is valid for 5 minutes."; // Changed
+
             $mail->send();
 
             if (ob_get_length()) ob_clean();
             echo json_encode([
                 'success' => true,
-                'message' => 'Kode OTP baru berhasil dikirim.'
+                'message' => 'New OTP code sent successfully.' // Changed
             ]);
             exit;
         } catch (Exception $e) {
             if (ob_get_length()) ob_clean();
-            echo json_encode(['success' => false, 'message' => 'Gagal mengirim ulang email.']);
+            echo json_encode(['success' => false, 'message' => 'Failed to resend email.']); // Changed
             exit;
         }
     }

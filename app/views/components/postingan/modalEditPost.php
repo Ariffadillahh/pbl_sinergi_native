@@ -1,8 +1,8 @@
 <div id="modal-edit-post" class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/60 backdrop-blur-sm p-3">
   <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-500">
-      <h3 class="text-lg font-bold text-white">Edit Postingan</h3>
-      <button id="btn-close-edit-post" class="text-white hover:bg-white/20 w-8 h-8 flex items-center justify-center rounded-full">&times;</button>
+      <h3 class="text-lg font-bold text-white">Edit Post</h3>
+      <button id="btn-close-edit-post" class="text-white hover:bg-white/20 w-8 h-8 flex items-center justify-center rounded-full cursor-pointer">&times;</button>
     </div>
 
     <div class="p-6 space-y-4">
@@ -15,24 +15,24 @@
           name="content"
           id="edit-post-content"
           rows="4"
-          placeholder="Tulis sesuatu..."
+          placeholder="Write Something..."
           class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none"></textarea>
 
         <div id="media-preview-container" class="grid grid-cols-3 sm:grid-cols-4 gap-3"></div>
 
         <div class="flex justify-between items-center">
-          <button type="button" id="btn-edit-post-change-photo" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">
+          <button type="button" id="btn-edit-post-change-photo" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
             </svg>
-            Tambah Gambar
+            Add Photos
           </button>
 
           <input type="file" id="edit-post-file-input" name="images[]" class="hidden" accept="image/*" multiple>
         </div>
 
-        <button type="submit" id="btn-submit-edit-post" class="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold rounded-full hover:opacity-90 transition">
-          Simpan Perubahan
+        <button type="submit" id="btn-submit-edit-post" class="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold rounded-full hover:opacity-90 transition cursor-pointer">
+          Save Change
         </button>
       </form>
     </div>
@@ -41,7 +41,7 @@
 
 <div id="toast-limit" class="hidden fixed top-5 right-5 z-[99999]">
   <div class="bg-red-600 text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-fade-in">
-    <span class="font-semibold">Maksimal 5 foto.</span>
+    <span class="font-semibold">5 Photo Maximum</span>
   </div>
 </div>
 
@@ -92,7 +92,7 @@
       const btnX = document.createElement('button');
       btnX.type = 'button';
       btnX.innerHTML = '&times;';
-      btnX.className = 'absolute top-1 right-1 bg-black/60 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition';
+      btnX.className = 'absolute top-1 right-1 bg-black/60 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition cursor-pointer';
       btnX.onclick = () => {
         existingMedia.splice(i, 1);
         deletedMedia.push(path);
@@ -175,7 +175,7 @@
     const succsesDiv = document.getElementById("edit-post-succses");
 
     submitBtn.disabled = true;
-    submitBtn.innerText = "Menyimpan...";
+    submitBtn.innerText = "Saving...";
     errorDiv.classList.add("hidden");
 
     const formData = new FormData();
@@ -209,7 +209,7 @@
 
       if (result.success) {
         succsesDiv.classList.remove("hidden");
-        succsesDiv.textContent = "Postingan berhasil diperbarui.";
+        succsesDiv.textContent = "Your post successfully updated.";
 
         setTimeout(() => {
           succsesDiv.classList.add("hidden");
@@ -218,7 +218,7 @@
           location.reload();
         }, 1500);
       } else {
-        errorDiv.textContent = result.message || "Gagal memperbarui postingan.";
+        errorDiv.textContent = result.message || "Failed updating post.";
         errorDiv.classList.remove("hidden");
       }
     } catch (err) {
@@ -227,7 +227,7 @@
       errorDiv.classList.remove("hidden");
     } finally {
       submitBtn.disabled = false;
-      submitBtn.innerText = "Simpan Perubahan";
+      submitBtn.innerText = "Save Change";
     }
   });
 </script>

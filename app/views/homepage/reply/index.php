@@ -59,7 +59,7 @@ function organizeReplies($replies)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="<?php echo BASEURL; ?>/src/css/output.css" rel="stylesheet">
-    <title>Home Page | Positingan @<?= $post['USERNAME'] ?></title>
+    <title>Homepage | Post @<?= $post['USERNAME'] ?></title>
 </head>
 
 <body>
@@ -91,7 +91,7 @@ function organizeReplies($replies)
                             </div>
                             <div class="w-full sm:w-auto flex items-center justify-end sm:mt-2">
                                 <button type="submit"
-                                    class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-full transition-colors">
+                                    class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-full transition-colors cursor-pointer">
                                     Comment
                                 </button>
                             </div>
@@ -101,7 +101,7 @@ function organizeReplies($replies)
 
                 <?php if (empty($comments)): ?>
                     <div class="bg-white text-center text-gray-500 border border-gray-200 p-6 rounded-2xl mt-4">
-                        Belum ada komentar.
+                        No comments yet.
                     </div>
                 <?php else: ?>
                     <?php foreach ($comments as $comment): ?>
@@ -138,7 +138,7 @@ function organizeReplies($replies)
 
                                 <div class="flex gap-3 sm:gap-4 items-center">
                                     <p class="text-gray-400 time-ago" data-time="<?= htmlspecialchars($comment['CREATED_AT']) ?>"></p>
-                                    <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold" data-username="<?= htmlspecialchars($comment['USERNAME']) ?>">
+                                    <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold cursor-pointer" data-username="<?= htmlspecialchars($comment['USERNAME']) ?>">
                                         Reply
                                     </button>
                                 </div>
@@ -197,7 +197,7 @@ function organizeReplies($replies)
                                 ?>
 
                                 <div class="border-t border-gray-200 mt-3 pt-4 replies-section">
-                                    <button class="show-more-replies text-blue-600 hover:text-blue-700 font-semibold text-sm flex items-center gap-2 mb-3 transition-colors"
+                                    <button class="show-more-replies text-blue-600 hover:text-blue-700 font-semibold text-sm flex items-center gap-2 mb-3 transition-colors cursor-pointer"
                                         data-comment-id="<?= htmlspecialchars($comment['COMMENT_ID']) ?>"
                                         data-count="<?= $totalReplies ?>"
                                         data-text="<?= $totalReplies === 1 ? 'reply' : 'replies' ?>">
@@ -242,18 +242,18 @@ function organizeReplies($replies)
                 class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
 
                 <div class="bg-white rounded-xl shadow-lg w-80 p-6">
-                    <h2 class="text-lg font-semibold mb-2">Konfirmasi Penghapusan</h2>
+                    <h2 class="text-lg font-semibold mb-2">Deletion Confirmation</h2>
                     <p id="deleteMessage" class="text-sm text-gray-600 mb-4"></p>
 
                     <div class="flex justify-end gap-3">
                         <button onclick="closeDeleteModal()"
-                            class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
-                            Batal
+                            class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 cursor-pointer">
+                            Cancel
                         </button>
 
                         <button id="deleteConfirmBtn"
-                            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
-                            Hapus
+                            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 cursor-pointer">
+                            Delete
                         </button>
                     </div>
                 </div>
@@ -261,7 +261,7 @@ function organizeReplies($replies)
 
             <div id="toastSuccess"
                 class="fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-all duration-300 z-50">
-                Berhasil dihapus
+                Delete successful.
             </div>
 
         </div>
@@ -276,8 +276,8 @@ function organizeReplies($replies)
             deleteType = type;
 
             const msg = type === "comment" ?
-                "Hapus komentar ini beserta semua balasannya?" :
-                "Hapus balasan ini?";
+                "Delete this comment and all replies to it?" :
+                "Delete this reply?";
 
             document.getElementById("deleteMessage").textContent = msg;
 
@@ -290,7 +290,7 @@ function organizeReplies($replies)
             document.getElementById("deleteModal").classList.add("hidden");
         }
 
-        function showToastSuccess(message = "Berhasil dihapus") {
+        function showToastSuccess(message = "Delete Successful") {
             const toast = document.getElementById("toastSuccess");
             toast.textContent = message;
 

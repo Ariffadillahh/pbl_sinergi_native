@@ -1,5 +1,6 @@
 <?php
-
+// File: app/views/components/forum/topics.php
+// COPY PASTE FILE INI, REPLACE YANG LAMA
 
 $visibleTopics = $topics;
 $hasMorePosts  = false;
@@ -31,7 +32,8 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
         $images = array_filter($allMedia, fn($m) => $m['MEDIA_TYPE'] === 'IMAGE');
         $files = array_filter($allMedia, fn($m) => $m['MEDIA_TYPE'] === 'FILE');
 
-        $isLikedByUser = isset($topic['IS_LIKED']) ? $topic['IS_LIKED'] : false;
+        // FIX: Ambil IS_LIKED langsung dari database
+        $isLikedByUser = !empty($topic['IS_LIKED']);
         ?>
 
         <div class="topic-card bg-white rounded-lg shadow border border-gray-200 overflow-hidden" id="topic-<?= $topic['ID'] ?>">
@@ -42,7 +44,26 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                             <img src="<?= !empty($topic['PATH_PHOTO']) ? BASEURL . '/storage/users/photos/' . $topic['PATH_PHOTO'] : BASEURL . '/src/asset/image/default.png' ?>" class="w-full h-full object-cover">
                         </div>
                         <div>
-                            <h4 class="font-semibold text-gray-900 leading-tight"><?= htmlspecialchars($topic['FULL_NAME']) ?></h4>
+                            <!-- FIX: Tambah badge role -->
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-semibold text-gray-900 leading-tight"><?= htmlspecialchars($topic['FULL_NAME']) ?></h4>
+                                
+                                <?php
+                                $role = $topic['ROLE'] ?? 'MAHASISWA';
+                                $roleClasses = [
+                                    "MAHASISWA" => "bg-blue-100 text-blue-800",
+                                    "ADMIN"     => "bg-red-100 text-red-800",
+                                    "DOSEN"     => "bg-green-100 text-green-800",
+                                    "MITRA"     => "bg-gray-100 text-gray-800",
+                                    "ALUMNI"    => "bg-yellow-100 text-yellow-800"
+                                ];
+                                $colorClass = $roleClasses[$role] ?? "bg-gray-100 text-gray-800";
+                                ?>
+                                <span class="px-2 py-0.5 rounded-full text-xs font-medium <?= $colorClass ?>">
+                                    <?= htmlspecialchars($role) ?>
+                                </span>
+                            </div>
+                            
                             <p class="text-sm text-gray-500 mt-0.5">
                                 <?php
                                 $topicUserId = $topic['USER_ID'] ?? '';
@@ -160,7 +181,9 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                             data-liked="<?= $isLikedByUser ? 'true' : 'false' ?>">
 
                             <svg class="w-5 h-5 transition-all transform duration-200 <?= $isLikedByUser ? 'text-red-500 fill-red-500' : 'text-gray-500 group-hover:text-red-500' ?>"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                fill="<?= $isLikedByUser ? 'currentColor' : 'none' ?>" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                             </svg>
 
@@ -192,6 +215,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        // Swiper initialization
         var swiper = new Swiper(".myPostSwiper", {
             pagination: {
                 el: ".swiper-pagination",
@@ -210,11 +234,11 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
 <script>
     document.addEventListener('DOMContentLoaded', () => {
 
+        // Time ago function
         function timeAgo(dateString) {
             if (!dateString) return '';
 
             const safeDateString = dateString.replace(' ', 'T');
-
             const date = new Date(safeDateString);
             const now = new Date();
 
@@ -244,15 +268,38 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
         }
 
         const timeElements = document.querySelectorAll('.time-ago');
-
         timeElements.forEach(function(el) {
             const rawDate = el.getAttribute('data-time');
-
             if (rawDate) {
                 el.textContent = timeAgo(rawDate);
             }
         });
 
+        // FIX: Initialize like button state saat page load
+        function initializeLikeButtons() {
+            const likeButtons = document.querySelectorAll('.like-btn');
+            
+            likeButtons.forEach(button => {
+                const isLiked = button.getAttribute('data-liked') === 'true';
+                const icon = button.querySelector('svg');
+                
+                // Set state berdasarkan data dari database
+                if (isLiked) {
+                    icon.classList.remove('text-gray-500', 'group-hover:text-red-500');
+                    icon.classList.add('text-red-500', 'fill-red-500');
+                    icon.setAttribute('fill', 'currentColor');
+                } else {
+                    icon.classList.remove('text-red-500', 'fill-red-500');
+                    icon.classList.add('text-gray-500', 'group-hover:text-red-500');
+                    icon.setAttribute('fill', 'none');
+                }
+            });
+        }
+
+        // Jalankan initialize
+        initializeLikeButtons();
+
+        // Like button handler
         const likeButtons = document.querySelectorAll('.like-btn');
 
         likeButtons.forEach(button => {
@@ -261,13 +308,12 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
 
                 const topicId = this.getAttribute('data-topic-id');
                 const icon = this.querySelector('svg');
-
                 const card = this.closest('.topic-card');
-
                 const countSpan = card ? card.querySelector('.like-count-display') : null;
 
-                if (!card) console.error("Error: Tidak bisa menemukan elemen .topic-card");
-                if (!countSpan) console.error("Error: Tidak bisa menemukan elemen .like-count-display");
+                // Disable button sementara
+                this.disabled = true;
+                this.style.opacity = '0.6';
 
                 try {
                     const res = await fetch('<?= BASEURL ?>/like/toggle/topic', {
@@ -285,32 +331,65 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                     if (data.success) {
                         const isLiked = data.action === 'liked';
 
+                        // Update data-liked
                         this.setAttribute('data-liked', isLiked ? 'true' : 'false');
 
-                        console.log("Like toggled:", data);
-
+                        // Update count dengan animasi
                         if (countSpan) {
                             countSpan.textContent = data.total_likes;
-
                             countSpan.classList.add('scale-150', 'text-blue-600');
-                            setTimeout(() => countSpan.classList.remove('scale-150', 'text-blue-600'), 200);
+                            setTimeout(() => {
+                                countSpan.classList.remove('scale-150', 'text-blue-600');
+                            }, 300);
                         }
 
+                        // Update icon dengan smooth transition
+                        icon.style.transition = 'all 0.3s ease';
+                        
                         if (isLiked) {
                             icon.classList.remove('text-gray-500', 'group-hover:text-red-500');
-                            icon.classList.add('text-red-500', 'fill-red-500');
+                            icon.classList.add('text-red-500', 'fill-red-500', 'scale-110');
+                            icon.setAttribute('fill', 'currentColor');
+                            setTimeout(() => icon.classList.remove('scale-110'), 300);
                         } else {
                             icon.classList.remove('text-red-500', 'fill-red-500');
                             icon.classList.add('text-gray-500', 'group-hover:text-red-500');
+                            icon.setAttribute('fill', 'none');
                         }
 
                     } else {
                         console.error("Server Error:", data.message);
+                        alert('Gagal memproses like');
                     }
                 } catch (err) {
                     console.error('Fetch Error:', err);
+                    alert('Terjadi kesalahan');
+                } finally {
+                    // Enable button kembali
+                    this.disabled = false;
+                    this.style.opacity = '1';
                 }
             });
         });
     });
 </script>
+
+<style>
+/* Smooth transition untuk like button */
+.like-btn svg {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.like-btn:active svg {
+    transform: scale(0.9);
+}
+
+.like-btn:disabled {
+    cursor: not-allowed;
+}
+
+/* Animation untuk like count */
+.like-count-display {
+    transition: all 0.3s ease;
+}
+</style>

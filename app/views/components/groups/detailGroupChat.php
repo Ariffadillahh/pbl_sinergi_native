@@ -27,13 +27,13 @@
     <ul class="flex gap-3">
         <?php if ($groupChatId['OWNER_ID'] !== $_SESSION['user_id']) : ?>
             <li class="group">
-                <button id="reportForumButton" class="size-11 flex shrink-0 bg-white rounded-xl p-[10px] items-center justify-center ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300">
+                <button id="reportForumButton" class="size-11 flex shrink-0 bg-white rounded-xl p-[10px] items-center justify-center ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 cursor-pointer">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/report.png" class="size-6" alt="icon">
                 </button>
             </li>
         <?php endif ?>
         <li class="group">
-            <button id="infoForum" class="size-11 flex shrink-0 bg-white rounded-xl p-[10px] items-center justify-center ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300">
+            <button id="infoForum" class="size-11 flex shrink-0 bg-white rounded-xl p-[10px] items-center justify-center ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 cursor-pointer">
                 <img src="<?php echo BASEURL; ?>/src/asset/icons/more.svg" class="size-6" alt="icon">
             </button>
         </li>
@@ -45,7 +45,7 @@
         <p class="font-semibold text-lg text-center mt-4">Group Info</p>
         <div class="flex items-center justify-between border-b border-gray-200 py-3 px-5 flex-shrink-0">
             <div>
-                <button id="btn-open-exit-forum" class="w-full h-full flex gap-1 items-center justify-center bg-white rounded-2xl p-[10px] ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300">
+                <button id="btn-open-exit-forum" class="w-full h-full flex gap-1 items-center justify-center bg-white rounded-2xl p-[10px] ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 cursor-pointer">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/logout-grey.svg" class="size-6 flex shrink-0" alt="icon">
                     <span class="font-medium text-sm text-heyhao-secondary">Leave Group</span>
                 </button>
@@ -130,8 +130,8 @@
 
                         <?php if (!empty($mediaPreview)) : ?>
                             <button id="open-media-full"
-                                class="text-sm font-medium text-blue-600 hover:underline">
-                                Lihat lainnya →
+                                class="text-sm font-medium text-blue-600 hover:underline cursor-pointer">
+                                See more →
                             </button>
                         <?php endif ?>
                     </div>
@@ -172,7 +172,7 @@
                             <?php endforeach; ?>
                         <?php else: ?>
                             <p class="text-gray-500 text-sm col-span-4 text-center my-3">
-                                Belum ada media yang dikirim.
+                                No media sent yet.
                             </p>
                         <?php endif; ?>
                     </div>
@@ -185,8 +185,8 @@
                         <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 min-w-0">
                             <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
                                 <img src="<?= !empty($groupChatId['PATH_PHOTO_OWNER'])
-                                                ? BASEURL . '/storage/users/photos/' . $groupChatId['PATH_PHOTO_OWNER']
-                                                : BASEURL . '/src/asset/image/default.png' ?>" class="w-full h-full object-cover" alt="photo">
+                                            ? BASEURL . '/storage/users/photos/' . $groupChatId['PATH_PHOTO_OWNER']
+                                            : BASEURL . '/src/asset/image/default.png' ?>" class="w-full h-full object-cover" alt="photo">
                             </div>
                             <div class="flex flex-col flex-1 gap-[6px] min-w-0">
                                 <div class="flex items-center gap-2 min-w-0">
@@ -196,6 +196,14 @@
                                     <?php
                                     $role = $groupChatId["ROLE_OWNER"];
 
+                                    $roleTranslations = [
+                                        "MAHASISWA" => "STUDENT",
+                                        "ADMIN"     => "ADMIN",
+                                        "DOSEN"     => "LECTURER",
+                                        "MITRA"     => "PARTNER",
+                                        "ALUMNI"    => "ALUMNI"
+                                    ];
+
                                     $roleClasses = [
                                         "MAHASISWA" => "bg-blue-100 text-blue-800",
                                         "ADMIN"     => "bg-red-100 text-red-800",
@@ -204,12 +212,13 @@
                                         "ALUMNI"    => "bg-yellow-100 text-yellow-800"
                                     ];
 
+                                    $displayRole = $roleTranslations[$role] ?? htmlspecialchars($role);
                                     $colorClass = $roleClasses[$role] ?? "bg-gray-100 text-gray-800";
                                     ?>
 
                                     <div class="flex-shrink-0">
                                         <span class="<?= $colorClass ?> text-xs font-medium px-2.5 py-0.5 rounded-sm">
-                                            <?= htmlspecialchars($role) ?>
+                                            <?= $displayRole ?>
                                         </span>
                                     </div>
                                 </div>
@@ -229,8 +238,8 @@
                                 <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 min-w-0">
                                     <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
                                         <img src="<?= !empty($member['PATH_PHOTO'])
-                                                        ? BASEURL . '/storage/users/photos/' . $member['PATH_PHOTO']
-                                                        : BASEURL . '/src/asset/image/default.png' ?>" class="w-full h-full object-cover" alt="photo">
+                                                    ? BASEURL . '/storage/users/photos/' . $member['PATH_PHOTO']
+                                                    : BASEURL . '/src/asset/image/default.png' ?>" class="w-full h-full object-cover" alt="photo">
                                     </div>
                                     <div class="flex flex-col flex-1 gap-[6px] min-w-0">
                                         <div class="flex items-center gap-2 min-w-0">
@@ -240,6 +249,14 @@
                                             <?php
                                             $role = $member["ROLE"];
 
+                                            $roleTranslations = [
+                                                "MAHASISWA" => "STUDENT",
+                                                "ADMIN"     => "ADMIN",
+                                                "DOSEN"     => "LECTURER",
+                                                "MITRA"     => "PARTNER",
+                                                "ALUMNI"    => "ALUMNI"
+                                            ];
+
                                             $roleClasses = [
                                                 "MAHASISWA" => "bg-blue-100 text-blue-800",
                                                 "ADMIN"     => "bg-red-100 text-red-800",
@@ -248,12 +265,13 @@
                                                 "ALUMNI"    => "bg-yellow-100 text-yellow-800"
                                             ];
 
+                                            $displayRole = $roleTranslations[$role] ?? htmlspecialchars($role);
                                             $colorClass = $roleClasses[$role] ?? "bg-gray-100 text-gray-800";
                                             ?>
 
                                             <div class="flex-shrink-0">
                                                 <span class="<?= $colorClass ?> text-xs font-medium px-2.5 py-0.5 rounded-sm">
-                                                    <?= htmlspecialchars($role) ?>
+                                                    <?= $displayRole ?>
                                                 </span>
                                             </div>
 
@@ -275,19 +293,19 @@
                         <button
                             type="button"
                             id="btn-open-manage-members"
-                            class="w-full px-5 py-2.5 mb-2text-sm font-semibold text-gray-700 bg-white border border-gray-300rounded-xl shadow-sm hover:bg-gray-100 hover:border-gray-400 active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 rounded-lg">
+                            class="w-full px-5 py-2.5 mb-2text-sm font-semibold text-gray-700 bg-white border border-gray-300rounded-xl shadow-sm hover:bg-gray-100 hover:border-gray-400 active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 rounded-lg cursor-pointer">
                             Manage Members
                         </button>
 
                     </div>
                     <div class="my-5 flex gap-3">
                         <button type="button" id="btn-open-edit-forum"
-                            class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 w-full">
+                            class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 w-full cursor-pointer">
                             Edit Group
                         </button>
 
                         <button type="button" id="btn-open-delete-forum"
-                            class="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 w-full">
+                            class="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 w-full cursor-pointer">
                             Delete Group
                         </button>
                     </div>
@@ -298,9 +316,6 @@
         </div>
     </div>
 </div>
-
-
-
 
 <script>
     function copyAccessKey(key) {

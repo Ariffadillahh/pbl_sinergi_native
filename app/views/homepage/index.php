@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="<?php echo BASEURL; ?>/src/css/output.css" rel="stylesheet">
-    <title>Home Page | Sinergi</title>
-</head>
+    <title>Homepage | Sinergi</title> </head>
 
 <body>
     <main class="w-full h-screen overflow-y-auto border-gray-200 hide-scrollbar relative">
@@ -32,21 +31,20 @@
                                         placeholder:text-gray-700
                                         focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                                         transition-all duration-200 outline-none"
-                                placeholder="Search somethings..."
-                                autocomplete="off"
+                                placeholder="Search for something..." autocomplete="off"
                                 minlength="3"
                                 required />
 
                             <button type="submit"
                                 class="text-white absolute right-1.5 top-1/2 -translate-y-1/2 
-                                    bg-gradient-to-r from-blue-500 to-blue-600 
-                                    hover:from-blue-600 hover:to-blue-700
-                                    focus:ring-4 focus:outline-none focus:ring-blue-300 
-                                    rounded-full p-2.5 w-10 h-10 
-                                    flex items-center justify-center
-                                    shadow-sm hover:shadow-md
-                                    transition-all duration-200
-                                    active:scale-95">
+                                        bg-gradient-to-r from-blue-500 to-blue-600 
+                                        hover:from-blue-600 hover:to-blue-700
+                                        focus:ring-4 focus:outline-none focus:ring-blue-300 
+                                        rounded-full p-2.5 w-10 h-10 
+                                        flex items-center justify-center
+                                        shadow-sm hover:shadow-md
+                                        transition-all duration-200
+                                        active:scale-95 cursor-pointer">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 20 20">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
@@ -64,10 +62,10 @@
 
                         <div role="tooltip"
                             class="absolute top-full mt-2 left-0 -translate-x-1/2 
-                                    whitespace-nowrap bg-gray-800 text-white text-sm font-medium 
-                                    px-3 py-1.5 rounded-lg shadow-sm 
-                                    opacity-0 invisible group-hover:opacity-100 group-hover:visible 
-                                    transition-opacity duration-300">
+                                        whitespace-nowrap bg-gray-800 text-white text-sm font-medium 
+                                        px-3 py-1.5 rounded-lg shadow-sm 
+                                        opacity-0 invisible group-hover:opacity-100 group-hover:visible 
+                                        transition-opacity duration-300">
                             Quotes of the Day
                         </div>
                     </div>

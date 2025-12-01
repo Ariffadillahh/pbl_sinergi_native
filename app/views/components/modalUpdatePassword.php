@@ -1,10 +1,10 @@
 <div id="update-password-modal"
-    class="hidden inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50 fixed top-0">
+    class="hidden inset-0 z-[99999] justify-center items-center w-full h-full bg-black/50 fixed top-0">
     <div class="relative p-4 w-full max-w-md max-h-full">
         <div class="relative bg-white rounded-lg shadow-sm">
             <div class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t">
                 <h3 class="text-xl font-semibold text-gray-900">
-                    Ubah Password
+                    Change Password
                 </h3>
                 <button type="button" id="update-password-close"
                     class="text-gray-400 rounded-lg text-sm w-8 h-8 flex justify-center items-center cursor-pointer">
@@ -34,7 +34,11 @@
 
                             <label for="current-password"
                                 class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+<<<<<<< HEAD
                                 Password Lama
+=======
+                                Current Password
+>>>>>>> wowok-dev
                             </label>
 
                             <button type="button" id="toggleCurrent" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600 cursor-pointer focus:outline-none">
@@ -57,7 +61,11 @@
 
                             <label for="new-password"
                                 class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+<<<<<<< HEAD
                                 Password Baru
+=======
+                                New Password
+>>>>>>> wowok-dev
                             </label>
 
                             <button type="button" id="toggleNewPass" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600 cursor-pointer focus:outline-none">
@@ -75,7 +83,11 @@
                             <div class="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
                                 <div id="new-strength-bar" class="h-full w-0 transition-all duration-300 ease-out bg-red-500"></div>
                             </div>
+<<<<<<< HEAD
                             <p id="new-strength-text" class="text-xs text-gray-500 mt-1 font-medium text-right">Minimal 6 karakter</p>
+=======
+                            <p id="new-strength-text" class="text-xs text-gray-500 mt-1 font-medium text-right">Minimum 6 characters</p>
+>>>>>>> wowok-dev
                         </div>
                     </div>
 
@@ -87,7 +99,11 @@
 
                             <label for="confirm-password"
                                 class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+<<<<<<< HEAD
                                 Konfirmasi Password
+=======
+                                Confirm Password
+>>>>>>> wowok-dev
                             </label>
 
                             <button type="button" id="toggleConfirm" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600 cursor-pointer focus:outline-none">
@@ -105,7 +121,7 @@
                     </div>
 
                     <button type="submit" id="update-password-submit"
-                        class="w-full px-6 py-3.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors">
+                        class="w-full px-6 py-3.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors cursor-pointer">
                         Update Password
                     </button>
                 </form>
@@ -192,7 +208,11 @@
 
                 if (len === 0) {
                     strengthBar.style.width = '0%';
+<<<<<<< HEAD
                     strengthText.innerText = 'Minimal 6 karakter';
+=======
+                    strengthText.innerText = 'Minimum 6 characters'; // Translated
+>>>>>>> wowok-dev
                     strengthText.className = 'text-xs text-gray-500 mt-1 font-medium text-right';
                     if (matchText) matchText.classList.add('hidden');
                     return;
@@ -201,7 +221,11 @@
                 if (len < 6) {
                     strengthBar.style.width = '20%';
                     strengthBar.classList.add('bg-red-500');
+<<<<<<< HEAD
                     strengthText.innerText = `Terlalu pendek (kurang ${6 - len})`;
+=======
+                    strengthText.innerText = `Too short (needs ${6 - len} more)`; // Translated
+>>>>>>> wowok-dev
                     strengthText.className = 'text-xs text-red-500 mt-1 font-medium text-right';
                     checkMatch();
                     return;
@@ -211,6 +235,7 @@
                 let missing = [];
 
                 if (val.match(/[a-z]/)) score++;
+<<<<<<< HEAD
                 else missing.push("huruf kecil");
                 if (val.match(/[A-Z]/)) score++;
                 else missing.push("huruf besar");
@@ -218,27 +243,52 @@
                 else missing.push("angka");
                 if (val.match(/[^a-zA-Z0-9]/)) score++;
                 else missing.push("simbol");
+=======
+                else missing.push("lowercase letter"); // Translated
+                if (val.match(/[A-Z]/)) score++;
+                else missing.push("uppercase letter"); // Translated
+                if (val.match(/[0-9]/)) score++;
+                else missing.push("number"); // Translated
+                if (val.match(/[^a-zA-Z0-9]/)) score++;
+                else missing.push("symbol"); // Translated
+>>>>>>> wowok-dev
                 if (len > 8) score++;
 
                 let saran = missing.length > 0 ? missing[0] : '';
                 if (missing.length > 1 && score > 2) {
+<<<<<<< HEAD
                     saran = missing.slice(0, 2).join(' atau ');
+=======
+                    saran = missing.slice(0, 2).join(' or '); // Translated
+>>>>>>> wowok-dev
                 }
 
                 if (score <= 2) {
                     strengthBar.style.width = '40%';
                     strengthBar.classList.add('bg-red-500');
+<<<<<<< HEAD
                     strengthText.innerText = `Lemah: Tambah ${saran || 'kombinasi'}`;
+=======
+                    strengthText.innerText = `Weak: Add ${saran || 'combination'}`; // Translated
+>>>>>>> wowok-dev
                     strengthText.className = 'text-xs text-red-500 mt-1 font-medium text-right';
                 } else if (score <= 4) {
                     strengthBar.style.width = '70%';
                     strengthBar.classList.add('bg-yellow-500');
+<<<<<<< HEAD
                     strengthText.innerText = `Sedang: Tambah ${saran}`;
+=======
+                    strengthText.innerText = `Medium: Add ${saran}`; // Translated
+>>>>>>> wowok-dev
                     strengthText.className = 'text-xs text-yellow-600 mt-1 font-medium text-right';
                 } else {
                     strengthBar.style.width = '100%';
                     strengthBar.classList.add('bg-green-500');
+<<<<<<< HEAD
                     strengthText.innerText = 'Sangat Kuat! 🔒';
+=======
+                    strengthText.innerText = 'Very Strong! 🔒'; // Translated
+>>>>>>> wowok-dev
                     strengthText.className = 'text-xs text-green-600 mt-1 font-bold text-right';
                 }
 
@@ -262,12 +312,20 @@
             matchText.classList.remove('hidden');
 
             if (valNew === valConfirm) {
+<<<<<<< HEAD
                 matchText.innerText = "Password Cocok ✅";
+=======
+                matchText.innerText = "Passwords Match ✅"; // Translated
+>>>>>>> wowok-dev
                 matchText.className = "text-xs mt-1.5 font-medium text-right text-green-600";
                 confirmPassInput.classList.remove('border-gray-300', 'border-red-500');
                 confirmPassInput.classList.add('border-green-500');
             } else {
+<<<<<<< HEAD
                 matchText.innerText = "Password Belum Sama ❌";
+=======
+                matchText.innerText = "Passwords Don't Match ❌"; // Translated
+>>>>>>> wowok-dev
                 matchText.className = "text-xs mt-1.5 font-medium text-right text-red-500";
                 confirmPassInput.classList.remove('border-gray-300', 'border-green-500');
                 confirmPassInput.classList.add('border-red-500');
@@ -308,16 +366,22 @@
             errorBox.classList.add("hidden");
             successBox.classList.add("hidden");
             submitBtn.disabled = true;
-            submitBtn.textContent = "Updating...";
+            submitBtn.textContent = "Updating..."; // Translated
+            submitBtn.classList.add("cursor-not-allowed"); // Added for consistency
 
             const newPass = document.getElementById("new-password").value;
             const confirmPass = document.getElementById("confirm-password").value;
 
             if (newPass !== confirmPass) {
-                errorBox.textContent = "Password baru dan konfirmasi tidak cocok!";
+                errorBox.textContent = "New password and confirmation do not match!"; // Translated
                 errorBox.classList.remove("hidden");
                 submitBtn.disabled = false;
+<<<<<<< HEAD
                 submitBtn.textContent = "Update Password";
+=======
+                submitBtn.textContent = "Update Password"; // Translated
+                submitBtn.classList.remove("cursor-not-allowed"); // Added for consistency
+>>>>>>> wowok-dev
                 return;
             }
 
@@ -330,7 +394,7 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    successBox.textContent = result.message || "Password berhasil diupdate!";
+                    successBox.textContent = result.message || "Password updated successfully!"; // Translated
                     successBox.classList.remove("hidden");
 
                     setTimeout(() => {
@@ -338,16 +402,17 @@
                     }, 2000);
 
                 } else {
-                    errorBox.textContent = result.message || "Terjadi kesalahan.";
+                    errorBox.textContent = result.message || "An error occurred."; // Translated
                     errorBox.classList.remove("hidden");
                 }
             } catch (error) {
                 console.error("Error:", error);
-                errorBox.textContent = "Tidak dapat terhubung ke server.";
+                errorBox.textContent = "Could not connect to the server."; // Translated
                 errorBox.classList.remove("hidden");
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = "Update Password";
+                submitBtn.textContent = "Update Password"; // Translated
+                submitBtn.classList.remove("cursor-not-allowed"); // Added for consistency
             }
         });
     });

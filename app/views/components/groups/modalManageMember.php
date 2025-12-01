@@ -8,7 +8,7 @@
             <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50 rounded-t">
                 <h3 class="text-lg font-semibold text-gray-800">Manage Members</h3>
                 <button id="btn-close-manage-members"
-                    class="text-gray-500 hover:text-black transition text-xl">
+                    class="text-gray-500 hover:text-black transition text-xl cursor-pointer">
                     ✕
                 </button>
             </div>
@@ -16,11 +16,11 @@
             <!-- TAB BUTTONS -->
             <div class="flex border-b border-gray-200">
                 <button id="tab-add"
-                    class="flex-1 py-3 text-center font-medium text-sm border-b-2 text-gray-500">
+                    class="flex-1 py-3 text-center font-medium text-sm border-b-2 text-gray-500 cursor-pointer">
                     Add Member
                 </button>
                 <button id="tab-kick"
-                    class="flex-1 py-3 text-center font-medium text-sm border-b-2 text-gray-500">
+                    class="flex-1 py-3 text-center font-medium text-sm border-b-2 text-gray-500 cursor-pointer">
                     Kick Member
                 </button>
             </div>
@@ -59,7 +59,7 @@
 
                                 <button
                                     onclick="kickMember('<?= $groupChatId['ID'] ?>','<?= $member['USER_ID'] ?>')"
-                                    class="px-4 py-2 text-sm rounded-lg border bg-red-600 text-white hover:bg-red-800">
+                                    class="px-4 py-2 text-sm rounded-lg border bg-red-600 text-white hover:bg-red-800 cursor-pointer">
                                     Kick
                                 </button>
                             </div>
@@ -105,20 +105,20 @@
                 </svg>
             </div>
 
-            <h3 class="text-xl font-bold text-slate-800 mb-2">Tambahkan Anggota?</h3>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Add this user?</h3>
             <p class="text-slate-500 text-sm leading-relaxed">
-                Apakah Anda yakin ingin menambahkan <span id="confirm-user-name" class="font-semibold text-slate-700">User Name</span> ke dalam tim? Tindakan ini akan memberikan akses segera.
+                Are you sure want to add <span id="confirm-user-name" class="font-semibold text-slate-700">User Name</span> to this group?
             </p>
         </div>
 
         <div class="flex justify-center mb-5 gap-4">
             <button id="confirm-add"
-                class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 text-white font-medium rounded-lg transition-colors duration-200">
-                Ya, Tambahkan
+                class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 text-white font-medium rounded-lg transition-colors duration-200 cursor-pointer">
+                Add
             </button>
             <button id="cancel-add"
-                class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-lg transition-colors duration-200">
-                Batal
+                class="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-lg transition-colors duration-200 cursor-pointer">
+                Cancel
             </button>
         </div>
     </div>
@@ -135,21 +135,21 @@
                 </svg>
             </div>
 
-            <h3 class="text-xl font-bold text-slate-800 mb-2">Keluarkan Anggota?</h3>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Kick this user?</h3>
             <p class="text-slate-500 text-sm leading-relaxed">
-                Apakah Anda yakin ingin mengeluarkan <span class="font-semibold text-slate-700">anggota ini</span>? <br>
+                Are you sure to kick <span class="font-semibold text-slate-700">this user?</span>? <br>
             </p>
         </div>
 
         <div class="flex justify-center mb-5 gap-4">
             <button id="confirm-kick"
-                class="w-auto inline-flex justify-center items-center px-5 py-2.5 bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-200 text-white font-medium rounded-lg transition-colors duration-200">
-                Ya, Keluarkan
+                class="w-auto inline-flex justify-center items-center px-5 py-2.5 bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-200 text-white font-medium rounded-lg transition-colors duration-200 cursor-pointer">
+                Kick
             </button>
 
             <button id="cancel-kick"
-                class="w-auto inline-flex justify-center items-center px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-lg transition-colors duration-200">
-                Batal
+                class="w-auto inline-flex justify-center items-center px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-lg transition-colors duration-200 cursor-pointer">
+                Cancel
             </button>
         </div>
     </div>
@@ -277,7 +277,7 @@
                         <p class="text-xs text-gray-500">@${u.USERNAME}</p>
                     </div>
                 </div>
-                <button onclick="openAddConfirm('${u.ID}', '${u.FULL_NAME}')" class="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Add</button>
+                <button onclick="openAddConfirm('${u.ID}', '${u.FULL_NAME}')" class="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer">Add</button>
             </div>
         `).join("");
     }

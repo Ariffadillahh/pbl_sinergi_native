@@ -17,7 +17,7 @@
             <textarea id="content"
                 name="content"
                 rows="1"
-                placeholder="Apa yang sedang Anda pikirkan?"
+                placeholder="What are you thinking about?"
                 class="w-full bg-gray-100 rounded-lg px-4 py-3 pr-14 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 resize-none min-h-[3.5rem] max-h-48 overflow-y-auto"></textarea>
 
             <span id="contentCounter"
@@ -51,8 +51,8 @@
 
         <button type="submit"
             id="submit-post-btn"
-            class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center flex items-center gap-2 transition-all duration-300">
-            Posting
+            class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-sm px-5 py-2.5 text-center flex items-center gap-2 transition-all duration-300 cursor-pointer">
+            Post
             <img src="<?= BASEURL; ?>/src/asset/image/send.png" class="size-4 mt-1" alt="icon">
         </button>
     </div>
@@ -72,7 +72,7 @@ if (isset($_SESSION['img_mood']) && !empty($_SESSION['img_mood'])) {
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
-        <span class="font-semibold">Maksimal 5 gambar.</span>
+        <span class="font-semibold">You just have to add 5 Images.</span>
     </div>
 </div>
 
@@ -120,7 +120,7 @@ if (isset($_SESSION['img_mood']) && !empty($_SESSION['img_mood'])) {
         }
 
         function showEmptyPostToast() {
-            errorDiv.innerHTML = "Konten atau gambar tidak boleh kosong!";
+            errorDiv.innerHTML = "Content or images cannot be empty!";
             errorDiv.classList.remove("hidden");
             setTimeout(() => errorDiv.classList.add("hidden"), 2500);
         }
@@ -274,7 +274,7 @@ if (isset($_SESSION['img_mood']) && !empty($_SESSION['img_mood'])) {
             }
 
             submitButton.disabled = true;
-            submitButton.innerHTML = 'Memposting...';
+            submitButton.innerHTML = 'Posting...';
 
             const formData = new FormData();
             formData.append("content", textarea.value.trim());
@@ -342,7 +342,7 @@ if (isset($_SESSION['img_mood']) && !empty($_SESSION['img_mood'])) {
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
-                        Terjadi kesalahan jaringan.
+                        Error DB
                     </div>
                 `;
                 errorDiv.classList.remove("hidden");

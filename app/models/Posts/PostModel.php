@@ -75,6 +75,7 @@ class PostModel extends BaseModel
                 U.ID AS USER_ID,
                 U.FULL_NAME,
                 U.PATH_PHOTO,
+                U.ROLE,
                 (
                     SELECT COUNT(*) FROM LIKE_POST L WHERE L.POST_ID = P.ID
                 ) AS TOTAL_LIKES,
@@ -274,25 +275,30 @@ class PostModel extends BaseModel
         $conn = self::getConnection();
 
         $sql = "
-                SELECT 
-                    P.ID AS POST_ID,
-                    P.CONTENT,
-                    P.USER_ID,
-                    TO_CHAR(P.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
-                    (
-                        SELECT COUNT(*) FROM LIKE_POST L WHERE L.POST_ID = P.ID
-                    ) AS TOTAL_LIKES,
-                    (
-                        SELECT COUNT(*) FROM LIKE_POST L 
-                        WHERE L.POST_ID = P.ID AND L.USER_ID = :current_user_id
-                    ) AS IS_LIKED,
-                    (
-                        SELECT COUNT(*) FROM COMMENTAR C WHERE C.POST_ID = P.ID
-                    ) AS COMMENT_COUNT
-                FROM POSTS P
-                WHERE P.USER_ID = :user_id
-                ORDER BY P.CREATED_AT DESC
-            ";
+            SELECT 
+                P.ID AS POST_ID,
+                P.CONTENT,
+                P.USER_ID,
+                TO_CHAR(P.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
+                U.USERNAME,
+                U.FULL_NAME,
+                U.PATH_PHOTO,
+                U.ROLE,
+                (
+                    SELECT COUNT(*) FROM LIKE_POST L WHERE L.POST_ID = P.ID
+                ) AS TOTAL_LIKES,
+                (
+                    SELECT COUNT(*) FROM LIKE_POST L 
+                    WHERE L.POST_ID = P.ID AND L.USER_ID = :current_user_id
+                ) AS IS_LIKED,
+                (
+                    SELECT COUNT(*) FROM COMMENTAR C WHERE C.POST_ID = P.ID
+                ) AS COMMENT_COUNT
+            FROM POSTS P
+            JOIN USERS U ON P.USER_ID = U.ID  -- ← TAMBAHKAN JOIN INI
+            WHERE P.USER_ID = :user_id
+            ORDER BY P.CREATED_AT DESC
+        ";
 
         $stmt = oci_parse($conn, $sql);
         $currentUserId = $_SESSION['user_id'] ?? '';
@@ -303,12 +309,12 @@ class PostModel extends BaseModel
         $posts = [];
         while ($row = oci_fetch_assoc($stmt)) {
             $replySql = "
-                    SELECT COUNT(*) AS REPLY_COUNT 
-                    FROM REPLY_COMMENTAR R 
-                    WHERE R.COMMENTAR_ID IN (
-                        SELECT ID FROM COMMENTAR WHERE POST_ID = :post_id
-                    )
-                ";
+                SELECT COUNT(*) AS REPLY_COUNT 
+                FROM REPLY_COMMENTAR R 
+                WHERE R.COMMENTAR_ID IN (
+                    SELECT ID FROM COMMENTAR WHERE POST_ID = :post_id
+                )
+            ";
             $replyStmt = oci_parse($conn, $replySql);
             oci_bind_by_name($replyStmt, ":post_id", $row['POST_ID']);
             oci_execute($replyStmt);
@@ -323,8 +329,7 @@ class PostModel extends BaseModel
         }
 
         return $posts;
-    }
-
+    }                          
 
     public function getPostById($postId)
     {
@@ -339,6 +344,7 @@ class PostModel extends BaseModel
                     U.USERNAME,
                     U.FULL_NAME,
                     U.PATH_PHOTO,
+                    U.ROLE,
                     (
                         SELECT COUNT(*) FROM LIKE_POST L WHERE L.POST_ID = P.ID
                     ) AS TOTAL_LIKES,
@@ -389,10 +395,12 @@ class PostModel extends BaseModel
                 SELECT 
                     P.ID AS POST_ID,
                     P.CONTENT,
+                    TO_CHAR(P.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
                     P.USER_ID,
                     U.USERNAME,
                     U.FULL_NAME,
                     U.PATH_PHOTO,
+                    U.ROLE,
                     (
                         SELECT COUNT(*) FROM LIKE_POST L WHERE L.POST_ID = P.ID
                     ) AS TOTAL_LIKES,

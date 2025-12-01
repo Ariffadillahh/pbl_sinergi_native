@@ -23,7 +23,7 @@
                 <form id="registerForm" action="<?php echo BASEURL ?>/sign-up/action" method="POST" class="flex flex-col gap-10">
                     <div class="flex flex-col gap-8">
                         <header class="flex flex-col gap-3 text-center">
-                            <h1 class="font-semibold text-2xl md:text-3xl text-gray-900">Hey🙌🏻, Welcome Aboard!</h1>
+                            <h1 class="font-semibold text-2xl md:text-3xl text-gray-900">Hey, Welcome Aboard!</h1>
                             <p class="font-medium text-gray-500">Create your account to continue!</p>
                         </header>
 
@@ -32,7 +32,7 @@
                                 <img id="photo-container" src="src/asset/image/default.png" alt="User avatar" class="object-cover w-full h-full" />
                             </div>
                             <input type="file" id="file-input" name="photo" class="hidden" accept="image/*" />
-                            <button type="button" id="add-photo" class="flex items-center gap-2 px-6 py-3.5 rounded-full bg-gray-900 text-white font-bold hover:bg-gray-700 transition-colors">
+                            <button type="button" id="add-photo" class="flex items-center gap-2 px-6 py-3.5 rounded-full bg-gray-900 text-white font-bold hover:bg-gray-700 transition-colors cursor-pointer">
                                 <img src="src/asset/icons/edit-2-white-fill.svg" alt="Edit icon" class="size-6" />
                                 <span>Change Avatar</span>
                             </button>
@@ -52,7 +52,7 @@
                                 <div class="relative w-full  mb-6 md:mb-0">
                                     <div class="group relative">
                                         <input type="text" id="username" name="username" class="w-full h-[72px] pl-[80px] pr-6 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all" placeholder=" " required />
-                                        <label for="username" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">username</label>
+                                        <label for="username" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">Username</label>
                                         <img src="<?php echo BASEURL; ?>/src/asset/image/@.png" alt="User icon" class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
                                         <div class="absolute left-[64px] top-1/2 -translate-y-1/2 w-[1.5px] h-6 bg-gray-300"></div>
                                     </div>
@@ -109,7 +109,7 @@
                                         <div id="strength-bar" class="h-full w-0 transition-all duration-300 ease-out bg-red-500"></div>
                                     </div>
                                     <p id="strength-text" class="text-xs text-gray-500 mt-1.5 font-medium text-right">
-                                        Minimal 6 karakter
+                                        Minimum 6 characters
                                     </p>
                                 </div>
                             </div>
@@ -117,8 +117,8 @@
                     </div>
 
                     <section class="flex flex-col gap-6">
-                        <button type="submit" id="registerBtn" class="w-full bg-blue-800 text-white font-bold py-4 rounded-full hover:bg-blue-700 transition-all">Create Account</button>
-                        <p class="font-semibold text-center">Already Have Account? <a href="<?php echo BASEURL; ?>/sign-in" class="text-blue-500 hover:underline">Sign in Now</a></p>
+                        <button type="submit" id="registerBtn" class="w-full bg-blue-800 text-white font-bold py-4 rounded-full hover:bg-blue-700 transition-all cursor-pointer">Create Account</button>
+                        <p class="font-semibold text-center">Already Have Account? <a href="<?php echo BASEURL; ?>/sign-in" class="text-blue-500 hover:underline cursor-pointer">Sign in Now</a></p>
                     </section>
                 </form>
             </div>
@@ -148,7 +148,7 @@
 
                 if (len === 0) {
                     strengthBar.style.width = '0%';
-                    strengthText.innerText = 'Minimal 6 karakter dengan kombinasi';
+                    strengthText.innerText = 'Minimum 6 characters with combination';
                     strengthText.className = 'text-xs text-gray-500 mt-1.5 font-medium text-right';
                     return;
                 }
@@ -156,7 +156,7 @@
                 if (len < 6) {
                     strengthBar.style.width = '20%';
                     strengthBar.classList.add('bg-red-500');
-                    strengthText.innerText = `Terlalu pendek (kurang ${6 - len} lagi)`;
+                    strengthText.innerText = `Too short (needs ${6 - len} more)`;
                     strengthText.className = 'text-xs text-red-500 mt-1.5 font-medium text-right';
                     return;
                 }
@@ -165,40 +165,40 @@
                 let missing = [];
 
                 if (val.match(/[a-z]/)) score++;
-                else missing.push("huruf kecil");
+                else missing.push("lowercase letter");
                 if (val.match(/[A-Z]/)) score++;
-                else missing.push("huruf besar");
+                else missing.push("uppercase letter");
                 if (val.match(/[0-9]/)) score++;
-                else missing.push("angka");
+                else missing.push("number");
                 if (val.match(/[^a-zA-Z0-9]/)) score++;
-                else missing.push("simbol");
+                else missing.push("symbol");
                 if (len > 8) score++;
 
                 let saran = missing.length > 0 ? missing[0] : '';
 
                 if (missing.length > 1 && score > 2) {
-                    saran = missing.slice(0, 2).join(' atau ');
+                    saran = missing.slice(0, 2).join(' or ');
                 }
 
                 if (score <= 2) {
                     strengthBar.style.width = '30%';
                     strengthBar.classList.add('bg-red-500');
 
-                    strengthText.innerText = `Lemah: Coba tambah ${saran || 'kombinasi lain'}`;
+                    strengthText.innerText = `Weak: Try adding ${saran || 'another combination'}`;
                     strengthText.className = 'text-xs text-red-500 mt-1.5 font-medium text-right';
 
                 } else if (score <= 4) {
                     strengthBar.style.width = '70%';
                     strengthBar.classList.add('bg-yellow-500');
 
-                    strengthText.innerText = `Sedang: Tambahkan ${saran} agar kuat`;
+                    strengthText.innerText = `Medium: Add ${saran} to make it stronger`;
                     strengthText.className = 'text-xs text-yellow-600 mt-1.5 font-medium text-right';
 
                 } else {
                     strengthBar.style.width = '100%';
                     strengthBar.classList.add('bg-green-500');
 
-                    strengthText.innerText = 'Sangat Kuat & Aman! 🔒';
+                    strengthText.innerText = 'Very Strong & Secure!';
                     strengthText.className = 'text-xs text-green-600 mt-1.5 font-bold text-right';
                 }
             });
@@ -257,7 +257,7 @@
                             startCooldown();
                         }
                     } else {
-                        errorNotif.textContent = result.message || "Terjadi kesalahan.";
+                        errorNotif.textContent = result.message || "An error occurred.";
                         errorNotif.classList.remove('hidden');
 
                         setTimeout(() => {
@@ -266,7 +266,7 @@
                     }
                 } catch (error) {
                     console.error("Fetch Error:", error);
-                    errorNotif.textContent = "Tidak dapat terhubung ke server. Periksa koneksi Anda.";
+                    errorNotif.textContent = "Could not connect to the server. Check your connection.";
                     errorNotif.classList.remove("hidden");
 
                     setTimeout(() => {

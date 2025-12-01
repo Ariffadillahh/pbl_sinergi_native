@@ -56,10 +56,10 @@
                         <?php foreach ($data['users'] as $user) : ?>
                             <tr class="bg-white border-b border-gray-200">
                                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                    <?= htmlspecialchars($user['FULL_NAME']) ?>
+                                    <?= htmlspecialchars($user['FULL_NAME'] ?? '') ?>
                                 </th>
                                 <td class="px-6 py-4">
-                                    <?= htmlspecialchars($user['PERSONAL_NUMBER'])
+                                    <?= htmlspecialchars($user['PERSONAL_NUMBER'] ?? '')
                                     ?>
                                 </td>
                                 <td class="px-6 py-4">
@@ -68,7 +68,7 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <?php
-                                    $role = htmlspecialchars($user['ROLE']);
+                                    $role = htmlspecialchars($user['ROLE'] ?? '');
                                     $badgeClass = '';
 
                                     switch ($role) {
@@ -101,10 +101,10 @@
                                 <td class="px-6 py-4">
                                     <button type="button"
                                         class="btn-edit-user"
-                                        data-id="<?= htmlspecialchars($user['ID']) ?>"
-                                        data-name="<?= htmlspecialchars($user['FULL_NAME']) ?>"
-                                        data-username="<?= htmlspecialchars($user['USERNAME']) ?>"
-                                        data-role="<?= htmlspecialchars($user['ROLE']) ?>">
+                                        data-id="<?= htmlspecialchars($user['ID']) ?? '' ?>"
+                                        data-name="<?= htmlspecialchars($user['FULL_NAME'] ?? '') ?>"
+                                        data-username="<?= htmlspecialchars($user['USERNAME'] ?? '') ?>"
+                                        data-role="<?= htmlspecialchars($user['ROLE'] ?? '') ?>">
 
                                         <svg class="w-5 h-5 text-blue-500 hover:text-blue-700" xmlns="http://www.w3.org/2000/svg"
                                             fill="none" viewBox="0 0 24 24">
@@ -202,8 +202,8 @@
         </div>
     </div>
 
-    <?php require_once 'app/views/components/Admin/modalAddUser.php'; ?>
-    <?php require_once 'app/views/components/Admin/modalEditUser.php'; ?>
+    <?php require_once 'app/views/components/admin/modalAddUser.php'; ?>
+    <?php require_once 'app/views/components/admin/modalEditUser.php'; ?>
 
 </body>
 

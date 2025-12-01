@@ -39,7 +39,7 @@
                             <button
                                 type="button"
                                 id="btn-edit-forum-change-photo"
-                                class="flex items-center gap-2 px-6 py-3.5 rounded-full bg-gray-900 text-white font-bold hover:bg-gray-700 transition-colors">
+                                class="flex items-center gap-2 px-6 py-3.5 rounded-full bg-gray-900 text-white font-bold hover:bg-gray-700 transition-colors cursor-pointer">
                                 <img src="<?php echo BASEURL; ?>/src/asset/icons/edit-2-white-fill.svg" alt="Edit icon" class="size-6" />
                                 <span>Change Photo</span>
                             </button>
@@ -108,32 +108,32 @@
                             <div class="grid grid-cols-3 gap-4 mb-5">
                                 <div class="relative">
                                     <select id="edit-profile-prodi" name="prodi"
-                                        class="block px-2.5 pb-2.5 pt-5 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:ring-0 focus:border-blue-600 peer"
+                                        class="block px-2.5 pb-2.5 pt-5 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:ring-0 focus:border-blue-600 peer cursor-pointer"
                                         required>
-                                        <option value="" disabled selected>--- Program Studi ---</option>
-                                        <option value="TI" <?= (($_SESSION['prodi'] ?? '') === 'TI') ? 'selected' : '' ?>>TI</option>
-                                        <option value="TMD" <?= (($_SESSION['prodi'] ?? '') === 'TMD') ? 'selected' : '' ?>>TMD</option>
-                                        <option value="TMJ" <?= (($_SESSION['prodi'] ?? '') === 'TMJ') ? 'selected' : '' ?>>TMJ</option>
+                                        <option class="cursor-pointer" value="" disabled selected>--- Study Program ---</option>
+                                        <option class="cursor-pointer" value="TI" <?= (($_SESSION['prodi'] ?? '') === 'TI') ? 'selected' : '' ?>>TI</option>
+                                        <option class="cursor-pointer" value="TMD" <?= (($_SESSION['prodi'] ?? '') === 'TMD') ? 'selected' : '' ?>>TMD</option>
+                                        <option class="cursor-pointer" value="TMJ" <?= (($_SESSION['prodi'] ?? '') === 'TMJ') ? 'selected' : '' ?>>TMJ</option>
                                     </select>
 
                                     <label for="edit-profile-prodi"
                                         class="absolute text-xs md:text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600">
-                                        Program Studi
+                                        Study Program
                                     </label>
                                 </div>
 
 
                                 <div class="relative">
                                     <select id="edit-profile-jenjang" name="jenjang_studi"
-                                        class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                        class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer cursor-pointer"
                                         required>
-                                        <option value="" disabled selected>-- Pilih --</option>
-                                        <option value="D3" <?= (($_SESSION['jenjang_studi'] ?? '') === 'D3') ? 'selected' : '' ?>>D3</option>
-                                        <option value="D4" <?= (($_SESSION['jenjang_studi'] ?? '') === 'D4') ? 'selected' : '' ?>>D4</option>
+                                        <option class="cursor-pointer" value="" disabled selected>-- Choose --</option>
+                                        <option class="cursor-pointer" value="D3" <?= (($_SESSION['jenjang_studi'] ?? '') === 'D3') ? 'selected' : '' ?>>D3</option>
+                                        <option class="cursor-pointer" value="D4" <?= (($_SESSION['jenjang_studi'] ?? '') === 'D4') ? 'selected' : '' ?>>D4</option>
                                     </select>
                                     <label for="edit-profile-jenjang"
                                         class="absolute text-xs md:text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600">
-                                        Jenjang Studi
+                                        Study Level
                                     </label>
                                 </div>
 
@@ -144,13 +144,13 @@
                                         placeholder=" " required />
                                     <label for="edit-profile-tahun"
                                         class="absolute text-xs md:text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:text-blue-600">
-                                        Tahun Masuk
+                                        Batch/Entry Year
                                     </label>
                                 </div>
                             </div>
                         <?php endif ?>
                         <button type="submit" id="edit-profile-submit"
-                            class="w-full px-6 py-3.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors">
+                            class="w-full px-6 py-3.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors cursor-pointer">
                             Save Changes
                         </button>
                     </div>
@@ -219,7 +219,7 @@
 
                 if (result.success) {
                     succsesBox.classList.remove('hidden')
-                    succsesBox.innerHTML = "Profil berhasil diperbarui."
+                    succsesBox.innerHTML = "Profile successfully updated."
                     setTimeout(() => {
                         window.location.reload();
                     }, 1500)

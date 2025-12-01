@@ -24,12 +24,12 @@
 
             <input type="hidden" name="otp" id="otp-full-value">
 
-            <button type="submit" id="verifyOtpBtn" class="w-full py-4 rounded-xl bg-blue-600 text-white font-bold text-lg hover:bg-blue-700 transition-colors">Verify email</button>
+            <button type="submit" id="verifyOtpBtn" class="w-full py-4 rounded-xl bg-blue-600 text-white font-bold text-lg hover:bg-blue-700 transition-colors cursor-pointer">Verify email</button>
         </form>
 
         <p class="text-sm text-gray-500 mt-8">
             Didn't get a code?
-            <button type="button" id="resend-otp-btn" class="font-semibold text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline" disabled>
+            <button type="button" id="resend-otp-btn" class="font-semibold text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline cursor-pointer" disabled>
                 Resend
             </button>
             <span id="resend-timer" class="text-gray-500 font-medium"></span>
@@ -89,7 +89,7 @@
             e.preventDefault();
 
             resendBtn.disabled = true;
-            resendBtn.textContent = "Sending...";
+            resendBtn.textContent = "Sending..."; // Translated
 
             try {
                 const response = await fetch('<?php echo BASEURL; ?>/account/confirm-student-status/resend', {
@@ -111,7 +111,7 @@
 
             } catch (error) {
                 console.error("Resend Error:", error);
-                alert("Gagal mengirim ulang kode. Periksa koneksi internet.");
+                alert("Failed to resend code. Check your internet connection."); // Translated
                 resendBtn.disabled = false;
             } finally {
                 if (!resendBtn.disabled) resendBtn.textContent = "Resend";
@@ -131,7 +131,7 @@
             hiddenOtpInput.value = otpValue;
 
             if (otpValue.length < 4) {
-                otpMessageDiv.textContent = "Harap isi semua kolom OTP.";
+                otpMessageDiv.textContent = "Please fill in all OTP fields."; // Translated
                 otpMessageDiv.classList.remove('hidden');
                 otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
                 return;
@@ -141,7 +141,7 @@
             const actionUrl = otpForm.getAttribute('action');
             const originalBtnText = verifyBtn.innerHTML;
 
-            verifyBtn.innerHTML = `<span class="ml-2">Verifying...</span>`;
+            verifyBtn.innerHTML = `<span class="ml-2">Verifying...</span>`; // Translated
             verifyBtn.disabled = true;
             otpMessageDiv.classList.add("hidden");
 
@@ -160,7 +160,8 @@
                     otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
                 }
             } catch (error) {
-                otpMessageDiv.textContent = 'Koneksi ke server gagal.';
+                console.error("OTP Verify Error:", error);
+                otpMessageDiv.textContent = 'Connection to the server failed.'; // Translated
                 otpMessageDiv.classList.remove('hidden');
                 otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
             } finally {

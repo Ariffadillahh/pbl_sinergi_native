@@ -62,14 +62,14 @@ $accsesPages = in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']);
                 </a>
 
                 <div class="absolute left-full ml-3 whitespace-nowrap rounded-xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 px-4 py-2.5 text-sm font-semibold text-white shadow-2xl border border-gray-700/50 border-l-[3px] border-l-blue-500 opacity-0 scale-90 -translate-x-2 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 invisible group-hover:visible pointer-events-none z-[9999] backdrop-blur-sm">
-                    <span class="relative z-10">Grups Chat</span>
+                    <span class="relative z-10">Chat Groups</span>
                     <div class="absolute inset-0 rounded-xl bg-blue-500/10 blur-sm"></div>
                     <div class="absolute right-full top-1/2 -translate-y-1/2 border-[6px] border-transparent border-r-gray-900"></div>
                 </div>
             </li>
 
             <li class="group relative flex items-center">
-                <button id="notif-btn" class="relative size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
+                <button id="notif-btn" class="relative size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600 cursor-pointer">
                     <svg class="w-7 h-7 sm:w-8 sm:h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -81,7 +81,7 @@ $accsesPages = in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']);
                 </button>
 
                 <div class="absolute left-full ml-3 whitespace-nowrap rounded-xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 px-4 py-2.5 text-sm font-semibold text-white shadow-2xl border border-gray-700/50 border-l-[3px] border-l-blue-500 opacity-0 scale-90 -translate-x-2 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 invisible group-hover:visible pointer-events-none z-[9999] backdrop-blur-sm">
-                    <span class="relative z-10">Notifikasi</span>
+                    <span class="relative z-10">Notification</span>
                     <div class="absolute inset-0 rounded-xl bg-blue-500/10 blur-sm"></div>
                     <div class="absolute right-full top-1/2 -translate-y-1/2 border-[6px] border-transparent border-r-gray-900"></div>
                 </div>

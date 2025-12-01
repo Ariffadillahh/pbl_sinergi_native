@@ -2,7 +2,7 @@
     <div class="relative bg-gradient-to-br from-blue-500 via-indigo-700 to-blue-900 rounded-2xl shadow-lg p-8 w-full max-w-md">
         <div class="absolute -top-16 -right-10">
             <button id="close-quote-btn"
-                class="absolute top-4 right-6 md:right-4 text-white focus:outline-none bg-gradient-to-br from-blue-500 via-indigo-700 to-blue-900 p-2 rounded-full shadow-lg">
+                class="absolute top-4 right-6 md:right-4 text-white focus:outline-none bg-gradient-to-br from-blue-500 via-indigo-700 to-blue-900 p-2 rounded-full shadow-lg cursor-pointer">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M6 18L18 6M6 6l12 12" />
@@ -36,7 +36,7 @@
                    hover:bg-gray-100 text-blue-700 
                    focus:z-10  
                    shadow-lg hover:shadow-xl transform hover:-translate-y-0.5
-                   transition-all duration-200 ease-in-out">
+                   transition-all duration-200 ease-in-out cursor-pointer  ">
                 <img src="<?php echo BASEURL; ?>/src/asset/icons/star.png" class="h-4 w-4" alt="icon">
                 Generate New Quote
             </button>

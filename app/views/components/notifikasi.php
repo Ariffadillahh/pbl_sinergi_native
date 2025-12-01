@@ -122,17 +122,17 @@
             const color = IS_READ == 0 || IS_READ === false ? baseColor : 'gray';
 
             const messageMap = {
-                LIKE_POST: `<strong>${DATA.sender_name || 'Someone'}</strong> menyukai postingan Anda.`,
-                REPLY_POST: `<strong>${DATA.sender_name || 'Someone'}</strong> mengomentari postingan Anda.`,
-                REPLY_COMMENT: `<strong>${DATA.sender_name || 'Someone'}</strong> membalas komentar Anda.`,
-                MENTION: `<strong>${DATA.sender_name || 'Someone'}</strong> menyebut Anda dalam sebuah postingan.`,
-                KICKED: `<strong>${DATA.sender_name || 'Someone'}</strong> mengeluarkan Anda dari forumnya.`,
-                DELETE: `<strong>ADMIN</strong> menghapus ${DATA?.content_type === 'FORUM' ? 'forum' : 'postingan'}.`,
-                INVITE_GROUP: `<strong>${DATA.sender_name || 'Someone'}</strong> mengundang Anda untuk bergabung ke grupnya.`,
-                INVITE_FORUM: `<strong>${DATA.sender_name || 'Someone'}</strong> mengundang Anda untuk bergabung ke forumnya.`,
-                ADMIN_INVITE_FORUM: `<strong>ADMIN</strong> menambahkan Anda ke dalam forum.`,
-                WARNING: `<strong>ADMIN</strong> memperingatkan Anda terkait ${DATA.content_type === 'FORUM' ? 'forum' : 'postingan'}.`,
-                DEFAULT: `Notifikasi baru`
+                LIKE_POST: `<strong>${DATA.sender_name || 'Someone'}</strong> like your post.`,
+                REPLY_POST: `<strong>${DATA.sender_name || 'Someone'}</strong> comment on your post.`,
+                REPLY_COMMENT: `<strong>${DATA.sender_name || 'Someone'}</strong> replied your comment.`,
+                MENTION: `<strong>${DATA.sender_name || 'Someone'}</strong> mentioned you on a post`,
+                KICKED: `<strong>${DATA.sender_name || 'Someone'}</strong> remove you from the group.`,
+                DELETE: `<strong>ADMIN</strong> deleted ${DATA?.content_type === 'FORUM' ? 'forum' : 'postingan'}.`,
+                INVITE_GROUP: `<strong>${DATA.sender_name || 'Someone'}</strong> inviting you to join their group.`,
+                INVITE_FORUM: `<strong>${DATA.sender_name || 'Someone'}</strong> inviting you to their forum.`,
+                ADMIN_INVITE_FORUM: `<strong>ADMIN</strong> adding you to a forum.`,
+                WARNING: `<strong>ADMIN</strong> warning you about ${DATA.content_type === 'FORUM' ? 'forum' : 'postingan'}.`,
+                DEFAULT: `New Notification.`
             };
 
             const iconMap = {

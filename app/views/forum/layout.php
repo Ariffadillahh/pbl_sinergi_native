@@ -11,7 +11,7 @@
 
     <?php require_once 'app/views/components/sidebars.php'; ?>
     <?php require_once 'app/views/components/modalInvite.php'; ?>
-    <?php require_once 'app/views/components/Forum/modalInviteForum.php'; ?>  
+    <?php require_once 'app/views/components/forum/modalInviteForum.php'; ?>  
 
     <div class="w-full flex flex-1 justify-center ">
         <?php require_once $contentViewForum; ?>

@@ -19,12 +19,12 @@ $isLaporanActiveGroup = ($current_route === 'dashboard/laporan/group');
 $isLaporanActivePostingan = ($current_route === 'dashboard/laporan/postingan');
 
 $pageTitle = "Dashboard Overview";
-if ($isAnggotaActive) $pageTitle = "Manajemen Anggota";
+if ($isAnggotaActive) $pageTitle = "User Management";
 if ($isRequestedActive) $pageTitle = "Requested Accounts";
-if ($isForumsActive) $pageTitle = "Manajemen Forums";
-if ($isLaporanActiveForum) $pageTitle = "Laporan Forums";
-if ($isLaporanActivePostingan) $pageTitle = "Laporan Postingan";
-
+if ($isForumsActive) $pageTitle = "Forum Management";
+if ($isLaporanActiveForum) $pageTitle = "Forum Reports";
+if ($isLaporanActivePostingan) $pageTitle = "Post Reports";
+if ($isLaporanActiveGroup) $pageTitle = "Group Reports";
 ?>
 
 <aside id="sidebar" class="fixed md:sticky top-0 left-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
@@ -34,7 +34,7 @@ if ($isLaporanActivePostingan) $pageTitle = "Laporan Postingan";
             <img src="<?php echo BASEURL; ?>/src/asset/icons/logo-icon.svg" class="w-8 h-8 shrink-0" alt="logo">
         </div>
         <div>
-            <h1 class="text-sm font-bold text-gray-800">FORUM SINERGI</h1>
+            <h1 class="text-sm font-bold text-gray-800">SINERGI</h1>
             <p class="text-xs text-gray-500">Admin Panel</p>
         </div>
     </div>
@@ -64,7 +64,7 @@ if ($isLaporanActivePostingan) $pageTitle = "Laporan Postingan";
             <li class="relative">
                 <button
                     type="button"
-                    class="flex w-full items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-200 group <?php echo getLinkClass($isMembersParentActive); ?>"
+                    class="flex w-full items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-200 group cursor-pointer <?php echo getLinkClass($isMembersParentActive); ?>"
                     onclick="toggleSubmenu(this)">
                     <div class="flex items-center gap-3">
                         <svg class="w-5 h-5 <?php echo $isMembersParentActive ? 'text-blue-600' : 'text-gray-500 group-hover:text-gray-800' ?> transition-colors duration-200"
@@ -109,7 +109,7 @@ if ($isLaporanActivePostingan) $pageTitle = "Laporan Postingan";
             <li class="relative">
                 <button
                     type="button"
-                    class="flex w-full items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-200 group <?php echo getLinkClass($isLaporanParentActive); ?>"
+                    class="flex w-full items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-200 group cursor-pointer <?php echo getLinkClass($isLaporanParentActive); ?>"
                     onclick="toggleSubmenu(this)">
                     <div class="flex items-center gap-3">
                         <svg class="w-5 h-5 <?php echo $isLaporanParentActive ? 'text-blue-600' : 'text-gray-500 group-hover:text-gray-800' ?> transition-colors duration-200"
