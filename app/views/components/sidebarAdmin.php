@@ -71,7 +71,7 @@ if ($isLaporanActiveGroup) $pageTitle = "Group Reports";
                             fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
-                        <span class="font-medium">Members</span>
+                        <span class="font-medium">Users</span>
                     </div>
                     <svg class="w-4 h-4 text-gray-400 transition-transform duration-200 <?php echo $isMembersParentActive ? 'rotate-90' : ''; ?>"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -82,7 +82,7 @@ if ($isLaporanActiveGroup) $pageTitle = "Group Reports";
                 <div class="submenu ml-8 mt-1 overflow-hidden transition-all duration-300 <?php echo $isMembersParentActive ? 'max-h-40' : 'max-h-0'; ?>">
                     <a href="<?php echo BASEURL; ?>/dashboard/anggota/allusers"
                         class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors duration-200 hover:bg-gray-100 <?php echo getLinkClass($isAnggotaActive); ?>">
-                        <span>All Members</span>
+                        <span>All Users</span>
                     </a>
 
                     <a href="<?php echo BASEURL; ?>/dashboard/anggota/requested-accounts"

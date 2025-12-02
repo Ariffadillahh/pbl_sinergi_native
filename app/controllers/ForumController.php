@@ -337,7 +337,7 @@ class forumController
         }
 
         if ($this->forumModel->updateForum($forumId, $updateData)) {
-            echo json_encode(['success' => true, 'message' => 'Perubahan berhasil disimpan!']);
+            echo json_encode(['success' => true, 'message' => 'Changes saved successfully!']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Gagal menyimpan ke database.']);
         }
@@ -467,7 +467,7 @@ class forumController
         }
 
         if ($this->forumModel->addMember($forumId, $_SESSION['user_id'])) {
-            echo json_encode(["success" => true, "message" => "Berhasil bergabung!"]);
+            echo json_encode(["success" => true, "message" => "Successfully joined!"]);
         } else {
             echo json_encode(["success" => false, "message" => "Gagal menyimpan data ke database."]);
         }

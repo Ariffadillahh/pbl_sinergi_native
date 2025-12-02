@@ -79,7 +79,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                                 <?php endif; ?>
                                 <span>·</span>
                                 <span class="font-medium">
-                                    <?= number_format($forumById['TOTAL_MEMBERS']) ?> Followings
+                                    <?= number_format($forumById['TOTAL_MEMBERS']) ?> Followers
                                 </span>
                             </p>
                         </div>
@@ -93,7 +93,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                                 <div class="relative inline-block">
                                     <button onclick="openRequestModal(this)"
                                         data-id="<?= $forumById['ID'] ?>"
-                                        class="group flex items-center gap-2 bg-white hover:bg-indigo-50 text-gray-700 border border-gray-200 px-6 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 ease-in-out font-medium">
+                                        class="cursor-pointer group flex items-center gap-2 bg-white hover:bg-indigo-50 text-gray-700 border border-gray-200 px-6 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 ease-in-out font-medium">
 
                                         <?php if ($forumById['TOTAL_REQUESTS'] > 0): ?>
                                             <span id="badgeCount" class="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-md ring-2 ring-white animate-pulse">
@@ -114,13 +114,13 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
                             <div class="flex gap-3">
                                 <?php if ($forumById['OWNER_ID'] !== $_SESSION['user_id']) : ?>
-                                    <button id="btn-open-leave-forum" class="w-full md:w-auto flex items-center justify-center gap-2 bg-white rounded-xl px-4 py-2 ring-1 ring-gray-200 hover:ring-blue-600 transition-all">
+                                    <button id="btn-open-leave-forum" class="cursor-pointer w-full md:w-auto flex items-center justify-center gap-2 bg-white rounded-xl px-4 py-2 ring-1 ring-gray-200 hover:ring-blue-600 transition-all">
                                         <img src="<?= BASEURL; ?>/src/asset/icons/logout-grey.svg" class="size-6" alt="icon">
                                         <span class="font-medium text-sm">Leave Forum</span>
                                     </button>
 
                                     <button id="btn-open-report-forum"
-                                        class="w-full md:w-auto flex items-center justify-center bg-white rounded-xl px-4 py-2 ring-1 ring-gray-200 hover:ring-blue-600 transition-all">
+                                        class="cursor-pointer w-full md:w-auto flex items-center justify-center bg-white rounded-xl px-4 py-2 ring-1 ring-gray-200 hover:ring-blue-600 transition-all">
                                         <img src="<?= BASEURL; ?>/src/asset/icons/report.png" class="size-6" alt="icon">
                                     </button>
                                 <?php endif ?>
@@ -130,15 +130,15 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                             <?php if ($forumById['IS_PRIVATE'] == 1): ?>
                                 <button
                                     onclick="requestJoin('<?= $forumById['ID'] ?>')"
-                                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold text-sm md:text-base w-full md:w-auto shadow-md transition transform hover:scale-105">
-                                    Minta Bergabung
+                                    class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold text-sm md:text-base w-full md:w-auto shadow-md transition transform hover:scale-105">
+                                    Request to Join
                                 </button>
 
                             <?php else: ?>
                                 <button
                                     onclick="joinForum('<?= $forumById['ID'] ?>')"
-                                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold text-sm md:text-base w-full md:w-auto shadow-md transition transform hover:scale-105">
-                                    Gabung Forum
+                                    class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold text-sm md:text-base w-full md:w-auto shadow-md transition transform hover:scale-105">
+                                    Join Forum
                                 </button>
                             <?php endif; ?>
 
@@ -150,23 +150,23 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
                 <div class="border-t border-gray-300">
                     <div class="flex gap-2 overflow-x-auto hide-scrollbar" id="forumTabs">
-                        <button class="tab-btn active px-4 py-3 md:py-4 text-blue-600 border-b-4 border-blue-600 font-semibold whitespace-nowrap text-sm md:text-base" data-tab="discussion">
+                        <button class="cursor-pointer tab-btn active px-4 py-3 md:py-4 text-blue-600 border-b-4 border-blue-600 font-semibold whitespace-nowrap text-sm md:text-base" data-tab="discussion">
                             Discussion
                         </button>
 
-                        <button class="tab-btn px-4 py-3 md:py-4 text-gray-600 hover:bg-gray-100 rounded-t-lg font-semibold whitespace-nowrap text-sm md:text-base" data-tab="people">
+                        <button class="cursor-pointer tab-btn px-4 py-3 md:py-4 text-gray-600 hover:bg-gray-100 rounded-t-lg font-semibold whitespace-nowrap text-sm md:text-base" data-tab="people">
                             People
                         </button>
 
-                        <button class="tab-btn px-4 py-3 md:py-4 text-gray-600 hover:bg-gray-100 rounded-t-lg font-semibold whitespace-nowrap text-sm md:text-base" data-tab="media">
+                        <button class="cursor-pointer tab-btn px-4 py-3 md:py-4 text-gray-600 hover:bg-gray-100 rounded-t-lg font-semibold whitespace-nowrap text-sm md:text-base" data-tab="media">
                             Media
                         </button>
-                        <button class="tab-btn px-4 py-3 md:py-4 text-gray-600 hover:bg-gray-100 rounded-t-lg font-semibold whitespace-nowrap text-sm md:text-base" data-tab="files">
+                        <button class="cursor-pointer tab-btn px-4 py-3 md:py-4 text-gray-600 hover:bg-gray-100 rounded-t-lg font-semibold whitespace-nowrap text-sm md:text-base" data-tab="files">
                             Files
                         </button>
                         <?php if ($forumById['OWNER_ID'] === $_SESSION['user_id']) : ?>
                             <button
-                                class="tab-btn px-4 py-3 md:py-4 text-gray-600 hover:bg-gray-100 rounded-t-lg font-semibold whitespace-nowrap text-sm md:text-base"
+                                class="cursor-pointer tab-btn px-4 py-3 md:py-4 text-gray-600 hover:bg-gray-100 rounded-t-lg font-semibold whitespace-nowrap text-sm md:text-base"
                                 data-tab="settings">
                                 Settings
                             </button>
@@ -261,7 +261,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                                                 <button
                                                     type="button"
                                                     id="btnCopyAccessKey"
-                                                    class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors duration-200"
+                                                    class="cursor-pointer p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors duration-200"
                                                     title="Copy Access Key">
 
                                                     <span id="iconClipboard">
@@ -295,7 +295,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                                         <span class="text-xs font-bold uppercase tracking-wider">Pinned Post</span>
 
                                         <?php if ($can_unpin): ?>
-                                            <button type="button" data-id="<?= $pin['ID'] ?>" class="btn-pin-action ml-auto text-xs text-red-500 hover:text-red-700 hover:underline font-semibold transition">
+                                            <button type="button" data-id="<?= $pin['ID'] ?>" class="cursor-pointer btn-pin-action ml-auto text-xs text-red-500 hover:text-red-700 hover:underline font-semibold transition">
                                                 Unpin Post
                                             </button>
                                         <?php endif; ?>
@@ -319,12 +319,12 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                                             <?= strlen($pin['CONTENT']) > 300 ? '...' : '' ?>
                                         </p>
                                         <?php if (strlen($pin['CONTENT']) > 300): ?>
-                                            <a href="<?= BASEURL ?>/topic/<?= $pin['ID'] ?>" class="text-blue-600 text-xs font-semibold hover:underline">Baca Selengkapnya</a>
+                                            <a href="<?= BASEURL ?>/topic/<?= $pin['ID'] ?>" class="cursor-pointer text-blue-600 text-xs font-semibold hover:underline">Read More</a>
                                         <?php endif; ?>
                                     </div>
 
                                     <?php if (!empty($pin['MEDIA_PATH']) && strtoupper($pin['MEDIA_TYPE']) === 'FILE'): ?>
-                                        <a href="<?= BASEURL ?>/storage/forums/topics/<?= $pin['MEDIA_PATH'] ?>" target="_blank" download="<?= htmlspecialchars($pin['ORIGINAL_FILENAME'] ?? 'Dokumen') ?>">
+                                        <a href="<?= BASEURL ?>/storage/forums/topics/<?= $pin['MEDIA_PATH'] ?>" target="_blank" download="<?= htmlspecialchars($pin['ORIGINAL_FILENAME'] ?? 'Document') ?>">
                                             <div class="bg-gray-50 rounded-lg p-2 mb-3 flex items-center gap-2 border border-gray-200 hover:bg-gray-100 transition cursor-pointer">
                                                 <div class="bg-blue-100 p-2 rounded text-blue-600">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -332,8 +332,8 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                                                     </svg>
                                                 </div>
                                                 <div class="overflow-hidden">
-                                                    <p class="text-sm font-semibold text-gray-800 truncate"><?= htmlspecialchars($pin['ORIGINAL_FILENAME'] ?? 'Dokumen Lampiran') ?></p>
-                                                    <p class="text-xs text-gray-500">Klik untuk mengunduh</p>
+                                                    <p class="text-sm font-semibold text-gray-800 truncate"><?= htmlspecialchars($pin['ORIGINAL_FILENAME'] ?? 'Attached Document') ?></p>
+                                                    <p class="text-xs text-gray-500">Click to download</p>
                                                 </div>
                                             </div>
                                         </a>
@@ -346,14 +346,14 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                                     <?php endif; ?>
 
                                     <div class="border-t pt-2 flex items-center justify-between text-gray-500 text-xs">
-                                        <a href="<?= BASEURL ?>/forum/topic/<?= $pin['ID'] ?>" class="hover:underline">
+                                        <a href="<?= BASEURL ?>/forum/topic/<?= $pin['ID'] ?>" class="cursor-pointer hover:underline">
                                             <span><?= $pin['TOTAL_COMMENTS'] ?> Comments</span>
                                         </a>
                                         <div class="flex items-center gap-1">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
                                             </svg>
-                                            <span><?= $pin['TOTAL_LIKES'] ?> Like</span>
+                                            <span><?= $pin['TOTAL_LIKES'] ?> Likes</span>
                                         </div>
                                     </div>
 
@@ -371,7 +371,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                             <?php if ($isMember) : ?>
                                 <?php require_once 'app/views/components/forum/createTopic.php'; ?>
                             <?php else : ?>
-                                <button onclick="joinForum('<?= $forumById['ID'] ?>')" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold text-sm md:text-base w-full shadow-md">
+                                <button onclick="joinForum('<?= $forumById['ID'] ?>')" class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold text-sm md:text-base w-full shadow-md">
                                     Join to Create Post
                                 </button>
                             <?php endif; ?>
@@ -419,22 +419,25 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
             <h2 class="text-lg font-semibold text-center text-gray-900">Leave Forum?</h2>
 
             <p class="text-center text-sm text-gray-600 mt-2">
-                Are you sure you want to leave this forum? You will lose access to all discussions unless rejoined.
+                Are you sure you want to leave this forum? You will lose access to all discussions unless you rejoin.
             </p>
 
             <div class="flex mt-6 gap-3">
                 <button id="btn-cancel-leave-forum"
-                    class="flex-1 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition">
+                    class="cursor-pointer flex-1 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition">
                     Cancel
                 </button>
 
                 <button id="btn-confirm-leave-forum"
-                    class="flex-1 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition">
+                    class="cursor-pointer flex-1 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition">
                     Yes, Leave
                 </button>
             </div>
         </div>
     </div>
+
+    <div class="bg-green-100 border border-green-600 text-green-600 rounded-lg p-3 fixed top-5 right-5 hidden" id="succsesDiv"></div>
+    <div class="bg-red-100 border border-red-600 text-red-600 rounded-lg p-3 fixed top-5 right-5 hidden" id="errorDivReq"></div>
 
     <?php require_once 'app/views/components/forum/modalReportForum.php'; ?>
     <?php require_once 'app/views/components/forum/modalReqJoin.php'; ?>
@@ -442,6 +445,8 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
 
     <script>
+        const succsesDiv = document.getElementById("succsesDiv")
+        const errorDivReq = document.getElementById("errorDivReq")
         async function joinForum(forumId) {
 
             const formData = new FormData();
@@ -456,14 +461,24 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                 const result = await response.json();
 
                 if (result.success) {
-                    alert(result.message);
-                    location.href = '<?= BASEURL ?>/forum/' + forumId;
+                    succsesDiv.classList.remove('hidden')
+                    succsesDiv.innerHTML = result.message
+
+                    setTimeout(() => {
+                        location.href = '<?= BASEURL ?>/forum/' + forumId;
+
+                    }, 1000)
                 } else {
-                    alert(result.message);
+                    errorDivReq.classList.remove('hidden')
+                    errorDivReq.innerHTML = result.message
+
+                    setTimeout(() => {
+                        errorDivReq.classList.add("hidden")
+                    }, 2000)
                 }
             } catch (error) {
                 console.error(error);
-                alert('Gagal menghubungi server.');
+                alert('Failed to connect to server.');
             }
         }
     </script>
@@ -520,8 +535,8 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                         }, 2000);
 
                     }).catch(err => {
-                        console.error('Gagal menyalin teks: ', err);
-                        alert('Gagal menyalin key secara otomatis.');
+                        console.error('Failed to copy text: ', err);
+                        alert('Failed to copy key automatically.');
                     });
                 });
             }

@@ -53,7 +53,7 @@
              <?php endforeach; ?>
 
              <?php if (empty($forums)): ?>
-                 <p class="text-gray-500 col-span-full">Tidak ada forum yang ditemukan.</p>
+                 <p class="text-gray-500 col-span-full">No forums found.</p>
              <?php endif; ?>
 
          </div>

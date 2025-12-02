@@ -11,12 +11,20 @@
 
       <form id="form-edit-post" action="<?= BASEURL ?>/post/update" method="POST" enctype="multipart/form-data" class="space-y-4">
         <input type="hidden" name="post_id" id="edit-post-id">
-        <textarea
-          name="content"
-          id="edit-post-content"
-          rows="4"
-          placeholder="Write Something..."
-          class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none"></textarea>
+
+        <div>
+          <textarea
+            name="content"
+            id="edit-post-content"
+            rows="4"
+            maxlength="250"
+            placeholder="Write Something..."
+            class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none"></textarea>
+
+          <div class="text-right text-xs text-gray-500 mt-1">
+            <span id="edit-post-char-count">0</span>/250
+          </div>
+        </div>
 
         <div id="media-preview-container" class="grid grid-cols-3 sm:grid-cols-4 gap-3"></div>
 
@@ -46,10 +54,17 @@
 </div>
 
 <style>
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(-10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 </style>
 
 <script>
@@ -60,22 +75,41 @@
   const mediaPreviewContainer = document.getElementById("media-preview-container");
   const formEditPost = document.getElementById("form-edit-post");
 
+  // 1. Ambil elemen Textarea dan Counter
+  const editPostContent = document.getElementById("edit-post-content");
+  const editPostCharCount = document.getElementById("edit-post-char-count");
+
   let existingMedia = [];
   let deletedMedia = [];
   let newMediaFiles = [];
 
+  // Fungsi utama saat tombol Edit diklik
   function openEditPostModal(postId, content, mediaPaths = []) {
     modalEditPost.classList.remove("hidden");
     modalEditPost.classList.add("flex");
 
     document.getElementById("edit-post-id").value = postId;
-    document.getElementById("edit-post-content").value = content;
+
+    // 2. Masukkan konten lama ke textarea
+    editPostContent.value = content;
+
+    // 3. PENTING: Langsung hitung panjang karakter konten lama saat modal dibuka
+    // Jika content null/undefined, hitung sebagai 0
+    editPostCharCount.textContent = content ? content.length : 0;
 
     existingMedia = [...mediaPaths];
     deletedMedia = [];
     newMediaFiles = [];
     renderMediaPreviews();
   }
+
+  // 4. Event Listener: Update angka saat user mengetik atau menghapus teks
+  editPostContent.addEventListener('input', function() {
+    const currentLength = this.value.length;
+    editPostCharCount.textContent = currentLength;
+  });
+
+  // --- Sisa fungsi lainnya (Preview Gambar, Close, Submit) tetap sama ---
 
   function renderMediaPreviews() {
     mediaPreviewContainer.innerHTML = '';
@@ -85,6 +119,7 @@
       div.className = 'relative aspect-square rounded-lg overflow-hidden group shadow-sm hover:shadow-md transition';
 
       const img = document.createElement('img');
+      // Pastikan BASEURL di PHP mencetak url yang benar
       img.src = '<?= rtrim(BASEURL, "/") ?>/' + path.replace(/^\/+/, '');
       img.className = 'w-full h-full object-cover transition-transform duration-300 group-hover:scale-105';
       div.appendChild(img);
@@ -139,33 +174,29 @@
   });
 
   function showLimitToast() {
-  const toast = document.getElementById("toast-limit");
-
-  toast.classList.remove("hidden");
-
-  setTimeout(() => {
-    toast.classList.add("hidden");
-  }, 2500);
+    const toast = document.getElementById("toast-limit");
+    toast.classList.remove("hidden");
+    setTimeout(() => {
+      toast.classList.add("hidden");
+    }, 2500);
   }
 
   btnChangePostPhoto.addEventListener('click', () => fileInputPost.click());
-  
+
   fileInputPost.addEventListener('change', (e) => {
-  const files = Array.from(e.target.files);
+    const files = Array.from(e.target.files);
+    const totalMedia = existingMedia.length + newMediaFiles.length + files.length;
 
-  const totalMedia = existingMedia.length + newMediaFiles.length + files.length;
+    if (totalMedia > 5) {
+      showLimitToast();
+      fileInputPost.value = "";
+      return;
+    }
 
-  if (totalMedia > 5) {
-    showLimitToast();
+    newMediaFiles.push(...files);
+    renderMediaPreviews();
     fileInputPost.value = "";
-    return;
-  }
-
-  newMediaFiles.push(...files);
-
-  renderMediaPreviews();
-  fileInputPost.value = "";
-});
+  });
 
   formEditPost.addEventListener('submit', async (e) => {
     e.preventDefault();

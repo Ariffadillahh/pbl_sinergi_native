@@ -9,7 +9,7 @@
     <div class="bg-white rounded-xl p-4 drop-shadow">
         <div class="mb-6">
             <h2 class="text-2xl font-bold text-gray-900">Requested Accounts</h2>
-            <p class="text-sm text-gray-600 mt-1">Kelola permintaan pembuatan akun mitra dan alumni dari owner forum</p>
+            <p class="text-sm text-gray-600 mt-1">Manage partner and alumni account requests from forum owners</p>
         </div>
 
         <!-- Search Bar -->
@@ -22,7 +22,7 @@
                 </div>
                 <input type="text" id="search-input" 
                     class="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                    placeholder="Cari berdasarkan nama , username, email, requester, atau forum...">
+                    placeholder="Search by name, username, email, requester, or forum...">
                 <button id="clear-search" class="absolute inset-y-0 right-0 flex items-center pr-3 hidden">
                     <svg class="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -39,7 +39,7 @@
                     <tr>
                         <th scope="col" class="px-6 py-3">Requested By</th>
                         <th scope="col" class="px-6 py-3">Forum</th>
-                        <th scope="col" class="px-6 py-3">Nama Mitra</th>
+                        <th scope="col" class="px-6 py-3">Name</th>
                         <th scope="col" class="px-6 py-3">Username</th>
                         <th scope="col" class="px-6 py-3">Email</th>
                         <th scope="col" class="px-6 py-3">Role</th>
@@ -55,13 +55,13 @@
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada request</h3>
-            <p class="mt-1 text-sm text-gray-500" id="empty-message">Semua request telah diproses</p>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No requests found</h3>
+            <p class="mt-1 text-sm text-gray-500" id="empty-message">All requests have been processed</p>
         </div>
 
         <!-- Results Info -->
         <div id="results-info" class="hidden mt-4 text-sm text-gray-600">
-            Menampilkan <span id="results-count" class="font-semibold">0</span> hasil
+            Showing <span id="results-count" class="font-semibold">0</span> result(s)
         </div>
     </div>
 
@@ -69,7 +69,7 @@
     <div id="approve-modal" class="hidden fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
-                <h3 class="text-xl font-semibold text-gray-900">Review Request Akun Mitra</h3>
+                <h3 class="text-xl font-semibold text-gray-900">Review Partner Account Request</h3>
                 <button type="button" onclick="closeApproveModal()" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -89,7 +89,7 @@
                             </svg>
                         </div>
                         <div class="flex-1">
-                            <h4 class="font-semibold text-gray-900 mb-1">Informasi Request</h4>
+                            <h4 class="font-semibold text-gray-900 mb-1">Request Information</h4>
                             <p class="text-sm text-gray-600">
                                 Requested by: <span id="modal-requester" class="font-medium"></span><br>
                                 Forum: <span id="modal-forum" class="font-medium"></span><br>
@@ -104,7 +104,7 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block mb-2 text-sm font-medium text-gray-900">Nama Lengkap</label>
+                            <label class="block mb-2 text-sm font-medium text-gray-900">Full Name</label>
                             <input type="text" id="approve-fullname" readonly
                                 class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5">
                         </div>
@@ -117,7 +117,7 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block mb-2 text-sm font-medium text-gray-900">Nomor Mitra</label>
+                            <label class="block mb-2 text-sm font-medium text-gray-900">Partner Number</label>
                             <input type="text" id="approve-personal-number" readonly
                                 class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5">
                         </div>
@@ -131,11 +131,11 @@
                     <div class="flex justify-end pt-4 gap-3 border-t border-gray-200">
                         <button type="button" onclick="rejectRequest()" id="reject-btn"
                             class="px-6 py-2 rounded-full bg-red-100 text-red-600 font-bold hover:bg-red-200 transition-colors">
-                            Tolak
+                            Reject
                         </button>
                         <button type="submit" id="approve-btn"
                             class="px-6 py-2 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors">
-                            Setujui & Buat Akun
+                            Approve & Create Account
                         </button>
                     </div>
                 </form>
@@ -161,8 +161,19 @@
             }
         } catch (error) {
             console.error('Error loading requests:', error);
-            showAlert('Gagal memuat data', true);
+            showAlert('Failed to load data', true);
         }
+    }
+
+    function translateRole(role) {
+        const roleMap = {
+            'MAHASISWA': 'STUDENT',
+            'DOSEN': 'LECTURER',
+            'ADMIN': 'ADMIN',
+            'ALUMNI': 'ALUMNI',
+            'MITRA': 'PARTNER'
+        };
+        return roleMap[role] || role;
     }
 
     function displayRequests(requests) {
@@ -177,6 +188,7 @@
             tbody.innerHTML = requests.map(req => {
                                 
                 const reqJson = JSON.stringify(req).replace(/'/g, "&apos;");
+                const translatedRole = translateRole(req.ROLE);
                 
                 return `
                     <tr class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors">
@@ -189,7 +201,7 @@
                         <td class="px-6 py-4 font-medium">${req.FULL_NAME}</td>
                         <td class="px-6 py-4">${req.USERNAME}</td>
                         <td class="px-6 py-4">${req.EMAIL}</td>
-                        <td class="px-6 py-4">${req.ROLE}</td>
+                        <td class="px-6 py-4">${translatedRole}</td>
                         <td class="px-6 py-4">
                             <button onclick='openApproveModal(${reqJson})' 
                                 class="text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors">
@@ -210,9 +222,9 @@
             
             // Update empty message based on search
             if (searchInput.value.trim()) {
-                emptyMessage.textContent = 'Tidak ada hasil yang cocok dengan pencarian';
+                emptyMessage.textContent = 'No results match your search';
             } else {
-                emptyMessage.textContent = 'Semua request telah diproses';
+                emptyMessage.textContent = 'All requests have been processed';
             }
         }
     }
@@ -272,11 +284,11 @@
         document.getElementById('approve-personal-number').value = request.PERSONAL_NUMBER;
         document.getElementById('approve-email').value = request.EMAIL;
         
-        // Set informasi request
+        // Set request information
         document.getElementById('modal-requester').textContent = request.REQUESTER_NAME || 'Unknown';
         document.getElementById('modal-forum').textContent = request.FORUM_NAME || 'Unknown';
         
-        document.getElementById('modal-role').textContent = request.ROLE || 'MITRA/ALUMNI';
+        document.getElementById('modal-role').textContent = translateRole(request.ROLE) || 'PARTNER/ALUMNI';
 
         document.getElementById('approve-modal').classList.remove('hidden');
     }
@@ -308,7 +320,7 @@
         
         const approveBtn = document.getElementById('approve-btn');
         approveBtn.disabled = true;
-        approveBtn.textContent = 'Memproses...';
+        approveBtn.textContent = 'Processing...';
 
         const formData = new FormData(e.target);
 
@@ -331,10 +343,10 @@
             }
         } catch (error) {
             console.error(error);
-            showModalAlert('Terjadi kesalahan server', true);
+            showModalAlert('A server error occurred', true);
         } finally {
             approveBtn.disabled = false;
-            approveBtn.textContent = 'Setujui & Buat Akun';
+            approveBtn.textContent = 'Approve & Create Account';
         }
     });
 
@@ -342,7 +354,7 @@
 
         const rejectBtn = document.getElementById('reject-btn');
         rejectBtn.disabled = true;
-        rejectBtn.textContent = 'Menolak...';
+        rejectBtn.textContent = 'Rejecting...';
 
         const formData = new FormData();
         formData.append('user_id', currentRequestId);
@@ -366,10 +378,10 @@
             }
         } catch (error) {
             console.error(error);
-            showModalAlert('Terjadi kesalahan server', true);
+            showModalAlert('A server error occurred', true);
         } finally {
             rejectBtn.disabled = false;
-            rejectBtn.textContent = 'Tolak';
+            rejectBtn.textContent = 'Reject';
         }
     }
 

@@ -1,4 +1,4 @@
-<!-- Modal Request Pembuatan Akun Mitra - Blue Design -->
+<!-- Modal Request Partner Account Creation - Blue Design -->
 <div id="requestMitraModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] hidden opacity-0 transition-opacity duration-300 p-4">
     <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl transform scale-95 transition-all duration-300 max-h-[95vh] overflow-y-auto hide-scrollbar">
 
@@ -6,7 +6,7 @@
         <div class="relative bg-gradient-to-r from-blue-600 to-indigo-700 p-8 rounded-t-3xl">
             <div class="absolute top-4 right-4">
                 <button type="button" onclick="closeRequestMitraModal()"
-                    class="text-white/80 hover:text-white transition p-2 rounded-full hover:bg-white/10">
+                    class="cursor-pointer text-white/80 hover:text-white transition p-2 rounded-full hover:bg-white/10">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -21,9 +21,9 @@
                     </svg>
                 </div>
                 <div class="flex-1 pt-2">
-                    <h3 class="text-3xl font-bold text-white mb-2">Request Akun </h3>
+                    <h3 class="text-3xl font-bold text-white mb-2">Request Account</h3>
                     <p class="text-white/90 text-sm leading-relaxed">
-                        Ajukan permintaan pembuatan akun mitra industri untuk bergabung dan berkolaborasi dalam forum ini
+                        Submit a request to create an industry partner account to join and collaborate in this forum
                     </p>
                 </div>
             </div>
@@ -41,8 +41,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div class="text-sm text-amber-800">
-                        <p class="font-semibold mb-1">Informasi Penting</p>
-                        <p class="text-amber-700">Request akan dikirim ke admin untuk diverifikasi. Setelah disetujui, akun mitra akan otomatis bergabung ke forum <strong><?= htmlspecialchars($forumById['NAME']) ?></strong></p>
+                        <p class="font-semibold mb-1">Important Information</p>
+                        <p class="text-amber-700">The request will be sent to admin for verification. Once approved, the partner account will automatically join the forum <strong><?= htmlspecialchars($forumById['NAME']) ?></strong></p>
                     </div>
                 </div>
             </div>
@@ -53,11 +53,11 @@
                         <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
-                        <span>Nama Lengkap <span class="text-red-500">*</span></span>
+                        <span>Full Name <span class="text-red-500">*</span></span>
                     </label>
                     <input type="text" name="nama_lengkap" required
                         class="w-full my-2 px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                        placeholder="Contoh: PT Mitra Sejahtera Indonesia / John Cena">
+                        placeholder="Example: PT Mitra Sejahtera Indonesia / John Cena">
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -78,7 +78,7 @@
                             <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                             </svg>
-                            <span>Nomor Telepon <span class="text-red-500">*</span></span>
+                            <span>Phone Number <span class="text-red-500">*</span></span>
                         </label>
                         <input type="text" name="personal_number" required
                             class="w-full my-2 px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
@@ -108,9 +108,9 @@
                         </label>
 
                         <select name="role" required
-                            class="w-full my-2 px-4 py-3.5 border-2 border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
-                            <option value="" disabled selected>-- Role</option>
-                            <option value="MITRA">MITRA</option>
+                            class="cursor-pointer w-full my-2 px-4 py-3.5 border-2 border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                            <option value="" disabled selected>-- Select Role</option>
+                            <option value="MITRA">PARTNER</option>
                             <option value="ALUMNI">ALUMNI</option>
                         </select>
                     </div>
@@ -121,15 +121,15 @@
 
             <div class="flex gap-3 pt-6 border-t border-gray-200">
                 <button type="button" onclick="closeRequestMitraModal()"
-                    class="flex-1 px-6 py-3.5 border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 transition-all duration-200 hover:shadow-md">
-                    Batal
+                    class="cursor-pointer flex-1 px-6 py-3.5 border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 transition-all duration-200 hover:shadow-md">
+                    Cancel
                 </button>
                 <button type="submit" id="btnSubmitRequest"
-                    class="flex-1 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                    class="cursor-pointer flex-1 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                     </svg>
-                    Kirim Request
+                    Send Request
                 </button>
             </div>
         </form>
@@ -190,7 +190,7 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
-        Mengirim...
+        Sending...
     `;
         requestMitraAlert.classList.add('hidden');
 
@@ -215,14 +215,14 @@
             }
         } catch (error) {
             console.error('Error:', error);
-            showAlert('Terjadi kesalahan saat mengirim request. Silakan coba lagi.', true);
+            showAlert('An error occurred while sending the request. Please try again.', true);
         } finally {
             btnSubmitRequest.disabled = false;
             btnSubmitRequest.innerHTML = `
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
             </svg>
-            Kirim Request
+            Send Request
         `;
         }
     });

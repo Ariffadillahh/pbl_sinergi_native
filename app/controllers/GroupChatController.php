@@ -428,10 +428,10 @@ class GroupChatController
                     );
                 }
 
-                echo json_encode(['success' => true, 'message' => 'Laporan Anda telah berhasil dikirim.']);
+                echo json_encode(['success' => true, 'message' => 'Your report has been submitted successfully.']);
             } else {
                 http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'Gagal menyimpan laporan.']);
+                echo json_encode(['success' => false, 'message' => 'Failed to save report']);
             }
         } catch (Exception $e) {
             http_response_code(500);

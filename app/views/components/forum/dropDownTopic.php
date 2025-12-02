@@ -21,7 +21,7 @@
 
      <div class="relative">
          <button onclick="toggleDropdown('dropdown-<?= $topic['ID'] ?>')"
-             class="text-gray-400 hover:bg-gray-100 rounded-full p-2 transition focus:outline-none">
+             class="text-gray-400 hover:bg-gray-100 rounded-full p-2 transition focus:outline-none cursor-pointer">
              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
                  <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
              </svg>
@@ -32,14 +32,14 @@
              <?php if ($canPin): ?>
                  <button type="button"
                      data-id="<?= $topic['ID'] ?>"
-                     class="btn-pin-action flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left">
+                     class="btn-pin-action flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left cursor-pointer">
 
                      <?php if ($topic['IS_PINNED'] == 1): ?>
                          <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
                              <path d="M18.75 12.75h1.5a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5zM12 6a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5A.75.75 0 0112 6zM12 18a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5A.75.75 0 0112 18zM3.75 6.75h1.5a.75.75 0 100-1.5h-1.5a.75.75 0 000 1.5zM5.25 18.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 010 1.5zM3 12a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5A.75.75 0 013 12zM9 3.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5zM12.75 12a2.25 2.25 0 114.5 0 2.25 2.25 0 01-4.5 0zM9 20.25a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                              <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                          </svg>
-                         <span class="font-semibold text-blue-600">Unpin Topik</span>
+                         <span class="font-semibold text-blue-600">Unpin Topic</span>
                      <?php else: ?>
                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
@@ -57,7 +57,7 @@
                     ?>
                  <button type="button"
                      onclick="openEditTopicModal('<?= $topic['ID'] ?>', `<?= $contentEscaped ?>`, <?= $mediaJson ?>)"
-                     class="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left">
+                     class="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left cursor-pointer">
                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                      </svg>
@@ -68,11 +68,11 @@
              <?php if ($canDelete): ?>
                  <button type="button"
                      onclick="openDeleteTopicModal('<?= $topic['ID'] ?>', '<?= $forumById['ID'] ?>')"
-                     class="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 text-left">
+                     class="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 text-left cursor-pointer">
                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                      </svg>
-                     Hapus
+                     Delete
                  </button>
              <?php endif; ?>
          </div>
@@ -94,9 +94,9 @@
                          </svg>
                      </div>
                      <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                         <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">Hapus Topik?</h3>
+                         <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">Delete topic?</h3>
                          <div class="mt-2">
-                             <p class="text-sm text-gray-500">Apakah Anda yakin ingin menghapus postingan ini?</p>
+                             <p class="text-sm text-gray-500">Are you sure to delete this post?</p>
                          </div>
                      </div>
                  </div>
@@ -106,11 +106,11 @@
                  <input type="hidden" name="topic_id" id="input_delete_topic_id">
                  <input type="hidden" name="forum_id" id="input_delete_forum_id">
 
-                 <button type="submit" class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto transition">
-                     Ya, Hapus
+                 <button type="submit" class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto transition cursor-pointer">
+                     Delete
                  </button>
-                 <button type="button" onclick="closeDeleteTopicModal()" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition">
-                     Batal
+                 <button type="button" onclick="closeDeleteTopicModal()" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition cursor-pointer">
+                     Cancel
                  </button>
              </form>
          </div>
@@ -134,23 +134,34 @@
                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                              </svg>
                          </div>
-                         <h3 class="text-lg font-semibold leading-6 text-gray-900">Edit Postingan</h3>
+                         <h3 class="text-lg font-semibold leading-6 text-gray-900">Edit Post</h3>
                      </div>
                      <span id="edit_file_counter" class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">0/5 Media</span>
                  </div>
 
-                 <div class="mt-2">
-                     <label for="input_edit_topic_content" class="block text-sm font-medium text-gray-700 mb-1">Konten</label>
-                     <textarea name="content" id="input_edit_topic_content" rows="4"
+                 <div class="mt-2 relative">
+                     <label for="input_edit_topic_content" class="block text-sm font-medium text-gray-700 mb-1">Content</label>
+
+                     <textarea
+                         name="content"
+                         id="input_edit_topic_content"
+                         rows="4"
                          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 bg-gray-50 border resize-none"
-                         placeholder="Apa yang Anda pikirkan?"></textarea>
+                         placeholder="What are you thinking?"></textarea>
+
+                     <span
+                         id="aboutCounter"
+                         class="absolute right-3 bottom-3 text-xs text-gray-400 pointer-events-none">
+                         0/250
+                     </span>
                  </div>
+
 
                  <div class="mt-4">
                      <label class="block text-sm font-medium text-gray-700 mb-2">Media</label>
 
                      <div id="edit_media_preview_container" class="flex gap-2 overflow-x-auto pb-2 snap-x min-h-[100px] border border-dashed border-gray-300 rounded-lg p-2 bg-gray-50 items-center">
-                         <p id="edit_empty_msg" class="text-xs text-gray-400 w-full text-center">Tidak ada media</p>
+                         <p id="edit_empty_msg" class="text-xs text-gray-400 w-full text-center">No media</p>
                      </div>
 
                      <div class="mt-2 flex items-center justify-end">
@@ -159,19 +170,19 @@
                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                              </svg>
-                             Tambah Media
+                             Add Media
                          </label>
                      </div>
-                     <p id="edit_limit_warning" class="hidden text-xs text-red-500 mt-1 text-right">Maksimal 5 file tercapai.</p>
+                     <p id="edit_limit_warning" class="hidden text-xs text-red-500 mt-1 text-right">Maximum files reached.</p>
                  </div>
              </div>
 
              <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 rounded-b-xl">
-                 <button type="submit" class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto transition">
-                     Simpan Perubahan
+                 <button type="submit" class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto transition cursor-pointer">
+                     Save Change
                  </button>
-                 <button type="button" onclick="closeEditTopicModal()" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition">
-                     Batal
+                 <button type="button" onclick="closeEditTopicModal()" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition cursor-pointer">
+                     Cancel
                  </button>
              </div>
          </form>
@@ -180,6 +191,30 @@
 
 
  <script>
+     const editedText = document.getElementById('input_edit_topic_content');
+     const aboutCounter = document.getElementById('aboutCounter');
+     const MAX_LENGTH_EDIT = 250;
+
+     function updateCounter() {
+         const textarea = document.getElementById('input_edit_topic_content');
+         const counter = document.getElementById('aboutCounter');
+
+         if (!textarea || !counter) return;
+
+         let len = textarea.value.length;
+
+         if (len > MAX_LENGTH_EDIT) {
+             textarea.value = textarea.value.slice(0, MAX_LENGTH_EDIT);
+             len = MAX_LENGTH_EDIT;
+         }
+
+         counter.textContent = `${len}/${MAX_LENGTH_EDIT}`;
+     }
+
+     if (editedText) {
+         editedText.addEventListener('input', updateCounter);
+     }
+
      function toggleDropdown(dropdownId) {
          const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
          allDropdowns.forEach(dd => {
@@ -222,7 +257,7 @@
 
              const deleteButton = this.querySelector('button[type="submit"]');
              deleteButton.disabled = true;
-             deleteButton.innerHTML = 'Menghapus...';
+             deleteButton.innerHTML = 'Deleting...';
 
              const formData = new FormData(this);
 
@@ -236,20 +271,20 @@
 
                  if (result.success) {
                      divSuccess.classList.remove('hidden');
-                     divSuccess.innerHTML = 'Topik berhasil dihapus!';
+                     divSuccess.innerHTML = 'Topic deleted successfully!';
                      setTimeout(() => {
                          divSuccess.classList.add('hidden');
                          location.reload();
                      }, 1500);
                  } else {
-                     alert('Gagal menghapus topik: ' + result.message);
+                     alert('Failed deleting topic: ' + result.message);
                      deleteButton.disabled = false;
                      deleteButton.innerHTML = 'Ya, Hapus';
                  }
              } catch (error) {
-                 alert('Terjadi kesalahan saat menghapus topik.');
+                 alert('Something wrong when deleting topic.');
                  deleteButton.disabled = false;
-                 deleteButton.innerHTML = 'Ya, Hapus';
+                 deleteButton.innerHTML = 'Delete';
              }
          });
      }
@@ -285,7 +320,7 @@
 
                      if (result.success) {
                          divSuccsessPin.classList.remove('hidden')
-                         divSuccsessPin.innerHTML = "Status pin topik telah berhasil diubah!"
+                         divSuccsessPin.innerHTML = "The topic pin status successfully changed.!"
 
                          setTimeout(() => {
                              window.location.reload();
@@ -307,7 +342,7 @@
                      console.error(error);
                      divErrorPin.classList.add('hidden')
                      divErrorPin.classList.remove('hidden')
-                     divErrorPin.innerHTML = "Terjadi kesalahan koneksi."
+                     divErrorPin.innerHTML = "Connection error occurred."
 
                      setTimeout(() => {
                          currentBtn.innerHTML = originalContent;
@@ -328,14 +363,16 @@
          filesToDelete = [];
 
          document.getElementById('input_edit_topic_id').value = topicId;
-         document.getElementById('input_edit_topic_content').value = content;
+
+         const contentInput = document.getElementById('input_edit_topic_content');
+         contentInput.value = content;
+
+         updateCounter();
 
          document.getElementById('deleted_media_container').innerHTML = '';
-
          document.getElementById('edit_image_input').value = '';
 
          renderExistingMedia();
-
          updateFileCounter();
 
          const modal = document.getElementById('editTopicModal');
@@ -414,7 +451,7 @@
             ${mediaContent}
             <button type="button" 
                     onclick="removeMedia('${mediaId}', ${isExisting})"
-                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600">
+                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
@@ -459,7 +496,7 @@
          const newTotal = currentTotal + files.length;
 
          if (newTotal > MAX_FILES) {
-             alert(`Maksimal ${MAX_FILES} file. Anda sudah memiliki ${currentTotal} file.`);
+             alert(`Maximum ${MAX_FILES} file. You already have ${currentTotal} files.`);
              e.target.value = '';
              return;
          }
@@ -477,12 +514,12 @@
              ];
 
              if (!allowedTypes.includes(file.type)) {
-                 alert(`Tipe file tidak diizinkan: ${file.name}`);
+                 alert(`File type not allowed: ${file.name}`);
                  return;
              }
 
              if (file.size > 10 * 1024 * 1024) {
-                 alert(`File terlalu besar: ${file.name} (max 10MB)`);
+                 alert(`File size too large: ${file.name} (max 10MB)`);
                  return;
              }
 
@@ -556,7 +593,7 @@
 
          const originalText = submitBtn.textContent;
          submitBtn.disabled = true;
-         submitBtn.textContent = 'Menyimpan...';
+         submitBtn.textContent = 'Saving...';
 
          const formData = new FormData(this);
 
@@ -574,20 +611,20 @@
 
              if (result.success) {
                  divSuccsesEdit.classList.remove('hidden')
-                 divSuccsesEdit.innerHTML = "Edit topic berhasil"
+                 divSuccsesEdit.innerHTML = "Update topic successfully."
 
                  setTimeout(() => {
                      location.reload();
                  }, 2000)
 
              } else {
-                 alert(result.message || 'Gagal mengupdate topic');
+                 alert(result.message || 'Failed updating topic.');
                  submitBtn.disabled = false;
                  submitBtn.textContent = originalText;
              }
          } catch (error) {
              console.error('Error:', error);
-             alert('Terjadi kesalahan saat mengupdate topic');
+             alert('An error occurred while updating the topic.');
              submitBtn.disabled = false;
              submitBtn.textContent = originalText;
          }

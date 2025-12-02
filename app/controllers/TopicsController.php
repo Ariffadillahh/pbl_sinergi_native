@@ -134,7 +134,7 @@ class TopicsController
 
             header('Content-Type: application/json');
             if ($result['status']) {
-                echo json_encode(['success' => true, 'message' => 'Postingan berhasil dibuat!']);
+                echo json_encode(['success' => true, 'message' => 'Post created successfully!']);
             } else {
                 foreach ($uploadedFiles as $file) {
                     $filePath = __DIR__ . '/../../storage/forums/topics/' . $file['path'];

@@ -2,7 +2,7 @@
 
     <div class="w-full relative">
         <div id="toast-limit-create" class="hidden fixed top-5 right-10 bg-red-600 text-white px-4 py-2 rounded shadow-lg z-50 text-sm">
-            Maksimal hanya 5 file!
+            Maximum 5 Files
         </div>
         <div id="errorDiv" class="hidden fixed top-16 right-10 bg-red-100 text-red-700 px-4 py-2 rounded shadow-lg z-50 text-sm border border-red-400"></div>
         <div id="successDiv" class="hidden fixed top-16 right-10 bg-green-100 text-green-700 px-4 py-2 rounded shadow-lg z-50 text-sm border border-green-400"></div>
@@ -23,13 +23,13 @@
                         <textarea
                             id="content"
                             name="content"
-                            placeholder="Apa yang Anda pikirkan?"
+                            placeholder="What are you thinking?"
                             class="flex-1 w-full hide-scrollbar bg-gray-100 rounded-2xl px-4 py-3 pr-16 hover:bg-gray-200 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition resize-none h-24"></textarea>
 
                         <span
                             id="contentCounter"
                             class="absolute right-4 pt-3 bottom-3 text-xs text-gray-500 pointer-events-none">
-                            0/300
+                            0/250
                         </span>
                     </div>
 
@@ -53,13 +53,13 @@
                                 </svg>
                             </div>
                             <span class="text-gray-600 group-hover:text-blue-600 font-medium text-sm transition">
-                                Foto / File
+                                Photo / File
                             </span>
                         </label>
                     </div>
 
-                    <button type="submit" id="submit-post-btn" class="bg-blue-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-blue-700 transition shadow-sm flex items-center gap-2">
-                        <span>Posting</span>
+                    <button type="submit" id="submit-post-btn" class="bg-blue-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-blue-700 transition shadow-sm flex items-center gap-2 cursor-pointer">
+                        <span>Post</span>
                     </button>
                 </div>
             </form>
@@ -82,7 +82,7 @@
         const uploadBtnWrapper = document.getElementById("upload-btn-wrapper");
         const content = document.getElementById('content');
         const contentCounter = document.getElementById('contentCounter');
-        const CONTENT_MAX = 300;
+        const CONTENT_MAX = 250;
 
         const MAX_FILES = 5;
 
@@ -105,7 +105,7 @@
         }
 
         function showEmptyPostToast() {
-            errorDiv.innerHTML = "Konten atau gambar tidak boleh kosong!";
+            errorDiv.innerHTML = "Content or photo cannot be empty!";
             errorDiv.classList.remove("hidden");
             setTimeout(() => errorDiv.classList.add("hidden"), 2500);
         }
@@ -180,7 +180,7 @@
 
                 const removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
-                removeBtn.className = 'absolute top-1 right-1 size-6 flex items-center justify-center bg-gray-900/60 hover:bg-red-600 text-white rounded-full transition-colors shadow-sm backdrop-blur-sm z-10';
+                removeBtn.className = 'absolute top-1 right-1 size-6 flex items-center justify-center bg-gray-900/60 hover:bg-red-600 text-white rounded-full transition-colors shadow-sm backdrop-blur-sm z-10 cursor-pointer';
                 removeBtn.innerHTML = `<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>`;
 
                 removeBtn.addEventListener('click', (e) => {
@@ -235,7 +235,7 @@
             }
 
             submitButton.disabled = true;
-            submitButton.innerHTML = 'Memposting...';
+            submitButton.innerHTML = 'Posting...';
 
             const formData = new FormData();
 
@@ -255,7 +255,7 @@
             }));
             formData.append("image_order", JSON.stringify(imageOrder));
 
-            console.log("Mengirim data...", {
+            console.log("Sending Data...", {
                 content: textarea.value,
                 files: fileBuffer.length,
                 order: imageOrder
@@ -284,7 +284,7 @@
                 }
             } catch (err) {
                 console.error(err);
-                errorDiv.innerHTML = "Terjadi kesalahan jaringan.";
+                errorDiv.innerHTML = "Network error.";
                 errorDiv.classList.remove("hidden");
             } finally {
                 submitButton.disabled = false;

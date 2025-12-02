@@ -2,7 +2,7 @@
     class="absolute hidden top-full -right-full md:right-0 mt-5 w-80 md:w-96 bg-white rounded-xl shadow-2xl z-[999] border border-gray-100 flex flex-col overflow-hidden">
 
     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-        <h3 class="font-bold text-gray-800 text-lg">Notifikasi</h3>
+        <h3 class="font-bold text-gray-800 text-lg">Notification</h3>
         <button id="mark-all-read-btn" class="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline">
             Read All
         </button>
@@ -10,23 +10,23 @@
 
     <div class="flex border-b border-gray-200 bg-gray-50">
         <button id="tab-unread" class="flex-1 px-4 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 bg-white transition-colors">
-            Belum Dibaca <span id="unread-tab-count" class="ml-1 px-2 py-0.5 text-xs bg-blue-100 text-blue-600 rounded-full">0</span>
+            Unread <span id="unread-tab-count" class="ml-1 px-2 py-0.5 text-xs bg-blue-100 text-blue-600 rounded-full">0</span>
         </button>
         <button id="tab-read" class="flex-1 px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 transition-colors">
-            Sudah Dibaca
+            Read
         </button>
     </div>
 
     <div id="unread-container" class="h-[300px] overflow-y-auto hide-scrollbar text-left">
         <p id="no-unread-message" class="p-8 text-center text-gray-500 text-sm">
-            Tidak ada notifikasi belum dibaca.
+            No unread notifications.
         </p>
     </div>
 
     <div id="read-container" class="hidden text-left">
         <div class="h-[300px] overflow-y-auto hide-scrollbar">
             <p id="no-read-message" class="p-8 text-center text-gray-500 text-sm">
-                Tidak ada notifikasi yang sudah dibaca.
+                No read notifications
             </p>
         </div>
         <div class="border-t border-gray-200 p-3 bg-gray-50">

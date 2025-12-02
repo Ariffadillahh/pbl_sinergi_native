@@ -501,7 +501,7 @@ class ForumModel extends BaseModel
             $result = oci_execute($stmt_insert);
 
             if ($result) {
-                return ['success' => true, 'message' => 'Berhasil bergabung dengan Forum.'];
+                return ['success' => true, 'message' => 'Successfully joined the Forum.'];
             } else {
                 return ['success' => false, 'message' => 'Gagal bergabung dengan Forum.'];
             }

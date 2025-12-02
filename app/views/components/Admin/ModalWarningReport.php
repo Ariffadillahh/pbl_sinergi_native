@@ -94,11 +94,11 @@
                         location.reload();
                     }, 1000);
                 } else {
-                    alert("Gagal mengirim peringatan: " + (result.message || "Terjadi kesalahan."));
+                    alert("Failed sending warning: " + (result.message || "Something wrong."));
                 }
             } catch (error) {
                 console.error("Error sending warning:", error);
-                alert("Terjadi kesalahan koneksi saat mengirim peringatan.");
+                alert("A connection error occurred while sending warning.");
             }
         });
 

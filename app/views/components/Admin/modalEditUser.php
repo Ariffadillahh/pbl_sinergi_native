@@ -4,7 +4,7 @@
         <div class="relative bg-white rounded-lg shadow-sm">
             <div class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t">
                 <h3 class="text-xl font-semibold text-gray-900">
-                    Edit Members
+                    Edit users
                 </h3>
                 <button type="button" id="edit-modal-close-btn"
                     class="text-gray-400 rounded-lg text-sm w-8 h-8 flex justify-center items-center cursor-pointer">
@@ -48,17 +48,17 @@
                                 required>
                                 <option value="" disabled>-- New Role --</option>
                                 <option value="ADMIN">ADMIN</option>
-                                <option value="MAHASISWA">MAHASISWA</option>
-                                <option value="DOSEN">DOSEN</option>
+                                <option value="MAHASISWA">STUDENT</option>
+                                <option value="DOSEN">LECTURER</option>
                                 <option value="ALUMNI">ALUMNI</option>
-                                <option value="MITRA">MITRA</option>
+                                <option value="MITRA">PARTNER</option>
                             </select>
                         </div>
 
                         <div class="flex justify-end pt-4 gap-3">
                             <button type="button" id="edit-modal-cancel-btn"
                                 class="px-6 py-2 rounded-full bg-[#D9D9D9] text-[#6B7280] font-bold transition-colors">
-                                Cancle
+                                Cancel
                             </button>
                             <button type="submit" id="edit-modal-submit-btn"
                                 class="px-6 py-2 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors">
@@ -133,7 +133,7 @@
 
             const submitButton = document.getElementById("edit-modal-submit-btn");
             submitButton.disabled = true;
-            submitButton.textContent = "Menyimpan...";
+            submitButton.textContent = "Saving...";
 
             const formData = new FormData(editForm);
 
@@ -145,14 +145,14 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    succsesDisplay.textContent = result.message || "Berhasil Edit role anggota.";
+                    succsesDisplay.textContent = result.message || "Successfully edited user role.";
                     succsesDisplay.classList.remove("hidden");
 
                     setTimeout(() => {
                         location.reload();
                     }, 1500);
                 } else {
-                    editErrorDisplay.textContent = result.message || "Gagal memperbarui role.";
+                    editErrorDisplay.textContent = result.message || "Failed updating role.";
                     editErrorDisplay.classList.remove("hidden");
                 }
             } catch (error) {
@@ -161,7 +161,7 @@
                 editErrorDisplay.classList.remove("hidden");
             } finally {
                 submitButton.disabled = false;
-                submitButton.textContent = "Simpan Perubahan";
+                submitButton.textContent = "Save Change";
             }
         });
 

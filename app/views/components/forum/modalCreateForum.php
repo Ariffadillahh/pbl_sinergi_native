@@ -11,12 +11,12 @@
             <div class="absolute bottom-0 left-0 right-0 px-6 translate-y-1/2 flex items-end justify-between z-10">
                 <div class="flex items-end gap-4">
                     <div class="relative group cursor-pointer">
-                        <img id="profilePreview" src="https://ui-avatars.com/api/?name=New+Group&&background=3B82F6&color=fff&size=128"
+                        <img id="profilePreview" src="https://ui-avatars.com/api/?name=New+Forum&&background=3B82F6&color=fff&size=128"
                             alt="Profile"
                             class="w-20 h-20 md:w-24 md:h-24 rounded-xl border-4 border-white bg-white shadow-lg object-cover">
                     </div>
                     <div class="mb-1 md:mb-2 pt-16 ">
-                        <h2 id="groupNamePreview" class="text-xl md:text-2xl font-bold text-gray-900 leading-tight truncate max-w-[200px] md:max-w-xs drop-shadow-sm bg-white/50 backdrop-blur-sm px-2 rounded-lg">Grup Baru</h2>
+                        <h2 id="groupNamePreview" class="text-xl md:text-2xl font-bold text-gray-900 leading-tight truncate max-w-[200px] md:max-w-xs drop-shadow-sm bg-white/50 backdrop-blur-sm px-2 rounded-lg">New Forum</h2>
                         <p class="mt-1 flex items-center gap-1 bg-white/80 backdrop-blur-md px-2 py-0.5 rounded-full w-max shadow-sm border border-gray-100">
                             <span id="privacyIcon" class="text-lg">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,8 +33,8 @@
         <form id="createForumForm" class="p-6 pt-20 overflow-y-auto hide-scrollbar" method="POST" action="<?php echo BASEURL ?>/forum/createForum" enctype="multipart/form-data">
 
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-800">Detail Forum</h2>
-                <button type="button" id="closeModalBtn" class="text-gray-400 hover:text-gray-600 transition">
+                <h2 class="text-xl font-bold text-gray-800">Forum Details</h2>
+                <button type="button" id="closeModalBtn" class="cursor-pointer text-gray-400 hover:text-gray-600 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -44,14 +44,14 @@
             <div id="alertBox" class="hidden fixed top-10 right-10 mb-4 p-4 rounded-lg text-sm"></div>
 
             <div class="mb-5 relative">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Forum</label>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Forum Name</label>
 
                 <div class="relative">
                     <input
                         type="text"
                         id="groupNameInput"
                         name="NAME"
-                        placeholder="Contoh: Komunitas Koding Indonesia"
+                        placeholder="Example: Indonesian Coding Community"
                         class="w-full px-4 py-3 pr-14 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                         required>
                     <span
@@ -65,7 +65,7 @@
 
 
             <div class="mb-5">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Privasi</label>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Privacy</label>
                 <div class="grid grid-cols-2 gap-3">
                     <label class="cursor-pointer relative">
                         <input type="radio" name="IS_PRIVATE" value="0" class="peer sr-only" checked>
@@ -77,7 +77,7 @@
                             </div>
                             <div class="min-w-0">
                                 <span class="block text-sm font-semibold text-gray-900">Public</span>
-                                <span class="block text-xs text-gray-500 truncate">Semua orang bisa melihat</span>
+                                <span class="block text-xs text-gray-500 truncate">Everyone can see</span>
                             </div>
                         </div>
                     </label>
@@ -92,7 +92,7 @@
                             </div>
                             <div class="min-w-0">
                                 <span class="block text-sm font-semibold text-gray-900">Private</span>
-                                <span class="block text-xs text-gray-500 truncate">Hanya anggota</span>
+                                <span class="block text-xs text-gray-500 truncate">Members only</span>
                             </div>
                         </div>
                     </label>
@@ -100,9 +100,9 @@
             </div>
 
             <div id="accessKeyContainer" class="mb-5 hidden transition-all duration-300">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Kunci Akses (Password)</label>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Access Key (Password)</label>
                 <div class="relative">
-                    <input type="text" id="accessKeyInput" name="ACCESS_KEY" placeholder="Buat kunci rahasia..."
+                    <input type="text" id="accessKeyInput" name="ACCESS_KEY" placeholder="Create a secret key..."
                         class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-yellow-50">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,7 +114,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Foto Profil</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Profile Photo</label>
                     <label for="profileInput" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-blue-50 hover:border-blue-300 transition group relative overflow-hidden">
                         <div class="flex flex-col items-center justify-center pt-5 pb-6 z-10">
                             <div class="bg-white p-2 rounded-full shadow-sm mb-2 group-hover:scale-110 transition">
@@ -122,7 +122,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
                             </div>
-                            <p class="text-xs text-gray-500 font-medium">Upload Profil</p>
+                            <p class="text-xs text-gray-500 font-medium">Upload Profile</p>
                         </div>
                         <input id="profileInput" type="file" name="PATH_PHOTO" class="hidden" accept="image/*" />
                         <img id="profileInputPreview" src="" class="absolute inset-0 w-full h-full object-cover opacity-40 hidden">
@@ -130,7 +130,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Banner / Sampul</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Banner / Cover</label>
                     <label for="bannerInput" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-blue-50 hover:border-blue-300 transition group relative overflow-hidden">
                         <div class="flex flex-col items-center justify-center pt-5 pb-6 z-10">
                             <div class="bg-white p-2 rounded-full shadow-sm mb-2 group-hover:scale-110 transition">
@@ -147,14 +147,14 @@
             </div>
 
             <div class="mb-6">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi</label>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
 
                 <div class="relative">
                     <textarea
                         id="aboutText"
                         rows="3"
                         name="ABOUT"
-                        placeholder="Jelaskan tujuan forum ini..."
+                        placeholder="Explain the purpose of this forum..."
                         class="w-full px-4 py-3 pr-14 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"></textarea>
 
                     <span
@@ -167,9 +167,9 @@
 
 
             <div class="flex justify-end gap-3 pt-2">
-                <button type="button" id="cancelBtn" class="px-6 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition">Batal</button>
-                <button type="submit" id="submitBtn" class="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition shadow-md flex items-center gap-2">
-                    <span>Buat Forum</span>
+                <button type="button" id="cancelBtn" class="cursor-pointer px-6 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition">Cancel</button>
+                <button type="submit" id="submitBtn" class="cursor-pointer px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition shadow-md flex items-center gap-2">
+                    <span>Create Forum</span>
                 </button>
             </div>
 
@@ -314,7 +314,7 @@
 
             const originalBtnText = submitBtn.innerHTML;
             submitBtn.disabled = true;
-            submitBtn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Menyimpan...`;
+            submitBtn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...`;
 
             alertBox.classList.add('hidden');
 
@@ -331,12 +331,12 @@
                 try {
                     result = JSON.parse(textResult);
                 } catch (err) {
-                    throw new Error("Respon server tidak valid: " + textResult);
+                    throw new Error("Invalid server response: " + textResult);
                 }
 
                 if (result.status === 'success' || response.ok) {
 
-                    showAlert('success', 'Forum berhasil dibuat!');
+                    showAlert('success', 'Forum created successfully!');
 
                     setTimeout(() => {
                         toggleModal(false);
@@ -350,13 +350,13 @@
                     this.reset();
 
                 } else {
-                    throw new Error(result.message || "Gagal membuat forum.");
+                    throw new Error(result.message || "Failed to create forum.");
                 }
 
 
             } catch (error) {
                 console.error('Error:', error);
-                showAlert('error', error.message || "Terjadi kesalahan sistem.");
+                showAlert('error', error.message || "A system error occurred.");
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnText;

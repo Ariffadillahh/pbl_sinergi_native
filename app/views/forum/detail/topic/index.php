@@ -1,7 +1,4 @@
 <?php
-// File: app/views/forum/detail/index.php
-// COPY PASTE FILE INI, REPLACE YANG LAMA
-
 $hasBanner = !empty($forumById['PATH_THUMBNAIL']);
 $bannerUrl = $hasBanner
     ? BASEURL . '/storage/forums/thumbnail/' . $forumById['PATH_THUMBNAIL']
@@ -78,7 +75,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                                 <?php endif; ?>
                                 <span>·</span>
                                 <span class="font-medium">
-                                    <?= number_format($forumById['TOTAL_MEMBERS']) ?> Followings
+                                    <?= number_format($forumById['TOTAL_MEMBERS']) ?> Followers
                                 </span>
                             </p>
                         </div>
@@ -86,7 +83,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
                     <div class="flex flex-col md:flex-row gap-2 mt-4 w-full md:w-auto justify-center md:justify-end mb-2">
                         <a href="<?= BASEURL ?>/forum/<?php echo $forumById['ID']; ?>"
-                            class="w-full md:w-auto flex items-center justify-center gap-2 bg-white rounded-xl px-4 py-2 ring-1 ring-gray-200 hover:ring-blue-600 transition-all">
+                            class="cursor-pointer w-full md:w-auto flex items-center justify-center gap-2 bg-white rounded-xl px-4 py-2 ring-1 ring-gray-200 hover:ring-blue-600 transition-all">
                             <img src="<?= BASEURL; ?>/src/asset/icons/logout-grey.svg" class="size-6" alt="icon">
                             <span class="font-medium text-sm text-heyhao-secondary">Back</span>
                         </a>
@@ -103,7 +100,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
             $images = array_filter($allMedia, fn($m) => $m['MEDIA_TYPE'] === 'IMAGE');
             $files = array_filter($allMedia, fn($m) => $m['MEDIA_TYPE'] === 'FILE');
 
-            // FIX: Ambil IS_LIKED dari database
+            // FIX: Get IS_LIKED from database
             $isLikedByUser = !empty($topic['IS_LIKED']);
             $totalLikes = $topic['TOTAL_LIKES'] ?? 0;
             ?>
@@ -122,7 +119,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                             </div>
 
                             <div>
-                                <!-- FIX: Tambah badge role -->
+                                <!-- FIX: Add role badge -->
                                 <div class="flex items-center gap-2">
                                     <h4 class="font-bold text-lg text-gray-900 leading-tight hover:text-blue-600 transition-colors cursor-pointer">
                                         <?= htmlspecialchars($topic['FULL_NAME'] ?? 'User') ?>
@@ -137,10 +134,18 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                                         "MITRA"     => "bg-gray-100 text-gray-800",
                                         "ALUMNI"    => "bg-yellow-100 text-yellow-800"
                                     ];
+                                    $roleTranslations = [
+                                        "MAHASISWA" => "STUDENT",
+                                        "ADMIN"     => "ADMIN",
+                                        "DOSEN"     => "LECTURER",
+                                        "MITRA"     => "PARTNER",
+                                        "ALUMNI"    => "ALUMNI"
+                                    ];
                                     $colorClass = $roleClasses[$role] ?? "bg-gray-100 text-gray-800";
+                                    $displayRole = $roleTranslations[$role] ?? $role;
                                     ?>
                                     <span class="px-2 py-0.5 rounded-full text-xs font-medium <?= $colorClass ?>">
-                                        <?= htmlspecialchars($role) ?>
+                                        <?= htmlspecialchars($displayRole) ?>
                                     </span>
                                 </div>
 
@@ -160,7 +165,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
                                     <p class="text-sm text-gray-500">
                                         <?php if ($isLinkActive): ?>
-                                            <a href="<?= $profileUrl ?>" class="hover:underline hover:text-blue-600 transition-colors">
+                                            <a href="<?= $profileUrl ?>" class="cursor-pointer hover:underline hover:text-blue-600 transition-colors">
                                                 @<?= htmlspecialchars($topicUsername) ?>
                                             </a>
                                         <?php else: ?>
@@ -207,8 +212,8 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                                 <?php endforeach; ?>
                             </div>
                             <?php if (count($images) > 1): ?>
-                                <div class="swiper-button-next hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg"></div>
-                                <div class="swiper-button-prev hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg"></div>
+                                <div class="swiper-button-next cursor-pointer hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg"></div>
+                                <div class="swiper-button-prev cursor-pointer hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg"></div>
 
                                 <div class="swiper-pagination !bottom-3"></div>
                             <?php endif; ?>
@@ -220,7 +225,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                 <?php if (!empty($files)): ?>
                     <div class="px-6 pb-5 flex flex-col gap-3">
                         <?php foreach ($files as $file): ?>
-                            <a href="<?= BASEURL ?>/storage/forums/topics/<?= $file['MEDIA_PATH'] ?>" target="_blank" download="<?= htmlspecialchars($file['ORIGINAL_FILENAME']) ?>" class="group block">
+                            <a href="<?= BASEURL ?>/storage/forums/topics/<?= $file['MEDIA_PATH'] ?>" target="_blank" download="<?= htmlspecialchars($file['ORIGINAL_FILENAME']) ?>" class="cursor-pointer group block">
                                 <div class="flex items-center p-3 border border-gray-300 rounded-xl bg-gray-50 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200">
                                     <div class="flex-shrink-0 h-10 w-10 bg-blue-100 text-blue-500 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -229,7 +234,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                                     </div>
                                     <div class="ml-4 flex-1 overflow-hidden">
                                         <h5 class="text-sm font-bold text-gray-900 group-hover:text-blue-700 truncate"><?= htmlspecialchars($file['ORIGINAL_FILENAME']) ?></h5>
-                                        <p class="text-xs text-gray-500">Klik untuk mengunduh</p>
+                                        <p class="text-xs text-gray-500">Click to download</p>
                                     </div>
                                     <div class="flex-shrink-0 ml-3 text-gray-400 group-hover:text-blue-600">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -262,7 +267,6 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
                 <div class="border-t border-gray-100 p-2 flex justify-center gap-2 bg-white">
                     <button class="like-btn flex items-center justify-center gap-2.5 px-5 py-2.5 rounded-xl transition-all hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 cursor-pointer group w-1/2 relative overflow-hidden"
                         data-topic-id="<?= $topic['ID'] ?? 0 ?>"
@@ -434,11 +438,11 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
                     } else {
                         console.error("Server Error:", data.message);
-                        alert('Gagal memproses like');
+                        alert('Failed to process like');
                     }
                 } catch (err) {
                     console.error('Fetch Error:', err);
-                    alert('Terjadi kesalahan');
+                    alert('An error occurred');
                 } finally {
                     // Re-enable button
                     this.disabled = false;
@@ -450,7 +454,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 </script>
 
 <style>
-/* Smooth transition untuk like button */
+/* Smooth transition for like button */
 .like-btn svg {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -463,7 +467,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
     cursor: not-allowed;
 }
 
-/* Animation untuk like count */
+/* Animation for like count */
 .like-count-display {
     transition: all 0.3s ease;
 }
