@@ -78,8 +78,8 @@
                 quoteText.classList.add("hidden");
                 quoteAuthor.classList.add("hidden");
 
-                const response = await fetch("http://api.quotable.io/random");
-                if (!response.ok) throw new Error("Gagal mengambil quote");
+                const response = await fetch("https://api.quotable.io/random");
+                if (!response.ok) throw new Error("Failed loading quote");
 
                 const data = await response.json();
 
@@ -91,7 +91,7 @@
 
             } catch (error) {
                 console.error("Terjadi kesalahan:", error);
-                quoteText.textContent = "Gagal memuat quote. Coba lagi nanti.";
+                quoteText.textContent = "Failed load quote, try again later.";
                 quoteAuthor.textContent = "";
             } finally {
                 spinner.classList.add("hidden");

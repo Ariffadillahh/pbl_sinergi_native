@@ -21,7 +21,7 @@
 
                     <input type="search" id="default-search" name="q"
                         class="block w-full p-4 ps-10 text-sm text-gray-900 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Cari nama atau NIM..." autocomplete="off"
+                        placeholder="Search by name or NIM..." autocomplete="off"
                         value="<?= htmlspecialchars($data['keyword'] ?? '') ?>" />
 
                     <button type="submit" class="hidden">Search</button>
@@ -30,7 +30,7 @@
 
             <button id="open-modal-btn"
                 class="text-white mt-2 md:mt-0 w-full md:w-fit bg-blue-900 focus:ring-4 focus:outline-none cursor-pointer font-medium rounded-lg text-sm px-4 py-2 text-center h-fit">
-                Add Member
+                Add User
             </button>
         </div>
 
@@ -40,7 +40,7 @@
                     <tr>
                         <th scope="col" class="px-6 py-3">Name</th>
                         <th scope="col" class="px-6 py-3">NIM/NIP/PERSONAL NUMBER</th>
-                        <th scope="col" class="px-6 py-3">Prodi</th>
+                        <th scope="col" class="px-6 py-3">Study Program</th>
                         <th scope="col" class="px-6 py-3">Role</th>
                         <th scope="col" class="px-6 py-3">Action</th>
                     </tr>
@@ -49,7 +49,7 @@
                     <?php if (empty($data['users'])) : ?>
                         <tr class="bg-white border-b border-gray-200">
                             <td colspan="5" class="px-6 py-4 text-center text-gray-500">
-                                No member data found.
+                                No user data found.
                             </td>
                         </tr>
                     <?php else : ?>
@@ -70,31 +70,38 @@
                                     <?php
                                     $role = htmlspecialchars($user['ROLE'] ?? '');
                                     $badgeClass = '';
+                                    $roleTranslation = '';
 
                                     switch ($role) {
                                         case 'MAHASISWA':
                                             $badgeClass = 'bg-blue-100 text-blue-800';
+                                            $roleTranslation = 'STUDENT';
                                             break;
                                         case 'DOSEN':
                                             $badgeClass = 'bg-green-100 text-green-800';
+                                            $roleTranslation = 'LECTURER';
                                             break;
                                         case 'ADMIN':
                                             $badgeClass = 'bg-red-100 text-red-800';
+                                            $roleTranslation = 'ADMIN';
                                             break;
                                         case 'ALUMNI':
                                             $badgeClass = 'bg-yellow-100 text-yellow-800';
+                                            $roleTranslation = 'ALUMNI';
                                             break;
                                         case 'MITRA':
                                             $badgeClass = 'bg-gray-100 text-gray-800';
+                                            $roleTranslation = 'PARTNER';
                                             break;
                                         default:
                                             $badgeClass = 'bg-slate-100 text-slate-800';
+                                            $roleTranslation = $role;
                                             break;
                                     }
                                     ?>
 
                                     <span class="px-3 py-1 text-sm font-semibold rounded-full <?= $badgeClass ?>">
-                                        <?= $role ?>
+                                        <?= $roleTranslation ?>
                                     </span>
                                 </td>
 

@@ -95,7 +95,7 @@
                     }, 1000);
                 } else {
                     console.error("Error deleting forum:", result.message);
-                    alert("❌ Gagal menghapus forum: " + (result.message || "Terjadi kesalahan."));
+                    alert("❌ Failed deleting forum: " + (result.message || "Something wrong"));
                 }
             } catch (error) {
                 console.error("Error deleting forum:", error);

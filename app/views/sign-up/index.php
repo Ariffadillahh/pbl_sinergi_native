@@ -133,7 +133,6 @@
         const strengthBar = document.getElementById('strength-bar');
         const strengthText = document.getElementById('strength-text');
         const passwordInput = document.getElementById('password');
-
         const strengthPassword = document.getElementById('strengthPassword');
 
         if (passwordInput && strengthBar && strengthText) {
@@ -154,57 +153,68 @@
                 }
 
                 if (len < 6) {
-                    strengthBar.style.width = '20%';
-                    strengthBar.classList.add('bg-red-500');
-                    strengthText.innerText = `Too short (needs ${6 - len} more)`;
-                    strengthText.className = 'text-xs text-red-500 mt-1.5 font-medium text-right';
+                    strengthBar.style.width = "20%";
+                    strengthBar.classList.add("bg-red-500");
+
+                    strengthText.innerText = `Too short (needs ${6 - len} more characters)`;
+                    strengthText.className =
+                        "text-xs text-red-500 mt-1.5 font-medium text-right";
+
                     return;
                 }
 
                 let score = 0;
                 let missing = [];
 
-                if (val.match(/[a-z]/)) score++;
+                if (/[a-z]/.test(val)) score++;
                 else missing.push("lowercase letter");
-                if (val.match(/[A-Z]/)) score++;
+
+                if (/[A-Z]/.test(val)) score++;
                 else missing.push("uppercase letter");
-                if (val.match(/[0-9]/)) score++;
+
+                if (/[0-9]/.test(val)) score++;
                 else missing.push("number");
-                if (val.match(/[^a-zA-Z0-9]/)) score++;
+
+                if (/[^a-zA-Z0-9]/.test(val)) score++;
                 else missing.push("symbol");
+
                 if (len > 8) score++;
 
-                let saran = missing.length > 0 ? missing[0] : '';
+                let saran = missing.length > 0 ? missing[0] : "";
 
                 if (missing.length > 1 && score > 2) {
-                    saran = missing.slice(0, 2).join(' or ');
+                    saran = missing.slice(0, 2).join(" or ");
                 }
 
                 if (score <= 2) {
-                    strengthBar.style.width = '30%';
-                    strengthBar.classList.add('bg-red-500');
+                    strengthBar.style.width = "30%";
+                    strengthBar.classList.add("bg-red-500");
 
-                    strengthText.innerText = `Weak: Try adding ${saran || 'another combination'}`;
-                    strengthText.className = 'text-xs text-red-500 mt-1.5 font-medium text-right';
+                    strengthText.innerText =
+                        `Weak: Try adding ${saran || "another combination"}`;
+                    strengthText.className =
+                        "text-xs text-red-500 mt-1.5 font-medium text-right";
 
                 } else if (score <= 4) {
-                    strengthBar.style.width = '70%';
-                    strengthBar.classList.add('bg-yellow-500');
+                    strengthBar.style.width = "70%";
+                    strengthBar.classList.add("bg-yellow-500");
 
                     strengthText.innerText = `Medium: Add ${saran} to make it stronger`;
-                    strengthText.className = 'text-xs text-yellow-600 mt-1.5 font-medium text-right';
+                    strengthText.className =
+                        "text-xs text-yellow-600 mt-1.5 font-medium text-right";
 
                 } else {
-                    strengthBar.style.width = '100%';
-                    strengthBar.classList.add('bg-green-500');
+                    strengthBar.style.width = "100%";
+                    strengthBar.classList.add("bg-green-500");
 
-                    strengthText.innerText = 'Very Strong & Secure!';
-                    strengthText.className = 'text-xs text-green-600 mt-1.5 font-bold text-right';
+                    strengthText.innerText = "Very Strong & Secure!";
+                    strengthText.className = "text-xs text-green-600 mt-1.5 font-bold text-right";
                 }
             });
         }
 
-        function handleRegist() {
+        // Fungsi untuk menangani registrasi
+    function handleRegist() {
             const formRegist = document.getElementById("registerForm");
             const modalOtp = document.getElementById("modal-otp");
             const errorNotif = document.getElementById("error-notification");
@@ -279,6 +289,11 @@
                 }
             });
         }
+
+// PENTING: Panggil fungsi saat DOM sudah siap
+    document.addEventListener('DOMContentLoaded', function() {
+        handleRegist();
+    });
     </script>
 </body>
 

@@ -1,6 +1,6 @@
 <?php
 // File: app/views/components/forum/topics.php
-// COPY PASTE FILE INI, REPLACE YANG LAMA
+// COPY PASTE THIS FILE, REPLACE THE OLD ONE
 
 $visibleTopics = $topics;
 $hasMorePosts  = false;
@@ -20,8 +20,8 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                 <path d="M20 32h24M32 20v24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             <div class="text-center">
-                <h3 class="text-lg font-semibold text-gray-900">Belum ada diskusi</h3>
-                <p class="mt-2 text-sm text-gray-500">Jadilah yang pertama memulai diskusi di forum ini!</p>
+                <h3 class="text-lg font-semibold text-gray-900">No discussions yet</h3>
+                <p class="mt-2 text-sm text-gray-500">Be the first to start a discussion in this forum!</p>
             </div>
         </div>
     <?php endif; ?>
@@ -32,7 +32,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
         $images = array_filter($allMedia, fn($m) => $m['MEDIA_TYPE'] === 'IMAGE');
         $files = array_filter($allMedia, fn($m) => $m['MEDIA_TYPE'] === 'FILE');
 
-        // FIX: Ambil IS_LIKED langsung dari database
+        // FIX: Get IS_LIKED directly from database
         $isLikedByUser = !empty($topic['IS_LIKED']);
         ?>
 
@@ -44,7 +44,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                             <img src="<?= !empty($topic['PATH_PHOTO']) ? BASEURL . '/storage/users/photos/' . $topic['PATH_PHOTO'] : BASEURL . '/src/asset/image/default.png' ?>" class="w-full h-full object-cover">
                         </div>
                         <div>
-                            <!-- FIX: Tambah badge role -->
+                            <!-- FIX: Add role badge -->
                             <div class="flex items-center gap-2">
                                 <h4 class="font-semibold text-gray-900 leading-tight"><?= htmlspecialchars($topic['FULL_NAME']) ?></h4>
                                 
@@ -57,10 +57,18 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                                     "MITRA"     => "bg-gray-100 text-gray-800",
                                     "ALUMNI"    => "bg-yellow-100 text-yellow-800"
                                 ];
+                                $roleTranslations = [
+                                    "MAHASISWA" => "STUDENT",
+                                    "ADMIN"     => "ADMIN",
+                                    "DOSEN"     => "LECTURER",
+                                    "MITRA"     => "PARTNER",
+                                    "ALUMNI"    => "ALUMNI"
+                                ];
                                 $colorClass = $roleClasses[$role] ?? "bg-gray-100 text-gray-800";
+                                $translatedRole = $roleTranslations[$role] ?? $role;
                                 ?>
                                 <span class="px-2 py-0.5 rounded-full text-xs font-medium <?= $colorClass ?>">
-                                    <?= htmlspecialchars($role) ?>
+                                    <?= htmlspecialchars($translatedRole) ?>
                                 </span>
                             </div>
                             
@@ -145,7 +153,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                                 </div>
                                 <div class="ml-4 flex-1 overflow-hidden">
                                     <h5 class="text-sm font-bold text-gray-900 group-hover:text-blue-700 truncate"><?= htmlspecialchars($file['ORIGINAL_FILENAME']) ?></h5>
-                                    <p class="text-xs text-gray-500">Klik untuk mengunduh</p>
+                                    <p class="text-xs text-gray-500">Click to download</p>
                                 </div>
                                 <div class="flex-shrink-0 ml-3 text-gray-400 group-hover:text-blue-600">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -205,7 +213,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
     <?php if ($hasMorePosts): ?>
         <div class="bg-blue-50 border border-dashed border-blue-300 rounded-lg p-8 text-center mt-2">
             <button onclick="joinForum('<?= $forumById['ID'] ?>')" class="bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700 transition shadow-sm">
-                Bergabung Sekarang
+                Join Now
             </button>
         </div>
     <?php endif; ?>
@@ -275,7 +283,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
             }
         });
 
-        // FIX: Initialize like button state saat page load
+        // FIX: Initialize like button state on page load
         function initializeLikeButtons() {
             const likeButtons = document.querySelectorAll('.like-btn');
             
@@ -283,7 +291,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                 const isLiked = button.getAttribute('data-liked') === 'true';
                 const icon = button.querySelector('svg');
                 
-                // Set state berdasarkan data dari database
+                // Set state based on database data
                 if (isLiked) {
                     icon.classList.remove('text-gray-500', 'group-hover:text-red-500');
                     icon.classList.add('text-red-500', 'fill-red-500');
@@ -296,7 +304,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
             });
         }
 
-        // Jalankan initialize
+        // Run initialize
         initializeLikeButtons();
 
         // Like button handler
@@ -311,7 +319,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                 const card = this.closest('.topic-card');
                 const countSpan = card ? card.querySelector('.like-count-display') : null;
 
-                // Disable button sementara
+                // Disable button temporarily
                 this.disabled = true;
                 this.style.opacity = '0.6';
 
@@ -334,7 +342,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                         // Update data-liked
                         this.setAttribute('data-liked', isLiked ? 'true' : 'false');
 
-                        // Update count dengan animasi
+                        // Update count with animation
                         if (countSpan) {
                             countSpan.textContent = data.total_likes;
                             countSpan.classList.add('scale-150', 'text-blue-600');
@@ -343,7 +351,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                             }, 300);
                         }
 
-                        // Update icon dengan smooth transition
+                        // Update icon with smooth transition
                         icon.style.transition = 'all 0.3s ease';
                         
                         if (isLiked) {
@@ -359,13 +367,13 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
 
                     } else {
                         console.error("Server Error:", data.message);
-                        alert('Gagal memproses like');
+                        alert('Failed to process like');
                     }
                 } catch (err) {
                     console.error('Fetch Error:', err);
-                    alert('Terjadi kesalahan');
+                    alert('An error occurred');
                 } finally {
-                    // Enable button kembali
+                    // Re-enable button
                     this.disabled = false;
                     this.style.opacity = '1';
                 }
@@ -375,7 +383,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
 </script>
 
 <style>
-/* Smooth transition untuk like button */
+/* Smooth transition for like button */
 .like-btn svg {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -388,7 +396,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
     cursor: not-allowed;
 }
 
-/* Animation untuk like count */
+/* Animation for like count */
 .like-count-display {
     transition: all 0.3s ease;
 }

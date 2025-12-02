@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Forum Komunitas</title>
+    <title>Community Forum List</title>
 </head>
 
 <body class="bg-gray-50 ">
@@ -19,18 +19,18 @@
 
         <div class="flex flex-col md:flex-row justify-between items-center mb-8">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">Forum Diskusi</h1>
-                <p class="text-gray-500 text-sm">Temukan komunitas dan bergabunglah dalam diskusi.</p>
+                <h1 class="text-2xl font-bold text-gray-800">Discussion Forum</h1>
+                <p class="text-gray-500 text-sm">Find communities and join discussions.</p>
             </div>
 
             <?php
             if (!$isRestricted):
             ?>
-                <button id="openModalBtn" class="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full shadow-lg hover:shadow-xl transition duration-300 flex items-center gap-2 font-medium">
+                <button id="openModalBtn" class="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full shadow-lg hover:shadow-xl transition duration-300 flex items-center gap-2 font-medium cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
-                    Buat Forum Baru
+                    Create New Forum
                 </button>
             <?php endif; ?>
         </div>
@@ -82,7 +82,7 @@
                     <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
                     <div class="relative group">
                         <input type="text" name="search" value="<?= htmlspecialchars($search) ?>"
-                            placeholder="Cari forum..."
+                            placeholder="Search forum..."
                             class="w-full md:w-72 pl-10 pr-4 py-2.5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all shadow-sm">
                         <div class="absolute left-3 top-3 text-gray-400 group-focus-within:text-blue-500 transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,17 +101,17 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                     </svg>
                 </div>
-                <h3 class="text-lg font-bold text-gray-800">Tidak ada forum ditemukan</h3>
+                <h3 class="text-lg font-bold text-gray-800">No forums found</h3>
                 <?php if (!empty($search) || $filter !== 'all'): ?>
-                    <p class="text-sm mt-2 text-gray-500">Kami tidak dapat menemukan apa yang Anda cari.</p>
+                    <p class="text-sm mt-2 text-gray-500">We couldn't find what you're looking for.</p>
                     <a href="?filter=all" class="mt-4 inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
-                        Reset Filter & Pencarian
+                        Reset Filter & Search
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                         </svg>
                     </a>
                 <?php else: ?>
-                    <p class="text-sm mt-2 text-gray-500">Jadilah yang pertama membuat komunitas!</p>
+                    <p class="text-sm mt-2 text-gray-500">Be the first to create a community!</p>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
@@ -146,7 +146,7 @@
 
                     <?php if (!$isActive): ?>
                         <div class="absolute top-0 left-0 right-0 z-20 bg-yellow-400 text-yellow-900 text-[10px] md:text-xs font-bold px-3 py-1.5 text-center uppercase tracking-wider shadow-sm">
-                            Menunggu Dosen bergabung
+                            Waiting for Lecturer to join
                         </div>
                     <?php endif; ?>
 
@@ -212,7 +212,7 @@
                                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                     </svg>
-                                    <?= number_format($forum['TOTAL_MEMBERS']) ?> Member
+                                    <?= number_format($forum['TOTAL_MEMBERS']) ?> Members
                                 </div>
                             </div>
                         </div>
@@ -223,7 +223,7 @@
 
                                 <?php if ($isMember): ?>
                                     <a href="<?= $targetLink ?>" class="block w-full text-center bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 font-semibold py-2 px-4 rounded-xl transition duration-200 flex items-center justify-center gap-2">
-                                        <span>Masuk Forum</span>
+                                        <span>Enter Forum</span>
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                                         </svg>
@@ -240,7 +240,7 @@
                                             </button>
 
                                             <button onclick="requestJoinPrivate('<?= $forum['ID'] ?>')"
-                                                title="Kirim Permintaan Bergabung"
+                                                title="Send Join Request"
                                                 class="col-span-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-2 rounded-xl transition duration-200 flex items-center justify-center shadow-blue-200 shadow-md group">
 
                                                 <svg class="w-6 h-6 transform group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -256,10 +256,10 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                                 </svg>
-                                                Lihat
+                                                View
                                             </a>
 
-                                            <button onclick="joinForum('<?= $forum['ID'] ?>')" class="col-span-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-2 rounded-xl transition duration-200 flex items-center justify-center shadow-blue-200 shadow-md">
+                                            <button onclick="joinForum('<?= $forum['ID'] ?>')" class="col-span-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-2 rounded-xl transition duration-200 flex items-center justify-center shadow-blue-200 shadow-md cursor-pointer">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                                 </svg>
@@ -273,7 +273,7 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                    Forum Belum Aktif
+                                    Forum Not Active Yet
                                 </button>
                             <?php endif; ?>
                         </div>
@@ -350,7 +350,7 @@
 
             } catch (error) {
                 console.error('Error:', error);
-                alert("Terjadi kesalahan sistem saat mengirim permintaan.");
+                alert("A system error occurred while sending the request.");
             }
         }
 
@@ -375,7 +375,7 @@
                 }
             } catch (error) {
                 console.error(error);
-                alert('Gagal menghubungi server.');
+                alert('Failed to connect to server.');
             }
         }
     </script>

@@ -4,7 +4,7 @@
         <div class="relative bg-white rounded-lg shadow-sm">
             <div class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t">
                 <h3 class="text-xl font-semibold text-gray-900">
-                    Tambah Anggota Baru
+                    Add New Member
                 </h3>
                 <button type="button" id="close-modal-btn"
                     class="text-gray-400 rounded-lg text-sm w-8 h-8 flex justify-center items-center cursor-pointer">
@@ -24,8 +24,7 @@
                 <form action="<?= BASEURL ?>/admin/create-account" method="POST" class="my-5" id="add-member-form">
                     <div class="my-6 max-w-md mx-auto space-y-4">
                         <div>
-                            <label for="nama-lengkap" class="block mb-2 text-sm font-medium text-gray-900">Nama
-                                Lengkap</label>
+                            <label for="nama-lengkap" class="block mb-2 text-sm font-medium text-gray-900">Full Name</label>
                             <input type="text" id="nama-lengkap" name="nama-lengkap"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                 required>
@@ -62,9 +61,9 @@
                                 <select id="role" name="role"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                     required>
-                                    <option value="" disabled selected>-- Pilih --</option>
+                                    <option value="" disabled selected>-- Select --</option>
                                     <option value="ALUMNI">ALUMNI</option>
-                                    <option value="MITRA">MITRA INDUSTRI</option>
+                                    <option value="MITRA">PARTNER</option>
                                 </select>
                             </div>
                         </div>
@@ -73,11 +72,11 @@
                         <div class="flex justify-end pt-4 gap-3">
                             <button type="button" id="cancel-modal-btn"
                                 class="px-6 py-2 rounded-full bg-[#D9D9D9] text-[#6B7280] font-bold transition-colors">
-                                Batal
+                                Cancel
                             </button>
                             <button type="submit" id="submit-form-btn"
                                 class="px-6 py-2 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-500 transition-colors">
-                                Simpan
+                                Save
                             </button>
                         </div>
                     </div>
@@ -138,7 +137,7 @@
             succsesDisplay.classList.add("hidden");
 
             submitButton.disabled = true;
-            submitButton.textContent = "Menyimpan...";
+            submitButton.textContent = "Saving...";
 
             const actionUrl = addMemberForm.getAttribute("action");
 
@@ -152,7 +151,7 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    succsesDisplay.textContent = result.message || "Berhasil membuat anggota.";
+                    succsesDisplay.textContent = result.message || "Member created successfully.";
                     succsesDisplay.classList.remove("hidden");
 
                     setTimeout(() => {
@@ -166,11 +165,11 @@
 
             } catch (error) {
                 console.error(error);
-                errorDisplay.textContent = "Tidak dapat terhubung ke server. Coba lagi.";
+                errorDisplay.textContent = "Unable to connect to server. Please try again.";
                 errorDisplay.classList.remove("hidden");
             } finally {
                 submitButton.disabled = false;
-                submitButton.textContent = "Simpan";
+                submitButton.textContent = "Save";
             }
         });
     });

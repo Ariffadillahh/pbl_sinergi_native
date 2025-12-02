@@ -53,7 +53,7 @@ function organizeReplies($replies)
 <div class="comments-wrapper">
     <?php if (empty($comments)): ?>
         <div class="bg-white text-center text-gray-500 border border-gray-200 p-6 rounded-2xl mt-4">
-            Belum ada komentar. Jadilah yang pertama berkomentar!
+            No comments yet. Be the first to comment!
         </div>
     <?php else: ?>
         <?php foreach ($comments as $comment): ?>
@@ -100,7 +100,7 @@ function organizeReplies($replies)
                             <?= htmlspecialchars($comment['CREATED_AT']) ?>
                         </p>
 
-                        <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold flex items-center gap-1">
+                        <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold flex items-center gap-1 cursor-pointer">
                             Reply
                         </button>
                     </div>
@@ -145,7 +145,7 @@ function organizeReplies($replies)
                             </div>
                             <div class="flex justify-end w-full md:w-auto">
                                 <button type="submit"
-                                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-full transition-colors w-full md:w-auto">
+                                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-full transition-colors w-full md:w-auto cursor-pointer">
                                     Reply
                                 </button>
                             </div>
@@ -160,7 +160,7 @@ function organizeReplies($replies)
                     ?>
 
                     <div class="border-t border-gray-200 mt-3 pt-4 replies-section">
-                        <button class="show-more-replies text-blue-600 hover:text-blue-700 font-semibold text-sm flex items-center gap-2 mb-3 transition-colors"
+                        <button class="show-more-replies text-blue-600 hover:text-blue-700 font-semibold text-sm flex items-center gap-2 mb-3 transition-colors cursor-pointer"
                             data-comment-id="<?= htmlspecialchars($comment['COMMENT_ID']) ?>"
                             data-count="<?= $totalReplies ?>"
                             data-text="<?= $totalReplies === 1 ? 'reply' : 'replies' ?>">
@@ -220,8 +220,8 @@ function organizeReplies($replies)
                 </div>
             </div>
             <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" id="deleteConfirmBtn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">Delete</button>
-                <button type="button" onclick="closeDeleteModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Cancel</button>
+                <button type="button" id="deleteConfirmBtn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm cursor-pointer">Delete</button>
+                <button type="button" onclick="closeDeleteModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm cursor-pointer">Cancel</button>
             </div>
         </div>
     </div>
@@ -361,13 +361,13 @@ function organizeReplies($replies)
                     try {
                         const data = JSON.parse(text);
                         if (data.success) location.reload();
-                        else alert(data.message || "Gagal mengirim balasan");
+                        else alert(data.message || "Failed sending reply.");
                     } catch (e) {
                         location.reload();
                     }
                 } catch (err) {
                     console.error(err);
-                    alert("Terjadi kesalahan saat mengirim balasan.");
+                    alert("Error occured while sending reply.");
                 }
             });
         });
@@ -397,11 +397,11 @@ function organizeReplies($replies)
                         showToastSuccess();
                         setTimeout(() => location.reload(), 800);
                     } else {
-                        alert(result.message || "Gagal menghapus");
+                        alert(result.message || "Failed deleting");
                     }
                 } catch (err) {
                     console.error(err);
-                    alert("Terjadi kesalahan server");
+                    alert("Server error.");
                 }
             };
         }
