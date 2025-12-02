@@ -15,7 +15,7 @@
             </div>
             <div class="w-full sm:w-auto flex items-center justify-end sm:mt-2">
                 <button type="submit"
-                    class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-full transition-colors">
+                    class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-full transition-colors cursor-pointer">
                     Comment
                 </button>
             </div>

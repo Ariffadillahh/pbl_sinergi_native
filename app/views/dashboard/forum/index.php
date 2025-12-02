@@ -59,13 +59,13 @@ $currentParams = [
 
                     <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
                         <button onclick="openCreateForumModal()"
-                            class="flex-1 sm:flex-none text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-4 py-2 whitespace-nowrap">
+                            class="flex-1 sm:flex-none text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-4 py-2 whitespace-nowrap cursor-pointer">
                             Add Forum
                         </button>
 
                         <button onclick="openJoinForumModal()"
-                            class="flex-1 sm:flex-none text-white bg-green-700 hover:bg-green-600 font-medium rounded-lg text-sm px-4 py-2 whitespace-nowrap">
-                            Add Member to forum
+                            class="flex-1 sm:flex-none text-white bg-green-700 hover:bg-green-600 font-medium rounded-lg text-sm px-4 py-2 whitespace-nowrap cursor-pointer">
+                            Add User to forum
                         </button>
                     </div>
 

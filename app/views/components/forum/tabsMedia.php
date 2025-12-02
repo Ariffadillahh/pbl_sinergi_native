@@ -8,8 +8,8 @@
 
     <div id="media-empty" class="bg-white rounded-lg shadow p-8 text-center hidden">
         <div class="text-6xl mb-4">📷</div>
-        <h3 class="text-xl font-bold mb-2 text-gray-800">Tidak ada media</h3>
-        <p class="text-gray-600">Belum ada foto yang dibagikan.</p>
+        <h3 class="text-xl font-bold mb-2 text-gray-800">No Media</h3>
+        <p class="text-gray-600">No photos have been shared yet.</p>
     </div>
 </div>
 
@@ -31,8 +31,11 @@
 
             <div class="p-4 border-b border-gray-100 flex items-center gap-3 bg-gray-50">
                 <img id="modal-user-pic" src="" class="w-10 h-10 rounded-full object-cover border border-gray-200">
-                <div>
-                    <h4 id="modal-user-name" class="font-bold text-gray-900 text-sm">Username</h4>
+                <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                        <h4 id="modal-user-name" class="font-bold text-gray-900 text-sm">Username</h4>
+                        <span id="modal-user-role" class="text-xs font-medium px-2 py-0.5 rounded-sm"></span>
+                    </div>
                     <span id="modal-date" class="text-xs text-gray-500 block">Date</span>
                 </div>
             </div>
@@ -44,14 +47,14 @@
 
             <div class="p-4 border-t border-gray-100 bg-gray-50 flex flex-col gap-2">
                 <a id="modal-link" href="#" target="_blank" class="flex items-center justify-center w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded transition shadow-sm">
-                    Lihat Postingan Asli
+                    View Original Post
                 </a>
 
                 <a id="modal-download" href="#" download class="flex items-center justify-center w-full bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 text-sm font-medium py-2 rounded transition">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                     </svg>
-                    Download Gambar
+                    Download Image
                 </a>
             </div>
         </div>
@@ -115,7 +118,7 @@
                 }
             } catch (error) {
                 console.error('Gallery Error:', error);
-                loading.innerHTML = '<p class="text-red-500">Gagal memuat galeri.</p>';
+                loading.innerHTML = '<p class="text-red-500">Failed to load gallery.</p>';
             }
         },
 
@@ -137,13 +140,13 @@
                 img.loading = "lazy";
 
                 img.onerror = function() {
-                    console.error("Gagal load gambar grid:", imgSrc);
+                    console.error("Failed to load grid image:", imgSrc);
                     this.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpolyline points='21 15 16 10 5 21'/%3E%3C/svg%3E";
                     this.className = "w-full h-full object-contain p-4 opacity-50";
                 };
 
                 const overlay = document.createElement('div');
-                overlay.className = "absolute inset-0 bg-black/30   transition-all duration-300";
+                overlay.className = "absolute inset-0 bg-black/30 transition-all duration-300";
 
                 div.appendChild(img);
                 div.appendChild(overlay);
@@ -154,6 +157,9 @@
         openModal: function(index) {
             const item = this.data[index];
             const modal = document.getElementById('galleryModal');
+
+            // Debug: Log the item to see available data
+            console.log('Modal item data:', item);
 
             const fullImgPath = `${this.storagePath}/${item.MEDIA_PATH}`;
 
@@ -173,6 +179,39 @@
             document.getElementById('modal-user-name').textContent = item.USERNAME || 'Unknown';
             document.getElementById('modal-date').textContent = item.FORMATTED_DATE || '';
             document.getElementById('modal-caption').textContent = item.TOPIC_CONTENT || '';
+
+            // Set role badge - try different possible field names
+            const roleElement = document.getElementById('modal-user-role');
+            const roleClasses = {
+                'MAHASISWA': 'bg-blue-100 text-blue-800',
+                'ADMIN': 'bg-red-100 text-red-800',
+                'DOSEN': 'bg-green-100 text-green-800',
+                'MITRA': 'bg-gray-100 text-gray-800',
+                'ALUMNI': 'bg-yellow-100 text-yellow-800'
+            };
+            const roleTranslations = {
+                'MAHASISWA': 'Student',
+                'ADMIN': 'Admin',
+                'DOSEN': 'Lecturer',
+                'MITRA': 'Partner',
+                'ALUMNI': 'Alumni'
+            };
+            
+            // Try different possible field names for role
+            const userRole = item.ROLE || item.USER_ROLE || item.ROLE_NAME || '';
+            
+            if (userRole) {
+                const roleClass = roleClasses[userRole] || 'bg-gray-100 text-gray-800';
+                const translatedRole = roleTranslations[userRole] || userRole;
+                
+                roleElement.className = `text-xs font-medium px-2 py-0.5 rounded-sm ${roleClass}`;
+                roleElement.textContent = translatedRole;
+                roleElement.style.display = 'inline-block';
+            } else {
+                // Hide role badge if no role data
+                roleElement.style.display = 'none';
+                console.log('No role data found. Available fields:', Object.keys(item));
+            }
 
             const linkBtn = document.getElementById('modal-link');
             linkBtn.href = `${this.baseUrl}/forum/topic/${item.TOPIC_ID}`;

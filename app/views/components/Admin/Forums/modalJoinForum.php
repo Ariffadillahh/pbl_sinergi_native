@@ -2,8 +2,8 @@
     <div class="bg-white rounded-2xl shadow-xl max-w-md w-full">
         <div class="p-6">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-900">Tambahkan Anggota ke Forum</h2>
-                <button onclick="closeJoinForumModal()" class="text-gray-400 hover:text-gray-600">
+                <h2 class="text-2xl font-bold text-gray-900">Add Member to Forum</h2>
+                <button onclick="closeJoinForumModal()" class="text-gray-400 hover:text-gray-600 cursor-pointer">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M6 18L18 6M6 6l12 12" />
@@ -16,7 +16,7 @@
 
             <form id="form-join-forum">
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Anggota</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Member</label>
                     <select id="memberSelect" name="user_id" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
                         <?php foreach ($users as $user): ?>
                             <option value="<?= $user['ID']; ?>">
@@ -28,7 +28,7 @@
 
 
                 <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Forum</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Forum</label>
                     <select id="forumSelect" name="forum_id" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
                         <?php foreach ($allForums as $forums): ?>
                             <option
@@ -46,16 +46,16 @@
 
 
                 <div id="privateKeyContainer" class="mb-6 hidden">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Masukkan Private Key</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Enter Private Key</label>
                     <input type="text" id="privateKeyInput"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                        placeholder="Masukkan key forum..."
+                        placeholder="Enter forum key..."
                         name="access_key">
                 </div>
 
                 <button id="btn-inv"
-                    class="w-full py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-200">
-                    Tambahkan Anggota
+                    class="w-full py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-200 cursor-pointer">
+                    Add Member
                 </button>
             </form>
         </div>
@@ -70,13 +70,13 @@
     $(document).ready(function() {
 
         $('#memberSelect').select2({
-            placeholder: "Cari Anggota...",
+            placeholder: "Search Member...",
             allowClear: true,
             width: '100%'
         });
 
         $('#forumSelect').select2({
-            placeholder: "Cari Forums...",
+            placeholder: "Search Forums...",
             allowClear: true,
             width: '100%'
         });
@@ -115,7 +115,7 @@
         e.preventDefault();
 
         btnInvite.disabled = true;
-        btnInvite.innerHTML = "Memproses...";
+        btnInvite.innerHTML = "Processing...";
 
         const formData = new FormData(form);
 
@@ -128,18 +128,18 @@
             const result = await response.json();
 
             if (result.success) {
-                ShowSuccsess("Berhasil menambahkan anggota!")
+                ShowSuccsess("Member added successfully!")
                 window.location.reload();
             } else {
                 showError(result.message);
             }
 
         } catch (error) {
-            showError("Terjadi kesalahan jaringan!");
+            showError("A network error occurred!");
             console.error(error);
         } finally {
             btnInvite.disabled = false;
-            btnInvite.innerHTML = "Tambahkan Anggota";
+            btnInvite.innerHTML = "Add Member";
         }
     });
 

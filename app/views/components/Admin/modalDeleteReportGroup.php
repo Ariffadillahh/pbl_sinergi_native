@@ -94,11 +94,11 @@
                         location.reload();
                     }, 1000);
                 } else {
-                    console.error("Error deleting postingan:", result.message);
-                    alert("❌ Gagal menghapus postingan: " + (result.message || "Terjadi kesalahan."));
+                    console.error("Error deleting group:", result.message);
+                    alert("❌ Failed deleting group: " + (result.message || "Something wrong."));
                 }
             } catch (error) {
-                console.error("Error deleting postingan:", error);
+                console.error("Error deleting group:", error);
             }
         });
 

@@ -1,15 +1,15 @@
 <div class="tab-content hidden" data-content="files">
-    <div id="files-loading" class="bg-white  rounded-lg shadow p-8 text-center">
-        <p class="text-gray-600 ">Loading files...</p>
+    <div id="files-loading" class="bg-white rounded-lg shadow p-8 text-center">
+        <p class="text-gray-600">Loading files...</p>
     </div>
 
     <div id="files-list" class="space-y-3 hidden">
     </div>
 
-    <div id="files-empty" class="bg-white  rounded-lg shadow p-8 text-center hidden">
+    <div id="files-empty" class="bg-white rounded-lg shadow p-8 text-center hidden">
         <div class="text-6xl mb-4">📁</div>
-        <h3 class="text-xl font-bold mb-2 text-gray-800 ">No Files Found</h3>
-        <p class="text-gray-600">Belum ada dokumen yang dibagikan di grup ini.</p>
+        <h3 class="text-xl font-bold mb-2 text-gray-800">No Files Found</h3>
+        <p class="text-gray-600">No documents have been shared in this group yet.</p>
     </div>
 </div>
 
@@ -24,7 +24,7 @@
 
         function initFilesTab() {
             if (!FORUM_ID) {
-                console.error("Forum ID tidak ditemukan.");
+                console.error("Forum ID not found.");
                 return;
             }
 
@@ -93,7 +93,7 @@
             } catch (error) {
                 console.error('Error loading files:', error);
                 if (loading) {
-                    loading.innerHTML = '<div class="text-red-500">Gagal memuat file.</div>';
+                    loading.innerHTML = '<div class="text-red-500">Failed to load files.</div>';
                 }
             }
         }
@@ -106,7 +106,7 @@
 
             Object.values(filesByTopic).forEach(function(group) {
                 const topicDiv = document.createElement('div');
-                topicDiv.className = 'bg-white  rounded-lg shadow p-6 mb-4 border border-gray-100';
+                topicDiv.className = 'bg-white rounded-lg shadow p-6 mb-4 border border-gray-100';
 
                 const header = document.createElement('div');
                 header.className = 'flex items-center mb-4 pb-4 border-b border-gray-200';
@@ -124,7 +124,7 @@
                 userInfo.className = 'flex-1';
 
                 const userName = document.createElement('h4');
-                userName.className = 'font-bold text-gray-800 ';
+                userName.className = 'font-bold text-gray-800';
                 userName.textContent = group.topic.USERNAME || 'Unknown User';
 
                 const date = document.createElement('p');
@@ -139,7 +139,7 @@
 
                 if (group.topic.TOPIC_CONTENT) {
                     const content = document.createElement('p');
-                    content.className = 'text-gray-700  mb-4 text-sm';
+                    content.className = 'text-gray-700 mb-4 text-sm';
                     content.textContent = group.topic.TOPIC_CONTENT;
                     topicDiv.appendChild(content);
                 }
@@ -160,7 +160,7 @@
             const fileName = file.ORIGINAL_FILENAME || file.MEDIA_PATH || 'Document';
             fileDiv.download = fileName;
 
-            fileDiv.className = 'flex items-center p-3 hover:bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-500 600 mb-2 transition group';
+            fileDiv.className = 'flex items-center p-3 hover:bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-500 mb-2 transition group';
 
             let extension = 'FILE';
             if (fileName.includes('.')) {
@@ -168,10 +168,10 @@
             }
 
             const iconDiv = document.createElement('div');
-            iconDiv.className = 'w-12 h-12 bg-blue-100  rounded-lg flex items-center justify-center mr-3 flex-shrink-0';
+            iconDiv.className = 'w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0';
 
             const iconText = document.createElement('span');
-            iconText.className = 'text-blue-600  font-bold text-xs';
+            iconText.className = 'text-blue-600 font-bold text-xs';
             iconText.textContent = extension.substring(0, 4);
             iconDiv.appendChild(iconText);
 
@@ -179,7 +179,7 @@
             infoDiv.className = 'flex-1 min-w-0';
 
             const nameEl = document.createElement('p');
-            nameEl.className = 'font-semibold text-gray-800  truncate text-sm';
+            nameEl.className = 'font-semibold text-gray-800 truncate text-sm';
             nameEl.textContent = fileName;
 
             const dateEl = document.createElement('p');

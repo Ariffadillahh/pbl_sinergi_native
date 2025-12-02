@@ -51,7 +51,7 @@
             btn.addEventListener("click", async () => {
                 const forumId = btn.dataset.id;
 
-                reasonContainer.innerHTML = "<p class='text-center text-gray-500'>Memuat alasan...</p>";
+                reasonContainer.innerHTML = "<p class='text-center text-gray-500'>Loading reasons...</p>";
 
                 const res = await fetch(`<?= BASEURL ?>/report/reasons?target_id=${forumId}`);
                 const data = await res.json();
@@ -77,7 +77,7 @@
                         `
                     }).join("");
                 } else {
-                    reasonContainer.innerHTML = "<p class='text-center text-gray-500'>Tidak ada alasan ditemukan.</p>";
+                    reasonContainer.innerHTML = "<p class='text-center text-gray-500'>No reasons found.</p>";
                 }
 
                 openModal();

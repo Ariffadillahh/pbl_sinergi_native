@@ -7,6 +7,21 @@
         "MITRA"     => "bg-gray-100 text-gray-800",
         "ALUMNI"    => "bg-yellow-100 text-yellow-800"
     ];
+    
+    $roleTranslations = [
+        "MAHASISWA" => "STUDENT",
+        "ADMIN"     => "ADMIN",
+        "DOSEN"     => "LECTURER",
+        "MITRA"     => "PARTNER",
+        "ALUMNI"    => "ALUMNI"
+    ];
+    
+    // Function to format date
+    function formatJoinedDate($dateString) {
+        if (empty($dateString)) return '';
+        $timestamp = strtotime($dateString);
+        return date('d F Y', $timestamp);
+    }
 
     $membersForumFiltered = array_filter($membersForum ?? [], function ($m) use ($forumById) {
         return $m['USER_ID'] !== $forumById['OWNER_ID'];
@@ -36,10 +51,11 @@
                         <?php
                         $roleOwner = $forumById["ROLE_OWNER"] ?? '';
                         $colorClassOwner = $roleClasses[$roleOwner] ?? "bg-gray-100 text-gray-800";
+                        $translatedRoleOwner = $roleTranslations[$roleOwner] ?? $roleOwner;
                         ?>
                         <div class="flex-shrink-0">
                             <span class="<?= $colorClassOwner ?> text-xs font-medium px-2.5 py-0.5 rounded-sm">
-                                <?= htmlspecialchars($roleOwner) ?>
+                                <?= htmlspecialchars($translatedRoleOwner) ?>
                             </span>
                         </div>
                     </div>
@@ -66,7 +82,7 @@
             <div class="flex flex-col gap-3">
                 <?php if (empty($membersForumFiltered)) : ?>
                     <div class="text-center py-4 text-gray-500 text-sm">
-                        Belum ada member lain di forum ini.
+                        No other members in this forum yet.
                     </div>
                 <?php else : ?>
                     <?php foreach ($membersForumFiltered as $member): ?>
@@ -87,16 +103,17 @@
                                         <?php
                                         $roleMember = $member["ROLE"] ?? '';
                                         $colorClassMember = $roleClasses[$roleMember] ?? "bg-gray-100 text-gray-800";
+                                        $translatedRoleMember = $roleTranslations[$roleMember] ?? $roleMember;
                                         ?>
                                         <div class="flex-shrink-0">
                                             <span class="<?= $colorClassMember ?> text-xs font-medium px-2.5 py-0.5 rounded-sm">
-                                                <?= htmlspecialchars($roleMember) ?>
+                                                <?= htmlspecialchars($translatedRoleMember) ?>
                                             </span>
                                         </div>
                                     </div>
                                     <div class="flex font-medium text-sm text-heyhao-secondary gap-0.5 items-center">
                                         <p class="text-gray-500">Joined:</p>
-                                        <p class="text-gray-600"><?= $member["JOINED_AT"] ?></p>
+                                        <p class="text-gray-600"><?= formatJoinedDate($member["JOINED_AT"]) ?></p>
                                     </div>
                                 </div>
                             </div>
@@ -407,6 +424,14 @@ function renderUsers(users) {
         'ALUMNI': 'bg-yellow-100 text-yellow-800'
     };
     
+    const roleTranslations = {
+        'MAHASISWA': 'STUDENT',
+        'ADMIN': 'ADMIN',
+        'DOSEN': 'LECTURER',
+        'MITRA': 'PARTNER',
+        'ALUMNI': 'ALUMNI'
+    };
+    
     userListEl.innerHTML = '';
     
     users.forEach(user => {
@@ -415,6 +440,7 @@ function renderUsers(users) {
             : `<?= BASEURL ?>/src/asset/image/default.png`;
         
         const roleClass = roleClasses[user.ROLE] || 'bg-gray-100 text-gray-800';
+        const translatedRole = roleTranslations[user.ROLE] || user.ROLE;
         
         const userDiv = document.createElement('div');
         userDiv.className = 'flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors';
@@ -430,7 +456,7 @@ function renderUsers(users) {
                     <p class="text-sm text-gray-500 truncate">@${escapeHtml(user.USERNAME)}</p>
                 </div>
                 <span class="${roleClass} text-xs font-medium px-2.5 py-0.5 rounded-sm whitespace-nowrap">
-                    ${escapeHtml(user.ROLE)}
+                    ${escapeHtml(translatedRole)}
                 </span>
             </div>
         `;

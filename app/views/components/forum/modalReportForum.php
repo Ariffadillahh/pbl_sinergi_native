@@ -34,31 +34,31 @@
                     <ul class="w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg">
                         <li class="w-full border-b border-gray-200 rounded-t-lg">
                             <label for="reason-spam" class="flex items-center gap-3 ps-3 py-3 w-full cursor-pointer">
-                                <input id="reason-spam" type="radio" value="Spam or Advertising" name="reason" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2">
+                                <input id="reason-spam" type="radio" value="Spam or Advertising" name="reason" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2 cursor-pointer">
                                 <span class="ms-2 text-sm font-medium text-gray-900">Spam or Advertising</span>
                             </label>
                         </li>
                         <li class="w-full border-b border-gray-200">
                             <label for="reason-harassment" class="flex items-center gap-3 ps-3 py-3 w-full cursor-pointer">
-                                <input id="reason-harassment" type="radio" value="Hate Speech or Harassment" name="reason" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2">
+                                <input id="reason-harassment" type="radio" value="Hate Speech or Harassment" name="reason" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2 cursor-pointer">
                                 <span class="ms-2 text-sm font-medium text-gray-900">Hate Speech or Harassment</span>
                             </label>
                         </li>
                         <li class="w-full border-b border-gray-200">
                             <label for="reason-inappropriate" class="flex items-center gap-3 ps-3 py-3 w-full cursor-pointer">
-                                <input id="reason-inappropriate" type="radio" value="Inappropriate Content (Sensitive, Sexual, etc.)" name="reason" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2">
+                                <input id="reason-inappropriate" type="radio" value="Inappropriate Content (Sensitive, Sexual, etc.)" name="reason" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2 cursor-pointer">
                                 <span class="ms-2 text-sm font-medium text-gray-900">Inappropriate Content (Sensitive, Sexual, etc.)</span>
                             </label>
                         </li>
                         <li class="w-full border-b border-gray-200">
                             <label for="reason-misinformation" class="flex items-center gap-3 ps-3 py-3 w-full cursor-pointer">
-                                <input id="reason-misinformation" type="radio" value="Misinformation / Hoax" name="reason" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2">
+                                <input id="reason-misinformation" type="radio" value="Misinformation / Hoax" name="reason" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2 cursor-pointer">
                                 <span class="ms-2 text-sm font-medium text-gray-900">Misinformation / Hoax</span>
                             </label>
                         </li>
                         <li class="w-full rounded-b-lg">
                             <label for="reason-other" class="flex items-center gap-3 ps-3 py-3 w-full cursor-pointer">
-                                <input id="reason-other" type="radio" value="other" name="reason" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2">
+                                <input id="reason-other" type="radio" value="other" name="reason" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2 cursor-pointer">
                                 <span class="ms-2 text-sm font-medium text-gray-900">Other</span>
                             </label>
                         </li>
@@ -72,7 +72,7 @@
                 </form>
 
                 <div class="flex justify-center gap-3 mt-6">
-                    <button id="btn-confirm-report-forum" type="button" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center">
+                    <button id="btn-confirm-report-forum" type="button" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center cursor-pointer">
                         Send Report
                     </button>
                 </div>
@@ -150,17 +150,17 @@
         const selectedReason = formData.get("reason");
 
         if (!selectedReason) {
-            showMessage("Silakan pilih salah satu alasan laporan.", "error");
+            showMessage("Please select one reason for the report.", "error");
             return;
         }
         if (selectedReason === "other" && !otherReasonText.value.trim()) {
-            showMessage("Silakan jelaskan alasan Anda pada kolom yang tersedia.", "error");
+            showMessage("Please explain your reasons in the space provided..", "error");
             return;
         }
 
         messageReportForum.classList.add("hidden");
         btnConfirmReportForum.disabled = true;
-        btnConfirmReportForum.textContent = "Mengirim...";
+        btnConfirmReportForum.textContent = "Sending...";
 
         try {
             const response = await fetch(actionUrl, {
@@ -170,18 +170,18 @@
             const result = await response.json();
 
             if (result.success) {
-                showMessage(result.message || "Laporan berhasil dikirim!", "success");
+                showMessage(result.message || "Report sending successfully!", "success");
                 setTimeout(() => {
                     closeModalReportForum();
                 }, 1000);
             } else {
-                showMessage(result.message || "Gagal mengirim laporan.", "error");
+                showMessage(result.message || "Report sending failed.", "error");
             }
         } catch (err) {
-            showMessage("Terjadi kesalahan jaringan. Coba lagi.", "error");
+            showMessage("A network error has occurred. Please try again.", "error");
         } finally {
             btnConfirmReportForum.disabled = false;
-            btnConfirmReportForum.textContent = "Kirim Laporan";
+            btnConfirmReportForum.textContent = "Send Report";
         }
     });
 </script>
