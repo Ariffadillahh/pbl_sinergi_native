@@ -88,9 +88,8 @@ if ($isLaporanActiveGroup) $pageTitle = "Group Reports";
                     <a href="<?php echo BASEURL; ?>/dashboard/anggota/requested-accounts"
                         class="flex items-center justify-between px-4 py-2.5 rounded-lg transition-colors duration-200 hover:bg-gray-100 <?php echo getLinkClass($isRequestedActive); ?>">
                         <span>Requested Accounts</span>
-                        <!-- Badge Notifikasi -->
-                        <span id="requested-account-badge" class="hidden inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-600 rounded-full">
-                            0
+                        <span id="requested-account-badge" class="hidden items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-600 rounded-full">
+                            
                         </span>
                     </a>
                 </div>
@@ -132,17 +131,26 @@ if ($isLaporanActiveGroup) $pageTitle = "Group Reports";
                 <div class="submenu ml-8 mt-1 overflow-hidden transition-all duration-300 <?php echo $isLaporanParentActive ? 'max-h-40' : 'max-h-0'; ?>">
                     <a href="<?php echo BASEURL; ?>/dashboard/laporan/forum"
                         class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors duration-200 hover:bg-gray-100 <?php echo getLinkClass($isLaporanActiveForum); ?>">
-                        <span>Forum Reports</span>
+                        <span class="flex-1">Forum Reports</span>
+                        <span id="badge-report-forum" class="hidden items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-600 rounded-full">
+                            
+                        </span>
                     </a>
 
                     <a href="<?php echo BASEURL; ?>/dashboard/laporan/postingan"
                         class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors duration-200 hover:bg-gray-100 <?php echo getLinkClass($isLaporanActivePostingan); ?>">
-                        <span>Post Reports</span>
+                        <span class="flex-1">Post Reports</span>
+                        <span id="badge-report-post" class="hidden items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-600 rounded-full">
+                            
+                        </span>
                     </a>
 
                     <a href="<?php echo BASEURL; ?>/dashboard/laporan/group"
                         class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors duration-200 hover:bg-gray-100 <?php echo getLinkClass($isLaporanActiveGroup); ?>">
-                        <span>Group Reports</span>
+                        <span class="flex-1">Group Reports</span>
+                        <span id="badge-report-group" class="hidden items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-600 rounded-full">
+                            
+                        </span>
                     </a>
                 </div>
             </li>
@@ -173,35 +181,83 @@ if ($isLaporanActiveGroup) $pageTitle = "Group Reports";
 </aside>
 
 <script>
+    // 1. Logic Toggle Submenu (Tidak berubah)
     function toggleSubmenu(button) {
         const submenu = button.nextElementSibling;
         const icon = button.querySelector('svg:last-child');
-
         submenu.classList.toggle('max-h-0');
         submenu.classList.toggle('max-h-40');
         icon.classList.toggle('rotate-90');
     }
 
-    // Fetch jumlah pending requests
+    // 2. Logic Update Badge (PERBAIKAN UTAMA DISINI)
+    function updateBadge(elementId, count) {
+        const badge = document.getElementById(elementId);
+        if (!badge) return;
+
+        // Pastikan konversi ke angka aman (menangani string "0", null, dll)
+        const numCount = Number(count) || 0;
+
+        if (numCount > 0) {
+            badge.textContent = numCount;
+            
+            // SAAT MUNCUL: Hapus hidden, Pastikan inline-flex ada
+            badge.classList.remove('hidden');
+            badge.classList.add('inline-flex'); 
+        } else {
+            // SAAT HILANG: Tambah hidden, WAJIB HAPUS inline-flex agar tidak bentrok
+            badge.classList.add('hidden');
+            badge.classList.remove('inline-flex');
+        }
+    }
+
+    // 3. Fetch Pending Requests
     async function fetchPendingRequestsCount() {
         try {
             const response = await fetch('<?= BASEURL ?>/dashboard/anggota/get-pending-requests-count');
             const result = await response.json();
-            
-            if (result.success && result.count > 0) {
-                const badge = document.getElementById('requested-account-badge');
-                badge.textContent = result.count;
-                badge.classList.remove('hidden');
+
+            // Gunakan satu logika update yang sama
+            if (result.success) {
+                updateBadge('requested-account-badge', result.count);
             } else {
-                const badge = document.getElementById('requested-account-badge');
-                badge.classList.add('hidden');
+                updateBadge('requested-account-badge', 0);
             }
         } catch (error) {
             console.error('Error fetching pending requests:', error);
+            updateBadge('requested-account-badge', 0);
         }
     }
 
-    // Check setiap 30 detik
-    fetchPendingRequestsCount();
-    setInterval(fetchPendingRequestsCount, 30000);
+    // 4. Fetch Report Count
+    async function fetchReportCount() {
+        try {
+            const response = await fetch('<?= BASEURL ?>/dashboard/reportCount');
+            const result = await response.json();
+
+            if (result.success) {
+                updateBadge('badge-report-forum', result.data.forum);
+                updateBadge('badge-report-post', result.data.postingan);
+                updateBadge('badge-report-group', result.data.group);
+            } else {
+                // Reset ke 0 jika gagal
+                updateBadge('badge-report-forum', 0);
+                updateBadge('badge-report-post', 0);
+                updateBadge('badge-report-group', 0);
+            }
+        } catch (error) {
+            console.error('Error fetching report counts:', error);
+        }
+    }
+
+    // 5. Inisialisasi
+    document.addEventListener('DOMContentLoaded', () => {
+        // Panggil sekali saat load
+        fetchReportCount();
+        fetchPendingRequestsCount();
+
+        // Interval setiap 30 detik
+        setInterval(fetchPendingRequestsCount, 30000);
+        setInterval(fetchReportCount, 30000);
+    });
 </script>

@@ -19,7 +19,7 @@
         </p>
     </div>
     <div id="read-container" class="hidden text-left">
-        <div class="h-[300px] overflow-y-auto hide-scrollbar">
+        <div class="h-[250px] overflow-y-auto hide-scrollbar">
             <p id="no-read-message" class="p-8 text-center text-gray-500 text-sm">
                 Tidak ada notifikasi yang sudah dibaca.
             </p>
@@ -60,6 +60,24 @@
         const desktopBreakpoint = 1024;
         let lastTimestamp = new Date().toISOString();
         let isPolling = false;
+
+        const allColorBorders = [
+            'border-blue-500', 'border-green-500', 'border-purple-500', 'border-yellow-500',
+            'border-red-500', 'border-indigo-500', 'border-gray-400'
+        ];
+        const allColorBackgrounds = [
+            'bg-blue-50', 'bg-green-50', 'bg-purple-50', 'bg-yellow-50',
+            'bg-red-50', 'bg-indigo-50'
+        ];
+        const allIconGradients = [
+            'from-blue-500', 'to-blue-600',
+            'from-green-500', 'to-green-600',
+            'from-purple-500', 'to-purple-600',
+            'from-yellow-500', 'to-yellow-600',
+            'from-red-500', 'to-red-600',
+            'from-red-400', 'to-red-500',
+            'from-indigo-500', 'to-indigo-600'
+        ];
 
         const positionDropdown = () => {
             if (notifDropdown.classList.contains('hidden') || !activeNotifButtonId) {
@@ -106,12 +124,14 @@
 
             const colorMap = {
                 LIKE_POST: 'blue',
+                LIKE_TOPIC: 'blue',
                 REPLY_POST: 'green',
                 REPLY_COMMENT: 'green',
                 MENTION: 'purple',
                 WARNING: 'yellow',
                 KICKED: 'red',
                 DELETE: 'red',
+                REPORT_RECEIVED: 'red', 
                 INVITE_GROUP: 'indigo',
                 INVITE_FORUM: 'indigo',
                 ADMIN_INVITE_FORUM: 'indigo',
@@ -119,15 +139,17 @@
             };
 
             const baseColor = colorMap[TYPE] || colorMap.DEFAULT;
-            const color = IS_READ == 0 || IS_READ === false ? baseColor : 'gray';
+            const color = (IS_READ == 0 || IS_READ === false) ? baseColor : 'gray';
 
             const messageMap = {
                 LIKE_POST: `<strong>${DATA.sender_name || 'Someone'}</strong> like your post.`,
+                LIKE_TOPIC: `<strong>${DATA.sender_name || 'Someone'}</strong> like your topic.`,
                 REPLY_POST: `<strong>${DATA.sender_name || 'Someone'}</strong> comment on your post.`,
                 REPLY_COMMENT: `<strong>${DATA.sender_name || 'Someone'}</strong> replied your comment.`,
                 MENTION: `<strong>${DATA.sender_name || 'Someone'}</strong> mentioned you on a post`,
                 KICKED: `<strong>${DATA.sender_name || 'Someone'}</strong> remove you from the group.`,
                 DELETE: `<strong>ADMIN</strong> deleted ${DATA?.content_type === 'FORUM' ? 'forum' : 'postingan'}.`,
+                REPORT_RECEIVED: `<strong>${DATA.sender_name || 'Someone'}</strong> reported a ${DATA?.content_type || 'content'}.`,
                 INVITE_GROUP: `<strong>${DATA.sender_name || 'Someone'}</strong> inviting you to join their group.`,
                 INVITE_FORUM: `<strong>${DATA.sender_name || 'Someone'}</strong> inviting you to their forum.`,
                 ADMIN_INVITE_FORUM: `<strong>ADMIN</strong> adding you to a forum.`,
@@ -137,23 +159,16 @@
 
             const iconMap = {
                 LIKE_POST: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>`,
-
+                LIKE_TOPIC: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>`,
                 REPLY_POST: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>`,
-
                 REPLY_COMMENT: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>`,
-
                 MENTION: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>`,
-
                 WARNING: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`,
-
                 KICKED: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6" /></svg>`,
-
                 DELETE: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>`,
-
+                REPORT_RECEIVED: `<svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg></svg>`,
                 INVITE_GROUP: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>`,
-
                 INVITE_FORUM: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>`,
-
                 ADMIN_INVITE_FORUM: `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>`
             };
 
@@ -161,7 +176,6 @@
             const link = DATA.link || '#';
 
             const bgColorClass = {
-                red: 'bg-gradient-to-br from-red-400 to-red-500',
                 blue: 'bg-gradient-to-br from-blue-500 to-blue-600',
                 green: 'bg-gradient-to-br from-green-500 to-green-600',
                 purple: 'bg-gradient-to-br from-purple-500 to-purple-600',
@@ -205,16 +219,10 @@
                             (() => {
                                 const date = new Date(CREATED_AT);
                                 date.setHours(date.getHours() - 7);
-
                                 const formattedDate = date.toLocaleString('id-ID', {
-                                    day: '2-digit',
-                                    month: 'short',
-                                    year: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: false
+                                    day: '2-digit', month: 'short', year: 'numeric',
+                                    hour: '2-digit', minute: '2-digit', hour12: false
                                 });
-
                                 return formattedDate.replace('.', ':').replace(',', '') + ' WIB';
                             })()
                             }
@@ -330,28 +338,28 @@
                 const type = notificationElement.dataset.type;
                 const targetId = notificationElement.dataset.targetId;
 
-                // Jika INVITE_FORUM → JANGAN redirect!
-                if (type === 'INVITE_GROUP') {
+                // Fungsi Internal: Kirim request read dan update UI
+                const processRead = async () => {
                     if (!isRead) {
                         await markNotifAsRead(notifId, notificationElement);
                     }
+                };
+
+                // Logic Redirect/Action
+                if (type === 'INVITE_GROUP') {
+                    await processRead();
                     openPreviewGroupNew(targetId);
                     return;
                 }
 
                 if (type === 'INVITE_FORUM') {
-                    if (!isRead) {
-                        await markNotifAsRead(notifId, notificationElement);
-                    }
+                    await processRead();
                     openPreviewForum(targetId);
                     return;
                 }
 
-                // Bukan INVITE → mekanisme lama
-                if (!isRead) {
-                    await markNotifAsRead(notifId, notificationElement);
-                }
-
+                // Default Action
+                await processRead();
                 if (link && link !== '#') {
                     window.location.href = `${BASEURL}/${link}`;
                 }
@@ -372,26 +380,18 @@
 
                 const clonedItem = notificationElement.cloneNode(true);
 
-                const allBorderClasses = [
-                    'border-blue-500', 'border-green-500', 'border-purple-500', 'border-yellow-500',
-                    'border-red-500', 'border-indigo-500',
-                    'bg-blue-50', 'bg-green-50', 'bg-purple-50', 'bg-yellow-50',
-                    'bg-red-50', 'bg-indigo-50'
-                ];
-                clonedItem.classList.remove(
-                    'border-blue-500', 'border-green-500', 'border-purple-500', 'border-yellow-500',
-                    'bg-blue-50', 'bg-green-50', 'bg-purple-50', 'bg-yellow-50'
-                );
+                // --- FIX: Hapus SEMUA kemungkinan warna agar tidak bertabrakan dengan gray ---
+                clonedItem.classList.remove(...allColorBorders);
+                clonedItem.classList.remove(...allColorBackgrounds);
+
+                // Tambahkan style "read" (putih & transparan)
                 clonedItem.classList.add('border-transparent', 'bg-white');
 
                 const iconWrapper = clonedItem.querySelector('.rounded-full');
                 if (iconWrapper) {
-                    iconWrapper.classList.remove(
-                        'from-blue-500', 'to-blue-600',
-                        'from-green-500', 'to-green-600',
-                        'from-purple-500', 'to-purple-600',
-                        'from-yellow-500', 'to-yellow-600'
-                    );
+                    // --- FIX: Hapus SEMUA kemungkinan gradient icon ---
+                    iconWrapper.classList.remove(...allIconGradients);
+                    // Tambahkan style gray
                     iconWrapper.classList.add('from-gray-400', 'to-gray-500');
                 }
 
@@ -409,6 +409,59 @@
                 console.error(err);
             }
         }
+
+        markAllReadBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch(`${BASEURL}/notifications/markAllRead`, {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    const unreadItems = Array.from(unreadContainer.querySelectorAll('[data-notif-id]'));
+
+                    unreadItems.forEach(item => {
+                        const clonedItem = item.cloneNode(true);
+
+                        // --- FIX: Bersihkan semua warna ---
+                        clonedItem.classList.remove(...allColorBorders);
+                        clonedItem.classList.remove(...allColorBackgrounds);
+                        clonedItem.classList.add('border-transparent', 'bg-white');
+
+                        const iconWrapper = clonedItem.querySelector('.rounded-full');
+                        if (iconWrapper) {
+                            // --- FIX: Bersihkan semua gradient ---
+                            iconWrapper.classList.remove(...allIconGradients);
+                            iconWrapper.classList.add('from-gray-400', 'to-gray-500');
+                        }
+
+                        const dot = clonedItem.querySelector('.unread-indicator');
+                        if (dot) dot.remove();
+
+                        clonedItem.dataset.isRead = '1';
+                        readContainer.querySelector('.overflow-y-auto').insertAdjacentElement('afterbegin', clonedItem);
+                    });
+
+                    unreadContainer.innerHTML = '';
+                    updateNotificationCount(0);
+                    updateContainerVisibility();
+                }
+            } catch (error) {
+                console.error('Error marking all as read:', error);
+            }
+        });
+
+        deleteAllReadBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch(`${BASEURL}/notifications/deleteAllRead`, {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    readContainer.querySelector('.overflow-y-auto').innerHTML = '';
+                    updateContainerVisibility();
+                }
+            } catch (error) {
+                console.error('Error deleting all read notifications:', error);
+            }
+        });
 
         notifBtn.addEventListener('click', toggleDropdown);
         notifBtnMobile.addEventListener('click', toggleDropdown);
@@ -441,56 +494,6 @@
             tabUnread.classList.add('text-gray-600', 'hover:bg-gray-100');
             readContainer.classList.remove('hidden');
             unreadContainer.classList.add('hidden');
-        });
-
-        markAllReadBtn.addEventListener('click', async () => {
-            try {
-                const response = await fetch(`${BASEURL}/notifications/markAllRead`, {
-                    method: 'POST'
-                });
-                if (response.ok) {
-                    const unreadItems = Array.from(unreadContainer.querySelectorAll('[data-notif-id]'));
-
-                    unreadItems.forEach(item => {
-                        const clonedItem = item.cloneNode(true);
-                        clonedItem.classList.remove('border-blue-500', 'border-green-500', 'border-purple-500', 'border-yellow-500', 'bg-blue-50', 'bg-green-50', 'bg-purple-50', 'bg-yellow-50');
-                        clonedItem.classList.add('border-transparent', 'bg-white');
-
-                        const iconWrapper = clonedItem.querySelector('.rounded-full');
-                        if (iconWrapper) {
-                            iconWrapper.classList.remove('from-blue-500', 'to-blue-600', 'from-green-500', 'to-green-600', 'from-purple-500', 'to-purple-600', 'from-yellow-500', 'to-yellow-600');
-                            iconWrapper.classList.add('from-gray-400', 'to-gray-500');
-                        }
-
-                        const dot = clonedItem.querySelector('.unread-indicator');
-                        if (dot) dot.remove();
-
-                        clonedItem.dataset.isRead = '1';
-                        readContainer.querySelector('.overflow-y-auto').insertAdjacentElement('afterbegin', clonedItem);
-                    });
-
-                    unreadContainer.innerHTML = '';
-                    updateNotificationCount(0);
-                    updateContainerVisibility();
-                }
-            } catch (error) {
-                console.error('Error marking all as read:', error);
-            }
-        });
-
-        deleteAllReadBtn.addEventListener('click', async () => {
-            try {
-                const response = await fetch(`${BASEURL}/notifications/deleteAllRead`, {
-                    method: 'POST'
-                });
-
-                if (response.ok) {
-                    readContainer.querySelector('.overflow-y-auto').innerHTML = '';
-                    updateContainerVisibility();
-                }
-            } catch (error) {
-                console.error('Error deleting all read notifications:', error);
-            }
         });
 
         handleNotificationClick(unreadContainer);

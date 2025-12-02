@@ -522,7 +522,7 @@ class DashboardController
 
                     $resetLink = BASEURL . '/forget-password';
 
-                  
+
                     $mail->Body = "Halo <b>{$userData['FULL_NAME']}</b>,<br><br>"
                         . "Akun Anda untuk aplikasi SINERGI telah berhasil dibuat oleh administrator.<br><br>"
                         . "Anda dapat login menggunakan detail berikut:<br>"
@@ -542,7 +542,6 @@ class DashboardController
                     $mail->send();
                 } catch (Exception $e) {
                     error_log("PHPMailer Error: " . $mail->ErrorInfo);
-                    
                 }
             }
 
@@ -592,5 +591,29 @@ class DashboardController
             error_log("Reject Mitra Error: " . $e->getMessage());
             echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan server']);
         }
+    }
+
+    public function reportCount()
+    {
+        header('Content-Type: application/json');
+  
+        $counts = $this->overviewCount->getReportCounts();
+
+        if ($counts) {
+            echo json_encode([
+                'success' => true,
+                'data' => [
+                    'forum'     => (int)$counts['total_forum'],
+                    'postingan' => (int)$counts['total_postingan'],
+                    'group'     => (int)$counts['total_group']
+                ]
+            ]);
+        } else {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Error fatch data'
+            ]);
+        }
+        exit;
     }
 }

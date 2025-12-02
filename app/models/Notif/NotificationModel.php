@@ -131,7 +131,7 @@ class NotificationModel extends BaseModel
         $id = uniqid('notif_');
 
         $senderName = '';
-        if ($_SESSION['role'] == 'ADMIN') {
+        if (isset($_SESSION['role']) && $_SESSION['role'] == 'ADMIN') {
             $senderName = 'ADMIN';
         } else {
             $senderName = $_SESSION['full_name'] ?? 'Someone';
@@ -144,26 +144,37 @@ class NotificationModel extends BaseModel
             'content_type' => $targetTypeNotif
         ];
 
-        $targetType = $targetTypeNotif ?? 'POST';
+        $targetType = $targetTypeNotif;
 
-        if ($targetType === 'POST') {
-            $notifData['link'] = "homepage/reply/$targetId";
-        } elseif ($targetType === 'GROUP') {
-            $notifData['link'] = "groups/chat/$targetId";
+        if ($type === 'REPORT_RECEIVED') {
+            if ($targetType === 'GROUP') {
+                $notifData['link'] = "dashboard/laporan/group";
+            } elseif ($targetType === 'FORUM') {
+                $notifData['link'] = "dashboard/laporan/forum";
+            } else {
+                $notifData['link'] = "dashboard/laporan/postingan";
+            }
         } else {
-            $notifData['link'] = "forum/topic/$targetId";
+            if ($targetType === 'FORUM') {
+                $notifData['link'] = "forum/topic/$targetId";
+            } elseif ($targetType === 'GROUP') {
+                $notifData['link'] = "groups/chat/$targetId";
+            } else {
+                $notifData['link'] = "homepage/reply/$targetId";
+            }
         }
-
 
         $jsonData = json_encode($notifData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         $sql = "INSERT INTO NOTIFICATIONS (ID, USER_ID, TYPE, DATA, IS_READ, CREATED_AT)
-                VALUES (:id, :user_id, :type, :data, 0, CURRENT_TIMESTAMP)";
+            VALUES (:id, :user_id, :type, :data, 0, CURRENT_TIMESTAMP)";
+
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ':id', $id);
         oci_bind_by_name($stmt, ':user_id', $targetUserId);
         oci_bind_by_name($stmt, ':type', $type);
         oci_bind_by_name($stmt, ':data', $jsonData);
+
         oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
 
         oci_free_statement($stmt);
