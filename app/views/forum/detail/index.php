@@ -187,7 +187,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                             <h3 class="font-bold text-lg text-gray-800 mb-4 border-b border-gray-200 pb-2">About Forum</h3>
 
                             <p class="text-gray-600 mb-6 leading-relaxed">
-                                <?= htmlspecialchars($forumById['ABOUT']) ?>
+                                <?= htmlspecialchars($forumById['ABOUT'] ?? "") ?>
                             </p>
 
                             <div class="space-y-4 text-sm">

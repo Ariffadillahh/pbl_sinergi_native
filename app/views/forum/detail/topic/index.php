@@ -200,7 +200,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
                 <!-- Media Gallery -->
                 <?php if (!empty($images)): ?>
-                    <div class="bg-gradient-to-b from-gray-900 to-black overflow-hidden mb-2 -mx-4 sm:mx-0 ">
+                    <div class="bg-gradient-to-b from-gray-300 to-white overflow-hidden mb-2 -mx-4 sm:mx-0 ">
                         <div class="swiper myPostSwiper w-full aspect-square sm:aspect-video sm:h-96 sm:min-h-[300px] sm:max-h-[500px]">
                             <div class="swiper-wrapper">
                                 <?php foreach ($images as $img): ?>

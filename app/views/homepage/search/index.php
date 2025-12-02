@@ -297,7 +297,7 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
             </div>
 
             ${p.MEDIA && p.MEDIA.length > 0 ? `
-              <div class="bg-gradient-to-b from-gray-900 to-black overflow-hidden pointer-events-auto"
+              <div class="bg-gradient-to-b from-gray-300 to-white overflow-hidden pointer-events-auto"
               					 onclick="event.stopPropagation()">
                 <swiper-container class="mySwiper w-full aspect-video" init="false">
                   ${p.MEDIA.map(path => `

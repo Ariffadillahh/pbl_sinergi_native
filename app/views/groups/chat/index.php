@@ -71,7 +71,7 @@
                             </button>
                         </div>
 
-                        <div class="relative mb-10 md:mb-0" >
+                        <div class="relative " >
                             <div id="Chat-Input" contenteditable="true" spellcheck="false"
                                 class="appearance-none outline-none w-full min-h-[60px] max-h-[200px] overflow-y-auto rounded-2xl p-5 pl-4 pr-[112px] sm:pr-[120px] bg-white break-all font-medium leading-5 hide-scrollbar focus:ring-2 focus:ring-blue-600 transition-all duration-300 text-gray-900 shadow-sm">
                             </div>

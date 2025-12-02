@@ -312,7 +312,7 @@ function translateRole($role) {
                                     </div>
 
                                     <?php if (!empty($post['MEDIA'])): ?>
-                                        <div class="bg-gradient-to-b from-gray-900 to-black overflow-hidden">
+                                        <div class="bg-gradient-to-b from-gray-300 to-white overflow-hidden">
                                             <swiper-container class="mySwiper aspect-video w-full min-h-[250px] md:min-h-[400px]" init="false">
                                                 <?php foreach ($post['MEDIA'] as $mediaPath): ?>
                                                     <swiper-slide>
