@@ -707,31 +707,53 @@ class ForumModel extends BaseModel
     {
         $conn = self::getConnection();
 
-        $sql = "SELECT 
-                    FM.ID as \"id\",
-                    U.FULL_NAME as \"nama\",
-                    U.USERNAME as \"username\",
-                    U.ROLE as \"role\",
-                    U.PATH_PHOTO as \"photo\"
-                FROM FORUM_MEMBERS FM
-                JOIN USERS U ON FM.USER_ID = U.ID
-                WHERE FM.FORUM_ID = :forum_id 
-                AND FM.STATUS = 'PENDING' AND U.STATUS = 'APPROVED'";
+        $sql = "
+            SELECT 
+                FM.ID           AS \"id\",
+                U.FULL_NAME     AS \"nama\",
+                U.USERNAME      AS \"username\",
+                U.ROLE          AS \"role\",
+                U.PATH_PHOTO    AS \"photo\"
+            FROM FORUM_MEMBERS FM
+            JOIN USERS U 
+                ON FM.USER_ID = U.ID
+            WHERE 
+                FM.FORUM_ID = :forum_id
+                AND UPPER(FM.STATUS) = 'PENDING'
+                AND UPPER(U.STATUS) = 'APPROVED'
+        ";
+
 
         $stid = oci_parse($conn, $sql);
+
         if (!$stid) {
             $e = oci_error($conn);
-            throw new Exception($e['message']);
+            throw new Exception("Parse Error: " . $e['message']);
         }
 
-        oci_bind_by_name($stid, ':forum_id', $forumId);
+        // Pastikan forumId bersih
+        $cleanForumId = trim($forumId);
 
-        oci_execute($stid);
+        // Binding
+        oci_bind_by_name($stid, ':forum_id', $cleanForumId);
+
+        // 2. Cek hasil eksekusi
+        $execute = oci_execute($stid);
+        if (!$execute) {
+            $e = oci_error($stid);
+            throw new Exception("Execute Error: " . $e['message']);
+        }
 
         $output = [];
-        oci_fetch_all($stid, $output, 0, -1, OCI_FETCHSTATEMENT_BY_ROW + OCI_ASSOC);
+        // 3. Pastikan flag fetch benar
+        $rows = oci_fetch_all($stid, $output, 0, -1, OCI_FETCHSTATEMENT_BY_ROW + OCI_ASSOC);
 
         oci_free_statement($stid);
+
+        // DEBUGGING SEMENTARA (Hapus nanti jika sudah fix)
+        // Jika baris ini dijalankan, Anda bisa lihat di Network tab browser (Preview) 
+        // apakah $rows bernilai 0.
+        // error_log("Forum ID: " . $cleanForumId . " - Jumlah Data Ditemukan: " . $rows);
 
         return $output;
     }

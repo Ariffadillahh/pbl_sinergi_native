@@ -1,4 +1,4 @@
-<div id="joinForumModal" class="hidden fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
+<div id="joinForumModal" class="hidden fixed inset-0 bg-black/50 z-[99999] items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl max-w-md w-full">
         <div class="p-6">
             <div class="flex justify-between items-center mb-6">

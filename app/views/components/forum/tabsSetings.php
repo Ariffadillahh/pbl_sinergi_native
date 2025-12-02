@@ -1,6 +1,6 @@
-<div class="tab-content hidden" data-content="settings">
+<div class="tab-content hidden " data-content="settings">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center w-full">
+        <div class="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center w-full ">
             <div class="flex items-center justify-center w-20 h-20 rounded-full bg-blue-50 mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -37,7 +37,7 @@
             </button>
         </div>
 
-        <div class="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center w-full md:col-span-2">
+        <div class="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center w-full md:col-span-2 ">
             <div class="flex items-center justify-center w-20 h-20 rounded-full bg-red-50 mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M12 3a9 9 0 110 18 9 9 0 010-18z" />
@@ -49,12 +49,15 @@
                 This action cannot be undone. All posts and members will be deleted.
             </p>
 
-            <button onclick="openDeleteModal()" class="w-full md:w-auto border border-red-300 bg-red-50 hover:bg-red-100 text-red-600 px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4" />
-                </svg>
-                Delete This Forum
-            </button>
+            <div class="flex justify-center">
+                <button onclick="openDeleteModal()" class="w-full md:w-auto border border-red-300 bg-red-50 hover:bg-red-100 text-red-600 px-6 py-2.5 rounded-lg font-semibold flex items-center text-center gap-2 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4" />
+                    </svg>
+                    Delete This Forum
+                </button>
+            </div>
+
         </div>
         <?php require_once 'app/views/components/forum/modalRequestMitra.php'; ?>
     </div>
@@ -240,7 +243,7 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
 </div>
 
 <div id="deleteModalOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm transform scale-95 transition-all duration-300 text-center">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm transform scale-95 transition-all duration-300 text-center m-5 md:m-0">
 
         <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">

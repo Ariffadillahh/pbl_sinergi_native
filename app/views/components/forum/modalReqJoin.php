@@ -2,9 +2,10 @@
     <div class="fixed inset-0 bg-black/60 bg-opacity-60 transition-opacity backdrop-blur-sm" onclick="closeModal()"></div>
 
     <div class="fixed inset-0 z-10 overflow-y-auto">
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+        <div class="flex justify-center items-center h-screen px-3">
 
-            <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">
+            <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl
+            transition-all sm:my-8 w-full max-w-lg lg:max-w-2xl border border-gray-100">
 
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-100 flex justify-between items-center">
                     <div>
@@ -18,7 +19,7 @@
                     </button>
                 </div>
 
-                <div class="px-4 py-2 sm:px-6 h-80 overflow-y-auto custom-scrollbar relative">
+                <div class="px-4 py-2 sm:px-6 h-80 overflow-y-auto hide-scrollbar relative">
 
                     <div id="loadingState" class="hidden absolute inset-0 bg-white z-20 flex flex-col items-center justify-center text-gray-400">
                         <svg class="animate-spin h-8 w-8 mb-3 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -28,29 +29,46 @@
                         <p class="text-sm font-medium text-gray-500">Loading requests...</p>
                     </div>
 
-                    <div id="requestListContainer" class="space-y-1 mt-2">
-                    </div>
+                    <div id="requestListContainer" class="space-y-1 mt-2"></div>
 
                     <div id="emptyState" class="hidden flex-col items-center justify-center h-full text-gray-500 py-10">
-                        <div class="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+
+                    </div>
+
+                    <div id="empty" class="hidden flex flex-col items-center justify-center h-full py-6 text-center px-4 hide-scrollbar">
+
+                        <div class="h-20 w-20 bg-gray-100 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                            <svg class="w-9 h-9 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                             </svg>
                         </div>
-                        <h4 class="text-gray-900 font-medium mb-1">No requests found</h4>
-                        <p class="text-sm text-gray-400 text-center max-w-xs">There are no pending requests to join this forum at the moment.</p>
+
+                        <h4 class="text-lg font-semibold text-gray-800 mb-1">
+                            No Requests Found
+                        </h4>
+
+                        <p class="text-sm text-gray-500 max-w-sm leading-relaxed">
+                            There are currently no pending requests to join this forum.
+                            New requests will appear here automatically.
+                        </p>
                     </div>
+
 
                 </div>
 
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse rounded-b-2xl border-t border-gray-100">
-                    <button type="button" onclick="closeModal()" class="mt-3 inline-flex w-full justify-center rounded-lg bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition cursor-pointer">
+                    <button type="button" onclick="closeModal()"
+                        class="mt-3 inline-flex w-full justify-center rounded-lg bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm 
+                    ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition cursor-pointer">
                         Close
                     </button>
                 </div>
+
             </div>
         </div>
     </div>
+
 </div>
 
 <script>
@@ -61,9 +79,11 @@
     const listContainer = document.getElementById('requestListContainer');
     const loadingState = document.getElementById('loadingState');
     const emptyState = document.getElementById('emptyState');
+    const empty = document.getElementById('empty');
 
     async function openRequestModal(buttonElement) {
         const forumId = buttonElement.getAttribute('data-id');
+
 
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -73,6 +93,7 @@
         loadingState.classList.remove('hidden');
         loadingState.classList.add('flex');
 
+
         try {
             const response = await fetch(`<?= BASEURL ?>/${API_GET_URL}?forum_id=${forumId}`);
             if (!response.ok) throw new Error('Network response was not ok');
@@ -81,8 +102,10 @@
             loadingState.classList.add('hidden');
             loadingState.classList.remove('flex');
 
+
             if (data.length === 0) {
-                showEmptyState();
+                empty.classList.remove('hidden')
+                console.log('kosong')
                 return;
             }
 

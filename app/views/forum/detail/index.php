@@ -90,26 +90,44 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                         <?php if ($isMember): ?>
 
                             <?php if ($forumById['OWNER_ID'] === $_SESSION['user_id']) : ?>
-                                <div class="relative inline-block">
-                                    <button onclick="openRequestModal(this)"
-                                        data-id="<?= $forumById['ID'] ?>"
-                                        class="cursor-pointer group flex items-center gap-2 bg-white hover:bg-indigo-50 text-gray-700 border border-gray-200 px-6 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 ease-in-out font-medium">
+
+                                <?php if ($forumById['IS_PRIVATE'] == 1): ?>
+                                    <button onclick="openRequestModal(this)" data-id="<?= $forumById['ID'] ?>" 
+                                        class="cursor-pointer group flex items-center gap-2 
+                                            bg-white hover:bg-indigo-50 text-gray-700 border border-gray-200 
+                                            px-6 py-2.5 rounded-xl shadow-sm hover:shadow-md 
+                                            transition-all duration-200 ease-in-out font-medium 
+                                            w-full md:w-auto justify-center md:justify-start">
 
                                         <?php if ($forumById['TOTAL_REQUESTS'] > 0): ?>
-                                            <span id="badgeCount" class="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-md ring-2 ring-white animate-pulse">
+                                            <span id="badgeCount"
+                                                class="flex h-5 w-5 items-center justify-center rounded-full 
+                                                    bg-red-500 text-[10px] font-bold text-white 
+                                                    shadow-md ring-2 ring-white animate-pulse">
                                                 <?= $forumById['TOTAL_REQUESTS'] ?>
                                             </span>
                                         <?php endif; ?>
 
-                                        <span>Requests</span>
+                                        <span class="text-center md:text-left">Requests</span>
                                     </button>
-                                </div>
+
+
+                                <?php else : ?>
+                                    <button
+                                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 md:px-6 py-2 rounded-lg font-semibold text-sm md:text-base w-full md:w-auto transition cursor-default">
+                                        ✓ Joined
+                                    </button>
+                                <?php endif; ?>
+
                             <?php else: ?>
+
                                 <button
                                     class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 md:px-6 py-2 rounded-lg font-semibold text-sm md:text-base w-full md:w-auto transition cursor-default">
                                     ✓ Joined
                                 </button>
+
                             <?php endif; ?>
+
 
 
                             <div class="flex gap-3">

@@ -47,7 +47,7 @@
             <div>
                 <button id="btn-open-exit-forum" class="w-full h-full flex gap-1 items-center justify-center bg-white rounded-2xl p-[10px] ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 cursor-pointer">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/logout-grey.svg" class="size-6 flex shrink-0" alt="icon">
-                    <span class="font-medium text-sm text-heyhao-secondary">Leave Group</span>
+                    <span class="font-medium text-sm">Leave Group</span>
                 </button>
             </div>
             <div class="group">
@@ -185,8 +185,8 @@
                         <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 min-w-0">
                             <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
                                 <img src="<?= !empty($groupChatId['PATH_PHOTO_OWNER'])
-                                            ? BASEURL . '/storage/users/photos/' . $groupChatId['PATH_PHOTO_OWNER']
-                                            : BASEURL . '/src/asset/image/default.png' ?>" class="w-full h-full object-cover" alt="photo">
+                                                ? BASEURL . '/storage/users/photos/' . $groupChatId['PATH_PHOTO_OWNER']
+                                                : BASEURL . '/src/asset/image/default.png' ?>" class="w-full h-full object-cover" alt="photo">
                             </div>
                             <div class="flex flex-col flex-1 gap-[6px] min-w-0">
                                 <div class="flex items-center gap-2 min-w-0">
@@ -238,8 +238,8 @@
                                 <div class="flex items-center justify-between rounded-2xl ring-1 ring-gray-200 hover:ring-1 hover:ring-blue-600 transition-all duration-300 p-4 gap-3 min-w-0">
                                     <div class="flex size-[50px] shrink-0 rounded-full overflow-hidden">
                                         <img src="<?= !empty($member['PATH_PHOTO'])
-                                                    ? BASEURL . '/storage/users/photos/' . $member['PATH_PHOTO']
-                                                    : BASEURL . '/src/asset/image/default.png' ?>" class="w-full h-full object-cover" alt="photo">
+                                                        ? BASEURL . '/storage/users/photos/' . $member['PATH_PHOTO']
+                                                        : BASEURL . '/src/asset/image/default.png' ?>" class="w-full h-full object-cover" alt="photo">
                                     </div>
                                     <div class="flex flex-col flex-1 gap-[6px] min-w-0">
                                         <div class="flex items-center gap-2 min-w-0">
@@ -276,7 +276,7 @@
                                             </div>
 
                                         </div>
-                                        <div class="flex font-medium text-sm text-heyhao-secondary gap-0.5 items-center">
+                                        <div class="flex font-medium text-sm gap-0.5 items-center">
                                             <p>Joined: </p>
                                             <p><?= $member["JOINED_AT"] ?></p>
                                         </div>
@@ -289,25 +289,32 @@
 
 
                 <?php if ($groupChatId['OWNER_ID'] == $_SESSION['user_id']): ?>
-                    <div class="my-5 flex">
-                        <button
-                            type="button"
-                            id="btn-open-manage-members"
-                            class="w-full px-5 py-2.5 mb-2text-sm font-semibold text-gray-700 bg-white border border-gray-300rounded-xl shadow-sm hover:bg-gray-100 hover:border-gray-400 active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300 rounded-lg cursor-pointer">
+                    <div class="my-6 flex flex-col gap-3 sm:grid sm:grid-cols-2">
+
+                        <button type="button" id="btn-open-manage-members"
+                            class="sm:col-span-2 group flex w-full items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-200 active:scale-[0.98]">
+                            <svg class="h-4 w-4 text-gray-500 transition-colors group-hover:text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
                             Manage Members
                         </button>
 
-                    </div>
-                    <div class="my-5 flex gap-3">
                         <button type="button" id="btn-open-edit-forum"
-                            class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 w-full cursor-pointer">
+                            class="group flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 active:scale-[0.98]">
+                            <svg class="h-4 w-4 text-blue-100 transition-colors group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
                             Edit Group
                         </button>
 
                         <button type="button" id="btn-open-delete-forum"
-                            class="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2 w-full cursor-pointer">
+                            class="group flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-semibold text-red-700 transition-all duration-200 hover:bg-red-100 hover:border-red-300 focus:outline-none focus:ring-2 focus:ring-red-200 active:scale-[0.98]">
+                            <svg class="h-4 w-4 text-red-500 transition-colors group-hover:text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
                             Delete Group
                         </button>
+
                     </div>
                 <?php endif; ?>
 

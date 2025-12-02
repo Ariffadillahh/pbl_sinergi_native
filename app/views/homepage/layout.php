@@ -7,7 +7,7 @@
     <link href="<?php echo BASEURL; ?>/src/css/output.css" rel="stylesheet">
 </head>
 
-<body class="bg-gray-100 h-screen flex">
+<body class="bg-gray-100 h-screen flex overflow-x-hidden overflow-y-auto">
 
     <?php require_once 'app/views/components/sidebars.php'; ?>
 

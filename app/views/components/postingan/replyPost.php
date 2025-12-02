@@ -8,7 +8,7 @@
 
             <div class="flex-1">
                 <div class="flex items-center gap-2">
-                    <span class="font-semibold text-gray-700"><?= htmlspecialchars($post['FULL_NAME']) ?></span>
+                    <span class="font-semibold line-clamp-1 text-gray-700"><?= htmlspecialchars($post['FULL_NAME']) ?></span>
                     
                     <?php
                     $role = $post['ROLE'] ?? 'MAHASISWA';
@@ -89,7 +89,7 @@
         </div>
 
         <div class="mt-3">
-            <p class="text-black text-[15px] leading-relaxed"><?= $post['CONTENT_FORMATTED'] ?? '' ?></p>
+            <p class="text-black text-[15px] leading-relaxed whitespace-normal break-words"><?= $post['CONTENT_FORMATTED'] ?? '' ?></p>
         </div>
     </div>
 

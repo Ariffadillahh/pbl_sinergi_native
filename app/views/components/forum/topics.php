@@ -46,7 +46,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                         <div>
                             <!-- FIX: Add role badge -->
                             <div class="flex items-center gap-2">
-                                <h4 class="font-semibold text-gray-900 leading-tight"><?= htmlspecialchars($topic['FULL_NAME']) ?></h4>
+                                <h4 class="font-semibold text-gray-900 leading-tight line-clamp-1"><?= htmlspecialchars($topic['FULL_NAME']) ?></h4>
                                 
                                 <?php
                                 $role = $topic['ROLE'] ?? 'MAHASISWA';
@@ -115,7 +115,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                 <?php endif; ?>
 
                 <?php if (!empty($topic['CONTENT'])): ?>
-                    <p class="text-gray-900 mb-2 whitespace-pre-wrap leading-relaxed"><?= htmlspecialchars($topic['CONTENT']) ?></p>
+                    <p class="text-gray-900 mb-2 leading-relaxed whitespace-normal break-words"><?= htmlspecialchars($topic['CONTENT']) ?></p>
                 <?php endif; ?>
             </div>
 

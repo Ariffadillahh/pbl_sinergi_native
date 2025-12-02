@@ -2,88 +2,94 @@
 $keyword = $keyword ?? ($_GET['keyword'] ?? '');
 ?>
 <!doctype html>
-<html lang="en"> <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="<?= BASEURL ?>/src/css/output.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script>
-    <title>Search | Sinergi</title> </head>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="<?= BASEURL ?>/src/css/output.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script>
+  <title>Search | Sinergi</title>
+</head>
 
 <body class="bg-gray-50">
-    <main class="w-full min-h-screen overflow-y-auto border-gray-200 hide-scrollbar relative">
+  <main class="w-full min-h-screen overflow-y-auto overflow-x-hidden border-gray-200 hide-scrollbar relative">
+    <div class="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full shadow-sm border-b border-gray-200/80">
+      <div class="w-full px-4 sm:px-6 lg:px-8 py-3">
+        <div class="flex items-center justify-between gap-3 sm:gap-4">
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <h1 class="hidden sm:block text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">SINERGI</h1>
+            <img src="<?= BASEURL ?>/src/asset/icons/logo-icon.svg" class="flex w-11 h-9 shrink-0 md:hidden" alt="logo">
+          </div>
 
-        <div class="sticky top-0 z-50 bg-white/95 backdrop-blur-md w-full shadow-sm border-b border-gray-200/80">
-            <div class="w-full px-4 sm:px-6 lg:px-8 py-3">
-                <div class="flex items-center justify-between gap-3 sm:gap-4">
-                    <div class="flex items-center gap-2 flex-shrink-0">
-                        <h1 class="hidden sm:block text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">SINERGI</h1>
-                        <img src="<?= BASEURL ?>/src/asset/icons/logo-icon.svg" class="flex w-11 h-9 shrink-0 md:hidden" alt="logo">
-                    </div>
-
-                    <form id="searchForm" class="flex-1 max-w-2xl" onsubmit="return handleSearch(event)">
-                        <div class="relative group">
-                            <input type="search" id="searchInput"
-                                class="block w-full p-4 pr-14 text-sm text-gray-900 rounded-full bg-white shadow-md
+          <form id="searchForm" class="flex-1 max-w-2xl" onsubmit="return handleSearch(event)">
+            <div class="relative group">
+              <input type="search" id="searchInput"
+                class="block w-full p-4 pr-14 text-sm text-gray-900 rounded-full bg-white shadow-md
                                      placeholder:text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 outline-none"
-                                placeholder="Search for something or type @username..." value="<?= htmlspecialchars($keyword) ?>"
-                                minlength="3"
-                                autocomplete="off" />
-                            <button type="submit"
-                                class="text-white absolute right-1.5 top-1/2 -translate-y-1/2 
+                placeholder="Search for something or type @username..." value="<?= htmlspecialchars($keyword) ?>"
+                minlength="3"
+                autocomplete="off" />
+              <button type="submit"
+                class="text-white absolute right-1.5 top-1/2 -translate-y-1/2 
                                         bg-gradient-to-r from-blue-500 to-blue-600 rounded-full p-2.5 w-10 h-10 flex items-center justify-center shadow-sm cursor-pointer">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                                </svg>
-                            </button>
-                        </div>
-                    </form>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 20 20">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                </svg>
+              </button>
+            </div>
+          </form>
 
-                    <div class="group relative flex justify-center">
-                        <button id="quote-btn-opn" aria-label="Show Quote of the Day" class="flex items-center justify-center p-2.5 rounded-full cursor-pointer">
-                            <img src="<?php echo BASEURL; ?>/src/asset/icons/quote.svg" class="h-8 w-8" alt="Quotes of the Day icon">
-                        </button>
+          <div class="group relative flex justify-center">
+            <button id="quote-btn-opn" aria-label="Show Quote of the Day" class="flex items-center justify-center p-2.5 rounded-full cursor-pointer">
+              <img src="<?php echo BASEURL; ?>/src/asset/icons/quote.svg" class="h-8 w-8" alt="Quotes of the Day icon">
+            </button>
 
-                        <div role="tooltip"
-                            class="absolute top-full mt-2 left-0 -translate-x-1/2 
+            <div role="tooltip"
+              class="absolute top-full mt-2 left-0 -translate-x-1/2 
                                          whitespace-nowrap bg-gray-800 text-white text-sm font-medium 
                                          px-3 py-1.5 rounded-lg shadow-sm 
                                          opacity-0 invisible group-hover:opacity-100 group-hover:visible 
                                          transition-opacity duration-300">
-                            Quotes of the Day
-                        </div>
-                    </div>
-                </div>
+              Quotes of the Day
             </div>
+          </div>
         </div>
+      </div>
+    </div>
 
-        <div class="sticky top-[90px] z-40 flex justify-center md:my-5 px-5">
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 px-6 py-3 w-full max-w-xl flex justify-between">
-                <button data-filter="top"
-                    class="tab-btn active-tab relative px-4 py-2 text-blue-600 font-semibold transition-all duration-200 cursor-pointer">
-                    Top
-                </button>
-                <button data-filter="latest"
-                    class="tab-btn relative px-4 py-2 text-gray-500 hover:text-blue-600 transition-all duration-200 cursor-pointer">
-                    Latest
-                </button>
-                <button data-filter="users"
-                    class="tab-btn relative px-4 py-2 text-gray-500 hover:text-blue-600 transition-all duration-200 cursor-pointer">
-                    Users
-                </button>
-            </div>
-        </div>
+    <div class="sticky top-[90px] z-40 flex justify-center md:my-5 px-5">
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 px-6 py-3 w-full max-w-xl flex justify-between">
+        <button data-filter="top"
+          class="tab-btn active-tab relative px-4 py-2 text-blue-600 font-semibold transition-all duration-200 cursor-pointer">
+          Top
+        </button>
+        <button data-filter="latest"
+          class="tab-btn relative px-4 py-2 text-gray-500 hover:text-blue-600 transition-all duration-200 cursor-pointer">
+          Latest
+        </button>
+        <button data-filter="users"
+          class="tab-btn relative px-4 py-2 text-gray-500 hover:text-blue-600 transition-all duration-200 cursor-pointer">
+          Users
+        </button>
+      </div>
+    </div>
 
-        <div class="max-w-xl mx-auto px-5 md:px-0 mb-20 md:mb-0">
-            <div id="results" class="space-y-6 mt-4">
-                <div class="flex flex-col items-center justify-center py-12">
-                    <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    <p class="text-gray-500 text-center">Type your keyword and click Search, or press Enter.</p> </div>
-            </div>
+    <div class="max-w-xl mx-auto px-5 md:px-0 mb-20 md:mb-0">
+      <div id="results" class="space-y-6 mt-4">
+        <div class="flex flex-col items-center justify-center py-12">
+          <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <p class="text-gray-500 text-center">Type your keyword and click Search, or press Enter.</p>
         </div>
-    </main>
+      </div>
+    </div>
+  </main>
+
+  <?php require_once 'app/views/components/quotes.php' ?>
+
 
   <script>
     const BASEURL = '<?= BASEURL ?>';
@@ -141,7 +147,7 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
 
     function timeAgo(dateString) {
       if (!dateString) return '';
-      
+
       const safeDateString = dateString.replace(' ', 'T');
       const date = new Date(safeDateString);
       const now = new Date();
@@ -246,16 +252,16 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
             <h3 class="text-lg font-semibold text-gray-800 mb-2">No Posts Found</h3> <p class="text-gray-500 text-center text-sm max-w-sm">No posts matched the search for "${escapeHtml(keyword)}"</p> </div>`;
           return;
         }
-        
+
         // Role mapping consistent with PHP template
         const roleDisplay = {
-            "MAHASISWA": "STUDENT",
-            "ADMIN": "ADMIN",
-            "DOSEN": "LECTURER",
-            "MITRA": "PARTNER",
-            "ALUMNI": "ALUMNI"
+          "MAHASISWA": "STUDENT",
+          "ADMIN": "ADMIN",
+          "DOSEN": "LECTURER",
+          "MITRA": "PARTNER",
+          "ALUMNI": "ALUMNI"
         };
-        
+
         resultsDiv.innerHTML = data.data.map(p => {
           // Role badge mapping (CSS classes remain the same for consistency)
           const role = p.ROLE || 'MAHASISWA';
@@ -268,7 +274,7 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
             "ALUMNI": "bg-yellow-100 text-yellow-800"
           };
           const colorClass = roleClasses[role] || "bg-gray-100 text-gray-800";
-          
+
           return `
           <div class="my-6 bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden hover:shadow-md hover:border-blue-200 transition-all duration-200 group relative cursor-pointer"
             onclick="window.location.href='${BASEURL}/homepage/reply/${p.POST_ID}'">
@@ -392,11 +398,11 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
             const postId = btn.dataset.postId;
             const icon = btn.querySelector('svg');
             const countSpan = btn.querySelector('.like-count');
-            
+
             // Disable button during request
             btn.disabled = true;
             btn.style.opacity = '0.6';
-            
+
             try {
               const res = await fetch(`${BASEURL}/like/toggle`, {
                 method: 'POST',
@@ -406,18 +412,18 @@ $keyword = $keyword ?? ($_GET['keyword'] ?? '');
                 credentials: 'same-origin'
               });
               const data = await res.json();
-              
+
               if (data.success) {
                 const isLiked = data.action === 'liked';
                 btn.dataset.liked = isLiked ? 'true' : 'false';
                 countSpan.textContent = data.total_likes ?? 0;
-                
+
                 // Animate count
                 countSpan.classList.add('scale-110', 'text-blue-600');
                 setTimeout(() => {
                   countSpan.classList.remove('scale-110', 'text-blue-600');
                 }, 200);
-                
+
                 // Update icon
                 if (isLiked) {
                   icon.classList.remove('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');

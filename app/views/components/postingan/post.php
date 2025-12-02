@@ -1,7 +1,8 @@
 <?php if (empty($posts)): ?>
     <div class="bg-white p-6 rounded-xl mt-6 flex flex-col items-center justify-center shadow-sm">
         <img src="<?= BASEURL ?>/src/asset/image/empty-folder.png" alt="icon" width="100" class="mb-2">
-        <h1 class="text-gray-600 text-center text-sm">There are currently no posts.</h1> </div>
+        <h1 class="text-gray-600 text-center text-sm">There are currently no posts.</h1>
+    </div>
 <?php else: ?>
     <?php
     $currentUserId = $_SESSION['user_id'] ?? null;
@@ -13,17 +14,17 @@
                 <div class="p-4">
                     <div class="flex items-start space-x-3">
                         <img src="<?= !empty($post['PATH_PHOTO'])
-                                            ? BASEURL . '/storage/users/photos/' . $post['PATH_PHOTO']
-                                            : BASEURL . '/src/asset/image/default.png' ?>"
+                                        ? BASEURL . '/storage/users/photos/' . $post['PATH_PHOTO']
+                                        : BASEURL . '/src/asset/image/default.png' ?>"
                             alt="Profile" class="w-12 h-12 rounded-full object-cover flex-shrink-0">
 
                         <div class="flex-1">
                             <div class="flex items-center gap-2">
-                                <span class="font-semibold text-gray-700"><?= htmlspecialchars($post['FULL_NAME']) ?></span>
-                                
+                                <span class="font-semibold text-gray-700 line-clamp-1"><?= htmlspecialchars($post['FULL_NAME']) ?></span>
+
                                 <?php
                                 $role = $post['ROLE'] ?? 'STUDENT'; // Changed default to 'STUDENT'
-                                
+
                                 // Mapping roles from Indonesian to English for display, and setting classes
                                 $roleDisplay = [
                                     "MAHASISWA" => "STUDENT",
@@ -32,7 +33,7 @@
                                     "MITRA"     => "PARTNER",
                                     "ALUMNI"    => "ALUMNI",
                                 ][$post['ROLE']] ?? 'STUDENT';
-                                
+
                                 $roleClasses = [
                                     "STUDENT" => "bg-blue-100 text-blue-800",
                                     "ADMIN"   => "bg-red-100 text-red-800",
@@ -40,20 +41,20 @@
                                     "PARTNER" => "bg-gray-100 text-gray-800",
                                     "ALUMNI"  => "bg-yellow-100 text-yellow-800"
                                 ];
-                                
+
                                 // Use the original role to determine the color class, but use the English display name
                                 $colorKey = $roleDisplay;
                                 if ($role === 'MAHASISWA') $colorKey = 'STUDENT';
                                 else if ($role === 'DOSEN') $colorKey = 'LECTURER';
                                 else if ($role === 'MITRA') $colorKey = 'PARTNER';
                                 else if ($role === 'ALUMNI') $colorKey = 'ALUMNI';
-                                
+
                                 $colorClass = $roleClasses[$colorKey] ?? "bg-gray-100 text-gray-800";
                                 ?>
                                 <span class="px-2 py-0.5 rounded-full text-xs font-medium <?= $colorClass ?>">
                                     <?= htmlspecialchars($roleDisplay) ?> </span>
                             </div>
-                            
+
                             <div class="text-sm mt-0.5">
                                 <?php
                                 $profileUrl = ($post['USER_ID'] === $_SESSION['user_id'])
@@ -72,7 +73,7 @@
                             </div>
                         </div>
 
-                        
+
                         <div class="relative">
                             <div class="relative inline-block text-left">
                                 <button
@@ -108,7 +109,7 @@
                     </div>
 
                     <div class="mt-3">
-                        <p class="text-black text-[15px] leading-relaxed"><?= $post['CONTENT_FORMATTED'] ?? '' ?></p>
+                        <p class="text-black text-[15px] leading-relaxed whitespace-normal break-words"><?= $post['CONTENT_FORMATTED'] ?? '' ?></p>
                     </div>
                 </div>
 
@@ -177,7 +178,7 @@
     // FIX: Time ago function
     function timeAgo(dateString) {
         if (!dateString) return '';
-        
+
         // Handle different date formats
         const safeDateString = dateString.replace(' ', 'T');
         const date = new Date(safeDateString);
@@ -263,11 +264,11 @@
     // Initialize like button states
     function initializeLikeButtons() {
         const likeButtons = document.querySelectorAll('.like-btn');
-        
+
         likeButtons.forEach(button => {
             const isLiked = button.getAttribute('data-liked') === 'true';
             const icon = button.querySelector('svg');
-            
+
             if (isLiked) {
                 icon.classList.remove('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
                 icon.classList.add('text-red-500', 'fill-red-500');
@@ -287,15 +288,15 @@
     document.querySelectorAll('.like-btn').forEach(button => {
         button.addEventListener('click', async function(e) {
             e.preventDefault();
-            
+
             const postId = this.getAttribute('data-post-id');
             const postContainer = document.getElementById('post-' + postId);
-            
+
             if (!postContainer) {
                 console.error('Error: Post container tidak ditemukan untuk ID:', postId);
                 return;
             }
-            
+
             const countSpan = postContainer.querySelector('.like-count-display');
             const icon = this.querySelector('svg');
 
@@ -324,7 +325,7 @@
                 if (data.success) {
                     const isLiked = data.action === 'liked';
                     this.setAttribute('data-liked', isLiked ? 'true' : 'false');
-                    
+
                     // Update count
                     countSpan.textContent = data.total_likes + ' Likes';
                     countSpan.classList.add('scale-110', 'text-blue-600');
@@ -334,7 +335,7 @@
 
                     // Update icon
                     icon.style.transition = 'all 0.3s ease';
-                    
+
                     if (isLiked) {
                         icon.classList.remove('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
                         icon.classList.add('text-red-500', 'fill-red-500', 'scale-110');
@@ -372,7 +373,7 @@
     document.addEventListener('click', function(event) {
         const isDropdownButton = event.target.closest('button[onclick^="toggleDropdown"]');
         const isDropdownContent = event.target.closest('[id^="dropdown-"]');
-        
+
         if (!isDropdownButton && !isDropdownContent) {
             document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
                 d.classList.add('hidden');
@@ -422,21 +423,21 @@
 </script>
 
 <style>
-/* Smooth transition untuk like button */
-.like-btn svg {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+    /* Smooth transition untuk like button */
+    .like-btn svg {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-.like-btn:active svg {
-    transform: scale(0.9);
-}
+    .like-btn:active svg {
+        transform: scale(0.9);
+    }
 
-.like-btn:disabled {
-    cursor: not-allowed;
-}
+    .like-btn:disabled {
+        cursor: not-allowed;
+    }
 
-/* Animation untuk like count */
-.like-count-display {
-    transition: all 0.3s ease;
-}
+    /* Animation untuk like count */
+    .like-count-display {
+        transition: all 0.3s ease;
+    }
 </style>
