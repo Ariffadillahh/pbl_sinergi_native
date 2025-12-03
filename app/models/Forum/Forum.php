@@ -268,6 +268,7 @@ class ForumModel extends BaseModel
                  
                 u.FULL_NAME AS OWNER_NAME,
                 u.PATH_PHOTO AS PATH_PHOTO_OWNER,
+                f.OWNER_ID,
                 u.ROLE AS ROLE_OWNER
             FROM FORUMS f 
             JOIN USERS u ON f.OWNER_ID = u.ID
@@ -549,7 +550,8 @@ class ForumModel extends BaseModel
                     COUNT(fm.USER_ID) AS TOTAL_MEMBERS,
                     f.PATH_PHOTO,
                     f.ACCESS_KEY,
-                    f.CREATED_AT
+                    f.CREATED_AT,
+                    f.STATUS
                 FROM FORUMS f
                 JOIN USERS u ON u.ID = f.OWNER_ID
                 LEFT JOIN FORUM_MEMBERS fm ON fm.FORUM_ID = f.ID
@@ -562,7 +564,7 @@ class ForumModel extends BaseModel
 
         $sqlData .= "
                 GROUP BY 
-                    f.ID, f.NAME, f.IS_PRIVATE, u.FULL_NAME, f.CREATED_AT, f.ACCESS_KEY, f.PATH_PHOTO
+                    f.ID, f.NAME, f.IS_PRIVATE, u.FULL_NAME, f.CREATED_AT, f.ACCESS_KEY, f.PATH_PHOTO, f.STATUS
                 ORDER BY f.CREATED_AT DESC
             )
             OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
@@ -622,7 +624,8 @@ class ForumModel extends BaseModel
                     u.FULL_NAME AS OWNER_NAME,
                     COUNT(fm.USER_ID) AS TOTAL_MEMBERS,
                     f.PATH_PHOTO,
-                    f.CREATED_AT
+                    f.CREATED_AT,
+                    f.STATUS
                 FROM FORUMS f
                 JOIN USERS u ON u.ID = f.OWNER_ID
                 LEFT JOIN FORUM_MEMBERS fm ON fm.FORUM_ID = f.ID
@@ -635,7 +638,7 @@ class ForumModel extends BaseModel
 
         $sqlData .= "
                 GROUP BY 
-                    f.ID, f.NAME, f.IS_PRIVATE, u.FULL_NAME, f.CREATED_AT, f.PATH_PHOTO
+                    f.ID, f.NAME, f.IS_PRIVATE, u.FULL_NAME, f.CREATED_AT, f.PATH_PHOTO, f.STATUS
                 ORDER BY f.CREATED_AT DESC
             )
             OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
@@ -660,6 +663,7 @@ class ForumModel extends BaseModel
 
         return ['data' => $forums, 'total' => $totalRows];
     }
+
 
     public function getGalleryMediaByForum($forumId)
     {

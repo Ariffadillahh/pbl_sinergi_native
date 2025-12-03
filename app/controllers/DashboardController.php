@@ -5,6 +5,7 @@ require_once __DIR__ . '/../models/Forum/Forum.php';
 require_once __DIR__ . '/DashboardOverview.php';
 require_once __DIR__ . '/ReportController.php';
 require_once __DIR__ . '/../models/Notif/NotificationModel.php';
+require_once __DIR__ . '/../models/Groups/GroupChat.php';
 
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -18,6 +19,7 @@ class DashboardController
     private $reportController;
     private $forumModel;
     private $notificationModel;
+    private $groupsModel;
 
     public function __construct()
     {
@@ -27,6 +29,7 @@ class DashboardController
         $this->reportController = new ReportController();
         $this->forumModel = new ForumModel();
         $this->notificationModel = new NotificationModel();
+        $this->groupsModel = new GroupChat();
     }
 
     public function index()
@@ -105,6 +108,51 @@ class DashboardController
         }
 
         $contentViewDashboard =  __DIR__ . '/../views/dashboard/forum/index.php';
+        require_once __DIR__ . '/../views/dashboard/layout.php';
+    }
+
+    public function groups()
+    {
+        $limit = 6;
+
+        $activeTab = $_GET['tab'] ?? 'my-groups'; 
+
+        $mySearch = $_GET['my_search'] ?? '';
+        $myPage = isset($_GET['my_page']) ? (int)$_GET['my_page'] : 1;
+        $myOffset = ($myPage - 1) * $limit;
+
+        $allSearch = $_GET['all_search'] ?? '';
+        $allPage = isset($_GET['all_page']) ? (int)$_GET['all_page'] : 1;
+        $allOffset = ($allPage - 1) * $limit;
+
+        $myGroupsData = $this->groupsModel->getMyGroups($mySearch, $limit, $myOffset);
+        $allGroupsData = $this->groupsModel->getAllGroupsPagination($allSearch, $limit, $allOffset);
+
+        $data = [
+            'activeTab' => $activeTab,
+
+            'myGroups' => $myGroupsData['data'],
+            'myTotal' => $myGroupsData['total'],
+            'myPage' => $myPage,
+            'mySearch' => $mySearch,
+            'myTotalPages' => ceil($myGroupsData['total'] / $limit),
+            'myStart' => $myGroupsData['total'] > 0 ? $myOffset + 1 : 0,
+            'myEnd' => min($myOffset + $limit, $myGroupsData['total']),
+
+            'groups' => $allGroupsData['data'],
+            'allTotal' => $allGroupsData['total'],
+            'allPage' => $allPage,
+            'allSearch' => $allSearch,
+            'allTotalPages' => ceil($allGroupsData['total'] / $limit),
+            'allStart' => $allGroupsData['total'] > 0 ? $allOffset + 1 : 0,
+            'allEnd' => min($allOffset + $limit, $allGroupsData['total'])
+        ];
+
+        foreach ($data as $key => $value) {
+            $$key = $value;
+        }
+
+        $contentViewDashboard =  __DIR__ . '/../views/dashboard/group/index.php';
         require_once __DIR__ . '/../views/dashboard/layout.php';
     }
 
@@ -596,7 +644,7 @@ class DashboardController
     public function reportCount()
     {
         header('Content-Type: application/json');
-  
+
         $counts = $this->overviewCount->getReportCounts();
 
         if ($counts) {

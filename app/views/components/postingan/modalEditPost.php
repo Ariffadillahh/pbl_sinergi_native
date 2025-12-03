@@ -90,18 +90,22 @@
 
     document.getElementById("edit-post-id").value = postId;
 
-    // 2. Masukkan konten lama ke textarea
-    editPostContent.value = content;
+    // Set isi textarea
+    editPostContent.value = content || "";
 
-    // 3. PENTING: Langsung hitung panjang karakter konten lama saat modal dibuka
-    // Jika content null/undefined, hitung sebagai 0
-    editPostCharCount.textContent = content ? content.length : 0;
+    // Update counter SETELAH DOM render
+    setTimeout(() => {
+      editPostCharCount.textContent = editPostContent.value.length;
+    }, 10);
 
+    // Media
     existingMedia = [...mediaPaths];
     deletedMedia = [];
     newMediaFiles = [];
     renderMediaPreviews();
   }
+
+
 
   // 4. Event Listener: Update angka saat user mengetik atau menghapus teks
   editPostContent.addEventListener('input', function() {
@@ -172,6 +176,7 @@
       modalEditPost.classList.remove("flex");
     }
   });
+
 
   function showLimitToast() {
     const toast = document.getElementById("toast-limit");

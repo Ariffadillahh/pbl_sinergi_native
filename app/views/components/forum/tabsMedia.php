@@ -1,16 +1,44 @@
 <div class="tab-content hidden" data-content="media">
-    <div id="media-loading" class="bg-white rounded-lg shadow p-8 text-center">
-        <p class="text-gray-600">Loading Media...</p>
-    </div>
 
-    <div id="media-grid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1 hidden bg-white p-5 rounded-lg drop-shadow">
-    </div>
+    <?php
+    $currentRole = $_SESSION['role'] ?? '';
+    $canViewMedia = $isMember || $currentRole === 'ADMIN';
+    ?>
 
-    <div id="media-empty" class="bg-white rounded-lg shadow p-8 text-center hidden">
-        <div class="text-6xl mb-4">📷</div>
-        <h3 class="text-xl font-bold mb-2 text-gray-800">No Media</h3>
-        <p class="text-gray-600">No photos have been shared yet.</p>
-    </div>
+    <?php if ($canViewMedia): ?>
+
+        <div id="media-loading" class="bg-white rounded-lg shadow p-8 text-center">
+            <div class="animate-pulse flex flex-col items-center">
+                <div class="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+                <p class="text-gray-600">Loading Media...</p>
+            </div>
+        </div>
+
+        <div id="media-grid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1 hidden bg-white p-5 rounded-lg drop-shadow">
+        </div>
+
+        <div id="media-empty" class="bg-white rounded-lg shadow p-8 text-center hidden">
+            <div class="text-6xl mb-4">📷</div>
+            <h3 class="text-xl font-bold mb-2 text-gray-800">No Media</h3>
+            <p class="text-gray-600">No photos have been shared yet.</p>
+        </div>
+
+    <?php else: ?>
+
+        <div class="bg-white rounded-lg shadow p-10 text-center border border-gray-200">
+            <div class="text-6xl mb-4 grayscale opacity-50">🔒</div>
+            <h3 class="text-xl font-bold mb-2 text-gray-800">Media is Locked</h3>
+            <p class="text-gray-600 mb-6">
+                You need to be a member of this forum to view shared photos.
+            </p>
+            <button onclick="joinForum('<?= $forumById['ID'] ?>')"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-bold shadow-md transition-all">
+                Join Forum to View
+            </button>
+        </div>
+
+    <?php endif; ?>
+
 </div>
 
 <div id="galleryModal" class="fixed inset-0 z-[99999] hidden bg-black/60 backdrop-blur-sm flex items-center justify-center font-sans md:p-5">
@@ -81,7 +109,9 @@
                 });
             } else {
                 const activeTab = document.querySelector('.tab-content:not(.hidden)');
-                if (activeTab && activeTab.dataset.content === 'media') this.loadData();
+                if (activeTab && activeTab.dataset.content === 'media') {
+                    this.loadData();
+                }
             }
         },
 
@@ -90,9 +120,14 @@
             const grid = document.getElementById('media-grid');
             const empty = document.getElementById('media-empty');
 
-            loading.classList.remove('hidden');
-            grid.classList.add('hidden');
-            empty.classList.add('hidden');
+            if (!grid) {
+                console.log('User has no access to media grid. Gallery script stopped.');
+                return;
+            }
+
+            if (loading) loading.classList.remove('hidden');
+            if (grid) grid.classList.add('hidden');
+            if (empty) empty.classList.add('hidden');
 
             try {
                 const response = await fetch(`${this.baseUrl}/forum/getAssets?forum_id=${this.forumId}`);
@@ -104,33 +139,35 @@
                     this.data = result.data.filter(item => item.MEDIA_TYPE === 'IMAGE');
 
                     if (this.data.length === 0) {
-                        loading.classList.add('hidden');
-                        empty.classList.remove('hidden');
+                        if (loading) loading.classList.add('hidden');
+                        if (empty) empty.classList.remove('hidden');
                         return;
                     }
 
                     this.renderGrid();
-                    loading.classList.add('hidden');
-                    grid.classList.remove('hidden');
+                    if (loading) loading.classList.add('hidden');
+                    if (grid) grid.classList.remove('hidden');
                 } else {
-                    loading.classList.add('hidden');
-                    empty.classList.remove('hidden');
+                    if (loading) loading.classList.add('hidden');
+                    if (empty) empty.classList.remove('hidden');
                 }
             } catch (error) {
                 console.error('Gallery Error:', error);
-                loading.innerHTML = '<p class="text-red-500">Failed to load gallery.</p>';
+                if (loading) loading.innerHTML = '<p class="text-red-500">Failed to load gallery.</p>';
             }
         },
 
         renderGrid: function() {
             const grid = document.getElementById('media-grid');
+            if (!grid) return; 
+
             grid.innerHTML = '';
 
             this.data.forEach((item, index) => {
                 const imgSrc = `${this.storagePath}/${item.MEDIA_PATH}`;
 
                 const div = document.createElement('div');
-                div.className = 'group relative aspect-square bg-gray-200 cursor-pointer overflow-hidden border border-gray-300';
+                div.className = 'group relative aspect-square bg-gray-200 cursor-pointer overflow-hidden border border-gray-300 rounded';
                 div.onclick = () => this.openModal(index);
 
                 const img = document.createElement('img');
@@ -141,12 +178,12 @@
 
                 img.onerror = function() {
                     console.error("Failed to load grid image:", imgSrc);
-                    this.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpolyline points='21 15 16 10 5 21'/%3E%3C/svg%3E";
+                    this.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='3' y1='3' x2='21' y2='21'/%3E%3C/svg%3E";
                     this.className = "w-full h-full object-contain p-4 opacity-50";
                 };
 
                 const overlay = document.createElement('div');
-                overlay.className = "absolute inset-0 bg-black/30 transition-all duration-300";
+                overlay.className = "absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300";
 
                 div.appendChild(img);
                 div.appendChild(overlay);
@@ -157,31 +194,46 @@
         openModal: function(index) {
             const item = this.data[index];
             const modal = document.getElementById('galleryModal');
-
-            // Debug: Log the item to see available data
-            console.log('Modal item data:', item);
+            if (!modal) return;
 
             const fullImgPath = `${this.storagePath}/${item.MEDIA_PATH}`;
 
             const mainImg = document.getElementById('modal-img-display');
-            mainImg.src = fullImgPath;
+            if (mainImg) mainImg.src = fullImgPath;
 
             const userPic = document.getElementById('modal-user-pic');
-            if (item.PATH_PHOTO) {
-                userPic.src = `${this.userPhotoPath}/${item.PATH_PHOTO}`;
-            } else {
-                userPic.src = `${this.baseUrl}/src/asset/image/default.png`;
+            if (userPic) {
+                userPic.src = item.PATH_PHOTO ? `${this.userPhotoPath}/${item.PATH_PHOTO}` : `${this.baseUrl}/src/asset/image/default.png`;
             }
-            userPic.onerror = function() {
-                this.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23cbd5e1'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
-            };
 
-            document.getElementById('modal-user-name').textContent = item.USERNAME || 'Unknown';
-            document.getElementById('modal-date').textContent = item.FORMATTED_DATE || '';
-            document.getElementById('modal-caption').textContent = item.TOPIC_CONTENT || '';
+            const userName = document.getElementById('modal-user-name');
+            if (userName) userName.textContent = item.USERNAME || 'Unknown';
 
-            // Set role badge - try different possible field names
+            const modalDate = document.getElementById('modal-date');
+            if (modalDate) modalDate.textContent = item.FORMATTED_DATE || '';
+
+            const modalCaption = document.getElementById('modal-caption');
+            if (modalCaption) modalCaption.textContent = item.TOPIC_CONTENT || '';
+
+            this.setupRoleBadge(item);
+
+            const linkBtn = document.getElementById('modal-link');
+            if (linkBtn) linkBtn.href = `${this.baseUrl}/forum/topic/${item.TOPIC_ID}`;
+
+            const downloadBtn = document.getElementById('modal-download');
+            if (downloadBtn) {
+                downloadBtn.href = fullImgPath;
+                downloadBtn.setAttribute('download', item.ORIGINAL_FILENAME || `image_${item.MEDIA_ID}.jpg`);
+            }
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        },
+
+        setupRoleBadge: function(item) {
             const roleElement = document.getElementById('modal-user-role');
+            if (!roleElement) return;
+
             const roleClasses = {
                 'MAHASISWA': 'bg-blue-100 text-blue-800',
                 'ADMIN': 'bg-red-100 text-red-800',
@@ -189,48 +241,26 @@
                 'MITRA': 'bg-gray-100 text-gray-800',
                 'ALUMNI': 'bg-yellow-100 text-yellow-800'
             };
-            const roleTranslations = {
-                'MAHASISWA': 'Student',
-                'ADMIN': 'Admin',
-                'DOSEN': 'Lecturer',
-                'MITRA': 'Partner',
-                'ALUMNI': 'Alumni'
-            };
-            
-            // Try different possible field names for role
+
             const userRole = item.ROLE || item.USER_ROLE || item.ROLE_NAME || '';
-            
+
             if (userRole) {
                 const roleClass = roleClasses[userRole] || 'bg-gray-100 text-gray-800';
-                const translatedRole = roleTranslations[userRole] || userRole;
-                
                 roleElement.className = `text-xs font-medium px-2 py-0.5 rounded-sm ${roleClass}`;
-                roleElement.textContent = translatedRole;
+                roleElement.textContent = userRole; 
                 roleElement.style.display = 'inline-block';
             } else {
-                // Hide role badge if no role data
                 roleElement.style.display = 'none';
-                console.log('No role data found. Available fields:', Object.keys(item));
             }
-
-            const linkBtn = document.getElementById('modal-link');
-            linkBtn.href = `${this.baseUrl}/forum/topic/${item.TOPIC_ID}`;
-
-            const downloadBtn = document.getElementById('modal-download');
-
-            downloadBtn.href = fullImgPath;
-
-            const downloadName = item.ORIGINAL_FILENAME || `image_${item.MEDIA_ID}.jpg`;
-            downloadBtn.setAttribute('download', downloadName);
-
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
         },
 
         close: function() {
             const modal = document.getElementById('galleryModal');
-            modal.classList.add('hidden');
-            document.getElementById('modal-img-display').src = '';
+            if (modal) modal.classList.add('hidden');
+
+            const mainImg = document.getElementById('modal-img-display');
+            if (mainImg) mainImg.src = '';
+
             document.body.style.overflow = '';
         }
     };

@@ -9,10 +9,10 @@
             <div class="flex-1">
                 <div class="flex items-center gap-2">
                     <span class="font-semibold line-clamp-1 text-gray-700"><?= htmlspecialchars($post['FULL_NAME']) ?></span>
-                    
+
                     <?php
                     $role = $post['ROLE'] ?? 'MAHASISWA';
-                    
+
                     // Mapping Indonesian roles to English for display
                     $roleDisplay = [
                         "MAHASISWA" => "STUDENT",
@@ -35,7 +35,7 @@
                     <span class="px-2 py-0.5 rounded-full text-xs font-medium <?= $colorClass ?>">
                         <?= htmlspecialchars($roleDisplay) ?> </span>
                 </div>
-                
+
                 <div class="text-sm mt-0.5">
                     <?php
                     $profileUrl = ($post['USER_ID'] === $_SESSION['user_id'])
@@ -53,7 +53,7 @@
                     </span>
                 </div>
             </div>
-            
+
             <div class="relative">
                 <div class="relative inline-block text-left">
                     <button
@@ -71,17 +71,25 @@
                         class="hidden absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
                         <?php $isOwner = $post['USER_ID'] === $_SESSION['user_id'];
                         if ($isOwner): ?>
-                            <button
-                                type="button"
-                                class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 cursor-pointer"
+                            <button type="button"
+                                class="group flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors cursor-pointer"
                                 onclick="openDeletePostModal('<?= $post['POST_ID'] ?>')">
-                                Delete </button>
+
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                                Delete Post
+                            </button>
                         <?php else: ?>
-                            <button
-                                type="button"
-                                class="report-btn w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-100 cursor-pointer"
+                            <button type="button"
+                                class="report-btn group flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer"
                                 data-post-id="<?= $post['POST_ID']; ?>">
-                                Report </button>
+
+                                <svg class="w-4 h-4 text-gray-500 group-hover:text-yellow-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-8a2 2 0 01-2-2V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path>
+                                </svg>
+                                Report Post
+                            </button>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -133,7 +141,7 @@
             </svg>
             <span class="text-gray-700 group-hover:text-red-500 text-sm font-semibold transition-colors relative z-10">Like</span>
         </button>
-        </div>
+    </div>
 </div>
 
 <?php include __DIR__ . '/modalDeletePost.php'; ?>
@@ -144,7 +152,7 @@
     // FIX: Time ago function
     function timeAgo(dateString) {
         if (!dateString) return '';
-        
+
         // Handle different date formats
         const safeDateString = dateString.replace(' ', 'T');
         const date = new Date(safeDateString);
@@ -230,11 +238,11 @@
     // Initialize like button states
     function initializeLikeButtons() {
         const likeButtons = document.querySelectorAll('.like-btn');
-        
+
         likeButtons.forEach(button => {
             const isLiked = button.getAttribute('data-liked') === 'true';
             const icon = button.querySelector('svg');
-            
+
             if (isLiked) {
                 icon.classList.remove('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
                 icon.classList.add('text-red-500', 'fill-red-500');
@@ -254,7 +262,7 @@
     document.querySelectorAll('.like-btn').forEach(button => {
         button.addEventListener('click', async function(e) {
             e.preventDefault();
-            
+
             const postId = this.getAttribute('data-post-id');
             const card = this.closest('[id^="post-"]');
             const countSpan = card ? card.querySelector('.like-count-display') : null;
@@ -290,7 +298,7 @@
                 if (data.success) {
                     const isLiked = data.action === 'liked';
                     this.setAttribute('data-liked', isLiked ? 'true' : 'false');
-                    
+
                     // Update count
                     countSpan.textContent = data.total_likes + ' Likes';
                     countSpan.classList.add('scale-110', 'text-blue-600');
@@ -300,7 +308,7 @@
 
                     // Update icon
                     icon.style.transition = 'all 0.3s ease';
-                    
+
                     if (isLiked) {
                         icon.classList.remove('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
                         icon.classList.add('text-red-500', 'fill-red-500', 'scale-110');
@@ -338,7 +346,7 @@
     document.addEventListener('click', function(event) {
         const isDropdownButton = event.target.closest('button[onclick^="toggleDropdown"]');
         const isDropdownContent = event.target.closest('[id^="dropdown-"]');
-        
+
         if (!isDropdownButton && !isDropdownContent) {
             document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
                 d.classList.add('hidden');
@@ -388,21 +396,21 @@
 </script>
 
 <style>
-/* Smooth transition untuk like button */
-.like-btn svg {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+    /* Smooth transition untuk like button */
+    .like-btn svg {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-.like-btn:active svg {
-    transform: scale(0.9);
-}
+    .like-btn:active svg {
+        transform: scale(0.9);
+    }
 
-.like-btn:disabled {
-    cursor: not-allowed;
-}
+    .like-btn:disabled {
+        cursor: not-allowed;
+    }
 
-/* Animation untuk like count */
-.like-count-display {
-    transition: all 0.3s ease;
-}
+    /* Animation untuk like count */
+    .like-count-display {
+        transition: all 0.3s ease;
+    }
 </style>

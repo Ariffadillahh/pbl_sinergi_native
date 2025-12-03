@@ -183,6 +183,7 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
                 <input type="text" id="editAccessKeyInput" name="ACCESS_KEY"
                     value="<?= htmlspecialchars($forumById['ACCESS_KEY'] ?? '') ?>"
                     placeholder="Enter new access key..."
+                    required
                     class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-yellow-50 outline-none transition">
             </div>
 

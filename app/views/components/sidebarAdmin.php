@@ -7,7 +7,6 @@ if (strlen($current_route) > 1) {
 
 $isDashboardActive = ($current_route === 'dashboard');
 
-// Members parent dan submenu
 $isMembersParentActive = (strpos($current_route, 'dashboard/anggota') === 0 || strpos($current_route, 'dashboard/anggota/requested-accounts') === 0);
 $isAnggotaActive = ($current_route === 'dashboard/anggota/allusers');
 $isRequestedActive = (strpos($current_route, 'dashboard/anggota/requested-accounts') === 0);
@@ -17,6 +16,7 @@ $isLaporanParentActive = (strpos($current_route, 'dashboard/laporan') === 0);
 $isLaporanActiveForum = ($current_route === 'dashboard/laporan/forum');
 $isLaporanActiveGroup = ($current_route === 'dashboard/laporan/group');
 $isLaporanActivePostingan = ($current_route === 'dashboard/laporan/postingan');
+$isGroupsActive = ($current_route === 'dashboard/group');
 
 $pageTitle = "Dashboard Overview";
 if ($isAnggotaActive) $pageTitle = "User Management";
@@ -25,6 +25,7 @@ if ($isForumsActive) $pageTitle = "Forum Management";
 if ($isLaporanActiveForum) $pageTitle = "Forum Reports";
 if ($isLaporanActivePostingan) $pageTitle = "Post Reports";
 if ($isLaporanActiveGroup) $pageTitle = "Group Reports";
+if ($isGroupsActive) $pageTitle = "Group Management";
 ?>
 
 <aside id="sidebar" class="fixed md:sticky top-0 left-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
@@ -46,7 +47,7 @@ if ($isLaporanActiveGroup) $pageTitle = "Group Reports";
             {
                 return $isActive
                     ? 'bg-blue-50 text-blue-600 font-semibold'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900';
+                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900';
             }
             ?>
 
@@ -89,7 +90,7 @@ if ($isLaporanActiveGroup) $pageTitle = "Group Reports";
                         class="flex items-center justify-between px-4 py-2.5 rounded-lg transition-colors duration-200 hover:bg-gray-100 <?php echo getLinkClass($isRequestedActive); ?>">
                         <span>Requested Accounts</span>
                         <span id="requested-account-badge" class="hidden items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-600 rounded-full">
-                            
+
                         </span>
                     </a>
                 </div>
@@ -98,10 +99,27 @@ if ($isLaporanActiveGroup) $pageTitle = "Group Reports";
             <li>
                 <a href="<?php echo BASEURL; ?>/dashboard/forums"
                     class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors duration-200 <?php echo getLinkClass($isForumsActive); ?>">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="h-6 w-6 "
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2">
+                        <path stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>Forums</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="<?php echo BASEURL; ?>/dashboard/group"
+                    class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors duration-200 <?php echo getLinkClass($isGroupsActive); ?>">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                     </svg>
-                    <span>Forums</span>
+                    <span>Groups</span>
                 </a>
             </li>
 
@@ -133,7 +151,7 @@ if ($isLaporanActiveGroup) $pageTitle = "Group Reports";
                         class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors duration-200 hover:bg-gray-100 <?php echo getLinkClass($isLaporanActiveForum); ?>">
                         <span class="flex-1">Forum Reports</span>
                         <span id="badge-report-forum" class="hidden items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-600 rounded-full">
-                            
+
                         </span>
                     </a>
 
@@ -141,7 +159,7 @@ if ($isLaporanActiveGroup) $pageTitle = "Group Reports";
                         class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors duration-200 hover:bg-gray-100 <?php echo getLinkClass($isLaporanActivePostingan); ?>">
                         <span class="flex-1">Post Reports</span>
                         <span id="badge-report-post" class="hidden items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-600 rounded-full">
-                            
+
                         </span>
                     </a>
 
@@ -149,7 +167,7 @@ if ($isLaporanActiveGroup) $pageTitle = "Group Reports";
                         class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors duration-200 hover:bg-gray-100 <?php echo getLinkClass($isLaporanActiveGroup); ?>">
                         <span class="flex-1">Group Reports</span>
                         <span id="badge-report-group" class="hidden items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-600 rounded-full">
-                            
+
                         </span>
                     </a>
                 </div>
@@ -200,10 +218,10 @@ if ($isLaporanActiveGroup) $pageTitle = "Group Reports";
 
         if (numCount > 0) {
             badge.textContent = numCount;
-            
+
             // SAAT MUNCUL: Hapus hidden, Pastikan inline-flex ada
             badge.classList.remove('hidden');
-            badge.classList.add('inline-flex'); 
+            badge.classList.add('inline-flex');
         } else {
             // SAAT HILANG: Tambah hidden, WAJIB HAPUS inline-flex agar tidak bentrok
             badge.classList.add('hidden');

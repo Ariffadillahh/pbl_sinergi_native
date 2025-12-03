@@ -86,23 +86,35 @@
                                     </svg>
                                 </button>
 
-                                <div
-                                    id="dropdown-<?= $post['POST_ID'] ?>"
-                                    class="hidden absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
+                                <div id="dropdown-<?= $post['POST_ID'] ?>"
+                                    class="hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden py-1">
+
                                     <?php if ($isOwner): ?>
-                                        <button
-                                            type="button"
-                                            class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 cursor-pointer"
+
+                                        <button type="button"
+                                            class="group flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors cursor-pointer"
                                             onclick="openDeletePostModal('<?= $post['POST_ID'] ?>')">
-                                            Delete </button>
-                                    <?php else: ?>
-                                        <button
-                                            type="button"
-                                            class="report-btn w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-100 cursor-pointer"
-                                            data-post-id="<?= $post['POST_ID']; ?>">
-                                            Report
+
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                            Delete Post
                                         </button>
+
+                                    <?php else: ?>
+
+                                        <button type="button"
+                                            class="report-btn group flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer"
+                                            data-post-id="<?= $post['POST_ID']; ?>">
+
+                                            <svg class="w-4 h-4 text-gray-500 group-hover:text-yellow-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-8a2 2 0 01-2-2V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path>
+                                            </svg>
+                                            Report Post
+                                        </button>
+
                                     <?php endif; ?>
+
                                 </div>
                             </div>
                         </div>

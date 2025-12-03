@@ -45,14 +45,16 @@ class GroupChatController
 
         $membersGroupChat = $this->groupChatMemberModel->findByGroupChatId($id);
 
-        $isMember = false;
-        foreach ($membersGroupChat as $member) {
-            if ($member['USER_ID'] == $_SESSION['user_id']) {
-                $isMember = true;
-                break;
+        $isMember = ($_SESSION['role'] === 'ADMIN');
+
+        if (!$isMember) {
+            foreach ($membersGroupChat as $member) {
+                if ($member['USER_ID'] == $_SESSION['user_id']) {
+                    $isMember = true;
+                    break;
+                }
             }
         }
-
         if (!$isMember) {
             header("Location: " . BASEURL . "/groups");
             exit;

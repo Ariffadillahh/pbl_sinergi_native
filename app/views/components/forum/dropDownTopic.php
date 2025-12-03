@@ -27,8 +27,8 @@
              </svg>
          </button>
 
-         <div id="dropdown-<?= $topic['ID'] ?>" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200 py-1">
 
+         <div id="dropdown-<?= $topic['ID'] ?>" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200 py-1">
              <?php if ($canPin): ?>
                  <button type="button"
                      data-id="<?= $topic['ID'] ?>"
@@ -46,7 +46,6 @@
                          </svg>
                          <span>Pin Topic</span>
                      <?php endif; ?>
-
                  </button>
              <?php endif; ?>
 

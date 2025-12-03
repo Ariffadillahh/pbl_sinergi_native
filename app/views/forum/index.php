@@ -147,7 +147,7 @@
 
                         <?php if (!$isActive): ?>
                             <div class="absolute top-0 left-0 right-0 z-20 bg-yellow-400 text-yellow-900 text-[10px] md:text-xs font-bold px-3 py-1.5 text-center uppercase tracking-wider shadow-sm">
-                                Waiting for Lecturer to join
+                                Waiting for Lecturer or ADMIN to join
                             </div>
                         <?php endif; ?>
 

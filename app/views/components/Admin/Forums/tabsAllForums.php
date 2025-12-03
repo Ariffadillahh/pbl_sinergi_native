@@ -17,39 +17,41 @@
      <div class="mb-6">
          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
              <?php foreach ($forums as $forum): ?>
-                 <div class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
-                     <div class="flex items-start gap-3">
+                 <a href="<?= BASEURL ?>/forum/<?= $forum["ID"] ?>">
+                     <div class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                         <div class="flex items-start gap-3">
 
-                         <?php if (!empty($forum['PATH_PHOTO'])): ?>
-                             <img src="<?= BASEURL . '/storage/forums/photos/' . $forum['PATH_PHOTO'] ?>"
-                                 class="w-12 h-12 rounded-full object-cover flex-shrink-0 border border-gray-200">
-                         <?php else: ?>
-                             <div
-                                 class="w-12 h-12 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold flex-shrink-0">
-                                 <?= strtoupper(substr($forum['NAME'], 0, 2)) ?>
-                             </div>
-                         <?php endif; ?>
-
-                         <div class="flex-1 min-w-0">
-                             <div class="flex justify-between items-start mb-2">
-                                 <div>
-                                     <h3 class="font-semibold text-gray-900">
-                                         <?= htmlspecialchars($forum['NAME']) ?>
-                                     </h3>
-                                     <p class="text-sm text-gray-500">
-                                         <?= $forum['TOTAL_MEMBERS'] ?> Members
-                                     </p>
+                             <?php if (!empty($forum['PATH_PHOTO'])): ?>
+                                 <img src="<?= BASEURL . '/storage/forums/photos/' . $forum['PATH_PHOTO'] ?>"
+                                     class="w-12 h-12 rounded-full object-cover flex-shrink-0 border border-gray-200">
+                             <?php else: ?>
+                                 <div
+                                     class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold flex-shrink-0">
+                                     <?= strtoupper(substr($forum['NAME'], 0, 2)) ?>
                                  </div>
-                                 <span class="px-2 py-1 <?= $forum['IS_PRIVATE'] == 1 ? 'bg-gray-100 text-gray-700' : 'bg-blue-100 text-blue-700' ?> text-xs rounded-full whitespace-nowrap">
-                                     <?= $forum['IS_PRIVATE'] == 1 ? 'Privat' : 'Publik' ?>
-                                 </span>
+                             <?php endif; ?>
+
+                             <div class="flex-1 min-w-0">
+                                 <div class="flex justify-between items-start mb-2">
+                                     <div>
+                                         <h3 class="font-semibold text-gray-900">
+                                             <?= htmlspecialchars($forum['NAME']) ?>
+                                         </h3>
+                                         <p class="text-sm text-gray-500">
+                                             <?= $forum['TOTAL_MEMBERS'] ?> Members
+                                         </p>
+                                     </div>
+                                     <span class="px-2 py-1 <?= $forum['IS_PRIVATE'] == 1 ? 'bg-gray-100 text-gray-700' : 'bg-blue-100 text-blue-700' ?> text-xs rounded-full whitespace-nowrap">
+                                         <?= $forum['IS_PRIVATE'] == 1 ? 'Privat' : 'Publik' ?>
+                                     </span>
+                                 </div>
+                                 <p class="text-sm text-gray-600 italic">
+                                     Created by <?= htmlspecialchars($forum['OWNER_NAME']) ?>
+                                 </p>
                              </div>
-                             <p class="text-sm text-gray-600 italic">
-                                 Created by <?= htmlspecialchars($forum['OWNER_NAME']) ?>
-                             </p>
                          </div>
                      </div>
-                 </div>
+                 </a>
              <?php endforeach; ?>
 
              <?php if (empty($forums)): ?>

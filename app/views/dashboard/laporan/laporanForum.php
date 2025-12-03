@@ -87,9 +87,9 @@
         </div>
     </div>
 
-    <?php require_once 'app/views/components/admin/modalReasonLaporanForum.php' ?>
-    <?php require_once 'app/views/components/admin/ModalDeleteReport.php' ?>
-    <?php require_once 'app/views/components/admin/ModalWarningReport.php' ?>
+    <?php require_once 'app/views/components/Admin/modalReasonLaporanForum.php' ?>
+    <?php require_once 'app/views/components/Admin/ModalDeleteReport.php' ?>
+    <?php require_once 'app/views/components/Admin/ModalWarningReport.php' ?>
 </body>
 
 </html>

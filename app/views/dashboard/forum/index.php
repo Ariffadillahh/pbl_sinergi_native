@@ -73,17 +73,17 @@ $currentParams = [
             </div>
 
             <!-- Tab Content: Forum Saya -->
-            <?php require_once 'app/views/components/admin/forums/tabsMyForums.php'; ?>
+            <?php require_once 'app/views/components/Admin/forums/tabsMyForums.php'; ?>
 
 
             <!-- Tab Content: All Forums -->
-            <?php require_once 'app/views/components/admin/forums/tabsAllForums.php'; ?>
+            <?php require_once 'app/views/components/Admin/forums/tabsAllForums.php'; ?>
 
         </div>
     </div>
 
-    <?php require_once 'app/views/components/admin/forums/modalAddForum.php'; ?>
-    <?php require_once 'app/views/components/admin/forums/modalJoinForum.php'; ?>
+    <?php require_once 'app/views/components/Admin/forums/modalAddForum.php'; ?>
+    <?php require_once 'app/views/components/Admin/forums/modalJoinForum.php'; ?>
 
     <script>
         function handleSearch(inputId, tabName, searchParamName, pageParamName) {

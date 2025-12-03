@@ -63,6 +63,13 @@
             $controller->forums();
             break;
 
+        case $route === 'dashboard/group':
+            requireLogin();
+            checkRoleAccess(['ADMIN']);
+            $controller = new DashboardController();
+            $controller->groups();
+            break;
+
         case $route === 'dashboard/laporan/postingan':
             requireLogin();
             checkRoleAccess(['ADMIN']);

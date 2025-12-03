@@ -92,7 +92,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                             <?php if ($forumById['OWNER_ID'] === $_SESSION['user_id']) : ?>
 
                                 <?php if ($forumById['IS_PRIVATE'] == 1): ?>
-                                    <button onclick="openRequestModal(this)" data-id="<?= $forumById['ID'] ?>" 
+                                    <button onclick="openRequestModal(this)" data-id="<?= $forumById['ID'] ?>"
                                         class="cursor-pointer group flex items-center gap-2 
                                             bg-white hover:bg-indigo-50 text-gray-700 border border-gray-200 
                                             px-6 py-2.5 rounded-xl shadow-sm hover:shadow-md 
@@ -300,85 +300,88 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                                 <?php endif; ?>
                             </div>
                         </div>
+                        <?php if ($isMember) : ?>
+                            <?php if (!empty($pinned_topics)): ?>
+                                <?php foreach ($pinned_topics as $pin): ?>
 
-                        <?php if (!empty($pinned_topics)): ?>
-                            <?php foreach ($pinned_topics as $pin): ?>
+                                    <div class="bg-white rounded-lg shadow p-4 mb-4 border-l-4 border-blue-600 relative overflow-hidden">
 
-                                <div class="bg-white rounded-lg shadow p-4 mb-4 border-l-4 border-blue-600 relative overflow-hidden">
-
-                                    <div class="flex items-center gap-2 mb-3 text-blue-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform rotate-45" viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                        </svg>
-                                        <span class="text-xs font-bold uppercase tracking-wider">Pinned Post</span>
-
-                                        <?php if ($can_unpin): ?>
-                                            <button type="button" data-id="<?= $pin['ID'] ?>" class="cursor-pointer btn-pin-action ml-auto text-xs text-red-500 hover:text-red-700 hover:underline font-semibold transition">
-                                                Unpin Post
-                                            </button>
-                                        <?php endif; ?>
-                                    </div>
-
-                                    <div class="flex items-center gap-3 mb-3">
-                                        <?php
-                                        $userPhoto = !empty($pin['PROFILE_PIC']) ? $pin['PROFILE_PIC'] : (!empty($pin['PATH_PHOTO']) ? $pin['PATH_PHOTO'] : null);
-                                        ?>
-                                        <img src="<?= $userPhoto ? BASEURL . '/storage/users/photos/' . $userPhoto : BASEURL . '/src/asset/image/default.png' ?>"
-                                            class="w-8 h-8 rounded-full object-cover">
-                                        <div>
-                                            <p class="font-bold text-sm text-gray-900"><?= htmlspecialchars($pin['FULL_NAME']) ?></p>
-                                            <p class="text-xs text-gray-500"><?= date('d M Y', strtotime($pin['CREATED_AT'])) ?></p>
-                                        </div>
-                                    </div>
-
-                                    <div class="text-sm mb-3">
-                                        <p class="text-gray-800 leading-relaxed">
-                                            <?= nl2br(htmlspecialchars(substr($pin['CONTENT'], 0, 300))) ?>
-                                            <?= strlen($pin['CONTENT']) > 300 ? '...' : '' ?>
-                                        </p>
-                                        <?php if (strlen($pin['CONTENT']) > 300): ?>
-                                            <a href="<?= BASEURL ?>/topic/<?= $pin['ID'] ?>" class="cursor-pointer text-blue-600 text-xs font-semibold hover:underline">Read More</a>
-                                        <?php endif; ?>
-                                    </div>
-
-                                    <?php if (!empty($pin['MEDIA_PATH']) && strtoupper($pin['MEDIA_TYPE']) === 'FILE'): ?>
-                                        <a href="<?= BASEURL ?>/storage/forums/topics/<?= $pin['MEDIA_PATH'] ?>" target="_blank" download="<?= htmlspecialchars($pin['ORIGINAL_FILENAME'] ?? 'Document') ?>">
-                                            <div class="bg-gray-50 rounded-lg p-2 mb-3 flex items-center gap-2 border border-gray-200 hover:bg-gray-100 transition cursor-pointer">
-                                                <div class="bg-blue-100 p-2 rounded text-blue-600">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                    </svg>
-                                                </div>
-                                                <div class="overflow-hidden">
-                                                    <p class="text-sm font-semibold text-gray-800 truncate"><?= htmlspecialchars($pin['ORIGINAL_FILENAME'] ?? 'Attached Document') ?></p>
-                                                    <p class="text-xs text-gray-500">Click to download</p>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    <?php endif; ?>
-
-                                    <?php if (!empty($pin['MEDIA_PATH']) && strtoupper($pin['MEDIA_TYPE']) === 'IMAGE'): ?>
-                                        <div class="mb-3">
-                                            <img src="<?= BASEURL ?>/storage/forums/topics/<?= $pin['MEDIA_PATH'] ?>" class="w-full h-48 object-cover rounded-lg border border-gray-200">
-                                        </div>
-                                    <?php endif; ?>
-
-                                    <div class="border-t pt-2 flex items-center justify-between text-gray-500 text-xs">
-                                        <a href="<?= BASEURL ?>/forum/topic/<?= $pin['ID'] ?>" class="cursor-pointer hover:underline">
-                                            <span><?= $pin['TOTAL_COMMENTS'] ?> Comments</span>
-                                        </a>
-                                        <div class="flex items-center gap-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                        <div class="flex items-center gap-2 mb-3 text-blue-600">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform rotate-45" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                             </svg>
-                                            <span><?= $pin['TOTAL_LIKES'] ?> Likes</span>
+                                            <span class="text-xs font-bold uppercase tracking-wider">Pinned Post</span>
+
+                                            <?php if ($canPin): ?>
+                                                <button type="button" data-id="<?= $pin['ID'] ?>" class="cursor-pointer btn-pin-action ml-auto text-xs text-red-500 hover:text-red-700 hover:underline font-semibold transition">
+                                                    Unpin Topic
+                                                </button>
+                                            <?php endif; ?>
                                         </div>
+
+                                        <div class="flex items-center gap-3 mb-3">
+                                            <?php
+                                            $userPhoto = !empty($pin['PROFILE_PIC']) ? $pin['PROFILE_PIC'] : (!empty($pin['PATH_PHOTO']) ? $pin['PATH_PHOTO'] : null);
+                                            ?>
+                                            <img src="<?= $userPhoto ? BASEURL . '/storage/users/photos/' . $userPhoto : BASEURL . '/src/asset/image/default.png' ?>"
+                                                class="w-8 h-8 rounded-full object-cover">
+                                            <div>
+                                                <p class="font-bold text-sm text-gray-900"><?= htmlspecialchars($pin['FULL_NAME']) ?></p>
+                                                <p class="text-xs text-gray-500"><?= date('d M Y', strtotime($pin['CREATED_AT'])) ?></p>
+                                            </div>
+                                        </div>
+
+                                        <div class="text-sm mb-3">
+                                            <p class="text-gray-800 leading-relaxed">
+                                                <?= nl2br(htmlspecialchars(substr($pin['CONTENT'], 0, 300))) ?>
+                                                <?= strlen($pin['CONTENT']) > 300 ? '...' : '' ?>
+                                            </p>
+                                            <?php if (strlen($pin['CONTENT']) > 300): ?>
+                                                <a href="<?= BASEURL ?>/topic/<?= $pin['ID'] ?>" class="cursor-pointer text-blue-600 text-xs font-semibold hover:underline">Read More</a>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <?php if (!empty($pin['MEDIA_PATH']) && strtoupper($pin['MEDIA_TYPE']) === 'FILE'): ?>
+                                            <a href="<?= BASEURL ?>/storage/forums/topics/<?= $pin['MEDIA_PATH'] ?>" target="_blank" download="<?= htmlspecialchars($pin['ORIGINAL_FILENAME'] ?? 'Document') ?>">
+                                                <div class="bg-gray-50 rounded-lg p-2 mb-3 flex items-center gap-2 border border-gray-200 hover:bg-gray-100 transition cursor-pointer">
+                                                    <div class="bg-blue-100 p-2 rounded text-blue-600">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div class="overflow-hidden">
+                                                        <p class="text-sm font-semibold text-gray-800 truncate"><?= htmlspecialchars($pin['ORIGINAL_FILENAME'] ?? 'Attached Document') ?></p>
+                                                        <p class="text-xs text-gray-500">Click to download</p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        <?php endif; ?>
+
+                                        <?php if (!empty($pin['MEDIA_PATH']) && strtoupper($pin['MEDIA_TYPE']) === 'IMAGE'): ?>
+                                            <div class="mb-3">
+                                                <img src="<?= BASEURL ?>/storage/forums/topics/<?= $pin['MEDIA_PATH'] ?>" class="w-full h-48 object-cover rounded-lg border border-gray-200">
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <div class="border-t pt-2 flex items-center justify-between text-gray-500 text-xs">
+                                            <a href="<?= BASEURL ?>/forum/topic/<?= $pin['ID'] ?>" class="cursor-pointer hover:underline">
+                                                <span><?= $pin['TOTAL_COMMENTS'] ?> Comments</span>
+                                            </a>
+                                            <div class="flex items-center gap-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span><?= $pin['TOTAL_LIKES'] ?> Likes</span>
+                                            </div>
+                                        </div>
+
                                     </div>
 
-                                </div>
-
-                            <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         <?php endif; ?>
+
+
 
                     </div>
                 </div>
@@ -386,12 +389,35 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                 <div class="lg:col-span-2 mb-14 lg:mb-0">
                     <div id="tabContent">
                         <div class="tab-content active space-y-4" data-content="discussion">
+
                             <?php if ($isMember) : ?>
                                 <?php require_once 'app/views/components/forum/createTopic.php'; ?>
+
                             <?php else : ?>
-                                <button onclick="joinForum('<?= $forumById['ID'] ?>')" class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold text-sm md:text-base w-full shadow-md">
-                                    Join to Create Post
-                                </button>
+                                <?php $currentRole = $_SESSION['role'] ?? ''; ?>
+
+                                <?php
+                                $currentRole = $_SESSION['role'] ?? '';
+                                $isPrivate = (int)$forumById['IS_PRIVATE'] === 1;
+                                ?>
+
+                                <?php if ($currentRole === 'ADMIN' && $isPrivate) : ?>
+
+                                    <button onclick="requestJoin('<?= $forumById['ID'] ?>')"
+                                        class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold text-sm md:text-base w-full shadow-md flex justify-center items-center gap-2 transition-all">
+                                        Request to Join
+                                    </button>
+
+                                <?php else : ?>
+
+                                    <button onclick="joinForum('<?= $forumById['ID'] ?>')"
+                                        class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold text-sm md:text-base w-full shadow-md transition-all">
+                                        Join to Create Topic
+                                    </button>
+
+                                <?php endif; ?>
+
+
                             <?php endif; ?>
 
                             <?php require_once 'app/views/components/forum/topics.php'; ?>
@@ -459,6 +485,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
     <?php require_once 'app/views/components/forum/modalReportForum.php'; ?>
     <?php require_once 'app/views/components/forum/modalReqJoin.php'; ?>
+    <?php require_once 'app/views/components/forum/modalJoinForum.php'; ?>
 
 
 

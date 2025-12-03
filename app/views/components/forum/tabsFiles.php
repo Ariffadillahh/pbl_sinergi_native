@@ -1,16 +1,44 @@
 <div class="tab-content hidden" data-content="files">
-    <div id="files-loading" class="bg-white rounded-lg shadow p-8 text-center">
-        <p class="text-gray-600">Loading files...</p>
-    </div>
 
-    <div id="files-list" class="space-y-3 hidden">
-    </div>
+    <?php
+    $currentRole = $_SESSION['role'] ?? '';
+    $canViewFiles = $isMember || $currentRole === 'ADMIN';
+    ?>
 
-    <div id="files-empty" class="bg-white rounded-lg shadow p-8 text-center hidden">
-        <div class="text-6xl mb-4">📁</div>
-        <h3 class="text-xl font-bold mb-2 text-gray-800">No Files Found</h3>
-        <p class="text-gray-600">No documents have been shared in this group yet.</p>
-    </div>
+    <?php if ($canViewFiles): ?>
+
+        <div id="files-loading" class="bg-white rounded-lg shadow p-8 text-center">
+            <div class="animate-pulse flex flex-col items-center">
+                <div class="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+                <p class="text-gray-600">Loading files...</p>
+            </div>
+        </div>
+
+        <div id="files-list" class="space-y-3 hidden">
+        </div>
+
+        <div id="files-empty" class="bg-white rounded-lg shadow p-8 text-center hidden">
+            <div class="text-6xl mb-4">📁</div>
+            <h3 class="text-xl font-bold mb-2 text-gray-800">No Files Found</h3>
+            <p class="text-gray-600">No documents have been shared in this group yet.</p>
+        </div>
+
+    <?php else: ?>
+
+        <div class="bg-white rounded-lg shadow p-10 text-center border border-gray-200">
+            <div class="text-6xl mb-4 grayscale opacity-50">🔒</div>
+            <h3 class="text-xl font-bold mb-2 text-gray-800">Files are Locked</h3>
+            <p class="text-gray-600 mb-6">
+                You need to be a member of this forum to download shared documents.
+            </p>
+            <button onclick="joinForum('<?= $forumById['ID'] ?>')"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-bold shadow-md transition-all">
+                Join Forum to Access
+            </button>
+        </div>
+
+    <?php endif; ?>
+
 </div>
 
 <script>
@@ -23,10 +51,7 @@
         let hasLoadedFiles = false;
 
         function initFilesTab() {
-            if (!FORUM_ID) {
-                console.error("Forum ID not found.");
-                return;
-            }
+            if (!FORUM_ID) return;
 
             const filesTabBtn = document.querySelector('[data-tab="files"]');
 
@@ -37,15 +62,24 @@
                     }
                 });
             } else {
-                loadFiles();
+                const activeTab = document.querySelector('.tab-content[data-content="files"]:not(.hidden)');
+                if (activeTab) {
+                    loadFiles();
+                }
             }
         }
 
         async function loadFiles() {
             if (hasLoadedFiles) return;
 
-            const loading = document.getElementById('files-loading');
             const list = document.getElementById('files-list');
+
+            if (!list) {
+                console.log('User has no access to files list.');
+                return;
+            }
+
+            const loading = document.getElementById('files-loading');
             const empty = document.getElementById('files-empty');
 
             if (loading) loading.classList.remove('hidden');
@@ -116,8 +150,9 @@
                 const avatarImg = document.createElement('img');
                 avatarImg.src = avatarPath;
                 avatarImg.className = 'w-10 h-10 rounded-full mr-3 object-cover border border-blue-600';
+
                 avatarImg.onerror = function() {
-                    this.src = BASE_URL + '/assets/images/default-avatar.png';
+                    this.src = BASE_URL + '/src/asset/image/default.png';
                 };
 
                 const userInfo = document.createElement('div');
@@ -139,7 +174,7 @@
 
                 if (group.topic.TOPIC_CONTENT) {
                     const content = document.createElement('p');
-                    content.className = 'text-gray-700 mb-4 text-sm';
+                    content.className = 'text-gray-700 mb-4 text-sm italic';
                     content.textContent = group.topic.TOPIC_CONTENT;
                     topicDiv.appendChild(content);
                 }
@@ -157,6 +192,7 @@
             const fileDiv = document.createElement('a');
             fileDiv.href = STORAGE_PATH + '/' + file.MEDIA_PATH;
             fileDiv.target = '_blank';
+
             const fileName = file.ORIGINAL_FILENAME || file.MEDIA_PATH || 'Document';
             fileDiv.download = fileName;
 

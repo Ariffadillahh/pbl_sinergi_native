@@ -209,8 +209,8 @@
         </div>
     </div>
 
-    <?php require_once 'app/views/components/admin/modalAddUser.php'; ?>
-    <?php require_once 'app/views/components/admin/modalEditUser.php'; ?>
+    <?php require_once 'app/views/components/Admin/modalAddUser.php'; ?>
+    <?php require_once 'app/views/components/Admin/modalEditUser.php'; ?>
 
 </body>
 
