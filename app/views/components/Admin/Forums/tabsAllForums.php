@@ -39,6 +39,11 @@
                                          </h3>
                                          <p class="text-sm text-gray-500">
                                              <?= $forum['TOTAL_MEMBERS'] ?> Members
+                                             <?php if ($forum['STATUS'] === 'NONACTIVE'): ?>
+                                                 <span class="bg-red-50 text-red-500 border border-red-500 p-1 rounded-md text-[9px] ml-1">
+                                                    NON ACTIVE
+                                                 </span>
+                                             <?php endif; ?>
                                          </p>
                                      </div>
                                      <span class="px-2 py-1 <?= $forum['IS_PRIVATE'] == 1 ? 'bg-gray-100 text-gray-700' : 'bg-blue-100 text-blue-700' ?> text-xs rounded-full whitespace-nowrap">

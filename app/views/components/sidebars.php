@@ -21,8 +21,15 @@ $accsesPages = in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']);
             <?php if ($accsesPages) : ?>
                 <li class="group relative flex items-center <?php echo $isHomepageActive ? 'active' : ''; ?>">
                     <a href="<?php echo BASEURL ?>/homepage" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
-                        <img src="<?php echo BASEURL; ?>/src/asset/icons/chart-square-grey.svg" class="size-6 group-[.active]:hidden" alt="icon" />
-                        <img src="<?php echo BASEURL; ?>/src/asset/icons/chart-square-white-fill.svg" class="size-6 hidden group-[.active]:flex" alt="icon" />
+
+                        <svg class="size-6 text-gray-500 group-[.active]:hidden transition-colors" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 22V12H15V22M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+
+                        <svg class="size-6 text-white hidden group-[.active]:flex" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L3 9V20C3 20.5304 3.21071 21.0391 3.58579 21.4142C3.96086 21.7893 4.46957 22 5 22H9V12H15V22H19C19.5304 22 20.0391 21.7893 20.4142 21.4142C20.7893 21.0391 21 20.5304 21 20V9L12 2Z" />
+                        </svg>
+
                     </a>
 
                     <div class="absolute left-full ml-3 whitespace-nowrap rounded-xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 px-4 py-2.5 text-sm font-semibold text-white shadow-2xl border border-gray-700/50 border-l-[3px] border-l-blue-500 opacity-0 scale-90 -translate-x-2 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 invisible group-hover:visible pointer-events-none z-[9999] backdrop-blur-sm">
@@ -37,7 +44,7 @@ $accsesPages = in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']);
                 <a href="<?php echo BASEURL ?>/forums"
                     class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[7px] transition-all duration-300 group-[.active]:bg-blue-600 hover:ring-1 hover:ring-blue-600">
                     <svg xmlns="http://www.w3.org/2000/svg"
-                        class="h-7 w-7 transition-all duration-300 <?= $isForumsActive ? 'text-white' : 'text-gray-500' ?> group-hover:text-blue-600 group-[.active]:text-white"
+                        class="h-7 w-7 transition-all duration-300 <?= $isForumsActive ? 'text-white' : 'text-gray-500' ?>  group-[.active]:text-white"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -74,9 +81,12 @@ $accsesPages = in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']);
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
-                    <span id="notif-badge" class="hidden absolute top-1.5 right-1.5 h-4 w-4 items-center justify-center">
+                    <span id="notif-badge" class="hidden absolute top-1.5 right-1.5 h-4 w-auto items-center justify-center">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                        <span id="notif-count" class="relative inline-flex items-center justify-center rounded-full h-4 w-4 bg-red-500 text-white text-[10px] font-semibold">0</span>
+
+                        <span id="notif-count" class="relative inline-flex items-center justify-center rounded-full h-4 w-4 bg-red-500 text-white text-[10px] font-semibold">
+                            0
+                        </span>
                     </span>
                 </button>
 
@@ -107,9 +117,10 @@ $accsesPages = in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']);
             <?php endif ?>
 
             <li class="group relative flex items-center">
-                <a href="<?php echo BASEURL ?>/logout" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 hover:ring-1 hover:ring-blue-600">
+                <button onclick="openLogoutModal()" class="size-11 flex shrink-0 items-center justify-center rounded-xl bg-white p-[10px] transition-all duration-300 hover:ring-1 hover:ring-blue-600 cursor-pointer">
                     <img src="<?php echo BASEURL; ?>/src/asset/icons/Logout.svg" class="size-6" alt="icon">
-                </a>
+                </button>
+
                 <div class="absolute left-full ml-3 whitespace-nowrap rounded-xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 px-4 py-2.5 text-sm font-semibold text-white shadow-2xl border border-gray-700/50 border-l-[3px] border-l-red-500 opacity-0 scale-90 -translate-x-2 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 invisible group-hover:visible pointer-events-none z-[9999] backdrop-blur-sm">
                     <span class="relative z-10">Sign Out</span>
                     <div class="absolute inset-0 rounded-xl bg-red-500/10 blur-sm"></div>
@@ -244,17 +255,75 @@ $accsesPages = in_array($_SESSION['role'], ['MAHASISWA', 'DOSEN', 'ADMIN']);
                         </a>
                     </li>
 
-                    <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                        <a href="<?= BASEURL ?>/logout" class="flex gap-2 items-center">
+                    <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" onclick="openLogoutModal()">
+                        <button class="flex gap-2 items-center w-full">
                             <img src="<?= BASEURL ?>/src/asset/icons/Logout.svg" class="size-5" alt="icon">
                             Sign Out
-                        </a>
+                        </button>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 </div>
+
+<div id="logoutModal" class="fixed inset-0 z-[9999999] hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm transition-opacity opacity-0">
+    <div class="bg-white rounded-2xl shadow-2xl w-[90%] max-w-sm p-6 transform scale-95 transition-transform duration-300" id="logoutModalContent">
+        <div class="flex flex-col items-center text-center mb-5">
+            <div class="bg-red-50 p-3 rounded-full mb-3">
+                <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800">Sign Out</h3>
+            <p class="text-gray-500 text-sm mt-1">Are you sure you want to end your session?</p>
+        </div>
+
+        <div class="flex gap-3">
+            <button onclick="closeLogoutModal()" class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors">
+                Cancel
+            </button>
+            <a href="<?= BASEURL ?>/logout" class="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl text-center transition-colors shadow-lg shadow-red-500/30">
+                Yes, Sign Out
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('logoutModal');
+    const modalContent = document.getElementById('logoutModalContent');
+
+    function openLogoutModal() {
+        modal.classList.remove('hidden');
+        // Sedikit delay untuk animasi fade-in
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modal.classList.add('flex'); // Pastikan flex aktif
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }, 10);
+    }
+
+    function closeLogoutModal() {
+        modal.classList.add('opacity-0');
+        modalContent.classList.remove('scale-100');
+        modalContent.classList.add('scale-95');
+
+        // Tunggu animasi selesai baru hidden
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }, 300);
+    }
+
+    // Close modal jika klik di luar area putih (backdrop)
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeLogoutModal();
+        }
+    });
+</script>
 
 <script>
     const btnMenu = document.getElementById('btn-menu');

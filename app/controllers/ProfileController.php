@@ -41,77 +41,106 @@ class ProfileController
 
     public function updateProfile()
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $userId = $_SESSION['user_id'];
-            $fullName = $_POST['full_name'] ?? '';
-            $personalNumber = $_POST['personal_number'] ?? '';
-            $programStudi = $_POST['prodi'] ?? '';
-            $jenjangStudi = $_POST['jenjang_studi'] ?? '';
-            $tahunMasuk = $_POST['tahun_masuk'] ?? '';
+        header('Content-Type: application/json');
 
-            $oldUserData = $this->userModel->getUserById($userId);
-
-            $user = $this->signInModel->getUserByUsernameOrEmail($personalNumber);
-
-            if ($_SESSION['personal_number'] != $personalNumber) {
-                if ($user) {
-                    echo json_encode(['success' => false, 'message' => 'NIM/NIP already exists']); // Changed
-                    exit;
-                }
-            }
-
-            $photoPath = $oldUserData['PATH_PHOTO'] ?? '';
-
-            if (!empty($_FILES['profileFoto']['name'])) {
-                $targetDir = __DIR__ . '/../../storage/users/photos/';
-                if (!is_dir($targetDir)) {
-                    mkdir($targetDir, 0777, true);
-                }
-
-                $fileName = uniqid() . "_" . basename($_FILES['profileFoto']['name']);
-                $targetFile = $targetDir . $fileName;
-
-                $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-                if (!in_array($_FILES['profileFoto']['type'], $allowedTypes)) {
-                    echo json_encode(['success' => false, 'message' => 'Unsupported photo format.']); // Changed
-                    exit;
-                }
-
-                if (move_uploaded_file($_FILES['profileFoto']['tmp_name'], $targetFile)) {
-                    if (!empty($oldUserData['PATH_PHOTO']) && $oldUserData['PATH_PHOTO'] !== 'default.png') {
-                        $oldFile = $targetDir . $oldUserData['PATH_PHOTO'];
-                        if (file_exists($oldFile)) {
-                            unlink($oldFile);
-                        }
-                    }
-                    $photoPath = $fileName;
-                }
-            }
-
-            $result = $this->userModel->updateProfile(
-                $userId,
-                $fullName,
-                $personalNumber,
-                $programStudi,
-                $jenjangStudi,
-                $tahunMasuk,
-                $photoPath
-            );
-
-            if ($result['success']) {
-                $_SESSION['full_name'] = $fullName;
-                $_SESSION['personal_number'] = $personalNumber;
-                $_SESSION['prodi'] = $programStudi;
-                $_SESSION['jenjang_studi'] = $jenjangStudi;
-                $_SESSION['tahun_masuk'] = $tahunMasuk;
-                $_SESSION['path_photo'] = $photoPath;
-
-                echo json_encode(['success' => true]);
-            } else {
-                echo json_encode(['success' => false, 'message' => $result['message']]);
-            }
-        } else {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+            exit;
+        }
+
+        $userId = $_SESSION['user_id'];
+
+        $fullName       = trim($_POST['full_name'] ?? '');
+        $personalNumber = trim($_POST['personal_number'] ?? '');
+        $programStudi   = trim($_POST['prodi'] ?? '');
+        $jenjangStudi   = trim($_POST['jenjang_studi'] ?? '');
+        $tahunMasuk     = trim($_POST['tahun_masuk'] ?? '');
+
+        $oldUserData = $this->userModel->getUserById($userId);
+
+        if ($_SESSION['personal_number'] != $personalNumber) {
+            $user = $this->signInModel->getUserByUsernameOrEmail($personalNumber);
+            if ($user) {
+                echo json_encode(['success' => false, 'message' => 'NIM/NIP already exists']);
+                exit;
+            }
+        }
+
+        $photoPath = $oldUserData['PATH_PHOTO'] ?? '';
+
+        if (!empty($_FILES['profileFoto']['name'])) {
+            $targetDir = __DIR__ . '/../../storage/users/photos/';
+
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0777, true);
+            }
+
+            $fileExtension = strtolower(pathinfo($_FILES['profileFoto']['name'], PATHINFO_EXTENSION));
+            $fileName = uniqid() . "_" . bin2hex(random_bytes(5)) . "." . $fileExtension;
+            $targetFile = $targetDir . $fileName;
+
+            $allowedTypes = ['jpg', 'jpeg', 'png', 'webp'];
+
+            if (!in_array($fileExtension, $allowedTypes)) {
+                echo json_encode(['success' => false, 'message' => 'Unsupported photo format. Allowed: jpg, jpeg, png, webp']);
+                exit;
+            }
+
+            if (move_uploaded_file($_FILES['profileFoto']['tmp_name'], $targetFile)) {
+                if (!empty($oldUserData['PATH_PHOTO']) && $oldUserData['PATH_PHOTO'] !== 'default.png') {
+                    $oldFile = $targetDir . $oldUserData['PATH_PHOTO'];
+                    if (file_exists($oldFile)) {
+                        unlink($oldFile);
+                    }
+                }
+                $photoPath = $fileName;
+            }
+        }
+
+        $result = $this->userModel->updateProfile(
+            $userId,
+            $fullName,
+            $personalNumber,
+            $programStudi,
+            $jenjangStudi,
+            $tahunMasuk,
+            $photoPath
+        );
+
+        if ($result['success']) {
+            $_SESSION['full_name'] = $fullName;
+            $_SESSION['personal_number'] = $personalNumber;
+            $_SESSION['prodi'] = $programStudi;
+            $_SESSION['jenjang_studi'] = $jenjangStudi;
+            $_SESSION['tahun_masuk'] = $tahunMasuk;
+            $_SESSION['path_photo'] = $photoPath;
+
+            $durasiStudi = 0;
+            $jenjangCek = strtoupper($jenjangStudi);
+
+            if ($jenjangCek === 'D4') {
+                $durasiStudi = 4;
+            } elseif ($jenjangCek === 'D3') {
+                $durasiStudi = 3;
+            }
+
+            if ($durasiStudi > 0 && is_numeric($tahunMasuk)) {
+                $tahunLulus = (int)$tahunMasuk + $durasiStudi;
+                $bulanLulus = 10;
+
+                $tahunSekarang = (int)date('Y');
+                $bulanSekarang = (int)date('m');
+
+                if ($tahunSekarang > $tahunLulus || ($tahunSekarang == $tahunLulus && $bulanSekarang >= $bulanLulus)) {
+                    $this->userModel->updateUserRole($userId, 'ALUMNI');
+
+                    $_SESSION['role'] = 'ALUMNI';
+                }
+            }
+
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => $result['message']]);
         }
         exit;
     }
@@ -242,6 +271,7 @@ class ProfileController
 
         $inputOtp = $_POST['otp'] ?? '';
         $userId   = $_SESSION['user_id'] ?? null;
+        $batch = isset($_SESSION['tahun_masuk']) ? (int)$_SESSION['tahun_masuk'] : null;
 
         if (!isset($_SESSION['otp_code']) || !isset($_SESSION['otp_expiry'])) {
             echo json_encode(['success' => false, 'message' => 'OTP request not found. Please request the code again.']); // Changed
@@ -260,24 +290,28 @@ class ProfileController
         }
 
         try {
-            $isUpdated = $this->userModel->updateToMahasiswa($userId);
+            $result = $this->userModel->updateToMahasiswa($userId);
 
-            if ($isUpdated) {
+            if ($result['success']) {
                 unset($_SESSION['otp_code'], $_SESSION['otp_expiry'], $_SESSION['otp_action']);
 
                 $_SESSION['role'] = 'MAHASISWA';
+                $_SESSION['tahun_masuk'] = $batch + 1;
 
                 echo json_encode([
                     'success' => true,
-                    'message' => 'Verification successful. Your status has been changed back to Student.' // Changed
+                    'message' => $result['message']
                 ]);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Failed to update data in the database.']); // Changed
+                echo json_encode([
+                    'success' => false,
+                    'message' => $result['message']
+                ]);
             }
             exit;
         } catch (Exception $e) {
             error_log("Update Error: " . $e->getMessage());
-            echo json_encode(['success' => false, 'message' => 'A system error occurred while updating the status.']); // Changed
+            echo json_encode(['success' => false, 'message' => 'A system error occurred.']);
             exit;
         }
     }

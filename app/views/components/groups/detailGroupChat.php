@@ -290,10 +290,10 @@
 
                 <?php if ($groupChatId['OWNER_ID'] == $_SESSION['user_id']): ?>
                     <div class="my-6 flex flex-col gap-3 sm:grid sm:grid-cols-2">
-
                         <button type="button" id="btn-open-manage-members"
-                            class="sm:col-span-2 group flex w-full items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-200 active:scale-[0.98]">
-                            <svg class="h-4 w-4 text-gray-500 transition-colors group-hover:text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            class="group flex w-full sm:col-span-2 items-center justify-center gap-2 rounded-xl bg-slate-800 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-500/20 transition-all duration-200 hover:bg-slate-900 hover:shadow-lg hover:shadow-slate-500/30 focus:outline-none focus:ring-4 focus:ring-slate-500/20 active:scale-95">
+
+                            <svg class="h-5 w-5 text-slate-300 transition-colors group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
                             Manage Members

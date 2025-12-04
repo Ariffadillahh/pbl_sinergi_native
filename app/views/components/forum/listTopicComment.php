@@ -343,8 +343,6 @@ function organizeReplies($replies)
             }
         });
 
-
-
         document.querySelectorAll('.reply-form-data').forEach(form => {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();

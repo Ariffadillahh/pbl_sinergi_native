@@ -156,6 +156,7 @@
 
         const chatForm = document.getElementById("chat-form");
         const chatInput = document.getElementById("Chat-Input");
+        const sendButton = document.getElementById('kirim');
         const placeholder = document.getElementById("placeholder");
         const hiddenInput = document.getElementById("message");
         const uploadButton = document.getElementById("Upload-Image");
@@ -170,6 +171,16 @@
         let lastMessageTime = null;
         let lastTimestamp = "<?= (new DateTime())->format('Y-m-d H:i:s.u') ?>";
         let lastRenderedDate = null;
+
+
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                if (!e.shiftKey) {
+                    e.preventDefault(); 
+                    sendButton.click(); 
+                }
+            }
+        });
 
         const statusIcons = {
             pending: `<svg class="size-3 sm:size-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
@@ -366,6 +377,7 @@
 
         async function handleSendMessage(event, elements) {
             event.preventDefault();
+
             const {
                 hiddenInput,
                 fileInput,
@@ -571,6 +583,8 @@
                 closeImageModal();
             }
         });
+
+
 
         setupChatForm();
         loadInitialMessages();

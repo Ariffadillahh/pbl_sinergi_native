@@ -48,15 +48,18 @@
 <?php require_once 'app/views/components/forum/modalJoinForum.php'; ?>
 
 
-<div id="succsesDiv" class="fixed top-5 right-5 bg-green-100 border border-green-600 text-green-600 py-2 rounded-md px-4 hidden"></div>
+<div id="succsesDivComment" class="fixed top-5 right-5 bg-green-100 border border-green-600 text-green-600 py-2 rounded-md px-4 hidden"></div>
 
 <script>
     const commentForm = document.querySelector('#comment-form');
-    const successDiv = document.querySelector('#succsesDiv');
+    const successDivComment = document.querySelector('#succsesDivComment');
+
     commentForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        successDiv.classList.add('hidden');
+        console.log("DIE")
+
+        successDivComment.classList.add('hidden');
         const formData = new FormData(commentForm);
         const res = await fetch('<?= BASEURL ?>/comment/add-topic', {
             method: 'POST',
@@ -64,8 +67,8 @@
         });
         const data = await res.json();
         if (data.success) {
-            successDiv.classList.remove('hidden');
-            successDiv.textContent = 'Comment added successfully!';
+            successDivComment.classList.remove('hidden');
+            successDivComment.textContent = 'Comment added successfully!';
             setTimeout(() => {
                 location.reload();
             }), 1500;

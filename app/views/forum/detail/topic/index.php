@@ -21,7 +21,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 </head>
 
 <body>
-    <div class="w-full h-full overflow-y-auto">
+    <div class="w-full h-full overflow-y-auto ">
         <div class="bg-white shadow-sm pb-1">
             <div class="h-20 md:h-40 relative overflow-hidden bg-gray-300">
 
@@ -93,7 +93,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
             </div>
         </div>
 
-        <div class="max-w-4xl mx-auto mt-4 px-4 pb-8">
+        <div class="max-w-4xl mx-auto mt-4 px-4 pb-8 mb-20 lg:mb-0">
 
             <?php
             $allMedia = $topic['MEDIA'] ?? [];

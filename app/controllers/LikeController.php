@@ -61,7 +61,7 @@ class LikeController
     {
         header('Content-Type: application/json');
 
-        // Validasi Method
+        // Validasi Request Method
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method not allowed']);
@@ -86,63 +86,67 @@ class LikeController
         }
 
         try {
-            // Cek apakah topik ada
+            // Cek Topic Exists
             if (!$this->likeModel->topicExists($topicId)) {
                 http_response_code(404);
                 echo json_encode(['success' => false, 'message' => 'Topic not found']);
                 exit;
             }
 
-            // Toggle Like/Unlike
+            // Toggle Like
             $result = $this->likeModel->toggleLikeTopic($userId, $topicId);
-
-            // Hitung total likes terbaru
             $totalLikes = $this->likeModel->getLikeCountTopic($topicId);
 
-            // Kirim notifikasi HANYA jika action = 'liked'
+            // --- LOGIC NOTIFIKASI ---
             if ($result['action'] === 'liked') {
 
-                // Ambil data owner topic
                 $owner = $this->likeModel->getTopicOwner($topicId);
 
-                // Debugging lengkap
-                error_log("=== LIKE DEBUG ===");
-                error_log("Topic ID: " . $topicId);
-                error_log("Current User ID: " . $userId);
-                error_log("Owner Data: " . print_r($owner, true));
-
-                // Validasi owner data dan pastikan bukan like sendiri
+                // Cek owner valid dan bukan diri sendiri
                 if ($owner && !empty($owner['USER_ID']) && $owner['USER_ID'] !== $userId) {
-
-                    error_log("Sending notification to: " . $owner['USER_ID']);
-
                     try {
-                        $this->notificationModel->addNotification(
-                            $owner['USER_ID'],  // Penerima notifikasi (owner topic)
-                            $userId,            // Yang nge-like
-                            $topicId,           // Referensi topic
-                            'LIKE_TOPIC',       // Tipe notifikasi
-                            'TOPIC'             // Target type
+                        // Tipe notifikasi harus sama dengan yang ada di database
+                        $typeNotif = 'LIKE_POST';
+
+                        // === DEBUG LOG (optional, bisa dihapus nanti) ===
+                        error_log("=== DEBUG NOTIF CHECK ===");
+                        error_log("Receiver ID: " . $owner['USER_ID']);
+                        error_log("Sender ID: " . $userId);
+                        error_log("Target ID: " . $topicId);
+                        error_log("Type: " . $typeNotif);
+                        // ================================================
+
+                        // 1. CEK APAKAH SUDAH ADA NOTIFIKASI YANG SAMA (BELUM DIBACA)
+                        $isSpam = $this->notificationModel->checkExistingUnread(
+                            $owner['USER_ID'],  // Penerima
+                            $userId,            // Pengirim
+                            $topicId,           // Target ID
+                            $typeNotif          // Type: 'LIKE_POST'
                         );
-                        error_log("Notification sent successfully!");
+
+                        error_log("Is Spam: " . ($isSpam ? 'YES' : 'NO')); // Debug log
+
+                        // 2. KIRIM NOTIFIKASI HANYA JIKA BELUM ADA
+                        if (!$isSpam) {
+                            $this->notificationModel->addNotification(
+                                $owner['USER_ID'],  // Target User
+                                $userId,            // Sender
+                                $topicId,           // Target ID
+                                $typeNotif,         // Type
+                                'POST'              // Content Type untuk link
+                            );
+                            error_log("✓ Notifikasi berhasil dikirim");
+                        } else {
+                            error_log("✗ Notifikasi tidak dikirim (sudah ada yang belum dibaca)");
+                        }
                     } catch (Exception $notifError) {
-                        // Jangan gagalkan like hanya karena notifikasi error
                         error_log("Notification Error: " . $notifError->getMessage());
-                        error_log("Notification Stack: " . $notifError->getTraceAsString());
-                    }
-                } else {
-                    error_log("Notification skipped - Reason:");
-                    if (!$owner) {
-                        error_log("  - Owner not found");
-                    } elseif (empty($owner['USER_ID'])) {
-                        error_log("  - Owner USER_ID is empty");
-                    } elseif ($owner['USER_ID'] === $userId) {
-                        error_log("  - User liked their own topic");
+                        // Tidak stop eksekusi, notif gagal tapi like tetap jalan
                     }
                 }
             }
 
-            // Response sukses
+            // Response Success
             echo json_encode([
                 'success' => true,
                 'action' => $result['action'],
@@ -150,18 +154,11 @@ class LikeController
             ]);
             exit;
         } catch (Exception $e) {
-            // Log error lengkap untuk debugging
             error_log("=== LIKE ERROR ===");
-            error_log("Error Message: " . $e->getMessage());
-            error_log("Stack Trace: " . $e->getTraceAsString());
-            error_log("User ID: " . $userId);
-            error_log("Topic ID: " . $topicId);
-
+            error_log("Error: " . $e->getMessage());
+            error_log("Trace: " . $e->getTraceAsString());
             http_response_code(500);
-            echo json_encode([
-                'success' => false,
-                'message' => 'Server error: ' . $e->getMessage()
-            ]);
+            echo json_encode(['success' => false, 'message' => 'Server error occurred.']);
             exit;
         }
     }

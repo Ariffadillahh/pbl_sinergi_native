@@ -147,7 +147,7 @@ class AuthController
             $user = $this->loginModel->getUserByUsernameOrEmail($identifier);
 
             if ($user['STATUS'] !== 'APPROVED') {
-                $_SESSION['login_error'] = "Username, Email, atau Password salah!";
+                $_SESSION['login_error'] = "Username, Email, or Password is incorrect!";
                 header('Location: ' . BASEURL . '/sign-in');
                 exit();
             }
@@ -198,7 +198,7 @@ class AuthController
                     exit();
                 }
             } else {
-                $_SESSION['login_error'] = "Username, Email, atau Password salah!";
+                $_SESSION['login_error'] = "Username, Email, or Password is incorrect!";
                 header('Location: ' . BASEURL . '/sign-in');
                 exit();
             }
@@ -273,6 +273,8 @@ class AuthController
         if (preg_match('/\.tik\d+@stu\.pnj\.ac\.id$/', $email)) {
             $role = 'MAHASISWA';
         } elseif (str_ends_with($email, '@tik.pnj.ac.id')) {
+            $role = 'DOSEN';
+        } elseif (str_ends_with($email, '@lecturer.pnj.ac.id')) {
             $role = 'DOSEN';
         } else {
             echo json_encode([

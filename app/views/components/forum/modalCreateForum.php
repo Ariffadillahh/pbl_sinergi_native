@@ -57,7 +57,7 @@
                     <span
                         id="nameCounter"
                         class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">
-                        0/15
+                        0/30
                     </span>
                 </div>
 
@@ -210,7 +210,7 @@
 
         let isCustomProfile = false;
 
-        const MAX_LENGTH = 15;
+        const MAX_LENGTH = 30;
         const ABOUT_MAX = 150;
 
         aboutText.addEventListener('input', function() {

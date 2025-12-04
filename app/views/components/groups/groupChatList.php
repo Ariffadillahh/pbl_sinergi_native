@@ -7,13 +7,20 @@
         ?>
             <ul class="flex gap-3">
                 <li>
-                    <button id="openModalBtn" class="size-11 flex shrink-0 cursor-pointer items-center justify-center rounded-xl bg-white p-[10px] ring-1 ring-gray-100 transition-all duration-300 hover:ring-1 hover:ring-blue-600">
-                        <img src="<?php echo BASEURL; ?>/src/asset/icons/search-normal.svg" class="size-6" alt="icon">
+                    <button id="openModalBtnSearch" class="size-11 flex shrink-0 cursor-pointer items-center justify-center rounded-xl bg-white p-[10px] ring-1 ring-gray-100 transition-all duration-300 hover:ring-1 hover:ring-blue-600 group">
+                        <svg class="size-6 text-gray-500 group-hover:text-blue-600 transition-colors" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
                     </button>
                 </li>
                 <li>
-                    <button id="AddForum" class="size-11 flex shrink-0 cursor-pointer items-center justify-center rounded-xl bg-white p-[10px] ring-1 ring-gray-100 transition-all duration-300 hover:ring-1 hover:ring-blue-600">
-                        <img src="<?php echo BASEURL; ?>/src/asset/icons/icons8-plus.svg" class="size-6" alt="icon">
+                    <button id="AddForum" class="group size-11 flex shrink-0 cursor-pointer items-center justify-center rounded-xl bg-white p-[10px] ring-1 ring-gray-100 transition-all duration-300 hover:ring-blue-600">
+
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                            class="size-6 transition-transform duration-300 group-hover:rotate-90 text-gray-600 group-hover:text-blue-600">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+
                     </button>
                 </li>
             </ul>
@@ -77,14 +84,12 @@
                                                         <span class="text-xs text-gray-500" id="forum-time-<?php echo $groupChat['ID']; ?>"></span>
                                                     </div>
                                                     <div class="flex items-center gap-1 justify-between">
-                                                        <div class="w-full max-w-[178px] text-sm text-gray-500 line-clamp-1">
+                                                        <div class="w-full max-w-[178px] text-sm text-gray-500 line-clamp-1 max-h-5">
                                                             <p class="flex items-center gap-1">
                                                                 <span class="truncate" id="forum-last-msg-<?php echo $groupChat['ID']; ?>"></span>
                                                             </p>
                                                         </div>
-                                                        <span id="forum-count-<?php echo $groupChat['ID']; ?>"
-                                                            class="flex items-center justify-center shrink-0 size-5 text-xs font-medium text-white rounded-full">
-                                                        </span>
+                                                        <span id="forum-count-<?php echo $groupChat['ID']; ?>" class="flex items-center justify-center shrink-0 size-5 text-xs font-medium text-white rounded-full"></span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -118,14 +123,14 @@
             console.warn('Empty timestamp received');
             return '';
         }
-        
+
         try {
             let dateString = timestamp;
-            
+
             if (dateString.includes(' ')) {
                 dateString = dateString.replace(' ', 'T');
             }
-            
+
             const date = new Date(dateString);
 
             if (isNaN(date.getTime())) {
@@ -134,10 +139,10 @@
             }
 
             const now = new Date();
-            
+
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-            
+
             const diffTime = today - messageDate;
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
@@ -145,10 +150,10 @@
                 let hours = date.getHours();
                 const minutes = date.getMinutes().toString().padStart(2, '0');
                 const ampm = hours >= 12 ? 'PM' : 'AM';
-                
+
                 hours = hours % 12;
                 hours = hours ? hours : 12;
-                
+
                 return `${hours}:${minutes} ${ampm}`;
             }
 
@@ -163,15 +168,17 @@
 
             if (now.getFullYear() === date.getFullYear()) {
                 const day = date.getDate().toString().padStart(2, '0');
-                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                ];
                 const month = months[date.getMonth()];
                 return `${day} ${month}`;
             }
 
             const day = date.getDate().toString().padStart(2, '0');
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+            ];
             const month = months[date.getMonth()];
             const year = date.getFullYear();
             return `${day} ${month} ${year}`;
@@ -212,7 +219,7 @@
                 console.warn('Missing group chat ID in item:', item);
                 continue;
             }
-            
+
             const dataWrapper = document.getElementById(`forum-data-${groupChatId}`);
             const skeletonWrapper = document.getElementById(`forum-skeleton-${groupChatId}`);
             const badgeElement = document.getElementById(`forum-count-${groupChatId}`);
@@ -229,8 +236,13 @@
 
             // Update badge
             if (item.count > 0 && !isChatActive) {
-                badgeElement.innerText = item.count;
+                badgeElement.innerText = item.count > 99 ? '99+' : item.count;
                 badgeElement.classList.add('bg-blue-600');
+
+                if (item.count > 99) {
+                    badgeElement.classList.add('p-3');
+                    badgeElement.classList.add('text-[10px]');
+                }
             } else {
                 badgeElement.innerText = '';
                 badgeElement.classList.remove('bg-blue-600');
@@ -254,24 +266,24 @@
 
         // Reorder DOM elements - insert in correct order from top to bottom
         console.log('Starting reorder process...');
-        
+
         for (let i = 0; i < data.length; i++) {
             const item = data[i];
             const groupId = (item.groupChatId || item.group_chat_id || '').toString().trim();
-            
+
             if (!groupId) continue;
-            
+
             // Find the card for this group
             const card = container.querySelector(`a[href*="/groups/chat/${groupId}"]`)?.closest('.chats-card');
-            
+
             if (!card) {
                 console.warn(`Card not found for group ${groupId}`);
                 continue;
             }
-            
+
             // Get the card that should be at position i
             const cardAtPosition = container.children[i];
-            
+
             // If the card is not already in the correct position, move it
             if (cardAtPosition !== card) {
                 console.log(`Moving group ${groupId} to position ${i}`);

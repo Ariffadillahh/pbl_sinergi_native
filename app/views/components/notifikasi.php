@@ -31,6 +31,7 @@
                 </svg>
                 Delete All Read
             </button>
+            
         </div>
     </div>
 </div>
@@ -131,7 +132,7 @@
                 WARNING: 'yellow',
                 KICKED: 'red',
                 DELETE: 'red',
-                REPORT_RECEIVED: 'red', 
+                REPORT_RECEIVED: 'red',
                 INVITE_GROUP: 'indigo',
                 INVITE_FORUM: 'indigo',
                 ADMIN_INVITE_FORUM: 'indigo',
@@ -238,9 +239,11 @@
         }
 
         function updateNotificationCount(newUnreadCount) {
-            notifCountSpan.textContent = newUnreadCount;
-            notifCountMobile.textContent = newUnreadCount;
-            unreadTabCount.textContent = newUnreadCount;
+            const displayCount = newUnreadCount > 99 ? '99+' : newUnreadCount;
+
+            notifCountSpan.textContent = displayCount;
+            notifCountMobile.textContent = displayCount;
+            unreadTabCount.textContent = displayCount;
 
             if (newUnreadCount > 0) {
                 notifBadge.classList.remove('hidden');

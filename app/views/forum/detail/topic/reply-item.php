@@ -150,7 +150,7 @@ $showArrow = ($isChild
                 </div>
                 <div class="flex justify-end w-full md:w-auto">
                     <button type="submit"
-                        class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-full transition-colors w-full md:w-auto cursor-pointer>
+                        class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-full transition-colors w-full md:w-auto cursor-pointer">
                         Reply
                     </button>
                 </div>

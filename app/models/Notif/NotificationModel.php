@@ -200,4 +200,38 @@ class NotificationModel extends BaseModel
             return false;
         }
     }
+
+    public function checkExistingUnread($receiverId, $senderId, $refId, $type)
+    {
+        $conn = self::getConnection();
+
+        // Konversi ke string untuk memastikan matching
+        $senderIdStr = (string)$senderId;
+        $refIdStr = (string)$refId;
+
+        $sql = "SELECT COUNT(*) AS COUNT 
+        FROM NOTIFICATIONS 
+        WHERE USER_ID = :receiver_id 
+        AND TYPE = :type
+        AND IS_READ = 0
+        AND JSON_VALUE(DATA, '$.sender_id') = :sender_id 
+        AND JSON_VALUE(DATA, '$.target_id') = :ref_id";
+
+        $stmt = oci_parse($conn, $sql);
+
+        oci_bind_by_name($stmt, ':receiver_id', $receiverId);
+        oci_bind_by_name($stmt, ':type', $type);
+        oci_bind_by_name($stmt, ':sender_id', $senderIdStr);
+        oci_bind_by_name($stmt, ':ref_id', $refIdStr);
+
+        oci_execute($stmt);
+
+        $row = oci_fetch_assoc($stmt);
+        $count = isset($row['COUNT']) ? (int)$row['COUNT'] : 0;
+
+        oci_free_statement($stmt);
+        oci_close($conn);
+
+        return ($count > 0);
+    }
 }
