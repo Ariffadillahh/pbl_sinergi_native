@@ -135,7 +135,7 @@ class PostController
 
             echo json_encode([
                 'success' => true,
-                'message' => 'Postingan berhasil dibuat.',
+                'message' => 'Post created successfully.',
             ]);
             exit;
         } else {
@@ -220,7 +220,7 @@ class PostController
         $success = $this->postModel->updatePost($postId, $_SESSION['user_id'], $caption, $finalMediaPaths);
 
         if ($success) {
-            echo json_encode(['success' => true, 'message' => 'Postingan berhasil diperbarui']);
+            echo json_encode(['success' => true, 'message' => 'Post updated successfully']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Gagal memperbarui postingan di database.']);
         }
@@ -252,7 +252,7 @@ class PostController
         $success = $this->postModel->deletePost($postId, $_SESSION['user_id']);
 
         if ($success) {
-            echo json_encode(['success' => true, 'message' => 'Postingan berhasil dihapus.']);
+            echo json_encode(['success' => true, 'message' => 'Post successfully deleted.']);
             exit;
         } else {
             echo json_encode(['success' => false, 'message' => 'Gagal menghapus postingan.']);

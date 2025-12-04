@@ -64,6 +64,7 @@
                                     <option value="" disabled selected>-- Select --</option>
                                     <option value="ALUMNI">ALUMNI</option>
                                     <option value="MITRA">PARTNER</option>
+                                    <option value="ADMIN">ADMIN</option>
                                 </select>
                             </div>
                         </div>

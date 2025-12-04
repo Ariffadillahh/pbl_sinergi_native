@@ -20,20 +20,37 @@ class TopicsController
     {
         $topic = $this->topicModel->getTopicById($topicId);
 
-        if (!$topicId) {
+        if (!$topic) {
             header("Location: " . BASEURL . "/forums");
             exit;
         }
 
         $forumId = $topic['FORUM_ID'] ?? null;
         $forumById = $this->forumModel->getForumById($forumId);
+
+        $currentUserId = $_SESSION['user_id'] ?? null;
+        $currentUserRole = $_SESSION['role'] ?? '';
+
+        $isMember = false;
+        if ($currentUserId) {
+            $isMember = $this->forumModel->isMember($forumId, $currentUserId);
+        }
+
+        $isAdmin = ($currentUserRole === 'ADMIN');
+
+        if (!$isMember && !$isAdmin) {
+            header("Location: " . BASEURL . "/forum/" . $forumId);
+            exit;
+        }
+
         $comments = $this->commentModel->getCommentsByTopicId($topicId);
 
         $data = [
             'title'     => 'Detail Topik',
             'forumById' => $forumById,
             'topic'     => $topic,
-            'comments'  => $comments
+            'comments'  => $comments,
+            'isMember'  => $isMember 
         ];
 
         extract($data);
@@ -134,7 +151,7 @@ class TopicsController
 
             header('Content-Type: application/json');
             if ($result['status']) {
-                echo json_encode(['success' => true, 'message' => 'Postingan berhasil dibuat!']);
+                echo json_encode(['success' => true, 'message' => 'Post created successfully!']);
             } else {
                 foreach ($uploadedFiles as $file) {
                     $filePath = __DIR__ . '/../../storage/forums/topics/' . $file['path'];

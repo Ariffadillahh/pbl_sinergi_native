@@ -27,18 +27,18 @@
              </svg>
          </button>
 
-         <div id="dropdown-<?= $topic['ID'] ?>" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200 py-1">
 
+         <div id="dropdown-<?= $topic['ID'] ?>" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200 py-1">
              <?php if ($canPin): ?>
                  <button type="button"
                      data-id="<?= $topic['ID'] ?>"
                      class="btn-pin-action flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left cursor-pointer">
 
                      <?php if ($topic['IS_PINNED'] == 1): ?>
-                         <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                             <path d="M18.75 12.75h1.5a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5zM12 6a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5A.75.75 0 0112 6zM12 18a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5A.75.75 0 0112 18zM3.75 6.75h1.5a.75.75 0 100-1.5h-1.5a.75.75 0 000 1.5zM5.25 18.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 010 1.5zM3 12a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5A.75.75 0 013 12zM9 3.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5zM12.75 12a2.25 2.25 0 114.5 0 2.25 2.25 0 01-4.5 0zM9 20.25a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                         <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                              <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                          </svg>
+
                          <span class="font-semibold text-blue-600">Unpin Topic</span>
                      <?php else: ?>
                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,7 +46,6 @@
                          </svg>
                          <span>Pin Topic</span>
                      <?php endif; ?>
-
                  </button>
              <?php endif; ?>
 
@@ -72,7 +71,7 @@
                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                      </svg>
-                     Hapus
+                     Delete
                  </button>
              <?php endif; ?>
          </div>
@@ -139,12 +138,23 @@
                      <span id="edit_file_counter" class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">0/5 Media</span>
                  </div>
 
-                 <div class="mt-2">
+                 <div class="mt-2 relative">
                      <label for="input_edit_topic_content" class="block text-sm font-medium text-gray-700 mb-1">Content</label>
-                     <textarea name="content" id="input_edit_topic_content" rows="4"
+
+                     <textarea
+                         name="content"
+                         id="input_edit_topic_content"
+                         rows="4"
                          class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 bg-gray-50 border resize-none"
                          placeholder="What are you thinking?"></textarea>
+
+                     <span
+                         id="aboutCounter"
+                         class="absolute right-3 bottom-3 text-xs text-gray-400 pointer-events-none">
+                         0/250
+                     </span>
                  </div>
+
 
                  <div class="mt-4">
                      <label class="block text-sm font-medium text-gray-700 mb-2">Media</label>
@@ -180,6 +190,30 @@
 
 
  <script>
+     var editTextTopic = document.getElementById('input_edit_topic_content');
+     var aboutCounter = document.getElementById('aboutCounter');
+     var MAX_LENGTH_EDIT = 250;
+
+     function updateCounter() {
+         const textarea = document.getElementById('input_edit_topic_content');
+         const counter = document.getElementById('aboutCounter');
+
+         if (!textarea || !counter) return;
+
+         let len = textarea.value.length;
+
+         if (len > MAX_LENGTH_EDIT) {
+             textarea.value = textarea.value.slice(0, MAX_LENGTH_EDIT);
+             len = MAX_LENGTH_EDIT;
+         }
+
+         counter.textContent = `${len}/${MAX_LENGTH_EDIT}`;
+     }
+
+     if (editTextTopic) {
+         editTextTopic.addEventListener('input', updateCounter);
+     }
+
      function toggleDropdown(dropdownId) {
          const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
          allDropdowns.forEach(dd => {
@@ -328,14 +362,16 @@
          filesToDelete = [];
 
          document.getElementById('input_edit_topic_id').value = topicId;
-         document.getElementById('input_edit_topic_content').value = content;
+
+         const contentInput = document.getElementById('input_edit_topic_content');
+         contentInput.value = content;
+
+         updateCounter();
 
          document.getElementById('deleted_media_container').innerHTML = '';
-
          document.getElementById('edit_image_input').value = '';
 
          renderExistingMedia();
-
          updateFileCounter();
 
          const modal = document.getElementById('editTopicModal');

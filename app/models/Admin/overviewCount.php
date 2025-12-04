@@ -385,4 +385,38 @@ class overviewCount extends BaseModel
             'percentage_change' => round($percentage_change, 1)
         ];
     }
+
+    public function getReportCounts()
+    {
+        $conn = self::getConnection();
+
+        $query = "SELECT 
+                COUNT(DISTINCT CASE WHEN TARGET_TYPE = 'FORUM' THEN TARGET_ID END) as total_forum,
+                COUNT(DISTINCT CASE WHEN TARGET_TYPE = 'POSTINGAN' THEN TARGET_ID END) as total_postingan,
+                COUNT(DISTINCT CASE WHEN TARGET_TYPE = 'GROUP' THEN TARGET_ID END) as total_group
+              FROM REPORT
+              WHERE TARGET_TYPE IN ('FORUM', 'POSTINGAN', 'GROUP')";
+
+        $stmt = oci_parse($conn, $query);
+        if (!$stmt) {
+            $e = oci_error($conn);
+            error_log($e['message']);
+            return false;
+        }
+
+        $execute = oci_execute($stmt);
+        if (!$execute) {
+            $e = oci_error($stmt);
+            error_log($e['message']);
+            return false;
+        }
+
+        $row = oci_fetch_array($stmt, OCI_ASSOC + OCI_RETURN_NULLS);
+
+        if ($row) {
+            return array_change_key_case($row, CASE_LOWER);
+        }
+
+        return false;
+    }
 }

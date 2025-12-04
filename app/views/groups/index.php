@@ -15,8 +15,8 @@
         <?php require_once 'app/views/components/groups/groupChatList.php'; ?>
         <?php require_once 'app/views/components/groups/modalSearchGroup.php'; ?>
 
-        <div id="Main-Content-Container" class="flex-1 overflow-y-auto pb-[70px] lg:pb-0 relative">
-            <div class="flex h-[100vh] items-center justify-center text-center">
+        <div id="Main-Content-Container" class="flex-1 overflow-y-auto pb-[70px] lg:pb-0 relative ">
+            <div class="flex h-[calc(100vh-70px)] lg:h-[100vh] items-center justify-center text-center">
                 <div class="ornaments absolute inset-0 overflow-hidden">
                     <img src="<?php echo BASEURL; ?>/src/asset/image/ornament.png" class="absolute top-0 h-[320px] -right-[249px] rotate-180" alt="ornament" />
                     <img src="<?php echo BASEURL; ?>/src/asset/image/ornament.png" class="absolute bottom-0 h-[300px] -left-[270px]" alt="ornament" />

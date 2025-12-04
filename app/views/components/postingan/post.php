@@ -1,7 +1,8 @@
 <?php if (empty($posts)): ?>
     <div class="bg-white p-6 rounded-xl mt-6 flex flex-col items-center justify-center shadow-sm">
         <img src="<?= BASEURL ?>/src/asset/image/empty-folder.png" alt="icon" width="100" class="mb-2">
-        <h1 class="text-gray-600 text-center text-sm">There are currently no posts.</h1> </div>
+        <h1 class="text-gray-600 text-center text-sm">There are currently no posts.</h1>
+    </div>
 <?php else: ?>
     <?php
     $currentUserId = $_SESSION['user_id'] ?? null;
@@ -13,17 +14,17 @@
                 <div class="p-4">
                     <div class="flex items-start space-x-3">
                         <img src="<?= !empty($post['PATH_PHOTO'])
-                                            ? BASEURL . '/storage/users/photos/' . $post['PATH_PHOTO']
-                                            : BASEURL . '/src/asset/image/default.png' ?>"
+                                        ? BASEURL . '/storage/users/photos/' . $post['PATH_PHOTO']
+                                        : BASEURL . '/src/asset/image/default.png' ?>"
                             alt="Profile" class="w-12 h-12 rounded-full object-cover flex-shrink-0">
 
                         <div class="flex-1">
                             <div class="flex items-center gap-2">
-                                <span class="font-semibold text-gray-700"><?= htmlspecialchars($post['FULL_NAME']) ?></span>
-                                
+                                <span class="font-semibold text-gray-700 line-clamp-1"><?= htmlspecialchars($post['FULL_NAME']) ?></span>
+
                                 <?php
                                 $role = $post['ROLE'] ?? 'STUDENT'; // Changed default to 'STUDENT'
-                                
+
                                 // Mapping roles from Indonesian to English for display, and setting classes
                                 $roleDisplay = [
                                     "MAHASISWA" => "STUDENT",
@@ -32,7 +33,7 @@
                                     "MITRA"     => "PARTNER",
                                     "ALUMNI"    => "ALUMNI",
                                 ][$post['ROLE']] ?? 'STUDENT';
-                                
+
                                 $roleClasses = [
                                     "STUDENT" => "bg-blue-100 text-blue-800",
                                     "ADMIN"   => "bg-red-100 text-red-800",
@@ -40,20 +41,20 @@
                                     "PARTNER" => "bg-gray-100 text-gray-800",
                                     "ALUMNI"  => "bg-yellow-100 text-yellow-800"
                                 ];
-                                
+
                                 // Use the original role to determine the color class, but use the English display name
                                 $colorKey = $roleDisplay;
                                 if ($role === 'MAHASISWA') $colorKey = 'STUDENT';
                                 else if ($role === 'DOSEN') $colorKey = 'LECTURER';
                                 else if ($role === 'MITRA') $colorKey = 'PARTNER';
                                 else if ($role === 'ALUMNI') $colorKey = 'ALUMNI';
-                                
+
                                 $colorClass = $roleClasses[$colorKey] ?? "bg-gray-100 text-gray-800";
                                 ?>
                                 <span class="px-2 py-0.5 rounded-full text-xs font-medium <?= $colorClass ?>">
                                     <?= htmlspecialchars($roleDisplay) ?> </span>
                             </div>
-                            
+
                             <div class="text-sm mt-0.5">
                                 <?php
                                 $profileUrl = ($post['USER_ID'] === $_SESSION['user_id'])
@@ -72,7 +73,7 @@
                             </div>
                         </div>
 
-                        
+
                         <div class="relative">
                             <div class="relative inline-block text-left">
                                 <button
@@ -85,35 +86,47 @@
                                     </svg>
                                 </button>
 
-                                <div
-                                    id="dropdown-<?= $post['POST_ID'] ?>"
-                                    class="hidden absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
+                                <div id="dropdown-<?= $post['POST_ID'] ?>"
+                                    class="hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden py-1">
+
                                     <?php if ($isOwner): ?>
-                                        <button
-                                            type="button"
-                                            class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 cursor-pointer"
+
+                                        <button type="button"
+                                            class="group flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors cursor-pointer"
                                             onclick="openDeletePostModal('<?= $post['POST_ID'] ?>')">
-                                            Delete </button>
-                                    <?php else: ?>
-                                        <button
-                                            type="button"
-                                            class="report-btn w-full text-left px-4 py-2 text-sm text-black hover:bg-gray-100 cursor-pointer"
-                                            data-post-id="<?= $post['POST_ID']; ?>">
-                                            Report
+
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                            Delete Post
                                         </button>
+
+                                    <?php else: ?>
+
+                                        <button type="button"
+                                            class="report-btn group flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer"
+                                            data-post-id="<?= $post['POST_ID']; ?>">
+
+                                            <svg class="w-4 h-4 text-gray-500 group-hover:text-yellow-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-8a2 2 0 01-2-2V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path>
+                                            </svg>
+                                            Report Post
+                                        </button>
+
                                     <?php endif; ?>
+
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="mt-3">
-                        <p class="text-black text-[15px] leading-relaxed"><?= $post['CONTENT_FORMATTED'] ?? '' ?></p>
+                        <p class="text-black text-[15px] leading-relaxed whitespace-normal break-words"><?= $post['CONTENT_FORMATTED'] ?? '' ?></p>
                     </div>
                 </div>
 
                 <?php if (!empty($post['MEDIA'])): ?>
-                    <div class="bg-gradient-to-b from-gray-900 to-black overflow-hidden">
+                    <div class="bg-gradient-to-b from-gray-300 to-white overflow-hidden">
                         <swiper-container class="mySwiper aspect-video w-full min-h-[250px] md:min-h-[400px]" init="false">
                             <?php foreach ($post['MEDIA'] as $mediaPath): ?>
                                 <swiper-slide>
@@ -177,7 +190,7 @@
     // FIX: Time ago function
     function timeAgo(dateString) {
         if (!dateString) return '';
-        
+
         // Handle different date formats
         const safeDateString = dateString.replace(' ', 'T');
         const date = new Date(safeDateString);
@@ -263,11 +276,11 @@
     // Initialize like button states
     function initializeLikeButtons() {
         const likeButtons = document.querySelectorAll('.like-btn');
-        
+
         likeButtons.forEach(button => {
             const isLiked = button.getAttribute('data-liked') === 'true';
             const icon = button.querySelector('svg');
-            
+
             if (isLiked) {
                 icon.classList.remove('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
                 icon.classList.add('text-red-500', 'fill-red-500');
@@ -287,15 +300,15 @@
     document.querySelectorAll('.like-btn').forEach(button => {
         button.addEventListener('click', async function(e) {
             e.preventDefault();
-            
+
             const postId = this.getAttribute('data-post-id');
             const postContainer = document.getElementById('post-' + postId);
-            
+
             if (!postContainer) {
                 console.error('Error: Post container tidak ditemukan untuk ID:', postId);
                 return;
             }
-            
+
             const countSpan = postContainer.querySelector('.like-count-display');
             const icon = this.querySelector('svg');
 
@@ -324,7 +337,7 @@
                 if (data.success) {
                     const isLiked = data.action === 'liked';
                     this.setAttribute('data-liked', isLiked ? 'true' : 'false');
-                    
+
                     // Update count
                     countSpan.textContent = data.total_likes + ' Likes';
                     countSpan.classList.add('scale-110', 'text-blue-600');
@@ -334,7 +347,7 @@
 
                     // Update icon
                     icon.style.transition = 'all 0.3s ease';
-                    
+
                     if (isLiked) {
                         icon.classList.remove('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
                         icon.classList.add('text-red-500', 'fill-red-500', 'scale-110');
@@ -372,7 +385,7 @@
     document.addEventListener('click', function(event) {
         const isDropdownButton = event.target.closest('button[onclick^="toggleDropdown"]');
         const isDropdownContent = event.target.closest('[id^="dropdown-"]');
-        
+
         if (!isDropdownButton && !isDropdownContent) {
             document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
                 d.classList.add('hidden');
@@ -422,21 +435,21 @@
 </script>
 
 <style>
-/* Smooth transition untuk like button */
-.like-btn svg {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+    /* Smooth transition untuk like button */
+    .like-btn svg {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-.like-btn:active svg {
-    transform: scale(0.9);
-}
+    .like-btn:active svg {
+        transform: scale(0.9);
+    }
 
-.like-btn:disabled {
-    cursor: not-allowed;
-}
+    .like-btn:disabled {
+        cursor: not-allowed;
+    }
 
-/* Animation untuk like count */
-.like-count-display {
-    transition: all 0.3s ease;
-}
+    /* Animation untuk like count */
+    .like-count-display {
+        transition: all 0.3s ease;
+    }
 </style>

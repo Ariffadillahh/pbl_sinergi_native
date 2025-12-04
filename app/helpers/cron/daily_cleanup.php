@@ -12,7 +12,7 @@ class CronCleanup extends BaseModel
         ob_start();
 
         echo "========================================================" . PHP_EOL;
-        echo "LOG START: " . date('Y-m-d H:i:s') . " WIB" . PHP_EOL; 
+        echo "LOG START: " . date('Y-m-d H:i:s') . " WIB" . PHP_EOL;
         echo "========================================================" . PHP_EOL;
 
         $this->cleanupFiles();
@@ -84,8 +84,8 @@ class CronCleanup extends BaseModel
             }
 
             $sql = "DELETE FROM NOTIFICATIONS 
-                    WHERE IS_READ = 1 
-                    AND CREATED_AT < (SYSDATE - 1)";
+                    WHERE (IS_READ = 1 AND CREATED_AT < (SYSDATE - 1)) 
+                    OR (IS_READ = 0 AND CREATED_AT < (SYSDATE - 7))";
 
 
             $stmt = oci_parse($conn, $sql);

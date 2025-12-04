@@ -1,4 +1,4 @@
-<div id="modal-delete-post" class="hidden fixed inset-0 z-[99999] overflow-y-auto justify-center items-center" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+<div id="modal-delete-post" class="hidden fixed inset-0 z-[99999] overflow-y-auto justify-center items-center backdrop-blur-sm" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-black/50 transition-opacity"></div>
 
     <div class="flex min-h-full justify-center p-4 text-center sm:p-0 items-center">

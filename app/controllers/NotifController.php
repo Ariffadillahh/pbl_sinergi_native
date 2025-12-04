@@ -14,39 +14,49 @@ class NotifController
     {
         header('Content-Type: application/json');
 
-        if (empty($_SESSION['user_id'])) {
-            http_response_code(401);
-            echo json_encode(['error' => 'Unauthorized']);
-            exit;
-        }
+        // Ambil data JSON dari body request (karena kita akan pakai POST fetch)
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        $lastTimestamp = $input['last_timestamp'] ?? date('c', strtotime('-1 hour'));
+        $clientIds = $input['visible_ids'] ?? []; // ID yang ada di layar user
+
+        $userId = $_SESSION['user_id']; // Pastikan session start sudah ada di construct/index
 
         session_write_close();
-
-        $lastTimestamp = $_GET['last_timestamp'] ?? date('c', strtotime('-1 hour'));
-        $userId = $_SESSION['user_id'];
-
-        set_time_limit(30);
+        set_time_limit(40);
         ignore_user_abort(true);
 
         $startTime = time();
         $timeout = 28;
 
         while ((time() - $startTime) < $timeout) {
-            $notifications = $this->notificationModel->getNewNotifications($userId, $lastTimestamp);
 
-            if (!empty($notifications)) {
-                echo json_encode($notifications);
+            // 1. Cek Pesan BARU (Logic lama)
+            $newNotifications = $this->notificationModel->getNewNotifications($userId, $lastTimestamp);
+
+            // 2. Cek Pesan TERHAPUS (Logic baru: Bandingkan ID client vs DB)
+            $deletedIds = [];
+            if (!empty($clientIds)) {
+                $deletedIds = $this->notificationModel->getDeletedIdsFromList($clientIds);
+            }
+
+            // Jika ada perubahan (Baru ATAU Hapus)
+            if (!empty($newNotifications) || !empty($deletedIds)) {
+                echo json_encode([
+                    'type' => 'update',
+                    'new_notifications' => $newNotifications,
+                    'deleted_ids' => $deletedIds
+                ]);
                 exit;
             }
 
             sleep(2);
 
-            if (connection_aborted()) {
-                exit;
-            }
+            // Bersihkan cache stat query oracle/php jika perlu, atau cek koneksi
+            if (connection_aborted()) exit;
         }
 
-        echo json_encode([]);
+        echo json_encode(['type' => 'no_update']);
         exit;
     }
 

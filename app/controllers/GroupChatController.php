@@ -45,14 +45,16 @@ class GroupChatController
 
         $membersGroupChat = $this->groupChatMemberModel->findByGroupChatId($id);
 
-        $isMember = false;
-        foreach ($membersGroupChat as $member) {
-            if ($member['USER_ID'] == $_SESSION['user_id']) {
-                $isMember = true;
-                break;
+        $isMember = ($_SESSION['role'] === 'ADMIN');
+
+        if (!$isMember) {
+            foreach ($membersGroupChat as $member) {
+                if ($member['USER_ID'] == $_SESSION['user_id']) {
+                    $isMember = true;
+                    break;
+                }
             }
         }
-
         if (!$isMember) {
             header("Location: " . BASEURL . "/groups");
             exit;
@@ -277,64 +279,64 @@ class GroupChatController
         exit;
     }
 
-public function join()
-{
-    ob_start();
-    
-    if (session_status() == PHP_SESSION_NONE) {
-        session_start();
-    }
+    public function join()
+    {
+        ob_start();
 
-    if (!isset($_SESSION['user_id'])) {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION['user_id'])) {
+            ob_clean();
+            header('Content-Type: application/json');
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            ob_clean();
+            header('Content-Type: application/json');
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+            exit;
+        }
+
+        $userId = $_SESSION['user_id'];
+        $groupChatId = trim($_POST['group_chat_id'] ?? '');
+        $accessKey = trim($_POST['access_key'] ?? '');
+
+        if (empty($groupChatId)) {
+            ob_clean();
+            header('Content-Type: application/json');
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Group ID is required']);
+            exit;
+        }
+
+        $result = $this->groupChatModel->joinGroupChat($userId, $groupChatId, $accessKey);
+
         ob_clean();
         header('Content-Type: application/json');
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+
+        if ($result['success']) {
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'message' => $result['message'] ?? 'Successfully joined the group',
+                'redirectUrl' => BASEURL . '/groups/chat/' . $groupChatId
+            ]);
+        } else {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => $result['message'] ?? 'Failed to join group'
+            ]);
+        }
+
         exit;
     }
-
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        ob_clean();
-        header('Content-Type: application/json');
-        http_response_code(405);
-        echo json_encode(['success' => false, 'message' => 'Invalid request method']);
-        exit;
-    }
-
-    $userId = $_SESSION['user_id'];
-    $groupChatId = trim($_POST['group_chat_id'] ?? '');
-    $accessKey = trim($_POST['access_key'] ?? '');
-
-    if (empty($groupChatId)) {
-        ob_clean();
-        header('Content-Type: application/json');
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Group ID is required']);
-        exit;
-    }
-
-    $result = $this->groupChatModel->joinGroupChat($userId, $groupChatId, $accessKey);
-
-    ob_clean();
-    header('Content-Type: application/json');
-
-    if ($result['success']) {
-        http_response_code(200);
-        echo json_encode([
-            'success' => true,
-            'message' => $result['message'] ?? 'Successfully joined the group',
-            'redirectUrl' => BASEURL . '/groups/chat/' . $groupChatId
-        ]);
-    } else {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'message' => $result['message'] ?? 'Failed to join group'
-        ]);
-    }
-    
-    exit;
-}
 
     public function joinViaInvite()
     {
@@ -386,10 +388,16 @@ public function join()
             return;
         }
 
+        if ($_POST['target_type'] === "POST") {
+            http_response_code(401);
+            echo json_encode(['error' => 'INI POST.']);
+            return;
+        }
+
         $data = [
             'user_id' => $_SESSION['user_id'],
             'target_id' => $_POST['target_id'] ?? null,
-            'target_type' => $_POST['target_type'] ?? null,
+            'target_type' => isset($_POST['target_type']) ? strtoupper($_POST['target_type']) : null,
             'reason' => $_POST['reason'] ?? null,
             'other_reason_text' => $_POST['other_reason_text'] ?? null,
         ];
@@ -409,10 +417,23 @@ public function join()
 
         try {
             if ($this->groupChatModel->createReport($reportData)['success']) {
-                echo json_encode(['success' => true, 'message' => 'Laporan Anda telah berhasil dikirim.']);
+
+                $admins = $this->userModel->getAdmin();
+
+                foreach ($admins as $admin) {
+                    $this->notificationModel->addNotification(
+                        $admin['ID'],
+                        $data['user_id'],
+                        $data['target_id'],
+                        'REPORT_RECEIVED',
+                        $data['target_type']
+                    );
+                }
+
+                echo json_encode(['success' => true, 'message' => 'Your report has been submitted successfully.']);
             } else {
                 http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'Gagal menyimpan laporan.']);
+                echo json_encode(['success' => false, 'message' => 'Failed to save report']);
             }
         } catch (Exception $e) {
             http_response_code(500);

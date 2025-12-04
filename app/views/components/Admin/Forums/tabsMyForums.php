@@ -20,54 +20,61 @@
          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
              <?php foreach ($myForums as $forum): ?>
-                 <div class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
-                     <div class="flex items-start gap-3">
-                         <div class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-pink-500 text-white font-bold flex-shrink-0">
-                             <?php if (!empty($forum['PATH_PHOTO'])): ?>
-                                 <img src="<?= BASEURL . '/storage/forums/photos/' . $forum['PATH_PHOTO'] ?>"
-                                     class="w-full h-full object-cover" alt="forum photo">
-                             <?php else: ?>
-                                 <?= strtoupper(substr($forum['NAME'], 0, 2)) ?>
-                             <?php endif; ?>
-                         </div>
-                         <div class="flex-1 min-w-0">
-                             <div class="flex justify-between items-start mb-2">
-                                 <div>
-                                     <h3 class="font-semibold text-gray-900">
-                                         <?= htmlspecialchars($forum['NAME']) ?>
-                                     </h3>
-                                     <p class="text-sm text-gray-500">
-                                         <?= $forum['TOTAL_MEMBERS'] ?> Members
-                                     </p>
-                                 </div>
-                                 <span class="px-2 py-1 
+                 <a href="<?= BASEURL ?>/forum/<?= $forum["ID"] ?>">
+                     <div class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                         <div class="flex items-start gap-3">
+                             <div class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-blue-500 text-white font-bold flex-shrink-0">
+                                 <?php if (!empty($forum['PATH_PHOTO'])): ?>
+                                     <img src="<?= BASEURL . '/storage/forums/photos/' . $forum['PATH_PHOTO'] ?>"
+                                         class="w-full h-full object-cover" alt="forum photo">
+                                 <?php else: ?>
+                                     <?= strtoupper(substr($forum['NAME'], 0, 2)) ?>
+                                 <?php endif; ?>
+                             </div>
+                             <div class="flex-1 min-w-0">
+                                 <div class="flex justify-between items-start mb-2">
+                                     <div>
+                                         <h3 class="font-semibold text-gray-900">
+                                             <?= htmlspecialchars($forum['NAME']) ?>
+                                         </h3>
+                                         <p class="text-sm text-gray-500">
+                                             <?= $forum['TOTAL_MEMBERS'] ?> Members
+                                             <?php if ($forum['STATUS'] === 'NONACTIVE'): ?>
+                                                 <span class="bg-red-50 text-red-500 border border-red-500 p-1 rounded-md text-[9px] ml-1">
+                                                     NON ACTIVE
+                                                 </span>
+                                             <?php endif; ?>
+                                         </p>
+                                     </div>
+                                     <span class="px-2 py-1 
                                                 <?= $forum['IS_PRIVATE'] == 1 ? 'bg-gray-100 text-gray-700' : 'bg-blue-100 text-blue-700' ?>
                                                 text-xs rounded-full whitespace-nowrap">
-                                     <?= $forum['IS_PRIVATE'] == 1 ? 'Privat' : 'Publik' ?>
-                                 </span>
-                             </div>
-                             <?php if ($forum['IS_PRIVATE'] == 1 && !empty($forum['ACCESS_KEY'])): ?>
-                                 <div class="bg-gray-50 p-2 rounded-lg mt-2">
-                                     <div class="flex items-center gap-2">
-                                         <input type="text"
-                                             value="<?= htmlspecialchars($forum['ACCESS_KEY']) ?>" readonly
-                                             class="flex-1 text-xs font-mono text-gray-700 bg-transparent border-none outline-none">
-                                         <button
-                                             onclick="copyKeyAdmin('<?= htmlspecialchars($forum['ACCESS_KEY']) ?>')"
-                                             class="p-1 hover:bg-gray-200 rounded transition">
-                                             <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor"
-                                                 viewBox="0 0 24 24">
-                                                 <path stroke-linecap="round" stroke-linejoin="round"
-                                                     stroke-width="2"
-                                                     d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                             </svg>
-                                         </button>
-                                     </div>
+                                         <?= $forum['IS_PRIVATE'] == 1 ? 'Privat' : 'Publik' ?>
+                                     </span>
                                  </div>
-                             <?php endif; ?>
+                                 <?php if ($forum['IS_PRIVATE'] == 1 && !empty($forum['ACCESS_KEY'])): ?>
+                                     <div class="bg-gray-50 p-2 rounded-lg mt-2">
+                                         <div class="flex items-center gap-2">
+                                             <input type="text"
+                                                 value="<?= htmlspecialchars($forum['ACCESS_KEY']) ?>" readonly
+                                                 class="flex-1 text-xs font-mono text-gray-700 bg-transparent border-none outline-none">
+                                             <button
+                                                 onclick="copyKeyAdmin('<?= htmlspecialchars($forum['ACCESS_KEY']) ?>')"
+                                                 class="p-1 hover:bg-gray-200 rounded transition">
+                                                 <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor"
+                                                     viewBox="0 0 24 24">
+                                                     <path stroke-linecap="round" stroke-linejoin="round"
+                                                         stroke-width="2"
+                                                         d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                 </svg>
+                                             </button>
+                                         </div>
+                                     </div>
+                                 <?php endif; ?>
+                             </div>
                          </div>
                      </div>
-                 </div>
+                 </a>
              <?php endforeach; ?>
 
              <?php if (empty($myForums)): ?>

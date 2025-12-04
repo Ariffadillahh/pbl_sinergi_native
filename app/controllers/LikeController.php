@@ -38,37 +38,50 @@ class LikeController
             exit;
         }
 
-        $result = $this->likeModel->toggleLike($userId, $postId);
-        $totalLikes = $this->likeModel->getLikeCount($postId);
-        $type = 'LIKE_POST';
+        try {
+            // Lakukan Toggle Like
+            $result = $this->likeModel->toggleLike($userId, $postId);
+            $totalLikes = $this->likeModel->getLikeCount($postId);
 
-        if ($result['action'] === 'liked') {
+            // Ambil data pemilik Post
             $owner = $this->likeModel->getPostOwner($postId);
-            if ($owner && $owner['ID'] !== $userId) {
-                $this->notificationModel->addNotification($owner['ID'], $userId, $postId, $type, 'POST');
-            }
-        }
 
-        echo json_encode([
-            'success' => true,
-            'action' => $result['action'],
-            'total_likes' => $totalLikes
-        ]);
-        exit;
+            // Cek jika owner ada DAN bukan diri sendiri
+            if ($owner && $owner['ID'] !== $userId) {
+                $type = 'LIKE_POST';
+
+                // 1. HAPUS notifikasi lama (Entah itu mau unlike atau like ulang, hapus dulu biar bersih)
+                $this->notificationModel->deleteNotification($owner['ID'], $userId, $postId, $type);
+
+                // 2. Jika aksinya adalah 'liked', BARU tambah notifikasi baru
+                if ($result['action'] === 'liked') {
+                    $this->notificationModel->addNotification($owner['ID'], $userId, $postId, $type, 'POST');
+                }
+            }
+
+            echo json_encode([
+                'success' => true,
+                'action' => $result['action'],
+                'total_likes' => $totalLikes
+            ]);
+            exit;
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Server error']);
+            exit;
+        }
     }
 
     public function toggleLikeTopic()
     {
         header('Content-Type: application/json');
 
-        // Validasi Method
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Method not allowed']);
             exit;
         }
 
-        // Validasi Login
         if (empty($_SESSION['user_id'])) {
             http_response_code(401);
             echo json_encode(['success' => false, 'message' => 'Unauthorized. Please login first.']);
@@ -78,7 +91,6 @@ class LikeController
         $userId = $_SESSION['user_id'];
         $topicId = $_POST['topic_id'] ?? null;
 
-        // Validasi Topic ID
         if (!$topicId) {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Topic ID is required']);
@@ -86,7 +98,6 @@ class LikeController
         }
 
         try {
-            // Cek apakah topik ada
             if (!$this->likeModel->topicExists($topicId)) {
                 http_response_code(404);
                 echo json_encode(['success' => false, 'message' => 'Topic not found']);
@@ -95,54 +106,46 @@ class LikeController
 
             // Toggle Like/Unlike
             $result = $this->likeModel->toggleLikeTopic($userId, $topicId);
-
-            // Hitung total likes terbaru
             $totalLikes = $this->likeModel->getLikeCountTopic($topicId);
 
-            // Kirim notifikasi HANYA jika action = 'liked'
-            if ($result['action'] === 'liked') {
+            // LOGIKA NOTIFIKASI
+            $owner = $this->likeModel->getTopicOwner($topicId);
 
-                // Ambil data owner topic
-                $owner = $this->likeModel->getTopicOwner($topicId);
+            // Validasi owner & pastikan bukan like punya sendiri
+            if ($owner && !empty($owner['USER_ID']) && $owner['USER_ID'] !== $userId) {
 
-                // Debugging lengkap
-                error_log("=== LIKE DEBUG ===");
-                error_log("Topic ID: " . $topicId);
-                error_log("Current User ID: " . $userId);
-                error_log("Owner Data: " . print_r($owner, true));
+                // Definisikan tipe notifikasi
+                $notifType = 'LIKE_TOPIC';
 
-                // Validasi owner data dan pastikan bukan like sendiri
-                if ($owner && !empty($owner['USER_ID']) && $owner['USER_ID'] !== $userId) {
+                try {
+                    // 1. Selalu HAPUS notifikasi lama terlebih dahulu
+                    // Ini akan membersihkan notifikasi jika user melakukan UNLIKE,
+                    // Atau membersihkan duplikat sebelum insert baru jika user melakukan LIKE.
+                    $this->notificationModel->deleteNotification(
+                        $owner['USER_ID'],
+                        $userId,
+                        $topicId,
+                        $notifType
+                    );
 
-                    error_log("Sending notification to: " . $owner['USER_ID']);
-
-                    try {
+                    // 2. Jika statusnya sekarang LIKED, baru kirim notifikasi baru
+                    if ($result['action'] === 'liked') {
                         $this->notificationModel->addNotification(
-                            $owner['USER_ID'],  // Penerima notifikasi (owner topic)
-                            $userId,            // Yang nge-like
-                            $topicId,           // Referensi topic
-                            'LIKE_TOPIC',       // Tipe notifikasi
-                            'TOPIC'             // Target type
+                            $owner['USER_ID'],
+                            $userId,
+                            $topicId,
+                            $notifType,
+                            'TOPIC'
                         );
-                        error_log("Notification sent successfully!");
-                    } catch (Exception $notifError) {
-                        // Jangan gagalkan like hanya karena notifikasi error
-                        error_log("Notification Error: " . $notifError->getMessage());
-                        error_log("Notification Stack: " . $notifError->getTraceAsString());
+                        error_log("Notification sent (and old one cleaned) for Topic ID: " . $topicId);
+                    } else {
+                        error_log("Notification removed (Unlike action) for Topic ID: " . $topicId);
                     }
-                } else {
-                    error_log("Notification skipped - Reason:");
-                    if (!$owner) {
-                        error_log("  - Owner not found");
-                    } elseif (empty($owner['USER_ID'])) {
-                        error_log("  - Owner USER_ID is empty");
-                    } elseif ($owner['USER_ID'] === $userId) {
-                        error_log("  - User liked their own topic");
-                    }
+                } catch (Exception $notifError) {
+                    error_log("Notification Logic Error: " . $notifError->getMessage());
                 }
             }
 
-            // Response sukses
             echo json_encode([
                 'success' => true,
                 'action' => $result['action'],
@@ -150,12 +153,8 @@ class LikeController
             ]);
             exit;
         } catch (Exception $e) {
-            // Log error lengkap untuk debugging
-            error_log("=== LIKE ERROR ===");
-            error_log("Error Message: " . $e->getMessage());
-            error_log("Stack Trace: " . $e->getTraceAsString());
-            error_log("User ID: " . $userId);
-            error_log("Topic ID: " . $topicId);
+            error_log("=== LIKE TOPIC ERROR ===");
+            error_log($e->getMessage());
 
             http_response_code(500);
             echo json_encode([

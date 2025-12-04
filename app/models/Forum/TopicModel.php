@@ -52,7 +52,7 @@ class TopicModel extends BaseModel
             }
 
             oci_commit($conn);
-            return ['status' => true, 'message' => 'Postingan berhasil dibuat!'];
+            return ['status' => true, 'message' => 'Post created successfully!'];
         } catch (Exception $e) {
             oci_rollback($conn);
             return ['status' => false, 'message' => $e->getMessage()];

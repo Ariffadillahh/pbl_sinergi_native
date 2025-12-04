@@ -50,11 +50,24 @@
             $controller->rejectMitraRequest();
             break;
 
+        case $route === 'dashboard/reportCount':
+            requireLogin();
+            $controller = new DashboardController();
+            $controller->reportCount();
+            break;
+
         case $route === 'dashboard/forums':
             requireLogin();
             checkRoleAccess(['ADMIN']);
             $controller = new DashboardController();
             $controller->forums();
+            break;
+
+        case $route === 'dashboard/group':
+            requireLogin();
+            checkRoleAccess(['ADMIN']);
+            $controller = new DashboardController();
+            $controller->groups();
             break;
 
         case $route === 'dashboard/laporan/postingan':

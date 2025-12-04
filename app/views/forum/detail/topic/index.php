@@ -21,7 +21,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 </head>
 
 <body>
-    <div class="w-full h-full overflow-y-auto">
+    <div class="w-full h-full overflow-y-auto ">
         <div class="bg-white shadow-sm pb-1">
             <div class="h-20 md:h-40 relative overflow-hidden bg-gray-300">
 
@@ -85,7 +85,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                         <a href="<?= BASEURL ?>/forum/<?php echo $forumById['ID']; ?>"
                             class="cursor-pointer w-full md:w-auto flex items-center justify-center gap-2 bg-white rounded-xl px-4 py-2 ring-1 ring-gray-200 hover:ring-blue-600 transition-all">
                             <img src="<?= BASEURL; ?>/src/asset/icons/logout-grey.svg" class="size-6" alt="icon">
-                            <span class="font-medium text-sm text-heyhao-secondary">Back</span>
+                            <span class="font-medium text-sm text-gray-600">Back</span>
                         </a>
                     </div>
 
@@ -93,7 +93,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
             </div>
         </div>
 
-        <div class="max-w-4xl mx-auto mt-4 px-4 pb-8">
+        <div class="max-w-4xl mx-auto mt-4 px-4 pb-8 mb-20 lg:mb-0">
 
             <?php
             $allMedia = $topic['MEDIA'] ?? [];
@@ -121,7 +121,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                             <div>
                                 <!-- FIX: Add role badge -->
                                 <div class="flex items-center gap-2">
-                                    <h4 class="font-bold text-lg text-gray-900 leading-tight hover:text-blue-600 transition-colors cursor-pointer">
+                                    <h4 class="font-bold text-lg text-gray-900 leading-tight hover:text-blue-600 transition-colors cursor-pointer line-clamp-1">
                                         <?= htmlspecialchars($topic['FULL_NAME'] ?? 'User') ?>
                                     </h4>
                                     
@@ -192,7 +192,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
                     <!-- Content Section -->
                     <?php if (!empty($topic['CONTENT'])): ?>
-                        <div class="text-gray-800 leading-relaxed text-[15.5px]">
+                        <div class="text-gray-800 text-[15.5px] leading-relaxed whitespace-normal break-words">
                             <?= nl2br(htmlspecialchars($topic['CONTENT'])) ?>
                         </div>
                     <?php endif; ?>
@@ -200,7 +200,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
                 <!-- Media Gallery -->
                 <?php if (!empty($images)): ?>
-                    <div class="bg-gradient-to-b from-gray-900 to-black overflow-hidden mb-2 -mx-4 sm:mx-0 ">
+                    <div class="bg-gradient-to-b from-gray-300 to-white overflow-hidden mb-2 -mx-4 sm:mx-0 ">
                         <div class="swiper myPostSwiper w-full aspect-square sm:aspect-video sm:h-96 sm:min-h-[300px] sm:max-h-[500px]">
                             <div class="swiper-wrapper">
                                 <?php foreach ($images as $img): ?>

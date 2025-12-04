@@ -1,5 +1,5 @@
 <div id="modal-manage-members"
-    class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50">
+    class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full backdrop-blur-sm bg-black/50">
 
     <div class="relative p-4 w-full max-w-3xl max-h-[120vh]">
         <div class="relative bg-white rounded-xl shadow-lg flex flex-col h-full border border-gray-200">

@@ -268,6 +268,7 @@ class ForumModel extends BaseModel
                  
                 u.FULL_NAME AS OWNER_NAME,
                 u.PATH_PHOTO AS PATH_PHOTO_OWNER,
+                f.OWNER_ID,
                 u.ROLE AS ROLE_OWNER
             FROM FORUMS f 
             JOIN USERS u ON f.OWNER_ID = u.ID
@@ -501,7 +502,7 @@ class ForumModel extends BaseModel
             $result = oci_execute($stmt_insert);
 
             if ($result) {
-                return ['success' => true, 'message' => 'Berhasil bergabung dengan Forum.'];
+                return ['success' => true, 'message' => 'Successfully joined the Forum.'];
             } else {
                 return ['success' => false, 'message' => 'Gagal bergabung dengan Forum.'];
             }
@@ -549,7 +550,8 @@ class ForumModel extends BaseModel
                     COUNT(fm.USER_ID) AS TOTAL_MEMBERS,
                     f.PATH_PHOTO,
                     f.ACCESS_KEY,
-                    f.CREATED_AT
+                    f.CREATED_AT,
+                    f.STATUS
                 FROM FORUMS f
                 JOIN USERS u ON u.ID = f.OWNER_ID
                 LEFT JOIN FORUM_MEMBERS fm ON fm.FORUM_ID = f.ID
@@ -562,7 +564,7 @@ class ForumModel extends BaseModel
 
         $sqlData .= "
                 GROUP BY 
-                    f.ID, f.NAME, f.IS_PRIVATE, u.FULL_NAME, f.CREATED_AT, f.ACCESS_KEY, f.PATH_PHOTO
+                    f.ID, f.NAME, f.IS_PRIVATE, u.FULL_NAME, f.CREATED_AT, f.ACCESS_KEY, f.PATH_PHOTO, f.STATUS
                 ORDER BY f.CREATED_AT DESC
             )
             OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
@@ -622,7 +624,8 @@ class ForumModel extends BaseModel
                     u.FULL_NAME AS OWNER_NAME,
                     COUNT(fm.USER_ID) AS TOTAL_MEMBERS,
                     f.PATH_PHOTO,
-                    f.CREATED_AT
+                    f.CREATED_AT,
+                    f.STATUS
                 FROM FORUMS f
                 JOIN USERS u ON u.ID = f.OWNER_ID
                 LEFT JOIN FORUM_MEMBERS fm ON fm.FORUM_ID = f.ID
@@ -635,7 +638,7 @@ class ForumModel extends BaseModel
 
         $sqlData .= "
                 GROUP BY 
-                    f.ID, f.NAME, f.IS_PRIVATE, u.FULL_NAME, f.CREATED_AT, f.PATH_PHOTO
+                    f.ID, f.NAME, f.IS_PRIVATE, u.FULL_NAME, f.CREATED_AT, f.PATH_PHOTO, f.STATUS
                 ORDER BY f.CREATED_AT DESC
             )
             OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
@@ -660,6 +663,7 @@ class ForumModel extends BaseModel
 
         return ['data' => $forums, 'total' => $totalRows];
     }
+
 
     public function getGalleryMediaByForum($forumId)
     {
@@ -707,31 +711,53 @@ class ForumModel extends BaseModel
     {
         $conn = self::getConnection();
 
-        $sql = "SELECT 
-                    FM.ID as \"id\",
-                    U.FULL_NAME as \"nama\",
-                    U.USERNAME as \"username\",
-                    U.ROLE as \"role\",
-                    U.PATH_PHOTO as \"photo\"
-                FROM FORUM_MEMBERS FM
-                JOIN USERS U ON FM.USER_ID = U.ID
-                WHERE FM.FORUM_ID = :forum_id 
-                AND FM.STATUS = 'PENDING' AND U.STATUS = 'APPROVED'";
+        $sql = "
+            SELECT 
+                FM.ID           AS \"id\",
+                U.FULL_NAME     AS \"nama\",
+                U.USERNAME      AS \"username\",
+                U.ROLE          AS \"role\",
+                U.PATH_PHOTO    AS \"photo\"
+            FROM FORUM_MEMBERS FM
+            JOIN USERS U 
+                ON FM.USER_ID = U.ID
+            WHERE 
+                FM.FORUM_ID = :forum_id
+                AND UPPER(FM.STATUS) = 'PENDING'
+                AND UPPER(U.STATUS) = 'APPROVED'
+        ";
+
 
         $stid = oci_parse($conn, $sql);
+
         if (!$stid) {
             $e = oci_error($conn);
-            throw new Exception($e['message']);
+            throw new Exception("Parse Error: " . $e['message']);
         }
 
-        oci_bind_by_name($stid, ':forum_id', $forumId);
+        // Pastikan forumId bersih
+        $cleanForumId = trim($forumId);
 
-        oci_execute($stid);
+        // Binding
+        oci_bind_by_name($stid, ':forum_id', $cleanForumId);
+
+        // 2. Cek hasil eksekusi
+        $execute = oci_execute($stid);
+        if (!$execute) {
+            $e = oci_error($stid);
+            throw new Exception("Execute Error: " . $e['message']);
+        }
 
         $output = [];
-        oci_fetch_all($stid, $output, 0, -1, OCI_FETCHSTATEMENT_BY_ROW + OCI_ASSOC);
+        // 3. Pastikan flag fetch benar
+        $rows = oci_fetch_all($stid, $output, 0, -1, OCI_FETCHSTATEMENT_BY_ROW + OCI_ASSOC);
 
         oci_free_statement($stid);
+
+        // DEBUGGING SEMENTARA (Hapus nanti jika sudah fix)
+        // Jika baris ini dijalankan, Anda bisa lihat di Network tab browser (Preview) 
+        // apakah $rows bernilai 0.
+        // error_log("Forum ID: " . $cleanForumId . " - Jumlah Data Ditemukan: " . $rows);
 
         return $output;
     }

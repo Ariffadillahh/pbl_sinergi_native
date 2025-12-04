@@ -131,7 +131,7 @@ class NotificationModel extends BaseModel
         $id = uniqid('notif_');
 
         $senderName = '';
-        if ($_SESSION['role'] == 'ADMIN') {
+        if (isset($_SESSION['role']) && $_SESSION['role'] == 'ADMIN') {
             $senderName = 'ADMIN';
         } else {
             $senderName = $_SESSION['full_name'] ?? 'Someone';
@@ -144,26 +144,37 @@ class NotificationModel extends BaseModel
             'content_type' => $targetTypeNotif
         ];
 
-        $targetType = $targetTypeNotif ?? 'POST';
+        $targetType = $targetTypeNotif;
 
-        if ($targetType === 'POST') {
-            $notifData['link'] = "homepage/reply/$targetId";
-        } elseif ($targetType === 'GROUP') {
-            $notifData['link'] = "groups/chat/$targetId";
+        if ($type === 'REPORT_RECEIVED') {
+            if ($targetType === 'GROUP') {
+                $notifData['link'] = "dashboard/laporan/group";
+            } elseif ($targetType === 'FORUM') {
+                $notifData['link'] = "dashboard/laporan/forum";
+            } else {
+                $notifData['link'] = "dashboard/laporan/postingan";
+            }
         } else {
-            $notifData['link'] = "forum/topic/$targetId";
+            if ($targetType === 'FORUM') {
+                $notifData['link'] = "forum/topic/$targetId";
+            } elseif ($targetType === 'GROUP') {
+                $notifData['link'] = "groups/chat/$targetId";
+            } else {
+                $notifData['link'] = "homepage/reply/$targetId";
+            }
         }
-
 
         $jsonData = json_encode($notifData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         $sql = "INSERT INTO NOTIFICATIONS (ID, USER_ID, TYPE, DATA, IS_READ, CREATED_AT)
-                VALUES (:id, :user_id, :type, :data, 0, CURRENT_TIMESTAMP)";
+            VALUES (:id, :user_id, :type, :data, 0, CURRENT_TIMESTAMP)";
+
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ':id', $id);
         oci_bind_by_name($stmt, ':user_id', $targetUserId);
         oci_bind_by_name($stmt, ':type', $type);
         oci_bind_by_name($stmt, ':data', $jsonData);
+
         oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
 
         oci_free_statement($stmt);
@@ -188,5 +199,82 @@ class NotificationModel extends BaseModel
             oci_free_statement($stmt);
             return false;
         }
+    }
+
+    public function getDeletedIdsFromList($idList)
+    {
+        if (empty($idList)) {
+            return [];
+        }
+
+        $conn = self::getConnection();
+
+        // Kita buat parameter binding dinamis (:id0, :id1, dst)
+        $bindParams = [];
+        $placeholders = [];
+
+        foreach ($idList as $index => $id) {
+            $key = ":id" . $index;
+            $placeholders[] = $key;
+            $bindParams[$key] = $id;
+        }
+
+        $placeholderString = implode(',', $placeholders);
+
+        // Query: Ambil ID yang MASIH ADA dari list yang dikirim
+        $sql = "SELECT ID FROM NOTIFICATIONS WHERE ID IN ($placeholderString)";
+
+        $stmt = oci_parse($conn, $sql);
+
+        foreach ($bindParams as $key => $val) {
+            oci_bind_by_name($stmt, $key, $bindParams[$key]); // Bind variable reference fix
+        }
+
+        if (!oci_execute($stmt)) {
+            return [];
+        }
+
+        $existingIds = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $existingIds[] = $row['ID'];
+        }
+        oci_free_statement($stmt);
+
+        // Bandingkan: ID yang dikirim Client - ID yang ada di DB = ID yang terhapus
+        $deletedIds = array_diff($idList, $existingIds);
+
+        // Reset array keys supaya jadi JSON array cantik [1, 5, 9] bukan {0:1, 4:5}
+        return array_values($deletedIds);
+    }
+
+    public function deleteNotification($recipientId, $senderId, $referenceId, $type)
+    {
+        $conn = self::getConnection();
+
+        $query = "DELETE FROM NOTIFICATIONS 
+              WHERE USER_ID = :recipient_id 
+              AND TYPE = :type 
+              AND JSON_VALUE(DATA, '$.sender_id') = :sender_id 
+              AND JSON_VALUE(DATA, '$.target_id') = :reference_id";
+
+        $stmt = oci_parse($conn, $query);
+
+        // Bind Variable (Recipient ID & Type - Kolom Biasa)
+        oci_bind_by_name($stmt, ":recipient_id", $recipientId);
+        oci_bind_by_name($stmt, ":type", $type);
+
+        // Bind Variable (Sender & Reference - Masuk ke JSON)
+        // Casting ke string sangat penting agar cocok dengan JSON string
+        $sId = (string)$senderId;
+        $rId = (string)$referenceId; // Ini akan mencocokkan 'target_id' di JSON
+
+        oci_bind_by_name($stmt, ":sender_id", $sId);
+        oci_bind_by_name($stmt, ":reference_id", $rId);
+
+        // Eksekusi
+        $result = oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
+        oci_free_statement($stmt);
+
+        return $result;
     }
 }

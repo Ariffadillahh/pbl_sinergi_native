@@ -32,15 +32,15 @@ class GroupChat extends BaseModel
     }
 
     public function getGroupChatsByUserId($userId)
-{
-    $conn = self::getConnection();
+    {
+        $conn = self::getConnection();
 
-    if (!$conn) {
-        error_log("Gagal terhubung ke database.");
-        return [];
-    }
+        if (!$conn) {
+            error_log("Gagal terhubung ke database.");
+            return [];
+        }
 
-    $sql = "
+        $sql = "
     SELECT 
         gc.ID, 
         gc.NAME, 
@@ -87,39 +87,39 @@ class GroupChat extends BaseModel
             ELSE gc.CREATED_AT 
         END DESC";
 
-    $stmt = oci_parse($conn, $sql);
+        $stmt = oci_parse($conn, $sql);
 
-    if (!$stmt) {
-        $e = oci_error($conn);
-        error_log("Gagal parse query: " . $e['message']);
-        oci_close($conn);
-        return [];
-    }
+        if (!$stmt) {
+            $e = oci_error($conn);
+            error_log("Gagal parse query: " . $e['message']);
+            oci_close($conn);
+            return [];
+        }
 
-    oci_bind_by_name($stmt, ':user_id_bv', $userId);
+        oci_bind_by_name($stmt, ':user_id_bv', $userId);
 
-    if (!oci_execute($stmt)) {
-        $e = oci_error($stmt);
-        error_log("Gagal execute query: " . $e['message']);
+        if (!oci_execute($stmt)) {
+            $e = oci_error($stmt);
+            error_log("Gagal execute query: " . $e['message']);
+            oci_free_statement($stmt);
+            oci_close($conn);
+            return [];
+        }
+
+        $groupChat = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            // Handle CLOB content if needed
+            if (is_object($row['LAST_MESSAGE_CONTENT'])) {
+                $row['LAST_MESSAGE_CONTENT'] = $row['LAST_MESSAGE_CONTENT']->load();
+            }
+            $groupChat[] = $row;
+        }
+
         oci_free_statement($stmt);
         oci_close($conn);
-        return [];
-    }
 
-    $groupChat = [];
-    while ($row = oci_fetch_assoc($stmt)) {
-        // Handle CLOB content if needed
-        if (is_object($row['LAST_MESSAGE_CONTENT'])) {
-            $row['LAST_MESSAGE_CONTENT'] = $row['LAST_MESSAGE_CONTENT']->load();
-        }
-        $groupChat[] = $row;
+        return $groupChat;
     }
-    
-    oci_free_statement($stmt);
-    oci_close($conn);
-
-    return $groupChat;
-}
 
     public function findById($id)
     {
@@ -532,7 +532,7 @@ class GroupChat extends BaseModel
     public function joinGroupChat($userId, $groupChatId, $accessKey = null)
     {
         $conn = self::getConnection();
-        
+
         try {
             // Check if user is already a member
             $checkSql = "SELECT COUNT(*) AS CNT FROM GROUP_CHAT_MEMBERS 
@@ -541,10 +541,10 @@ class GroupChat extends BaseModel
             oci_bind_by_name($checkStmt, ':user_id', $userId);
             oci_bind_by_name($checkStmt, ':group_chat_id', $groupChatId);
             oci_execute($checkStmt);
-            
+
             $row = oci_fetch_assoc($checkStmt);
             oci_free_statement($checkStmt);
-            
+
             if ($row && $row['CNT'] > 0) {
                 // Already a member - return success
                 return [
@@ -552,23 +552,23 @@ class GroupChat extends BaseModel
                     'message' => 'Already a member'
                 ];
             }
-            
+
             // Check if group is private and validate access key
             $groupSql = "SELECT IS_PRIVATE, ACCESS_KEY FROM GROUP_CHATS WHERE ID = :id";
             $groupStmt = oci_parse($conn, $groupSql);
             oci_bind_by_name($groupStmt, ':id', $groupChatId);
             oci_execute($groupStmt);
-            
+
             $group = oci_fetch_assoc($groupStmt);
             oci_free_statement($groupStmt);
-            
+
             if (!$group) {
                 return [
                     'success' => false,
                     'message' => 'Group not found'
                 ];
             }
-            
+
             // Validate access key for private groups
             if ($group['IS_PRIVATE'] == 1) {
                 if (empty($accessKey)) {
@@ -577,7 +577,7 @@ class GroupChat extends BaseModel
                         'message' => 'Access key is required for private groups'
                     ];
                 }
-                
+
                 if ($accessKey !== $group['ACCESS_KEY']) {
                     return [
                         'success' => false,
@@ -585,17 +585,17 @@ class GroupChat extends BaseModel
                     ];
                 }
             }
-            
+
             // Insert new member
             $insertSql = "INSERT INTO GROUP_CHAT_MEMBERS (ID, GROUP_CHAT_ID, USER_ID) 
                         VALUES (SYS_GUID(), :group_chat_id, :user_id)";
             $insertStmt = oci_parse($conn, $insertSql);
             oci_bind_by_name($insertStmt, ':group_chat_id', $groupChatId);
             oci_bind_by_name($insertStmt, ':user_id', $userId);
-            
+
             $result = oci_execute($insertStmt, OCI_COMMIT_ON_SUCCESS);
             oci_free_statement($insertStmt);
-            
+
             if ($result) {
                 return [
                     'success' => true,
@@ -607,7 +607,6 @@ class GroupChat extends BaseModel
                     'message' => 'Failed to join group'
                 ];
             }
-            
         } catch (\Exception $e) {
             error_log('Error in joinGroupChat: ' . $e->getMessage());
             if ($conn) {
@@ -620,5 +619,157 @@ class GroupChat extends BaseModel
         } finally {
             oci_close($conn);
         }
+    }
+
+    public function getMyGroups($search = '', $limit = 6, $offset = 0)
+    {
+        $conn = self::getConnection();
+        if (!$conn) return ['data' => [], 'total' => 0];
+
+        $currentUser = $_SESSION['user_id'];
+        $searchParam = '%' . strtolower($search) . '%';
+
+        // Count query
+        $sqlCount = "
+        SELECT COUNT(gc.ID) AS TOTAL_ROWS
+        FROM GROUP_CHATS gc
+        WHERE gc.OWNER_ID = :currentUser
+    ";
+        if (!empty($search)) {
+            $sqlCount .= " AND LOWER(gc.NAME) LIKE :search";
+        }
+
+        $stmtCount = oci_parse($conn, $sqlCount);
+        oci_bind_by_name($stmtCount, ":currentUser", $currentUser);
+        if (!empty($search)) {
+            oci_bind_by_name($stmtCount, ":search", $searchParam);
+        }
+        oci_execute($stmtCount);
+        $totalRows = oci_fetch_assoc($stmtCount)['TOTAL_ROWS'] ?? 0;
+        oci_free_statement($stmtCount);
+
+        // Data query
+        $sqlData = "
+        SELECT * FROM (
+            SELECT 
+                gc.ID,
+                gc.NAME,
+                gc.IS_PRIVATE,
+                u.FULL_NAME AS OWNER_NAME,
+                COUNT(gcm.USER_ID) AS TOTAL_MEMBERS,
+                gc.PATH_PHOTO,
+                gc.ACCESS_KEY,
+                gc.CREATED_AT
+            FROM GROUP_CHATS gc
+            JOIN USERS u ON u.ID = gc.OWNER_ID
+            LEFT JOIN GROUP_CHAT_MEMBERS gcm ON gcm.GROUP_CHAT_ID = gc.ID
+            WHERE gc.OWNER_ID = :currentUser
+        ";
+
+        if (!empty($search)) {
+            $sqlData .= " AND LOWER(gc.NAME) LIKE :search";
+        }
+
+        $sqlData .= "
+            GROUP BY 
+                gc.ID, gc.NAME, gc.IS_PRIVATE, u.FULL_NAME, gc.CREATED_AT, gc.ACCESS_KEY, gc.PATH_PHOTO
+            ORDER BY gc.CREATED_AT DESC
+        )
+        OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
+    ";
+
+        $stmtData = oci_parse($conn, $sqlData);
+        oci_bind_by_name($stmtData, ":currentUser", $currentUser);
+        oci_bind_by_name($stmtData, ":offset", $offset);
+        oci_bind_by_name($stmtData, ":limit", $limit);
+        if (!empty($search)) {
+            oci_bind_by_name($stmtData, ":search", $searchParam);
+        }
+
+        if (!oci_execute($stmtData)) return ['data' => [], 'total' => 0];
+
+        $groups = [];
+        while ($row = oci_fetch_assoc($stmtData)) {
+            $groups[] = $row;
+        }
+        oci_free_statement($stmtData);
+
+        return ['data' => $groups, 'total' => $totalRows];
+    }
+
+    public function getAllGroupsPagination($search = '', $limit = 6, $offset = 0)
+    {
+        $conn = self::getConnection();
+        if (!$conn) return ['data' => [], 'total' => 0];
+
+        $currentUser = $_SESSION['user_id'];
+        $searchParam = '%' . strtolower($search) . '%';
+
+        // Count query (Exclude groups owned by current user)
+        $sqlCount = "
+        SELECT COUNT(gc.ID) AS TOTAL_ROWS
+        FROM GROUP_CHATS gc
+        WHERE gc.OWNER_ID != :currentUser
+    ";
+        if (!empty($search)) {
+            $sqlCount .= " AND LOWER(gc.NAME) LIKE :search";
+        }
+
+        $stmtCount = oci_parse($conn, $sqlCount);
+        oci_bind_by_name($stmtCount, ":currentUser", $currentUser);
+        if (!empty($search)) {
+            oci_bind_by_name($stmtCount, ":search", $searchParam);
+        }
+        oci_execute($stmtCount);
+        $totalRows = oci_fetch_assoc($stmtCount)['TOTAL_ROWS'] ?? 0;
+        oci_free_statement($stmtCount);
+
+        // Data query
+        $sqlData = "
+        SELECT * FROM (
+            SELECT 
+                gc.ID,
+                gc.NAME,
+                gc.IS_PRIVATE,
+                u.FULL_NAME AS OWNER_NAME,
+                COUNT(gcm.USER_ID) AS TOTAL_MEMBERS,
+                gc.PATH_PHOTO,
+                gc.CREATED_AT
+            FROM GROUP_CHATS gc
+            JOIN USERS u ON u.ID = gc.OWNER_ID
+            LEFT JOIN GROUP_CHAT_MEMBERS gcm ON gcm.GROUP_CHAT_ID = gc.ID
+            WHERE gc.OWNER_ID != :currentUser
+    ";
+
+        if (!empty($search)) {
+            $sqlData .= " AND LOWER(gc.NAME) LIKE :search";
+        }
+
+        $sqlData .= "
+            GROUP BY 
+                gc.ID, gc.NAME, gc.IS_PRIVATE, u.FULL_NAME, gc.CREATED_AT, gc.PATH_PHOTO
+            ORDER BY gc.CREATED_AT DESC
+        )
+        OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
+    ";
+
+        $stmtData = oci_parse($conn, $sqlData);
+        oci_bind_by_name($stmtData, ":currentUser", $currentUser);
+        oci_bind_by_name($stmtData, ":offset", $offset);
+        oci_bind_by_name($stmtData, ":limit", $limit);
+
+        if (!empty($search)) {
+            oci_bind_by_name($stmtData, ":search", $searchParam);
+        }
+
+        if (!oci_execute($stmtData)) return ['data' => [], 'total' => 0];
+
+        $groups = [];
+        while ($row = oci_fetch_assoc($stmtData)) {
+            $groups[] = $row;
+        }
+        oci_free_statement($stmtData);
+
+        return ['data' => $groups, 'total' => $totalRows];
     }
 }

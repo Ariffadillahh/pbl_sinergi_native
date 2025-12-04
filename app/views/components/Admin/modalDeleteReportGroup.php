@@ -16,7 +16,7 @@
         <p class="text-gray-500 text-center mb-6">This file will be permanently deleted from your system and cannot be recovered.</p>
 
         <form method="post" id="form">
-            <input type="text" id="deleteId" name="group_id">
+            <input type="hidden" id="deleteId" name="group_id">
             <input type="hidden" id="reportIds" name="report_ids">
             <input type="hidden" id="ownerId" name="owner_id">
 

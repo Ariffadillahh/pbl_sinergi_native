@@ -69,7 +69,6 @@ class forumController
         echo json_encode(['is_member' => $isMember]);
     }
 
-
     public function forumById($forumId)
     {
         $forumById = $this->forumModel->getForumById($forumId);
@@ -84,29 +83,32 @@ class forumController
 
         $forumOwnerId = $forumById['OWNER_ID'] ?? $forumById['USER_ID'] ?? null;
 
-        $canUnpin = false;
+        $canPin = false;
 
         if ($currentUserId) {
             if ($currentUserRole === 'ADMIN' || $currentUserRole === 'DOSEN') {
-                $canUnpin = true;
-            } elseif ($currentUserId == $forumOwnerId) {
-                $canUnpin = true;
+                $canPin = true;
+            }
+            elseif ($currentUserId == $forumOwnerId) {
+                $canPin = true;
             }
         }
 
         $membersForum = $this->forumModel->getForumMembers($forumId);
-        $isMember = false;
 
+        $isMember = false;
         if ($currentUserId) {
             $isMember = $this->forumModel->isMember($forumId, $currentUserId);
         }
 
-        if ((int)$forumById['IS_PRIVATE'] === 1 && !$isMember) {
+        $isPrivileged = ($currentUserRole === 'ADMIN');
+
+        if ((int)$forumById['IS_PRIVATE'] === 1 && !$isMember && !$isPrivileged) {
             header("Location: " . BASEURL . "/forums");
             exit;
         }
 
-        $postLimit = $isMember ? null : 1;
+        $postLimit = ($isMember || $isPrivileged) ? null : 1;
 
         $pinned_topics = $this->topicModel->getPinnedTopics($forumId);
         $topics = $this->topicModel->getTopicsByForumId($forumId);
@@ -118,7 +120,7 @@ class forumController
             'postLimit'     => $postLimit,
             'pinned_topics' => $pinned_topics,
             'topics'        => $topics,
-            'can_unpin'     => $canUnpin
+            'canPin'        => $canPin
         ];
 
         extract($data);
@@ -337,7 +339,7 @@ class forumController
         }
 
         if ($this->forumModel->updateForum($forumId, $updateData)) {
-            echo json_encode(['success' => true, 'message' => 'Perubahan berhasil disimpan!']);
+            echo json_encode(['success' => true, 'message' => 'Changes saved successfully!']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Gagal menyimpan ke database.']);
         }
@@ -457,17 +459,17 @@ class forumController
 
         if ((int)$forum['IS_PRIVATE'] === 1) {
             if (empty($key)) {
-                echo json_encode(["success" => false, "message" => "Key wajib diisi untuk forum private!"]);
+                echo json_encode(["success" => false, "message" => "Key is required for private forums!"]);
                 exit;
             }
             if ($key !== $forum['ACCESS_KEY']) {
-                echo json_encode(["success" => false, "message" => "Access Key salah!"]);
+                echo json_encode(["success" => false, "message" => "Access Key is incorrect!"]);
                 exit;
             }
         }
 
         if ($this->forumModel->addMember($forumId, $_SESSION['user_id'])) {
-            echo json_encode(["success" => true, "message" => "Berhasil bergabung!"]);
+            echo json_encode(["success" => true, "message" => "Successfully joined!"]);
         } else {
             echo json_encode(["success" => false, "message" => "Gagal menyimpan data ke database."]);
         }

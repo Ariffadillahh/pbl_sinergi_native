@@ -13,7 +13,7 @@
     <?php require_once 'app/views/components/modalInvite.php'; ?>
     <?php require_once 'app/views/components/forum/modalInviteForum.php'; ?>  
 
-    <div class="w-full flex flex-1 justify-center ">
+    <div class="w-full h-screen flex flex-1 justify-center">
         <?php require_once $contentViewForum; ?>
     </div>
 

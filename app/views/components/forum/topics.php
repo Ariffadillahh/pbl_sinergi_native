@@ -46,8 +46,8 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                         <div>
                             <!-- FIX: Add role badge -->
                             <div class="flex items-center gap-2">
-                                <h4 class="font-semibold text-gray-900 leading-tight"><?= htmlspecialchars($topic['FULL_NAME']) ?></h4>
-                                
+                                <h4 class="font-semibold text-gray-900 leading-tight line-clamp-1"><?= htmlspecialchars($topic['FULL_NAME']) ?></h4>
+
                                 <?php
                                 $role = $topic['ROLE'] ?? 'MAHASISWA';
                                 $roleClasses = [
@@ -71,7 +71,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                                     <?= htmlspecialchars($translatedRole) ?>
                                 </span>
                             </div>
-                            
+
                             <p class="text-sm text-gray-500 mt-0.5">
                                 <?php
                                 $topicUserId = $topic['USER_ID'] ?? '';
@@ -86,36 +86,40 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                                 $isLinkActive = in_array($currentRole, $allowedRoles);
                                 ?>
 
-                            <span class="text-sm text-gray-500">
-                                <?php if ($isLinkActive): ?>
-                                    <a href="<?= $profileUrl ?>" class="hover:underline hover:text-blue-600 transition-colors">
-                                        @<?= htmlspecialchars($topicUsername) ?>
-                                    </a>
-                                <?php else: ?>
-                                    <span class="cursor-default">
-                                        @<?= htmlspecialchars($topicUsername) ?>
-                                    </span>
-                                <?php endif; ?>
-                            </span> ·
-                            <span class="time-ago" data-time="<?= $topic['CREATED_AT'] ?>">
-                                <?= $topic['CREATED_AT'] ?> </span>
+                                <span class="text-sm text-gray-500">
+                                    <?php if ($isLinkActive): ?>
+                                        <a href="<?= $profileUrl ?>" class="hover:underline hover:text-blue-600 transition-colors">
+                                            @<?= htmlspecialchars($topicUsername) ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="cursor-default">
+                                            @<?= htmlspecialchars($topicUsername) ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </span> ·
+                                <span class="time-ago" data-time="<?= $topic['CREATED_AT'] ?>">
+                                    <?= $topic['CREATED_AT'] ?> </span>
                             </p>
                         </div>
                     </div>
-                    <?php include __DIR__ . '/dropDownTopic.php'; ?>
+                    <?php if ($isMember) : ?>
+                        <?php include __DIR__ . '/dropDownTopic.php'; ?>
+                    <?php endif; ?>
                 </div>
 
-                <?php if (isset($topic['IS_PINNED']) && $topic['IS_PINNED'] == 1): ?>
-                    <div class="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium mb-2 ml-1">
-                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
-                        </svg>
-                        Pinned
-                    </div>
+                <?php if ($isMember) : ?>
+                    <?php if (isset($topic['IS_PINNED']) && $topic['IS_PINNED'] == 1): ?>
+                        <div class="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium mb-2 ml-1">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                            </svg>
+                            Pinned
+                        </div>
+                    <?php endif; ?>
                 <?php endif; ?>
 
                 <?php if (!empty($topic['CONTENT'])): ?>
-                    <p class="text-gray-900 mb-2 whitespace-pre-wrap leading-relaxed"><?= htmlspecialchars($topic['CONTENT']) ?></p>
+                    <p class="text-gray-900 mb-2 leading-relaxed whitespace-normal break-words"><?= htmlspecialchars($topic['CONTENT']) ?></p>
                 <?php endif; ?>
             </div>
 
@@ -189,8 +193,8 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                             data-liked="<?= $isLikedByUser ? 'true' : 'false' ?>">
 
                             <svg class="w-5 h-5 transition-all transform duration-200 <?= $isLikedByUser ? 'text-red-500 fill-red-500' : 'text-gray-500 group-hover:text-red-500' ?>"
-                                fill="<?= $isLikedByUser ? 'currentColor' : 'none' ?>" 
-                                stroke="currentColor" 
+                                fill="<?= $isLikedByUser ? 'currentColor' : 'none' ?>"
+                                stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                             </svg>
@@ -209,10 +213,17 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
             <?php endif; ?>
         </div>
     <?php endforeach; ?>
+    <?php if (!$isMember && $_SESSION['role'] !== 'ADMIN') : ?>
 
-    <?php if ($hasMorePosts): ?>
-        <div class="bg-blue-50 border border-dashed border-blue-300 rounded-lg p-8 text-center mt-2">
-            <button onclick="joinForum('<?= $forumById['ID'] ?>')" class="bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700 transition shadow-sm">
+        <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-300/50 rounded-2xl p-8 text-center mt-3 shadow-sm">
+            <p class="text-gray-700 text-lg font-medium">
+                Want to see more topics? <span class="text-blue-700 font-semibold">Join the forum first!</span>
+            </p>
+
+            <button
+                onclick="joinForum('<?= $forumById['ID'] ?>')"
+                class="bg-blue-600 mt-5 text-white px-7 py-2.5 rounded-full font-semibold 
+               hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
                 Join Now
             </button>
         </div>
@@ -286,11 +297,11 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
         // FIX: Initialize like button state on page load
         function initializeLikeButtons() {
             const likeButtons = document.querySelectorAll('.like-btn');
-            
+
             likeButtons.forEach(button => {
                 const isLiked = button.getAttribute('data-liked') === 'true';
                 const icon = button.querySelector('svg');
-                
+
                 // Set state based on database data
                 if (isLiked) {
                     icon.classList.remove('text-gray-500', 'group-hover:text-red-500');
@@ -353,7 +364,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
 
                         // Update icon with smooth transition
                         icon.style.transition = 'all 0.3s ease';
-                        
+
                         if (isLiked) {
                             icon.classList.remove('text-gray-500', 'group-hover:text-red-500');
                             icon.classList.add('text-red-500', 'fill-red-500', 'scale-110');
@@ -383,21 +394,21 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
 </script>
 
 <style>
-/* Smooth transition for like button */
-.like-btn svg {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+    /* Smooth transition for like button */
+    .like-btn svg {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-.like-btn:active svg {
-    transform: scale(0.9);
-}
+    .like-btn:active svg {
+        transform: scale(0.9);
+    }
 
-.like-btn:disabled {
-    cursor: not-allowed;
-}
+    .like-btn:disabled {
+        cursor: not-allowed;
+    }
 
-/* Animation for like count */
-.like-count-display {
-    transition: all 0.3s ease;
-}
+    /* Animation for like count */
+    .like-count-display {
+        transition: all 0.3s ease;
+    }
 </style>

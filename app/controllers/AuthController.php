@@ -274,6 +274,8 @@ class AuthController
             $role = 'MAHASISWA';
         } elseif (str_ends_with($email, '@tik.pnj.ac.id')) {
             $role = 'DOSEN';
+        } elseif (str_ends_with($email, '@lecturer.pnj.ac.id')) {
+            $role = 'DOSEN';
         } else {
             echo json_encode([
                 'success' => false,

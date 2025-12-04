@@ -1,4 +1,4 @@
-<div id="modalOverlay" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] hidden px-4 transition-opacity duration-300 opacity-0">
+<div id="modalOverlay" class="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-[9999] hidden px-4 transition-opacity duration-300 opacity-0">
 
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all duration-300 scale-95 flex flex-col max-h-[90vh]">
 
@@ -57,7 +57,7 @@
                     <span
                         id="nameCounter"
                         class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">
-                        0/15
+                        0/30
                     </span>
                 </div>
 
@@ -210,7 +210,7 @@
 
         let isCustomProfile = false;
 
-        const MAX_LENGTH = 15;
+        const MAX_LENGTH = 30;
         const ABOUT_MAX = 150;
 
         aboutText.addEventListener('input', function() {

@@ -48,7 +48,7 @@
                                 <span id="notif-badge" class="absolute hidden top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
                             </button>
 
-                            <?php require_once 'app/views/components/admin/notifAdmin.php'; ?>
+                            <?php require_once 'app/views/components/Admin/notifAdmin.php'; ?>
 
                         </div>
 

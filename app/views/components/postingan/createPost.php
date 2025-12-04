@@ -16,7 +16,7 @@
         <div class="flex-1 relative">
             <textarea id="content"
                 name="content"
-                rows="1"
+                rows="2"
                 placeholder="What are you thinking about?"
                 class="w-full bg-gray-100 rounded-lg px-4 py-3 pr-14 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 resize-none min-h-[3.5rem] max-h-48 overflow-y-auto"></textarea>
 

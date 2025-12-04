@@ -1,6 +1,6 @@
-<div class="tab-content hidden" data-content="settings">
+<div class="tab-content hidden " data-content="settings">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center w-full">
+        <div class="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center w-full ">
             <div class="flex items-center justify-center w-20 h-20 rounded-full bg-blue-50 mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -37,7 +37,7 @@
             </button>
         </div>
 
-        <div class="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center w-full md:col-span-2">
+        <div class="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center w-full md:col-span-2 ">
             <div class="flex items-center justify-center w-20 h-20 rounded-full bg-red-50 mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M12 3a9 9 0 110 18 9 9 0 010-18z" />
@@ -49,12 +49,15 @@
                 This action cannot be undone. All posts and members will be deleted.
             </p>
 
-            <button onclick="openDeleteModal()" class="w-full md:w-auto border border-red-300 bg-red-50 hover:bg-red-100 text-red-600 px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4" />
-                </svg>
-                Delete This Forum
-            </button>
+            <div class="flex justify-center">
+                <button onclick="openDeleteModal()" class="w-full md:w-auto border border-red-300 bg-red-50 hover:bg-red-100 text-red-600 px-6 py-2.5 rounded-lg font-semibold flex items-center text-center gap-2 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4" />
+                    </svg>
+                    Delete This Forum
+                </button>
+            </div>
+
         </div>
         <?php require_once 'app/views/components/forum/modalRequestMitra.php'; ?>
     </div>
@@ -62,11 +65,11 @@
 
 <?php
 $currentBanner = !empty($forumById['PATH_THUMBNAIL']) ? BASEURL . '/storage/forums/thumbnail/' . $forumById['PATH_THUMBNAIL'] : '';
-$currentPhoto  = !empty($forumById['PATH_PHOTO']) ? BASEURL . '/storage/forums/photos/' . $forumById['PATH_PHOTO'] : 'https://ui-avatars.com/api/?name=' . urlencode($forumById['NAME']) . '&background=random&size=128';
+$currentPhoto  = !empty($forumById['PATH_PHOTO']) ? BASEURL . '/storage/forums/photos/' . $forumById['PATH_PHOTO'] : 'https://ui-avatars.com/api/?name=' . urlencode($forumById['NAME']) . '&background=3B82F6&color=fff&size=128';
 $isPrivate     = $forumById['IS_PRIVATE'] == 1;
 ?>
 
-<div id="editModalOverlay" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] hidden opacity-0 transition-opacity duration-300">
+<div id="editModalOverlay" class="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-[9999] hidden opacity-0 transition-opacity duration-300">
 
     <div id="editAlertBox" class="fixed right-5 top-5 mb-4 p-4 rounded-lg text-sm hidden"></div>
 
@@ -135,7 +138,7 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
                     <span
                         id="nameCounter"
                         class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">
-                        0/15
+                        0/30
                     </span>
                 </div>
             </div>
@@ -147,10 +150,13 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
                         <input type="radio" name="IS_PRIVATE" value="0" class="peer sr-only" <?= !$isPrivate ? 'checked' : '' ?>>
                         <div class="p-3 rounded-xl border border-gray-200 hover:bg-gray-50 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:ring-1 peer-checked:ring-blue-500 transition flex items-center gap-3">
                             <div class="bg-blue-100 text-blue-600 p-2 rounded-lg">
-                                🌐
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <span class="block text-sm font-semibold text-gray-900">Public</span>
+                                <span class="block text-xs text-gray-500 truncate">Everyone can see</span>
                             </div>
                         </div>
                     </label>
@@ -159,10 +165,13 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
                         <input type="radio" name="IS_PRIVATE" value="1" class="peer sr-only" <?= $isPrivate ? 'checked' : '' ?>>
                         <div class="p-3 rounded-xl border border-gray-200 hover:bg-gray-50 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:ring-1 peer-checked:ring-blue-500 transition flex items-center gap-3">
                             <div class="bg-gray-100 text-gray-600 p-2 rounded-lg">
-                                🔒
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <span class="block text-sm font-semibold text-gray-900">Private</span>
+                                <span class="block text-xs text-gray-500 truncate">Members only</span>
                             </div>
                         </div>
                     </label>
@@ -174,6 +183,7 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
                 <input type="text" id="editAccessKeyInput" name="ACCESS_KEY"
                     value="<?= htmlspecialchars($forumById['ACCESS_KEY'] ?? '') ?>"
                     placeholder="Enter new access key..."
+                    required
                     class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-yellow-50 outline-none transition">
             </div>
 
@@ -234,7 +244,7 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
 </div>
 
 <div id="deleteModalOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm transform scale-95 transition-all duration-300 text-center">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm transform scale-95 transition-all duration-300 text-center m-5 md:m-0">
 
         <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -284,7 +294,7 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
     const aboutText = document.getElementById('aboutText');
     const counter = document.getElementById('nameCounter');
 
-    const MAX_LENGTH = 15;
+    const MAX_LENGTH = 30;
     const ABOUT_MAX = 150;
 
     aboutText.addEventListener('input', function() {
@@ -462,7 +472,7 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
                 }
 
                 if (result.success) {
-                    editAlertBox.className = "bg-green-100 text-green-700 fixed right-5 top-5 mb-4 p-4 rounded-lg text-sm hidden";
+                    editAlertBox.className = "bg-green-100 text-green-700 fixed right-5 top-5 mb-4 p-4 rounded-lg text-sm hidden z-[999999]";
                     editAlertBox.textContent = result.message;
                     editAlertBox.classList.remove('hidden');
 

@@ -1,5 +1,5 @@
 <div id="update-password-modal"
-    class="hidden inset-0 z-[99999] justify-center items-center w-full h-full bg-black/50 fixed top-0">
+    class="hidden inset-0 z-[99999] justify-center items-center w-full h-full backdrop-blur-sm bg-black/50 fixed top-0">
     <div class="relative p-4 w-full max-w-md max-h-full">
         <div class="relative bg-white rounded-lg shadow-sm">
             <div class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t">

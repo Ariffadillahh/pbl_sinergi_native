@@ -119,26 +119,130 @@ class UserModel extends BaseModel
     {
         $conn = self::getConnection();
 
-        $sql = "UPDATE USERS 
-                SET ROLE = 'MAHASISWA', 
-                    TAHUN_MASUK = TAHUN_MASUK + 1,
-                    STATUS = 'APPROVED'
-                WHERE ID = :id";
+        $sqlGet = "SELECT TAHUN_MASUK, JENJANG_STUDI FROM USERS WHERE ID = :id";
+        $stmtGet = oci_parse($conn, $sqlGet);
+        oci_bind_by_name($stmtGet, ':id', $userId);
+        oci_execute($stmtGet);
+        $userData = oci_fetch_assoc($stmtGet);
+        oci_free_statement($stmtGet);
+
+        if (!$userData) {
+            return ['success' => false, 'message' => 'User not found'];
+        }
+
+        $oldTahunMasuk = (int)$userData['TAHUN_MASUK'];
+        $jenjangStudi  = strtoupper(trim($userData['JENJANG_STUDI']));
+
+        $newTahunMasuk = $oldTahunMasuk + 1;
+
+        $durasi = ($jenjangStudi === 'D4') ? 4 : 3;
+
+        $tahunLulusBaru = $newTahunMasuk + $durasi;
+        $bulanLulus     = 10; 
+
+        $tahunSekarang = (int)date('Y');
+        $bulanSekarang = (int)date('m');
+
+        $isValidStudent = false;
+
+        if ($tahunSekarang < $tahunLulusBaru) {
+            $isValidStudent = true;
+        } elseif ($tahunSekarang == $tahunLulusBaru && $bulanSekarang < $bulanLulus) {
+            $isValidStudent = true;
+        }
+
+        if (!$isValidStudent) {
+            oci_close($conn);
+            return [
+                'success' => false,
+                'message' => "Verification failed. Your study period has ended."
+            ];
+        }
+
+        $sqlUpdate = "UPDATE USERS 
+                  SET ROLE = 'MAHASISWA', 
+                      TAHUN_MASUK = TAHUN_MASUK + 1,
+                      STATUS = 'APPROVED'
+                  WHERE ID = :id";
+
+        $stmtUpdate = oci_parse($conn, $sqlUpdate);
+        oci_bind_by_name($stmtUpdate, ':id', $userId);
+
+        $exec = oci_execute($stmtUpdate, OCI_NO_AUTO_COMMIT);
+
+        if ($exec) {
+            oci_commit($conn);
+            oci_free_statement($stmtUpdate);
+            oci_close($conn);
+            return ['success' => true, 'message' => 'Status changed to Student successfully.'];
+        } else {
+            $e = oci_error($stmtUpdate);
+            oci_free_statement($stmtUpdate);
+            oci_close($conn);
+            return ['success' => false, 'message' => 'Database error: ' . $e['message']];
+        }
+    }
+
+    public function getAdmin()
+    {
+        $conn = self::getConnection();
+        if (!$conn) {
+            error_log("Gagal mendapatkan koneksi database.");
+            return [];
+        }
+
+        $sql = "SELECT ID FROM USERS WHERE ROLE = 'ADMIN'";
 
         $stmt = oci_parse($conn, $sql);
 
-        oci_bind_by_name($stmt, ':id', $userId);
+        if (!$stmt) {
+            $e = oci_error($conn);
+            error_log("Gagal mem-parsing SQL: " . $e['message']);
+            return [];
+        }
+
 
         $result = oci_execute($stmt);
 
-        if ($result) {
-            oci_commit($conn);
-        } else {
-            oci_rollback($conn);
+        if (!$result) {
+            $e = oci_error($stmt);
+            error_log("Gagal mengeksekusi query: " . $e['message']);
+            oci_free_statement($stmt);
+            return [];
+        }
+
+        $users = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $users[] = $row;
         }
 
         oci_free_statement($stmt);
+        return $users;
+    }
 
-        return $result;
+    public function updateUserRole($userId, $newRole)
+    {
+        $conn = self::getConnection();
+
+        $sql = "UPDATE USERS SET ROLE = :role WHERE ID = :user_id";
+
+        $stid = oci_parse($conn, $sql);
+
+        oci_bind_by_name($stid, ':role', $newRole);
+        oci_bind_by_name($stid, ':user_id', $userId);
+
+        $result = oci_execute($stid, OCI_NO_AUTO_COMMIT);
+
+        if ($result) {
+            oci_commit($conn);
+            $success = true;
+        } else {
+            $success = false;
+        }
+
+        oci_free_statement($stid);
+        oci_close($conn);
+
+        return $success;
     }
 }
