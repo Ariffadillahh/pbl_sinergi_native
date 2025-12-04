@@ -18,7 +18,7 @@ class ChatMessagesController
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
-            echo json_encode(['error' => 'Metode request tidak valid.']);
+            echo json_encode(['error' => 'Method request invalid.']);
             return;
         }
 
@@ -28,7 +28,7 @@ class ChatMessagesController
 
         if (!isset($_SESSION['user_id'])) {
             http_response_code(401);
-            echo json_encode(['error' => 'Pengguna tidak terautentikasi.']);
+            echo json_encode(['error' => 'Unauthenticated user.']);
             return;
         }
 
@@ -40,7 +40,7 @@ class ChatMessagesController
 
         if (!$groupChatId || !$this->chatMessageModel->isUserInGroupChat($user_id, $groupChatId)) {
             http_response_code(403);
-            echo json_encode(['error' => 'Anda bukan anggota Group ini.']);
+            echo json_encode(['error' => 'You are not a member of this Group.']);
             return;
         }
 
@@ -48,7 +48,7 @@ class ChatMessagesController
 
         if (empty($message) && !$hasFile) {
             http_response_code(400);
-            echo json_encode(['error' => 'Pesan atau file tidak boleh kosong.']);
+            echo json_encode(['error' => 'Messages or files cannot be empty.']);
             return;
         }
 
@@ -86,7 +86,7 @@ class ChatMessagesController
                 $data['type'] = $fileType;
             } else {
                 http_response_code(500);
-                echo json_encode(['error' => 'Gagal memproses file.']);
+                echo json_encode(['error' => 'Failed to process the file.']);
                 return;
             }
 
@@ -104,7 +104,7 @@ class ChatMessagesController
             ]);
         } else {
             http_response_code(500);
-            echo json_encode(['error' => 'Gagal menyimpan pesan ke database.']);
+            echo json_encode(['error' => 'Failed to save message to database.']);
         }
     }
 
@@ -119,7 +119,7 @@ class ChatMessagesController
 
             if (!isset($_SESSION['user_id'])) {
                 http_response_code(401);
-                echo json_encode(['error' => 'Tidak terautentikasi']);
+                echo json_encode(['error' => 'Not authenticated']);
                 return;
             }
 
@@ -136,7 +136,7 @@ class ChatMessagesController
 
             if (!$this->chatMessageModel->isUserInGroupChat($userId, $groupChatId)) {
                 http_response_code(403);
-                echo json_encode(['error' => 'Anda bukan member grup ini.']);
+                echo json_encode(['error' => 'You are not a member of this group.']);
                 return;
             }
 
@@ -147,7 +147,7 @@ class ChatMessagesController
 
                 if (!$this->chatMessageModel->isUserInGroupChat($userId, $groupChatId)) {
                     http_response_code(403);
-                    echo json_encode(['error' => 'Anda telah dikeluarkan dari grup.']);
+                    echo json_encode(['error' => 'You have been removed from the group.']);
                     return;
                 }
 
@@ -265,7 +265,7 @@ class ChatMessagesController
     } catch (\Throwable $e) {
         error_log('Error in pollCounts: ' . $e->getMessage());
         http_response_code(500);
-        echo json_encode(['error' => 'Terjadi kesalahan pada server.']);
+        echo json_encode(['error' => 'An error occurred on the server.']);
         exit;
     }
 }
@@ -291,7 +291,7 @@ class ChatMessagesController
 
         if (!isset($_SESSION['user_id'])) {
             http_response_code(401);
-            echo json_encode(['error' => 'Tidak terautentikasi']);
+            echo json_encode(['error' => 'Unauthorized']);
             return;
         }
 
@@ -305,7 +305,7 @@ class ChatMessagesController
         } catch (\Exception $e) {
             error_log('Error getting all media: ' . $e->getMessage());
             http_response_code(500);
-            echo json_encode(['error' => 'Gagal mengambil media']);
+            echo json_encode(['error' => 'Failed to retrieve media.']);
         }
     }
 }
