@@ -31,7 +31,7 @@
                 </svg>
                 Delete All Read
             </button>
-            
+
         </div>
     </div>
 </div>
@@ -301,32 +301,79 @@
         async function pollForNotifications() {
             if (isPolling) return;
             isPolling = true;
-            try {
-                const response = await fetch(`${BASEURL}/notifications/checkForUpdates?last_timestamp=${encodeURIComponent(lastTimestamp)}`);
-                if (!response.ok) throw new Error('Network response was not ok.');
-                const newNotifications = await response.json();
 
-                if (newNotifications.length > 0) {
-                    newNotifications.forEach(notif => {
-                        if (notif.IS_READ == 0) {
-                            unreadContainer.insertAdjacentHTML('afterbegin', createNotificationHTML(notif));
-                        } else {
-                            readContainer.querySelector('.overflow-y-auto').insertAdjacentHTML('afterbegin', createNotificationHTML(notif));
-                        }
-                    });
-
-                    updateContainerVisibility();
-                    lastTimestamp = newNotifications[0].CREATED_AT;
-                    const currentCount = parseInt(notifCountSpan.textContent) || 0;
-                    const newUnreadCount = currentCount + newNotifications.filter(n => n.IS_READ == 0).length;
-                    updateNotificationCount(newUnreadCount);
+            // 1. Kumpulkan semua ID notifikasi yang sedang tampil di layar
+            // Ini penting: Kita kirim ke server "Ini lho ID yang user liat, tolong cek mana yang udah diapus"
+            const visibleIds = [];
+            document.querySelectorAll('.notification-item').forEach(item => {
+                if (item.dataset.notifId) {
+                    visibleIds.push(item.dataset.notifId);
                 }
+            });
+
+            try {
+                // Ganti ke POST agar bisa kirim body JSON (visible_ids)
+                const response = await fetch(`${BASEURL}/notifications/checkForUpdates`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        last_timestamp: lastTimestamp,
+                        visible_ids: visibleIds // Kirim array ID
+                    })
+                });
+
+                if (!response.ok) throw new Error('Network response not ok');
+
+                const result = await response.json();
+
+                if (result.type === 'update') {
+
+                    // A. Hapus notifikasi yang hilang
+                    if (result.deleted_ids && result.deleted_ids.length > 0) {
+                        result.deleted_ids.forEach(id => {
+                            const el = document.querySelector(`.notification-item[data-notif-id="${id}"]`);
+                            if (el) {
+                                el.style.transition = "all 0.3s";
+                                el.style.opacity = "0";
+                                el.style.transform = "translateX(-20px)";
+                                setTimeout(() => el.remove(), 300);
+                            }
+                        });
+                    }
+
+                    // B. Tambah notifikasi baru (Sama seperti sebelumnya)
+                    if (result.new_notifications && result.new_notifications.length > 0) {
+                        result.new_notifications.forEach(notif => {
+                            if (!document.querySelector(`.notification-item[data-notif-id="${notif.ID}"]`)) {
+                                const html = createNotificationHTML(notif);
+                                if (notif.IS_READ == 0) {
+                                    unreadContainer.insertAdjacentHTML('afterbegin', html);
+                                } else {
+                                    readContainer.querySelector('.overflow-y-auto').insertAdjacentHTML('afterbegin', html);
+                                }
+                            }
+                        });
+                        lastTimestamp = result.new_notifications[0].CREATED_AT;
+                    }
+
+                    // C. Update UI Counters
+                    // Gunakan timeout kecil untuk menunggu animasi hapus selesai (opsional), 
+                    // tapi agar cepat update count langsung saja:
+                    setTimeout(() => {
+                        updateContainerVisibility();
+                        const currentUnreadCount = unreadContainer.querySelectorAll('.notification-item').length;
+                        updateNotificationCount(currentUnreadCount);
+                    }, 350);
+                }
+
             } catch (error) {
                 console.error("Long polling error:", error);
                 await new Promise(resolve => setTimeout(resolve, 5000));
             } finally {
                 isPolling = false;
-                pollForNotifications();
+                pollForNotifications(); // Loop lagi
             }
         }
 

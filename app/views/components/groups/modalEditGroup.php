@@ -10,7 +10,7 @@ $placeholder = "data:image/svg+xml;utf8,"
     ");
 ?>
 
-<div id="modal-edit-forum" class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50">
+<div id="modal-edit-forum" class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full backdrop-blur-sm bg-black/50">
     <div class="relative p-4 w-full max-w-md max-h-full">
         <div class="relative bg-white rounded-lg shadow-sm">
             <div class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t">

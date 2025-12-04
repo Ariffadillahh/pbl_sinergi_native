@@ -35,10 +35,10 @@
                      class="btn-pin-action flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left cursor-pointer">
 
                      <?php if ($topic['IS_PINNED'] == 1): ?>
-                         <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                             <path d="M18.75 12.75h1.5a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5zM12 6a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5A.75.75 0 0112 6zM12 18a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5A.75.75 0 0112 18zM3.75 6.75h1.5a.75.75 0 100-1.5h-1.5a.75.75 0 000 1.5zM5.25 18.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 010 1.5zM3 12a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5A.75.75 0 013 12zM9 3.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5zM12.75 12a2.25 2.25 0 114.5 0 2.25 2.25 0 01-4.5 0zM9 20.25a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                         <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                              <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                          </svg>
+
                          <span class="font-semibold text-blue-600">Unpin Topic</span>
                      <?php else: ?>
                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,9 +190,9 @@
 
 
  <script>
-     const editedText = document.getElementById('input_edit_topic_content');
-     const aboutCounter = document.getElementById('aboutCounter');
-     const MAX_LENGTH_EDIT = 250;
+     var editTextTopic = document.getElementById('input_edit_topic_content');
+     var aboutCounter = document.getElementById('aboutCounter');
+     var MAX_LENGTH_EDIT = 250;
 
      function updateCounter() {
          const textarea = document.getElementById('input_edit_topic_content');
@@ -210,8 +210,8 @@
          counter.textContent = `${len}/${MAX_LENGTH_EDIT}`;
      }
 
-     if (editedText) {
-         editedText.addEventListener('input', updateCounter);
+     if (editTextTopic) {
+         editTextTopic.addEventListener('input', updateCounter);
      }
 
      function toggleDropdown(dropdownId) {

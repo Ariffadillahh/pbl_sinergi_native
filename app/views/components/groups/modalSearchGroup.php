@@ -1,4 +1,4 @@
-<div id="searchModal" class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50">
+<div id="searchModal" class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full backdrop-blur-sm bg-black/50">
     <div class="lg:w-[50%] md:w-[60%] w-[90%]  bg-white h-[80%] rounded-3xl p-4">
         <div class="flex justify-between">
             <h1 class="font-semibold text-xl">Search Group</h1>

@@ -1,4 +1,4 @@
-<div id="modal-otp" class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50 p-5 md:p-0">
+<div id="modal-otp" class="hidden fixed inset-0 z-[9999] justify-center items-center w-full h-full backdrop-blur-sm bg-black/50 p-5 md:p-0">
     <div class="relative bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm text-center">
         <div id="otpMessage" class="w-full bg-red-500 text-white p-2 rounded-xl mb-3 hidden">
         </div>

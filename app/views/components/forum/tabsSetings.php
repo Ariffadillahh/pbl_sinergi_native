@@ -69,7 +69,7 @@ $currentPhoto  = !empty($forumById['PATH_PHOTO']) ? BASEURL . '/storage/forums/p
 $isPrivate     = $forumById['IS_PRIVATE'] == 1;
 ?>
 
-<div id="editModalOverlay" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] hidden opacity-0 transition-opacity duration-300">
+<div id="editModalOverlay" class="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-[9999] hidden opacity-0 transition-opacity duration-300">
 
     <div id="editAlertBox" class="fixed right-5 top-5 mb-4 p-4 rounded-lg text-sm hidden"></div>
 

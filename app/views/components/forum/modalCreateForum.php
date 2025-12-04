@@ -1,4 +1,4 @@
-<div id="modalOverlay" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] hidden px-4 transition-opacity duration-300 opacity-0">
+<div id="modalOverlay" class="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-[9999] hidden px-4 transition-opacity duration-300 opacity-0">
 
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all duration-300 scale-95 flex flex-col max-h-[90vh]">
 

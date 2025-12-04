@@ -201,37 +201,80 @@ class NotificationModel extends BaseModel
         }
     }
 
-    public function checkExistingUnread($receiverId, $senderId, $refId, $type)
+    public function getDeletedIdsFromList($idList)
     {
+        if (empty($idList)) {
+            return [];
+        }
+
         $conn = self::getConnection();
 
-        // Konversi ke string untuk memastikan matching
-        $senderIdStr = (string)$senderId;
-        $refIdStr = (string)$refId;
+        // Kita buat parameter binding dinamis (:id0, :id1, dst)
+        $bindParams = [];
+        $placeholders = [];
 
-        $sql = "SELECT COUNT(*) AS COUNT 
-        FROM NOTIFICATIONS 
-        WHERE USER_ID = :receiver_id 
-        AND TYPE = :type
-        AND IS_READ = 0
-        AND JSON_VALUE(DATA, '$.sender_id') = :sender_id 
-        AND JSON_VALUE(DATA, '$.target_id') = :ref_id";
+        foreach ($idList as $index => $id) {
+            $key = ":id" . $index;
+            $placeholders[] = $key;
+            $bindParams[$key] = $id;
+        }
+
+        $placeholderString = implode(',', $placeholders);
+
+        // Query: Ambil ID yang MASIH ADA dari list yang dikirim
+        $sql = "SELECT ID FROM NOTIFICATIONS WHERE ID IN ($placeholderString)";
 
         $stmt = oci_parse($conn, $sql);
 
-        oci_bind_by_name($stmt, ':receiver_id', $receiverId);
-        oci_bind_by_name($stmt, ':type', $type);
-        oci_bind_by_name($stmt, ':sender_id', $senderIdStr);
-        oci_bind_by_name($stmt, ':ref_id', $refIdStr);
+        foreach ($bindParams as $key => $val) {
+            oci_bind_by_name($stmt, $key, $bindParams[$key]); // Bind variable reference fix
+        }
 
-        oci_execute($stmt);
+        if (!oci_execute($stmt)) {
+            return [];
+        }
 
-        $row = oci_fetch_assoc($stmt);
-        $count = isset($row['COUNT']) ? (int)$row['COUNT'] : 0;
-
+        $existingIds = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $existingIds[] = $row['ID'];
+        }
         oci_free_statement($stmt);
-        oci_close($conn);
 
-        return ($count > 0);
+        // Bandingkan: ID yang dikirim Client - ID yang ada di DB = ID yang terhapus
+        $deletedIds = array_diff($idList, $existingIds);
+
+        // Reset array keys supaya jadi JSON array cantik [1, 5, 9] bukan {0:1, 4:5}
+        return array_values($deletedIds);
+    }
+
+    public function deleteNotification($recipientId, $senderId, $referenceId, $type)
+    {
+        $conn = self::getConnection();
+
+        $query = "DELETE FROM NOTIFICATIONS 
+              WHERE USER_ID = :recipient_id 
+              AND TYPE = :type 
+              AND JSON_VALUE(DATA, '$.sender_id') = :sender_id 
+              AND JSON_VALUE(DATA, '$.target_id') = :reference_id";
+
+        $stmt = oci_parse($conn, $query);
+
+        // Bind Variable (Recipient ID & Type - Kolom Biasa)
+        oci_bind_by_name($stmt, ":recipient_id", $recipientId);
+        oci_bind_by_name($stmt, ":type", $type);
+
+        // Bind Variable (Sender & Reference - Masuk ke JSON)
+        // Casting ke string sangat penting agar cocok dengan JSON string
+        $sId = (string)$senderId;
+        $rId = (string)$referenceId; // Ini akan mencocokkan 'target_id' di JSON
+
+        oci_bind_by_name($stmt, ":sender_id", $sId);
+        oci_bind_by_name($stmt, ":reference_id", $rId);
+
+        // Eksekusi
+        $result = oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
+        oci_free_statement($stmt);
+
+        return $result;
     }
 }

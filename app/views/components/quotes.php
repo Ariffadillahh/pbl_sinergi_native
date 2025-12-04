@@ -78,7 +78,7 @@
                 quoteText.classList.add("hidden");
                 quoteAuthor.classList.add("hidden");
 
-                const response = await fetch("https://api.quotable.io/random");
+                const response = await fetch("http://api.quotable.io/random");
                 if (!response.ok) throw new Error("Failed loading quote");
 
                 const data = await response.json();

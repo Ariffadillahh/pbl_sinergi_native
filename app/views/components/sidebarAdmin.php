@@ -185,20 +185,75 @@ if ($isGroupsActive) $pageTitle = "Group Management";
                     <span>Home</span>
                 </a>
             </li>
-            <li>
-                <a href="<?php echo BASEURL; ?>/logout"
-                    class="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors duration-200 text-gray-600 hover:bg-gray-100 hover:text-gray-900">
+            <li class="w-full">
+                <button onclick="openLogoutModalAdmin()"
+                    class="flex w-full items-center gap-3 px-4 py-2.5 rounded-lg transition-colors duration-200 text-gray-600 hover:bg-gray-100 hover:text-gray-900">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                     </svg>
                     <span>Logout</span>
-                </a>
+                </button>
             </li>
         </ul>
     </div>
 </aside>
 
+<div id="logoutModal" class="fixed inset-0 z-[9999999] hidden items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity opacity-0">
+    <div class="bg-white rounded-2xl shadow-2xl w-[90%] max-w-sm p-6 transform scale-95 transition-transform duration-300" id="logoutModalContent">
+        <div class="flex flex-col items-center text-center mb-5">
+            <div class="bg-red-50 p-3 rounded-full mb-3">
+                <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800">Sign Out</h3>
+            <p class="text-gray-500 text-sm mt-1">Are you sure you want to end your session?</p>
+        </div>
+
+        <div class="flex gap-3">
+            <button onclick="closeLogoutModal()" class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors">
+                Cancel
+            </button>
+            <a href="<?= BASEURL ?>/logout" class="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl text-center transition-colors shadow-lg shadow-red-500/30">
+                Yes, Sign Out
+            </a>
+        </div>
+    </div>
+</div>
+
 <script>
+    const modalSignOut = document.getElementById('logoutModal');
+    const modalContent = document.getElementById('logoutModalContent');
+
+    function openLogoutModalAdmin() {
+        modalSignOut.classList.remove('hidden');
+        // Sedikit delay untuk animasi fade-in
+        setTimeout(() => {
+            modalSignOut.classList.remove('opacity-0');
+            modalSignOut.classList.add('flex'); // Pastikan flex aktif
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }, 10);
+    }
+
+    function closeLogoutModal() {
+        modalSignOut.classList.add('opacity-0');
+        modalContent.classList.remove('scale-100');
+        modalContent.classList.add('scale-95');
+
+        // Tunggu animasi selesai baru hidden
+        setTimeout(() => {
+            modalSignOut.classList.add('hidden');
+            modalSignOut.classList.remove('flex');
+        }, 300);
+    }
+
+    // Close modal jika klik di luar area putih (backdrop)
+    modalSignOut.addEventListener('click', (e) => {
+        if (e.target === modalSignOut) {
+            closeLogoutModal();
+        }
+    });
     // 1. Logic Toggle Submenu (Tidak berubah)
     function toggleSubmenu(button) {
         const submenu = button.nextElementSibling;

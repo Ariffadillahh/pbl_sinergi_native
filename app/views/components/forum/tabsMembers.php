@@ -239,7 +239,7 @@
 
 <!-- Remove Member Confirmation Modal -->
 <div id="modal-remove-member"
-    class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden justify-center items-center">
+    class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] hidden justify-center items-center">
     <div class="bg-white rounded-2xl p-6 w-[90%] max-w-md shadow-lg animate-fadeIn">
         <!-- Icon -->
         <div class="flex justify-center mb-4">

@@ -75,7 +75,7 @@
     const API_GET_URL = '/get-req-forum';
     const API_ACTION_URL = '/update-req-forum';
 
-    const modal = document.getElementById('requestModal');
+    const modalRequestMember = document.getElementById('requestModal');
     const listContainer = document.getElementById('requestListContainer');
     const loadingState = document.getElementById('loadingState');
     const emptyState = document.getElementById('emptyState');
@@ -85,8 +85,8 @@
         const forumId = buttonElement.getAttribute('data-id');
 
 
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        modalRequestMember.classList.remove('hidden');
+        modalRequestMember.classList.add('flex');
         listContainer.innerHTML = '';
         emptyState.classList.remove('flex');
         emptyState.classList.add('hidden');
@@ -204,7 +204,7 @@
     }
 
     function closeModal() {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+        modalRequestMember.classList.add('hidden');
+        modalRequestMember.classList.remove('flex');
     }
 </script>

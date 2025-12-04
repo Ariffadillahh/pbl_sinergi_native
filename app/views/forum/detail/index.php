@@ -450,7 +450,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
     <!-- Overlay -->
     <div id="modal-leave-forum"
-        class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden justify-center items-center">
+        class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] hidden justify-center items-center">
 
         <div class="bg-white rounded-2xl p-6 w-[90%] max-w-md shadow-lg animate-fadeIn">
             <div class="flex justify-center mb-4">

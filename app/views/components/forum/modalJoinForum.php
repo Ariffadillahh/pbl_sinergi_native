@@ -1,5 +1,5 @@
-<div id="requestJoinModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50 backdrop-blur-sm">
-    <div class="bg-white rounded-xl p-6 w-96 shadow-xl relative">
+<div id="requestJoinModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-[9999] backdrop-blur-sm">
+    <div class="bg-white rounded-xl p-6 w-96 shadow-xl relative m-3">
 
         <div id="errorDiv" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 hidden text-sm"></div>
         <div id="successDiv" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 hidden text-sm"></div>

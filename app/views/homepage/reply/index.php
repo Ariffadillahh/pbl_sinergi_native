@@ -239,7 +239,7 @@ function organizeReplies($replies)
             </div>
 
             <div id="deleteModal"
-                class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+                class="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center hidden z-50">
 
                 <div class="bg-white rounded-xl shadow-lg w-80 p-6">
                     <h2 class="text-lg font-semibold mb-2">Deletion Confirmation</h2>
