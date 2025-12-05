@@ -16,7 +16,7 @@
 
 
             <div class="w-full max-w-[435px] relative">
-                <div id="error-notification" class="fixed top-5 left-1/2 -translate-x-1/2 w-11/12 max-w-md bg-red-500 text-white p-4 rounded-lg shadow-lg flex items-center justify-center space-x-3 hidden">
+                <div id="error-notification" class="fixed top-5 left-1/2 z-50 -translate-x-1/2 w-11/12 max-w-md bg-red-500 text-white p-4 rounded-lg shadow-lg flex items-center justify-center space-x-3 hidden">
 
                 </div>
 
@@ -214,7 +214,7 @@
         }
 
         // Fungsi untuk menangani registrasi
-    function handleRegist() {
+        function handleRegist() {
             const formRegist = document.getElementById("registerForm");
             const modalOtp = document.getElementById("modal-otp");
             const errorNotif = document.getElementById("error-notification");
@@ -259,8 +259,9 @@
 
                         const userEmail = document.getElementById("Email").value;
                         const emailDisplayElement = document.getElementById("otp-email-display");
+
                         if (emailDisplayElement) {
-                            emailDisplayElement.textContent = userEmail;
+                            emailDisplayElement.textContent = maskEmail(userEmail);
                         }
 
                         if (typeof startCooldown === 'function') {
@@ -290,10 +291,16 @@
             });
         }
 
-// PENTING: Panggil fungsi saat DOM sudah siap
-    document.addEventListener('DOMContentLoaded', function() {
-        handleRegist();
-    });
+        function maskEmail(email) {
+            const [username, domain] = email.split("@");
+            const maskedUsername = username.substring(0, 3) + "***";
+            return maskedUsername + "@" + domain;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            handleRegist();
+            maskEmail()
+        });
     </script>
 </body>
 

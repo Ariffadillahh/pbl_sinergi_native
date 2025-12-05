@@ -252,19 +252,19 @@ class AuthController
         $required_fields = ['FullName', 'username', 'personal_number', 'email', 'password'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
-                echo json_encode(['success' => false, 'message' => "Field '{$field}' tidak boleh kosong."]);
+                echo json_encode(['success' => false, 'message' => "Field '{$field}' cannot be empty."]);
                 exit;
             }
         }
 
         if (strlen($_POST['password']) < 6) {
-            echo json_encode(['success' => false, 'message' => 'Password Harus lebih dari 6 karakter']);
+            echo json_encode(['success' => false, 'message' => 'Password must be more than 6 characters']);
             exit;
         }
 
         $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
         if (!$email) {
-            echo json_encode(['success' => false, 'message' => 'Format email tidak valid.']);
+            echo json_encode(['success' => false, 'message' => 'Invalid email format.']);
             exit;
         }
 
@@ -279,7 +279,7 @@ class AuthController
         } else {
             echo json_encode([
                 'success' => false,
-                'message' => 'Domain email tidak valid. Gunakan email PNJ yang sesuai.'
+                'message' => 'Invalid email domain. Please use the appropriate PNJ email address.'
             ]);
             exit;
         }
@@ -290,17 +290,17 @@ class AuthController
         $user = $this->loginModel->getUserByUsernameOrEmail($username);
 
         if ($user) {
-            echo json_encode(['success' => false, 'message' => 'Username sudah ada']);
+            echo json_encode(['success' => false, 'message' => 'Username already exists']);
             exit;
         }
         $user = $this->loginModel->getUserByUsernameOrEmail($email);
         if ($user) {
-            echo json_encode(['success' => false, 'message' => 'Email sudah ada']);
+            echo json_encode(['success' => false, 'message' => 'Email already exists']);
             exit;
         }
         $user = $this->loginModel->getUserByUsernameOrEmail($personalNumber);
         if ($user) {
-            echo json_encode(['success' => false, 'message' => 'NIM/NIP sudah ada']);
+            echo json_encode(['success' => false, 'message' => 'NIM/NIP already exists']);
             exit;
         }
 
@@ -357,13 +357,13 @@ class AuthController
             $mail->send();
             echo json_encode([
                 'success' => true,
-                'message' => 'OTP berhasil dikirim. Silakan periksa email Anda.',
+                'message' => 'OTP sent successfully. Please check your email.',
                 'role'    => $role
             ]);
         } catch (Exception $e) {
             echo json_encode([
                 'success' => false,
-                'message' => 'Gagal mengirim email verifikasi. Silakan coba lagi.'
+                'message' => 'Failed to send verification email. Please try again.'
             ]);
         }
         exit;
@@ -380,7 +380,7 @@ class AuthController
         header('Content-Type: application/json');
 
         if (!isset($_SESSION['registration_data'])) {
-            echo json_encode(['success' => false, 'message' => 'Sesi registrasi Anda telah berakhir. Harap ulangi dari awal.']);
+            echo json_encode(['success' => false, 'message' => 'Your registration session has expired.']);
             exit;
         }
 
@@ -430,7 +430,7 @@ class AuthController
         }
 
         if (!isset($_SESSION['registration_data'])) {
-            echo json_encode(['success' => false, 'message' => 'Sesi registrasi tidak ditemukan atau sudah habis. Silakan daftar ulang.']);
+            echo json_encode(['success' => false, 'message' => 'Your registration session has expired.']);
             exit;
         }
 
@@ -444,12 +444,12 @@ class AuthController
 
         if (time() > $sessionData['otp_expiry']) {
             unset($_SESSION['registration_data']);
-            echo json_encode(['success' => false, 'message' => 'Kode OTP telah kadaluarsa. Silakan daftar ulang.']);
+            echo json_encode(['success' => false, 'message' => 'The OTP code has expired. Please re-register.']);
             exit;
         }
 
         if ($submittedOtp !== strval($sessionData['otp'])) {
-            echo json_encode(['success' => false, 'message' => 'Kode OTP yang Anda masukkan salah.']);
+            echo json_encode(['success' => false, 'message' => 'The OTP code you entered is incorrect.']);
             exit;
         }
 
@@ -465,7 +465,7 @@ class AuthController
             }
             $finalPhotoPath = $uploadDir . $finalPhotoName;
             if (!rename($tempPath, $finalPhotoPath)) {
-                echo json_encode(['success' => false, 'message' => 'Gagal menyimpan foto profil (permission error).']);
+                echo json_encode(['success' => false, 'message' => 'Failed to save profile photo (permission error).']);
                 exit;
             }
         }
@@ -510,12 +510,12 @@ class AuthController
         $user = $this->loginModel->getUserByUsernameOrEmail($identifier);
 
         if (!$user) {
-            echo json_encode(['success' => false, 'message' => 'Pengguna dengan username atau email tersebut tidak ditemukan.']);
+            echo json_encode(['success' => false, 'message' => 'A user with that username or email was not found.']);
             exit;
         }
 
         if (strlen($newPassword) < 6) {
-            echo json_encode(['success' => false, 'message' => 'Password Harus lebih dari 6 karakter']);
+            echo json_encode(['success' => false, 'message' => 'Password must be more than 6 characters']);
             exit;
         }
 
@@ -548,7 +548,7 @@ class AuthController
             $mail->send();
             echo json_encode([
                 'success' => true,
-                'message' => 'OTP berhasil dikirim. Silakan periksa email Anda.',
+                'message' => 'OTP sent successfully. Please check your email.',
                 'email'   => $user['EMAIL']
             ]);
         } catch (Exception $e) {
@@ -571,7 +571,7 @@ class AuthController
         }
 
         if (!isset($_SESSION['forget-password'])) {
-            echo json_encode(['success' => false, 'message' => 'Sesi verifikasi tidak ditemukan atau sudah habis.']);
+            echo json_encode(['success' => false, 'message' => 'Verification session not found or has timed out.']);
             exit;
         }
 
@@ -580,12 +580,12 @@ class AuthController
 
         if (time() > $sessionData['otp_expiry']) {
             unset($_SESSION['forget-password']);
-            echo json_encode(['success' => false, 'message' => 'Kode OTP telah kadaluarsa.']);
+            echo json_encode(['success' => false, 'message' => 'The OTP code has expired.']);
             exit;
         }
 
         if ($submittedOtp !== strval($sessionData['otp'])) {
-            echo json_encode(['success' => false, 'message' => 'Kode OTP yang Anda masukkan salah.']);
+            echo json_encode(['success' => false, 'message' => 'The OTP code you entered is incorrect.']);
             exit;
         }
 
@@ -595,7 +595,7 @@ class AuthController
             $isUpdated = $this->userModel->updatePassword($userId, $hashedPassword);
             if ($isUpdated) {
                 unset($_SESSION['forget-password']);
-                echo json_encode(['success' => true, 'message' => 'Password berhasil diubah! Silakan login.']);
+                echo json_encode(['success' => true, 'message' => 'Password changed successfully! Please Sign In.']);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Gagal memperbarui password di database.']);
             }

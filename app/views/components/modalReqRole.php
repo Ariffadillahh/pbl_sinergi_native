@@ -82,10 +82,11 @@
                     closeStudentModal();
 
                     const modalOtp = document.getElementById("modal-otp");
+                    const emailDisplayElement = document.getElementById("otp-email-display");
 
-                    if (modalOtp) {
+                    if (modalOtp && emailDisplayElement) {
                         modalOtp.classList.remove('hidden');
-
+                        emailDisplayElement.textContent = maskEmail(result.email)
                     } else {
                         console.warn("Element with ID 'modalOtp' was not found on this page.");
                         alert("Request successful, please check your email for the OTP.");
@@ -107,5 +108,11 @@
                 confirmBtn.innerText = originalText;
             }
         });
+
+        function maskEmail(email) {
+            const [username, domain] = email.split("@");
+            const maskedUsername = username.substring(0, 3) + "***";
+            return maskedUsername + "@" + domain;
+        }
     }
 </script>

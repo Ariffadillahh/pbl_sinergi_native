@@ -124,7 +124,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                                     <h4 class="font-bold text-lg text-gray-900 leading-tight hover:text-blue-600 transition-colors cursor-pointer line-clamp-1">
                                         <?= htmlspecialchars($topic['FULL_NAME'] ?? 'User') ?>
                                     </h4>
-                                    
+
                                     <?php
                                     $role = $topic['ROLE'] ?? 'MAHASISWA';
                                     $roleClasses = [
@@ -200,21 +200,22 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
                 <!-- Media Gallery -->
                 <?php if (!empty($images)): ?>
-                    <div class="bg-gradient-to-b from-gray-300 to-white overflow-hidden mb-2 -mx-4 sm:mx-0 ">
-                        <div class="swiper myPostSwiper w-full aspect-square sm:aspect-video sm:h-96 sm:min-h-[300px] sm:max-h-[500px]">
+                    <div class="bg-gradient-to-b from-gray-200 to-white mb-2 -mx-4 sm:mx-0">
+                        <div class="swiper myPostSwiper w-full rounded-lg overflow-hidden" style="max-height: 500px;">
                             <div class="swiper-wrapper">
                                 <?php foreach ($images as $img): ?>
-                                    <div class="swiper-slide flex items-center justify-center bg-black">
+                                    <div class="swiper-slide flex justify-center items-center bg-gray-100" style="max-height: 500px;">
                                         <img src="<?= BASEURL ?>/storage/forums/topics/<?= $img['MEDIA_PATH'] ?>"
                                             loading="lazy"
-                                            class="w-full h-full object-contain">
+                                            style="max-height: 500px; max-width: 100%;"
+                                            class="object-contain">
                                     </div>
                                 <?php endforeach; ?>
                             </div>
-                            <?php if (count($images) > 1): ?>
-                                <div class="swiper-button-next cursor-pointer hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg"></div>
-                                <div class="swiper-button-prev cursor-pointer hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg"></div>
 
+                            <?php if (count($images) > 1): ?>
+                                <div class="swiper-button-next hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg"></div>
+                                <div class="swiper-button-prev hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg"></div>
                                 <div class="swiper-pagination !bottom-3"></div>
                             <?php endif; ?>
                         </div>
@@ -272,7 +273,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
                         data-topic-id="<?= $topic['ID'] ?? 0 ?>"
                         data-liked="<?= $isLikedByUser ? 'true' : 'false' ?>">
                         <div class="absolute inset-0 bg-gradient-to-r from-red-500/0 to-pink-500/0 group-hover:from-red-500/5 group-hover:to-pink-500/5 transition-all duration-300"></div>
-                        
+
                         <svg class="w-5 h-5 transition-all duration-300 relative z-10 <?= $isLikedByUser ? 'text-red-500 fill-red-500 animate-pulse' : 'text-gray-600 group-hover:text-red-500 group-hover:scale-110' ?>"
                             fill="<?= $isLikedByUser ? 'currentColor' : 'none' ?>"
                             stroke="currentColor"
@@ -364,7 +365,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
             const isLiked = likeButton.getAttribute('data-liked') === 'true';
             const icon = likeButton.querySelector('svg');
-            
+
             // Set initial state
             if (isLiked) {
                 icon.classList.remove('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
@@ -424,7 +425,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
                         // Update icon
                         icon.style.transition = 'all 0.3s ease';
-                        
+
                         if (isLiked) {
                             icon.classList.remove('text-gray-600', 'group-hover:text-red-500', 'group-hover:scale-110');
                             icon.classList.add('text-red-500', 'fill-red-500', 'animate-pulse', 'scale-110');
@@ -454,21 +455,21 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 </script>
 
 <style>
-/* Smooth transition for like button */
-.like-btn svg {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+    /* Smooth transition for like button */
+    .like-btn svg {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-.like-btn:active svg {
-    transform: scale(0.9);
-}
+    .like-btn:active svg {
+        transform: scale(0.9);
+    }
 
-.like-btn:disabled {
-    cursor: not-allowed;
-}
+    .like-btn:disabled {
+        cursor: not-allowed;
+    }
 
-/* Animation for like count */
-.like-count-display {
-    transition: all 0.3s ease;
-}
+    /* Animation for like count */
+    .like-count-display {
+        transition: all 0.3s ease;
+    }
 </style>

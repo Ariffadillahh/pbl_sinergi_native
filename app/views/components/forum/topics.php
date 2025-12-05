@@ -124,22 +124,23 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
             </div>
 
             <?php if (!empty($images)): ?>
-                <div class="bg-gradient-to-b from-gray-900 to-black overflow-hidden mb-2 -mx-4 sm:mx-0 ">
-                    <div class="swiper myPostSwiper w-full aspect-square sm:aspect-video sm:h-96 sm:min-h-[300px] sm:max-h-[500px]">
+                <div class="bg-gradient-to-b from-gray-200 to-white mb-2 -mx-4 sm:mx-0">
+                    <div class="swiper myPostSwiper w-full rounded-lg overflow-hidden" style="max-height: 500px;">
                         <div class="swiper-wrapper">
                             <?php foreach ($images as $img): ?>
-                                <div class="swiper-slide flex items-center justify-center bg-black">
+                                <div class="swiper-slide flex justify-center items-center bg-gray-100" style="max-height: 500px;">
                                     <img src="<?= BASEURL ?>/storage/forums/topics/<?= $img['MEDIA_PATH'] ?>"
                                         loading="lazy"
-                                        class="w-full h-full object-contain">
+                                        style="max-height: 500px; max-width: 100%;"
+                                        class="object-contain">
                                 </div>
                             <?php endforeach; ?>
                         </div>
-                        <?php if (count($images) > 1): ?>
-                            <div class="swiper-button-next hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg"></div>
-                            <div class="swiper-button-prev hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg"></div>
 
-                            <div class="swiper-pagination !bottom-3"></div>
+                        <?php if (count($images) > 1): ?>
+                            <div class="swiper-button-next hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg z-[999999]"></div>
+                            <div class="swiper-button-prev hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg z-[999999]"></div>
+                            <div class="swiper-pagination !bottom-3 z-[999999]"></div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -232,9 +233,10 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Swiper initialization
+    document.addEventListener('DOMContentLoaded', () => {
+
         var swiper = new Swiper(".myPostSwiper", {
             pagination: {
                 el: ".swiper-pagination",
@@ -247,11 +249,6 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
             spaceBetween: 0,
             grabCursor: true,
         });
-    });
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
 
         // Time ago function
         function timeAgo(dateString) {

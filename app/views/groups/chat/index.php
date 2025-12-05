@@ -8,14 +8,14 @@
     <title>Group Chats - <?= $groupChatId["NAME"] ?></title>
 </head>
 
-<body class=" h-screen overflow-hidden">
+<body class="h-full overflow-hidden">
 
-    <div class="relative flex h-screen overflow-hidden bg-gray-50">
+    <div class="relative h-full flex overflow-hidden bg-gray-50">
 
         <?php require_once 'app/views/components/sidebars.php'; ?>
         <?php require_once 'app/views/components/groups/groupChatList.php'; ?>
 
-        <main id="Main-Content-Container" class="relative flex flex-1 h-[calc(100vh-5px)] lg:h-screen">
+        <main id="Main-Content-Container" class="relative flex flex-1 h-[calc(100svh-70px)] lg:h-[100svh]">
             <div class="absolute right-5 top-26 z-[9999] flex flex-col gap-2 pointer-events-none">
 
                 <div id="errorDiv" class="bg-red-500 rounded-lg text-white p-3 text-left drop-shadow hidden pointer-events-auto">
@@ -47,9 +47,7 @@
                 </div>
 
 
-
-
-                <div class="relative flex w-full z-10 pb-[60px] lg:pb-0">
+                <div class="relative flex w-full z-10 pb-0">
                     <form id="chat-form" class="w-full p-2 lg:p-5 gap-[10px] z-20 ">
                         <div id="preview-container" class="hidden relative w-full p-3 mb-2  rounded-lg pr-11 md:pr-0">
                             <div class="flex items-start sm:items-center gap-3 flex-wrap sm:flex-nowrap">

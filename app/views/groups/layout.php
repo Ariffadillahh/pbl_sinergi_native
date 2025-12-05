@@ -8,7 +8,7 @@
 </head>
 
 <body>
-    <div class="relative flex h-screen bg-white ">
+    <div class="relative flex h-[100svh] bg-white ">
 
         <main class="flex-1 ">
             <?php require_once $contentView; ?>

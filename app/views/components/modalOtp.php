@@ -10,8 +10,9 @@
         </div>
 
         <h1 class="text-2xl font-bold text-gray-900 mb-2">Check your email</h1>
-        <p class="text-sm text-gray-500 mb-8">
-            Enter the verification code sent to <br> <span class="font-medium text-gray-700" id="otp-email-display"></span>
+        <p class="text-sm text-gray-500 mb-8 px-4"> Enter the verification code sent to <br>
+            <span class="font-medium text-gray-700 block truncate max-w-full" id="otp-email-display">
+            </span>
         </p>
 
         <form id="otp-form" action="<?php echo BASEURL ?>/sign-up/verif-otp" method="POST">
@@ -40,7 +41,7 @@
 <script>
     const resendBtn = document.getElementById("resend-otp-btn");
     const timerSpan = document.getElementById("resend-timer");
-    let cooldownInterval = null; 
+    let cooldownInterval = null;
 
     function startCooldown() {
 
@@ -50,7 +51,7 @@
 
         let cooldown = 60;
         resendBtn.disabled = true;
-        resendBtn.textContent = 'Resend'; 
+        resendBtn.textContent = 'Resend';
         timerSpan.textContent = `in ${cooldown}s`;
 
         cooldownInterval = setInterval(() => {
@@ -131,7 +132,7 @@
                 if (result.success) {
                     otpMessageDiv.textContent = result.message;
                     otpMessageDiv.className = 'w-full bg-green-500 text-white p-2 rounded-xl mb-3';
-                    startCooldown(); 
+                    startCooldown();
                 } else {
                     otpMessageDiv.className = 'w-full bg-red-500 text-white p-2 rounded-xl mb-3';
                     otpMessageDiv.textContent = result.message;

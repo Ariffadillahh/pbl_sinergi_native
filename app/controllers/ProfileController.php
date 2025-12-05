@@ -247,7 +247,8 @@ class ProfileController
 
             echo json_encode([
                 'success' => true,
-                'message' => 'OTP sent successfully to your email.' // Changed
+                'message' => 'OTP sent successfully to your email.',
+                'email' => $email
             ]);
 
             exit;
