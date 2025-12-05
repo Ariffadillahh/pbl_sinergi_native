@@ -113,11 +113,11 @@ class ReportController
         }
 
         if ($forumDeleteSuccess && $reportDeleteSuccess) {
-            $response = ['success' => true, 'message' => 'Forum dan laporan terkait berhasil dihapus!'];
+            $response = ['success' => true, 'message' => 'The related forum and reports have been successfully deleted!'];
         } else if (!$forumDeleteSuccess) {
-            $response = ['success' => false, 'message' => 'Gagal menghapus forum. Laporan mungkin sudah terhapus.'];
+            $response = ['success' => false, 'message' => 'Unable to delete the forum. The report may have been deleted.'];
         } else {
-            $response = ['success' => false, 'message' => 'Gagal menghapus laporan, forum tidak jadi dihapus.'];
+            $response = ['success' => false, 'message' => 'Failed to delete report, forum not deleted.'];
         }
 
         echo json_encode($response);
@@ -174,11 +174,11 @@ class ReportController
         }
 
         if ($forumDeleteSuccess && $reportDeleteSuccess) {
-            $response = ['success' => true, 'message' => 'Forum dan laporan terkait berhasil dihapus!'];
+            $response = ['success' => true, 'message' => 'The related forum and reports have been successfully deleted!'];
         } else if (!$forumDeleteSuccess) {
-            $response = ['success' => false, 'message' => 'Gagal menghapus forum. Laporan mungkin sudah terhapus.'];
+            $response = ['success' => false, 'message' => 'Unable to delete the forum. The report may have been deleted.'];
         } else {
-            $response = ['success' => false, 'message' => 'Gagal menghapus laporan, forum tidak jadi dihapus.'];
+            $response = ['success' => false, 'message' => 'Failed to delete report, forum not deleted'];
         }
 
         echo json_encode($response);
@@ -206,7 +206,7 @@ class ReportController
         if (empty($targetId) || empty($ownerId) || empty($userId)) {
             echo json_encode([
                 'success' => false,
-                'message' => 'Data tidak lengkap.',
+                'message' => 'Incomplete data.',
             ]);
             return;
         }
@@ -215,7 +215,7 @@ class ReportController
 
         echo json_encode([
             'success' => true,
-            'message' => 'Peringatan berhasil dikirim.',
+            'message' => 'The alert was successfully sent.',
         ]);
     }
 
@@ -289,8 +289,8 @@ class ReportController
         echo json_encode([
             'success' => $deleteSuccess && $reportDeleteSuccess,
             'message' => $deleteSuccess
-                ? 'Post dan laporan berhasil dihapus.'
-                : 'Gagal menghapus post.',
+                ? 'The post and report have been successfully deleted.'
+                : 'Failed to delete post.',
         ]);
     }
 }

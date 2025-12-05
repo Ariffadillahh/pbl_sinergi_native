@@ -125,7 +125,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
 
             <?php if (!empty($images)): ?>
                 <div class="bg-gradient-to-b from-gray-200 to-white mb-2 -mx-4 sm:mx-0">
-                    <div class="swiper myPostSwiper w-full rounded-lg overflow-hidden" style="max-height: 500px;">
+                    <div class="swiper myPostSwiper w-full rounded-lg relative overflow-visible" style="max-height: 500px;">
                         <div class="swiper-wrapper">
                             <?php foreach ($images as $img): ?>
                                 <div class="swiper-slide flex justify-center items-center bg-gray-100" style="max-height: 500px;">
@@ -140,7 +140,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                         <?php if (count($images) > 1): ?>
                             <div class="swiper-button-next hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg z-[999999]"></div>
                             <div class="swiper-button-prev hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg z-[999999]"></div>
-                            <div class="swiper-pagination !bottom-3 z-[999999]"></div>
+                            <div class="swiper-pagination !bottom-3"></div>
                         <?php endif; ?>
                     </div>
                 </div>

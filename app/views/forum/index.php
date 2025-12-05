@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="<?php echo BASEURL; ?>/src/css/output.css" rel="stylesheet">
     <title>Community Forum List</title>
 </head>
 
@@ -308,6 +309,7 @@
 
         <?php require_once 'app/views/components/forum/modalCreateForum.php'; ?>
         <?php require_once 'app/views/components/forum/modalJoinForum.php'; ?>
+        <?php require_once 'app/views/components/forum/modalInviteForum.php'; ?>
 
         <div class="bg-green-100 border border-green-600 text-green-600 rounded-lg p-3 fixed top-5 right-5 hidden" id="succsesDiv"></div>
         <div class="bg-red-100 border border-red-600 text-red-600 rounded-lg p-3 fixed top-5 right-5 hidden" id="errorDivReq"></div>
@@ -315,6 +317,7 @@
 
 
     <script>
+        const BASEURL = '<?= BASEURL ?>';
         const succsesDiv = document.getElementById("succsesDiv")
         const errorDivReq = document.getElementById("errorDivReq")
 

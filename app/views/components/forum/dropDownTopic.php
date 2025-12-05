@@ -352,9 +352,15 @@
          });
      });
 
-     let existingMediaData = [];
-     let filesToDelete = [];
-     const MAX_FILES = 5;
+     if (typeof existingMediaData === 'undefined') {
+         var existingMediaData = [];
+     }
+
+     if (typeof filesToDelete === 'undefined') {
+         var filesToDelete = [];
+     }
+
+     if (typeof MAX_FILES === 'undefined') var MAX_FILES = 5;
 
 
      function openEditTopicModal(topicId, content, mediaArray) {

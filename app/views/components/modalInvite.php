@@ -97,7 +97,7 @@
             <div class="flex gap-3">
                 <button id="invite-group-decline"
                     class="flex-1 px-4 py-3 text-sm font-medium rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors duration-200 cursor-pointer">
-                    Maybe Later
+                    Decline
                 </button>
 
                 <button id="invite-group-join"
@@ -373,7 +373,30 @@
         inviteGroupJoin.dataset.groupId = data.ID; 
     }
 
-    // Handle join button click
+    // Tambahkan fungsi ini di dalam <script> modal group (setelah fungsi showToastGroup)
+
+    async function deleteInviteNotification(groupId, notificationType = 'INVITE_GROUP') {
+        try {
+            const response = await fetch(`${BASEURL}/notifications/deleteInviteNotif`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    target_id: groupId,
+                    type: notificationType
+                })
+            });
+
+            if (!response.ok) {
+                console.error('Failed to delete notification');
+            }
+        } catch (error) {
+            console.error('Error deleting notification:', error);
+        }
+    }
+
+    // UPDATE EVENT LISTENER JOIN BUTTON - Ganti yang lama dengan ini:
     inviteGroupJoin.addEventListener('click', async function() {
         const groupId = this.dataset.groupId;
         
@@ -383,8 +406,8 @@
         }
 
         if (typeof BASEURL === 'undefined') {
-             showToastGroup('BASEURL is undefined. Cannot join group.', 'error');
-             return;
+            showToastGroup('BASEURL is undefined. Cannot join group.', 'error');
+            return;
         }
 
         this.disabled = true;
@@ -392,6 +415,7 @@
         inviteGroupJoinSpinner.classList.remove('hidden');
 
         try {
+            // 1. Join Group
             const response = await fetch(`${BASEURL}/groups/joinViaInvite`, {
                 method: 'POST',
                 headers: {
@@ -409,6 +433,9 @@
             const json = await response.json();
 
             if (json.success) {
+                // 2. Hapus Notifikasi
+                await deleteInviteNotification(groupId, 'INVITE_GROUP');
+                
                 showToastGroup('Successfully joined the group!', 'success');
                 setTimeout(() => {
                     const redirectUrl = json.redirect 
@@ -431,7 +458,16 @@
         }
     });
 
-    // Close modal functions
+    // UPDATE EVENT LISTENER DECLINE BUTTON - Tambahkan handler khusus untuk decline:
+    inviteGroupDecline.addEventListener('click', async function() {
+        // Hapus notifikasi jika user klik "Maybe Later"
+        if (currentGroupId) {
+            await deleteInviteNotification(currentGroupId, 'INVITE_GROUP');
+        }
+        closeGroupModal();
+    });
+
+    // FUNGSI closeGroupModal - TIDAK menghapus notifikasi (hanya untuk tombol X dan klik outside)
     function closeGroupModal() {
         modalInviteGroup.classList.add('hidden');
         currentGroupId = null;

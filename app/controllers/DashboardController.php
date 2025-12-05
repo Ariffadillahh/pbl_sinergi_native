@@ -196,7 +196,7 @@ class DashboardController
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
                 $fieldName = str_replace('-', ' ', $field);
-                echo json_encode(['success' => false, 'message' => "Field '" . ucwords($fieldName) . "' tidak boleh kosong."]);
+                echo json_encode(['success' => false, 'message' => "Field '" . ucwords($fieldName) . "' cannot be null."]);
                 exit;
             }
         }
@@ -205,14 +205,14 @@ class DashboardController
 
         $userByEmail = $this->loginModel->getUserByUsernameOrEmail($email);
         if ($userByEmail) {
-            echo json_encode(['success' => false, 'message' => 'Email sudah ada']);
+            echo json_encode(['success' => false, 'message' => 'Email already exists.']);
             exit;
         }
 
         $personalNumber = $_POST['personal-number'];
         $userByPN = $this->loginModel->getUserByUsernameOrEmail($personalNumber);
         if ($userByPN) {
-            echo json_encode(['success' => false, 'message' => 'NIM/NIP sudah ada']);
+            echo json_encode(['success' => false, 'message' => 'NIM/NIP already exists.']);
             exit;
         }
 
@@ -238,7 +238,7 @@ class DashboardController
             if (!$isCreated) {
                 echo json_encode([
                     'success' => false,
-                    'message' => 'Gagal menyimpan data ke database. Silakan coba lagi.'
+                    'message' => 'Failed to save data to the database. Please try again.'
                 ]);
                 exit;
             }
@@ -246,7 +246,7 @@ class DashboardController
             error_log("DB Create Error: " . $dbException->getMessage());
             echo json_encode([
                 'success' => false,
-                'message' => 'Terjadi kesalahan pada database saat membuat akun.'
+                'message' => 'An error occurred in the database while creating an account.'
             ]);
             exit;
         }
@@ -268,38 +268,38 @@ class DashboardController
             $mail->addAddress($email, $registrationData['FULL_NAME']);
 
             $mail->isHTML(true);
-            $mail->Subject = 'Akun Anda di SINERGI Telah Dibuat';
+            $mail->Subject = 'Your SINERGI account has been created.';
 
             $resetLink = BASEURL . '/forget-password';
 
-            $mail->Body = "Halo <b>{$registrationData['FULL_NAME']}</b>,<br><br>"
-                . "Akun Anda untuk aplikasi SINERGI telah berhasil dibuat oleh administrator.<br><br>"
-                . "Anda dapat login menggunakan detail berikut:<br>"
+            $mail->Body = "Hello <b>{$registrationData['FULL_NAME']}</b>,<br><br>"
+                . "Your account for the SINERGI application has been successfully created by the administrator.<br><br>"
+                . "You can log in using the following details:<br>"
                 . "<b>Email:</b> {$registrationData['EMAIL']}<br><br>"
-                . "Demi keamanan, silakan segera atur password Anda dengan mengklik tombol di bawah ini:<br><br>"
+                . "For security reasons, please set your password immediately by clicking the button below:<br><br>"
 
                 . "<a href='{$resetLink}' style='background-color: #2563eb; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; font-family: Arial, sans-serif;'>"
-                . "Atur Password Sekarang"
+                . "Set Your Password Now"
                 . "</a><br><br>"
 
-                . "Jika tombol di atas tidak berfungsi, silakan klik tautan berikut:<br>"
+                . "If the button above does not work, please click the following link:<br>"
                 . "<a href='{$resetLink}'>{$resetLink}</a><br><br>"
-                . "Terima kasih.";
+                . "Thank you.";
 
-            $mail->AltBody = "Akun Anda telah dibuat. Email: {$registrationData['EMAIL']}";
+            $mail->AltBody = "Your account has been created. Email: {$registrationData['EMAIL']}";
 
             $mail->send();
 
             echo json_encode([
                 'success' => true,
-                'message' => 'Akun baru berhasil dibuat dan email notifikasi telah dikirim.'
+                'message' => 'A new account has been successfully created and a notification email has been sent.'
             ]);
         } catch (Exception $e) {
             error_log("PHPMailer Error: " . $mail->ErrorInfo);
 
             echo json_encode([
                 'success' => true,
-                'message' => 'Akun berhasil dibuat, namun email notifikasi gagal dikirim. Error: ' . $mail->ErrorInfo
+                'message' => 'Account successfully created, but notification email failed to send. Error: ' . $mail->ErrorInfo
             ]);
         }
     }
@@ -307,7 +307,7 @@ class DashboardController
     public function accAccoutByAdmin()
     {
         if (!isset($_POST['id_user'])) {
-            echo json_encode(['success' => false, 'message' => 'ID User tidak ditemukan.']);
+            echo json_encode(['success' => false, 'message' => 'User ID not found.']);
             return;
         }
 
@@ -316,14 +316,14 @@ class DashboardController
         $userPending = $this->userModel->getPendingRequestsById($idUser);
 
         if (!$userPending) {
-            echo json_encode(['success' => false, 'message' => 'Data user tidak ditemukan atau status bukan pending.']);
+            echo json_encode(['success' => false, 'message' => 'User data not found or status is not pending.']);
             return;
         }
 
         $updateSuccess = $this->userModel->approvePendingUser($idUser);
 
         if (!$updateSuccess) {
-            echo json_encode(['success' => false, 'message' => 'Gagal mengaktifkan akun di database.']);
+            echo json_encode(['success' => false, 'message' => 'Failed to activate account in the database.']);
             return;
         }
 
@@ -345,36 +345,36 @@ class DashboardController
             $mail->addAddress($userPending['EMAIL'], $userPending['FULL_NAME']);
 
             $mail->isHTML(true);
-            $mail->Subject = 'Akun Anda di SINERGI Telah Dibuat';
+            $mail->Subject = 'Your SINERGI account has been created.';
 
             $resetLink = BASEURL . '/forget-password';
 
-            $mail->Body = "Halo <b>{$userPending['FULL_NAME']}</b>,<br><br>"
-                . "Akun Anda untuk aplikasi SINERGI telah berhasil dibuat dan diaktifkan oleh administrator.<br><br>"
-                . "Anda dapat login menggunakan detail berikut:<br>"
+            $mail->Body = "Hello <b>{$userPending['FULL_NAME']}</b>,<br><br>"
+                . "Your account for the SINERGI application has been successfully created and activated by the administrator.<br><br>"
+                . "You can log in using the following details:<br>"
                 . "<b>Email:</b> {$userPending['EMAIL']}<br><br>"
-                . "Demi keamanan, silakan segera atur password Anda dengan mengklik tombol di bawah ini:<br><br>"
+                . "For security reasons, please set your password immediately by clicking the button below.:<br><br>"
                 . "<a href='{$resetLink}' style='background-color: #2563eb; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; font-family: Arial, sans-serif;'>"
-                . "Atur Password Sekarang"
+                . "Set Your Password Now"
                 . "</a><br><br>"
-                . "Jika tombol di atas tidak berfungsi, silakan klik tautan berikut:<br>"
+                . "If the button above does not work, please click the following link:<br>"
                 . "<a href='{$resetLink}'>{$resetLink}</a><br><br>"
-                . "Terima kasih.";
+                . "Thank you.";
 
-            $mail->AltBody = "Akun Anda telah aktif. Email: {$userPending['EMAIL']}. Silakan reset password Anda.";
+            $mail->AltBody = "Your account has been activated. Email: {$userPending['EMAIL']}. Please reset your password.";
 
             $mail->send();
 
             echo json_encode([
                 'success' => true,
-                'message' => 'Akun berhasil diaktifkan dan email notifikasi telah dikirim.'
+                'message' => 'Your account has been successfully activated and a notification email has been sent.'
             ]);
         } catch (Exception $e) {
             error_log("PHPMailer Error: " . $mail->ErrorInfo);
 
             echo json_encode([
                 'success' => true,
-                'message' => 'Akun berhasil diaktifkan, namun email notifikasi gagal dikirim. Hubungi user secara manual.'
+                'message' => 'The account has been successfully activated, but the notification email failed to send. Please contact the user manually..'
             ]);
         }
     }
@@ -385,13 +385,13 @@ class DashboardController
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
-            echo json_encode(['success' => false, 'message' => 'Metode tidak diizinkan.']);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
             exit;
         }
 
         if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'ADMIN') {
             http_response_code(403);
-            echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki hak akses untuk aksi ini.']);
+            echo json_encode(['success' => false, 'message' => 'You dont have permission for this action..']);
             exit;
         }
 
@@ -399,18 +399,18 @@ class DashboardController
         $newRole = $_POST['role'] ?? null;
 
         if (empty($userId) || empty($newRole)) {
-            echo json_encode(['success' => false, 'message' => 'Data tidak lengkap. ID Pengguna dan Role baru wajib diisi.']);
+            echo json_encode(['success' => false, 'message' => 'Incomplete data. New User ID and Role must be filled in.']);
             exit;
         }
 
         $validRoles = ['ADMIN', 'MAHASISWA', 'DOSEN', 'ALUMNI', 'MITRA'];
         if (!in_array($newRole, $validRoles)) {
-            echo json_encode(['success' => false, 'message' => 'Role yang dipilih tidak valid.']);
+            echo json_encode(['success' => false, 'message' => 'The selected role is invalid.']);
             exit;
         }
 
         if (isset($_SESSION['user_id']) && $userId === $_SESSION['user_id']) {
-            echo json_encode(['success' => false, 'message' => 'Anda tidak dapat mengubah role akun Anda sendiri.']);
+            echo json_encode(['success' => false, 'message' => 'You cannot change your own account role.']);
             exit;
         }
 
@@ -418,14 +418,14 @@ class DashboardController
             $isSuccess = $this->userModel->updateUserRoleById($userId, $newRole);
 
             if ($isSuccess) {
-                echo json_encode(['success' => true, 'message' => 'Role pengguna berhasil diperbarui.']);
+                echo json_encode(['success' => true, 'message' => 'User role successfully updated.']);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Gagal memperbarui role. Data tidak berubah atau ID tidak ditemukan.']);
+                echo json_encode(['success' => false, 'message' => 'Failed to update role. Data did not change or ID not found.']);
             }
         } catch (Exception $e) {
             error_log("Update Role Error: " . $e->getMessage());
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan pada server.']);
+            echo json_encode(['success' => false, 'message' => 'An error occurred on the server.']);
         }
     }
 
@@ -459,12 +459,12 @@ class DashboardController
                 'ADMIN_INVITE_FORUM',
                 'FORUM'
             );
-            error_log("Kekirim ke user" . $userId);
+            error_log("Sent to user" . $userId);
         }
 
         if ($result['success']) {
             echo json_encode(['success' => true, 'message' => $result['message']]);
-            error_log("Succsess menambahkan" . $userId);
+            error_log("Successfully added" . $userId);
         } else {
             http_response_code(409);
             echo json_encode(['success' => false, 'message' => $result['message']]);
@@ -533,7 +533,7 @@ class DashboardController
         $userId = $_POST['user_id'] ?? null;
 
         if (empty($userId)) {
-            echo json_encode(['success' => false, 'message' => 'User ID tidak ditemukan']);
+            echo json_encode(['success' => false, 'message' => 'User ID not found']);
             exit;
         }
 
@@ -541,7 +541,7 @@ class DashboardController
             $updateResult = $this->userModel->approvePendingUser($userId);
 
             if (!$updateResult) {
-                echo json_encode(['success' => false, 'message' => 'Gagal approve user']);
+                echo json_encode(['success' => false, 'message' => 'Failed to approve user']);
                 exit;
             }
 
@@ -566,26 +566,26 @@ class DashboardController
                     $mail->addAddress($userData['EMAIL'], $userData['FULL_NAME']);
 
                     $mail->isHTML(true);
-                    $mail->Subject = 'Akun Mitra SINERGI Telah Disetujui';
+                    $mail->Subject = 'SINERGI Partner Account Approved';
 
                     $resetLink = BASEURL . '/forget-password';
 
-
-                    $mail->Body = "Halo <b>{$userData['FULL_NAME']}</b>,<br><br>"
-                        . "Akun Anda untuk aplikasi SINERGI telah berhasil dibuat oleh administrator.<br><br>"
-                        . "Anda dapat login menggunakan detail berikut:<br>"
+                  
+                    $mail->Body = "Hello <b>{$userData['FULL_NAME']}</b>,<br><br>"
+                        . "Your account for the SINERGI application has been successfully created by the administrator.<br><br>"
+                        . "You can log in using the following details:<br>"
                         . "<b>Email:</b> {$userData['EMAIL']}<br><br>" // Ubah di sini juga
-                        . "Demi keamanan, silakan segera atur password Anda dengan mengklik tombol di bawah ini:<br><br>"
+                        . "For security reasons, please set your password immediately by clicking the button below.:<br><br>"
 
                         . "<a href='{$resetLink}' style='background-color: #2563eb; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; font-family: Arial, sans-serif;'>"
-                        . "Atur Password Sekarang"
+                        . "Set Your Password Now"
                         . "</a><br><br>"
 
-                        . "Jika tombol di atas tidak berfungsi, silakan klik tautan berikut:<br>"
+                        . "If the button above does not work, please click the following link:<br>"
                         . "<a href='{$resetLink}'>{$resetLink}</a><br><br>"
-                        . "Terima kasih.";
+                        . "Thank you.";
 
-                    $mail->AltBody = "Akun Anda telah dibuat. Email: {$userData['EMAIL']}";
+                    $mail->AltBody = "Your account has been created. Email: {$userData['EMAIL']}";
 
                     $mail->send();
                 } catch (Exception $e) {
@@ -595,7 +595,7 @@ class DashboardController
 
             echo json_encode([
                 'success' => true,
-                'message' => 'Akun mitra berhasil disetujui dan notifikasi email telah dikirim'
+                'message' => 'The partner account has been successfully approved and an email notification has been sent.'
             ]);
         } catch (Exception $e) {
             error_log("Approve Mitra Error: " . $e->getMessage());
@@ -622,7 +622,7 @@ class DashboardController
         $userId = $_POST['user_id'] ?? null;
 
         if (empty($userId)) {
-            echo json_encode(['success' => false, 'message' => 'User ID tidak ditemukan']);
+            echo json_encode(['success' => false, 'message' => 'User ID not found']);
             exit;
         }
 
@@ -631,13 +631,13 @@ class DashboardController
             $result = $this->userModel->deletePendingUser($userId);
 
             if ($result) {
-                echo json_encode(['success' => true, 'message' => 'Request berhasil ditolak']);
+                echo json_encode(['success' => true, 'message' => 'Request successfully denied']);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Gagal menolak request']);
+                echo json_encode(['success' => false, 'message' => 'Failed to decline request']);
             }
         } catch (Exception $e) {
             error_log("Reject Mitra Error: " . $e->getMessage());
-            echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan server']);
+            echo json_encode(['success' => false, 'message' => 'A server error has occurred']);
         }
     }
 

@@ -63,14 +63,14 @@ class AuthController
         }
 
         if (empty($_SESSION['user_id'])) {
-            echo json_encode(['status' => 'error', 'message' => 'Sesi tidak valid. Silakan login ulang.']);
+            echo json_encode(['status' => 'error', 'message' => 'Session is invalid. Please log in again.']);
             exit;
         }
 
         $required_fields = ['jenjang_studi', 'tahunMasuk', 'prodi'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
-                echo json_encode(['status' => 'error', 'message' => "Field '{$field}' tidak boleh kosong."]);
+                echo json_encode(['status' => 'error', 'message' => "The '{$field}' field cannot be empty."]);
                 exit;
             }
         }
@@ -94,25 +94,25 @@ class AuthController
                     $this->createSession($updatedUser);
                     echo json_encode([
                         'status'  => 'success',
-                        'message' => 'Profil berhasil diperbarui dan sesi diperbarui!'
+                        'message' => 'Profile successfully updated and session refreshed!'
                     ]);
                 } else {
                     echo json_encode([
                         'status' => 'error',
-                        'message' => 'Data user tidak ditemukan setelah update.'
+                        'message' => 'User data not found after update.'
                     ]);
                 }
             } else {
                 echo json_encode([
                     'status'  => 'error',
-                    'message' => 'Gagal menyimpan data ke database.'
+                    'message' => 'Failed to save data to the database.'
                 ]);
             }
         } catch (\Exception $e) {
-            error_log("Error pada controller setup: " . $e->getMessage());
+            error_log("Error at controller setup: " . $e->getMessage());
             echo json_encode([
                 'status'  => 'error',
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'An error occurred on the server.'
             ]);
         }
         exit;
@@ -125,81 +125,105 @@ class AuthController
             $password = $_POST['password'] ?? '';
             $captchaInput = $_POST['captcha'] ?? '';
 
+            // Validasi field kosong
             if (empty($identifier) || empty($password) || empty($captchaInput)) {
-                $_SESSION['login_error'] = "Semua field wajib diisi!";
+                $_SESSION['login_error'] = "All field must be filled!";
+                $_SESSION['login_error_type'] = 'all'; // Reset semua field
                 header('Location: ' . BASEURL . '/sign-in');
                 exit();
             }
 
             $sessionCaptcha = $_SESSION['captcha'] ?? '';
 
+            // Validasi Captcha
             if (empty($sessionCaptcha) || $captchaInput !== $sessionCaptcha) {
-                $_SESSION['login_error'] = "Captcha yang Anda masukkan salah!";
+                $_SESSION['login_error'] = "Captcha you entered is incorrect!";
+                $_SESSION['login_error_type'] = 'captcha'; // Hanya captcha yang salah
+                $_SESSION['login_username'] = $identifier; // Simpan username untuk diisi ulang
 
                 unset($_SESSION['captcha']);
-
                 header('Location: ' . BASEURL . '/sign-in');
                 exit();
             }
 
             unset($_SESSION['captcha']);
 
+            // Cek apakah user ada
             $user = $this->loginModel->getUserByUsernameOrEmail($identifier);
 
-            if ($user['STATUS'] !== 'APPROVED') {
-                $_SESSION['login_error'] = "Username, Email, or Password is incorrect!";
+            // Jika user tidak ditemukan (username/email salah)
+            if (!$user) {
+                $_SESSION['login_error'] = "Incorrect username, email, or password!";
+                $_SESSION['login_error_type'] = 'username'; // Username salah - reset semua
                 header('Location: ' . BASEURL . '/sign-in');
                 exit();
             }
 
-            if ($user && password_verify($password, $user['PASSWORD'])) {
+            // Jika user belum approved
+            if ($user['STATUS'] !== 'APPROVED') {
+                $_SESSION['login_error'] = "Your account is not approved yet!";
+                $_SESSION['login_error_type'] = 'username'; // Reset semua
+                header('Location: ' . BASEURL . '/sign-in');
+                exit();
+            }
 
-                if ($user['ROLE'] == 'MAHASISWA') {
-                    $tahunMasuk = (int)$user['TAHUN_MASUK'];
-                    $jenjangStudi = $user['JENJANG_STUDI'];
-                    $userId = $user['ID'];
+            // Validasi password
+            if (!password_verify($password, $user['PASSWORD'])) {
+                $_SESSION['login_error'] = "Incorrect password!";
+                $_SESSION['login_error_type'] = 'password'; // Hanya password yang salah
+                $_SESSION['login_username'] = $identifier; // Simpan username untuk diisi ulang
+                header('Location: ' . BASEURL . '/sign-in');
+                exit();
+            }
 
-                    if ($tahunMasuk > 0 && !empty($jenjangStudi)) {
-                        $durasiStudi = 0;
-                        if ($jenjangStudi == 'D4') {
-                            $durasiStudi = 4;
-                        } elseif ($jenjangStudi == 'D3') {
-                            $durasiStudi = 3;
-                        }
+            // Login berhasil - proses role checking
+            if ($user['ROLE'] == 'MAHASISWA') {
+                $tahunMasuk = (int)$user['TAHUN_MASUK'];
+                $jenjangStudi = $user['JENJANG_STUDI'];
+                $userId = $user['ID'];
 
-                        if ($durasiStudi > 0) {
-                            $tahunLulus = $tahunMasuk + $durasiStudi;
-                            $bulanLulus = 10;
-                            $tahunSekarang = (int)date('Y');
-                            $bulanSekarang = (int)date('m');
+                if ($tahunMasuk > 0 && !empty($jenjangStudi)) {
+                    $durasiStudi = 0;
+                    if ($jenjangStudi == 'D4') {
+                        $durasiStudi = 4;
+                    } elseif ($jenjangStudi == 'D3') {
+                        $durasiStudi = 3;
+                    }
 
-                            if ($tahunSekarang > $tahunLulus || ($tahunSekarang == $tahunLulus && $bulanSekarang >= $bulanLulus)) {
-                                $this->loginModel->updateUserRole($userId, 'ALUMNI');
-                                $user['ROLE'] = 'ALUMNI';
-                                $this->createSession($user);
-                                header('Location: ' . BASEURL . '/forums');
-                                exit();
-                            }
+                    if ($durasiStudi > 0) {
+                        $tahunLulus = $tahunMasuk + $durasiStudi;
+                        $bulanLulus = 10;
+                        $tahunSekarang = (int)date('Y');
+                        $bulanSekarang = (int)date('m');
+
+                        if ($tahunSekarang > $tahunLulus || ($tahunSekarang == $tahunLulus && $bulanSekarang >= $bulanLulus)) {
+                            $this->loginModel->updateUserRole($userId, 'ALUMNI');
+                            $user['ROLE'] = 'ALUMNI';
+                            $this->createSession($user);
+                            header('Location: ' . BASEURL . '/forums');
+                            exit();
                         }
                     }
                 }
+            }
 
-                $this->createSession($user);
-                $role = $user['ROLE'];
+            // Bersihkan session error jika ada
+            unset($_SESSION['login_error']);
+            unset($_SESSION['login_error_type']);
+            unset($_SESSION['login_username']);
 
-                if ($role == 'MAHASISWA' || $role == 'DOSEN') {
-                    header('Location: ' . BASEURL . '/homepage');
-                    exit();
-                } elseif ($role == 'ALUMNI' || $role == 'MITRA') {
-                    header('Location: ' . BASEURL . '/forums');
-                    exit();
-                } else {
-                    header('Location: ' . BASEURL . '/dashboard');
-                    exit();
-                }
+            $this->createSession($user);
+            $role = $user['ROLE'];
+
+            // Redirect berdasarkan role
+            if ($role == 'MAHASISWA' || $role == 'DOSEN') {
+                header('Location: ' . BASEURL . '/homepage');
+                exit();
+            } elseif ($role == 'ALUMNI' || $role == 'MITRA') {
+                header('Location: ' . BASEURL . '/forums');
+                exit();
             } else {
-                $_SESSION['login_error'] = "Username, Email, or Password is incorrect!";
-                header('Location: ' . BASEURL . '/sign-in');
+                header('Location: ' . BASEURL . '/dashboard');
                 exit();
             }
         } else {
@@ -252,7 +276,7 @@ class AuthController
         $required_fields = ['FullName', 'username', 'personal_number', 'email', 'password'];
         foreach ($required_fields as $field) {
             if (empty($_POST[$field])) {
-                echo json_encode(['success' => false, 'message' => "Field '{$field}' cannot be empty."]);
+                echo json_encode(['success' => false, 'message' => "The '{$field}' field cannot be empty."]);
                 exit;
             }
         }
@@ -279,7 +303,7 @@ class AuthController
         } else {
             echo json_encode([
                 'success' => false,
-                'message' => 'Invalid email domain. Please use the appropriate PNJ email address.'
+                'message' => 'The email domain is invalid. Please use a valid PNJ email address.'
             ]);
             exit;
         }
@@ -290,17 +314,17 @@ class AuthController
         $user = $this->loginModel->getUserByUsernameOrEmail($username);
 
         if ($user) {
-            echo json_encode(['success' => false, 'message' => 'Username already exists']);
+            echo json_encode(['success' => false, 'message' => 'Username already exists.']);
             exit;
         }
         $user = $this->loginModel->getUserByUsernameOrEmail($email);
         if ($user) {
-            echo json_encode(['success' => false, 'message' => 'Email already exists']);
+            echo json_encode(['success' => false, 'message' => 'Email already exists.']);
             exit;
         }
         $user = $this->loginModel->getUserByUsernameOrEmail($personalNumber);
         if ($user) {
-            echo json_encode(['success' => false, 'message' => 'NIM/NIP already exists']);
+            echo json_encode(['success' => false, 'message' => 'NIM/NIP already exists.']);
             exit;
         }
 
@@ -351,13 +375,13 @@ class AuthController
             $mail->setFrom($mailConfig['from_address'], $mailConfig['from_name']);
             $mail->addAddress($email, $registrationData['FULL_NAME']);
             $mail->isHTML(true);
-            $mail->Subject = 'Kode Verifikasi Registrasi Akun SINERGI';
-            $mail->Body    = "Halo <b>{$registrationData['FULL_NAME']}</b>,<br><br>Terima kasih telah mendaftar. Gunakan kode OTP di bawah ini untuk menyelesaikan proses registrasi Anda. Kode ini hanya berlaku 5 menit.<br><br>Kode OTP Anda adalah: <h2><b>{$otp}</b></h2>";
-            $mail->AltBody = "Kode OTP Anda adalah: {$otp}";
+            $mail->Subject = 'SINERGI Account Registration Verification Code';
+            $mail->Body    = "Hello <b>{$registrationData['FULL_NAME']}</b>,<br><br>Thank you for registering. Use the OTP code below to complete your registration process. This code is only valid for 5 minutes.<br><br>Your OTP code is: <h2><b>{$otp}</b></h2>";
+            $mail->AltBody = "Your OTP code is: {$otp}";
             $mail->send();
             echo json_encode([
                 'success' => true,
-                'message' => 'OTP sent successfully. Please check your email.',
+                'message' => 'The OTP has been successfully sent. Please check your email.',
                 'role'    => $role
             ]);
         } catch (Exception $e) {
@@ -380,7 +404,7 @@ class AuthController
         header('Content-Type: application/json');
 
         if (!isset($_SESSION['registration_data'])) {
-            echo json_encode(['success' => false, 'message' => 'Your registration session has expired.']);
+            echo json_encode(['success' => false, 'message' => 'Your registration session has ended. Please start over.']);
             exit;
         }
 
@@ -406,12 +430,12 @@ class AuthController
             $mail->setFrom($mailConfig['from_address'], $mailConfig['from_name']);
             $mail->addAddress($userEmail, $userName);
             $mail->isHTML(true);
-            $mail->Subject = 'Kode Verifikasi Registrasi Baru Anda';
-            $mail->Body    = "Gunakan kode OTP baru di bawah ini untuk menyelesaikan registrasi. Kode ini hanya berlaku 5 menit.<br><br>Kode OTP Anda adalah: <h2><b>{$newOtp}</b></h2>";
+            $mail->Subject = 'Your New Registration Verification Code';
+            $mail->Body    = "Use the new OTP code below to complete your registration. This code is only valid for 5 minutes.<br><br>Your OTP code is: <h2><b>{$newOtp}</b></h2>";
             $mail->send();
-            echo json_encode(['success' => true, 'message' => 'Kode OTP baru telah berhasil dikirim.']);
+            echo json_encode(['success' => true, 'message' => 'A new OTP code has been successfully sent.']);
         } catch (Exception $e) {
-            echo json_encode(['success' => false, 'message' => "Gagal mengirim email verifikasi. Mailer Error: {$mail->ErrorInfo}"]);
+            echo json_encode(['success' => false, 'message' => "Failed to send verification email. Mailer Error: {$mail->ErrorInfo}"]);
         }
         exit;
     }
@@ -430,7 +454,7 @@ class AuthController
         }
 
         if (!isset($_SESSION['registration_data'])) {
-            echo json_encode(['success' => false, 'message' => 'Your registration session has expired.']);
+            echo json_encode(['success' => false, 'message' => 'The registration session was not found or has expired. Please re-register.']);
             exit;
         }
 
@@ -444,7 +468,7 @@ class AuthController
 
         if (time() > $sessionData['otp_expiry']) {
             unset($_SESSION['registration_data']);
-            echo json_encode(['success' => false, 'message' => 'The OTP code has expired. Please re-register.']);
+            echo json_encode(['success' => false, 'message' => 'The OTP code has expired. Please register again.']);
             exit;
         }
 
@@ -479,18 +503,18 @@ class AuthController
             $isCreated = $this->userModel->create($sessionData);
             if ($isCreated) {
                 unset($_SESSION['registration_data']);
-                echo json_encode(['success' => true, 'message' => 'Registrasi berhasil!']);
+                echo json_encode(['success' => true, 'message' => 'Registration successful!']);
             } else {
                 if ($finalPhotoPath && file_exists($finalPhotoPath)) {
                     unlink($finalPhotoPath);
                 }
-                echo json_encode(['success' => false, 'message' => 'Gagal menyimpan data ke database.']);
+                echo json_encode(['success' => false, 'message' => 'Failed to save data to the database.']);
             }
         } catch (Exception $e) {
             if ($finalPhotoPath && file_exists($finalPhotoPath)) {
                 unlink($finalPhotoPath);
             }
-            echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
+            echo json_encode(['success' => false, 'message' => 'A system error has occurred: ' . $e->getMessage()]);
         }
         exit;
     }
@@ -510,12 +534,12 @@ class AuthController
         $user = $this->loginModel->getUserByUsernameOrEmail($identifier);
 
         if (!$user) {
-            echo json_encode(['success' => false, 'message' => 'A user with that username or email was not found.']);
+            echo json_encode(['success' => false, 'message' => 'The user with that username or email address was not found.']);
             exit;
         }
 
         if (strlen($newPassword) < 6) {
-            echo json_encode(['success' => false, 'message' => 'Password must be more than 6 characters']);
+            echo json_encode(['success' => false, 'message' => 'Passwords must be more than 6 characters long.']);
             exit;
         }
 
@@ -542,19 +566,19 @@ class AuthController
             $mail->setFrom($mailConfig['from_address'], $mailConfig['from_name']);
             $mail->addAddress($user['EMAIL'], $user['FULL_NAME']);
             $mail->isHTML(true);
-            $mail->Subject = 'Kode Verifikasi Pengaturan Ulang Kata Sandi';
-            $mail->Body    = "Halo <b>{$user['FULL_NAME']}</b>,<br><br>Seseorang meminta untuk mengatur ulang kata sandi Anda. Gunakan kode OTP di bawah ini untuk melanjutkan. Kode ini hanya berlaku 5 menit.<br><br>Kode OTP Anda adalah: <h2><b>{$otp}</b></h2>";
-            $mail->AltBody = "Kode OTP Anda adalah: {$otp}";
+            $mail->Subject = 'Password Reset Verification Code';
+            $mail->Body    = "Ha\ello <b>{$user['FULL_NAME']}</b>,<br><br>Someone has requested to reset your password. Use the OTP code below to continue. This code is only valid for 5 minutes.: <h2><b>{$otp}</b></h2>";
+            $mail->AltBody = "Your OTP code is: {$otp}";
             $mail->send();
             echo json_encode([
                 'success' => true,
-                'message' => 'OTP sent successfully. Please check your email.',
+                'message' => 'The OTP has been successfully sent. Please check your email.',
                 'email'   => $user['EMAIL']
             ]);
         } catch (Exception $e) {
             echo json_encode([
                 'success' => false,
-                'message' => "Gagal mengirim email verifikasi. Mailer Error: {$mail->ErrorInfo}"
+                'message' => "Failed to send verification email. Mailer Error: {$mail->ErrorInfo}"
             ]);
         }
         exit;
@@ -571,7 +595,7 @@ class AuthController
         }
 
         if (!isset($_SESSION['forget-password'])) {
-            echo json_encode(['success' => false, 'message' => 'Verification session not found or has timed out.']);
+            echo json_encode(['success' => false, 'message' => 'The verification session was not found or has expired.']);
             exit;
         }
 
@@ -595,12 +619,12 @@ class AuthController
             $isUpdated = $this->userModel->updatePassword($userId, $hashedPassword);
             if ($isUpdated) {
                 unset($_SESSION['forget-password']);
-                echo json_encode(['success' => true, 'message' => 'Password changed successfully! Please Sign In.']);
+                echo json_encode(['success' => true, 'message' => 'Your password has been successfully changed! Please log in.']);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Gagal memperbarui password di database.']);
+                echo json_encode(['success' => false, 'message' => 'Failed to update the password in the database.']);
             }
         } catch (Exception $e) {
-            echo json_encode(['success' => false, 'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()]);
+            echo json_encode(['success' => false, 'message' => 'A system error has occurred: ' . $e->getMessage()]);
         }
         exit;
     }
@@ -616,14 +640,14 @@ class AuthController
         }
 
         if (!isset($_SESSION['forget-password']) || !isset($_SESSION['forget-password']['user_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Sesi Anda telah berakhir. Harap ulangi dari awal.']);
+            echo json_encode(['success' => false, 'message' => 'Your session has ended. Please start over.']);
             exit;
         }
 
         $sessionData = $_SESSION['forget-password'];
         $user = $this->loginModel->getUserByUsernameOrEmail($sessionData['user_id']);
         if (!$user) {
-            echo json_encode(['success' => false, 'message' => 'Pengguna tidak dapat ditemukan.']);
+            echo json_encode(['success' => false, 'message' => 'The user cannot be found.']);
             exit;
         }
 
@@ -646,14 +670,14 @@ class AuthController
             $mail->setFrom($mailConfig['from_address'], $mailConfig['from_name']);
             $mail->addAddress($user['EMAIL'], $user['FULL_NAME']);
             $mail->isHTML(true);
-            $mail->Subject = 'Kode Verifikasi Baru Anda';
-            $mail->Body    = "Gunakan kode OTP baru di bawah ini. Kode ini hanya berlaku 5 menit.<br><br>Kode OTP Anda adalah: <h2><b>{$newOtp}</b></h2>";
+            $mail->Subject = 'Your New Verification Code';
+            $mail->Body    = "Use the new OTP code below. This code is only valid for 5 minutes.<br><br>Your OTP code is: <h2><b>{$newOtp}</b></h2>";
             $mail->send();
-            echo json_encode(['success' => true, 'message' => 'Kode OTP baru telah berhasil dikirim.']);
+            echo json_encode(['success' => true, 'message' => 'A new OTP code has been successfully sent.']);
         } catch (Exception $e) {
             echo json_encode([
                 'success' => false,
-                'message' => "Gagal mengirim email verifikasi. Mailer Error: {$mail->ErrorInfo}"
+                'message' => "Failed to send verification email. Mailer Error: {$mail->ErrorInfo}"
             ]);
         }
         exit;

@@ -31,4 +31,10 @@ switch (true) {
         $notifController = new NotifController();
         $notifController->readNotif();
         break;
+
+    case $route === 'notifications/deleteInviteNotif':
+        requireLogin();
+        $notifController = new NotifController();
+        $notifController->deleteInviteNotif();
+        break;
 }

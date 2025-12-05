@@ -60,7 +60,7 @@ class CommentController
             ob_clean();
             header('Content-Type: application/json');
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Data tidak lengkap']);
+            echo json_encode(['success' => false, 'message' => 'Incomplete data.']);
             return;
         }
 
@@ -99,9 +99,9 @@ class CommentController
                     }
                 }
             }
-            echo json_encode(['success' => true, 'message' => 'Komentar berhasil ditambahkan']);
+            echo json_encode(['success' => true, 'message' => 'Comment successfully added.']);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Gagal menambahkan komentar']);
+            echo json_encode(['success' => false, 'message' => 'Failed to add comment.']);
         }
     }
 
@@ -126,7 +126,7 @@ class CommentController
             ob_clean();
             header('Content-Type: application/json');
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Data tidak lengkap']);
+            echo json_encode(['success' => false, 'message' => 'Incomplete data']);
             return;
         }
 
@@ -239,19 +239,19 @@ class CommentController
 
             ob_clean();
             header('Content-Type: application/json');
-            echo json_encode(['success' => true, 'message' => 'Balasan berhasil ditambahkan', 'reply_id' => $newReplyId]);
+            echo json_encode(['success' => true, 'message' => 'Reply successfully added.', 'reply_id' => $newReplyId]);
         } else {
             ob_clean();
             header('Content-Type: application/json');
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Gagal menambahkan balasan']);
+            echo json_encode(['success' => false, 'message' => 'Failed to add reply.']);
         }
     }
 
     public function deleteComment()
     {
         if (!isset($_POST['comment_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Comment ID tidak ditemukan']);
+            echo json_encode(['success' => false, 'message' => 'Comment ID not found.']);
             return;
         }
 
@@ -260,7 +260,7 @@ class CommentController
         $details = $this->commentModel->getCommentDetails($commentId);
 
         if (!$details['success']) {
-            echo json_encode(['success' => false, 'message' => 'Komentar tidak ditemukan']);
+            echo json_encode(['success' => false, 'message' => 'Comment not found.']);
             return;
         }
 
@@ -274,7 +274,7 @@ class CommentController
             $_SESSION['user_id'] !== $postOwner['ID'] &&
             ($_SESSION['role'] ?? '') !== 'ADMIN'
         ) {
-            echo json_encode(['success' => false, 'message' => 'Tidak punya izin menghapus komentar']);
+            echo json_encode(['success' => false, 'message' => 'No permission to delete comments.']);
             return;
         }
 
@@ -286,7 +286,7 @@ class CommentController
     public function deleteReply()
     {
         if (!isset($_POST['reply_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Reply ID tidak ditemukan']);
+            echo json_encode(['success' => false, 'message' => 'Reply ID not found']);
             return;
         }
 
@@ -295,7 +295,7 @@ class CommentController
         $details = $this->commentModel->getReplyDetails($replyId);
 
         if (!$details['success']) {
-            echo json_encode(['success' => false, 'message' => 'Reply tidak ditemukan']);
+            echo json_encode(['success' => false, 'message' => 'Reply not found']);
             return;
         }
 
@@ -311,7 +311,7 @@ class CommentController
             $_SESSION['user_id'] !== ($postOwner['ID'] ?? null) &&
             ($_SESSION['role'] ?? '') !== 'ADMIN'
         ) {
-            echo json_encode(['success' => false, 'message' => 'Tidak punya izin menghapus reply']);
+            echo json_encode(['success' => false, 'message' => 'No permission to delete reply']);
             return;
         }
 
@@ -355,9 +355,9 @@ class CommentController
                     'FORUM'
                 );
             }
-            echo json_encode(['success' => true, 'message' => 'Komentar berhasil ditambahkan']);
+            echo json_encode(['success' => true, 'message' => 'Comment successfully added.']);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Gagal menambahkan komentar']);
+            echo json_encode(['success' => false, 'message' => 'Failed to add comment.']);
         }
         exit;
     }
@@ -380,7 +380,7 @@ class CommentController
 
         if (!$userId || !$commentId || $message === '') {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Data tidak lengkap']);
+            echo json_encode(['success' => false, 'message' => 'Incomplete data.']);
             return;
         }
 
@@ -463,10 +463,10 @@ class CommentController
                 }
             }
 
-            echo json_encode(['success' => true, 'message' => 'Balasan berhasil ditambahkan', 'reply_id' => $newReplyId]);
+            echo json_encode(['success' => true, 'message' => 'Reply successfully added.', 'reply_id' => $newReplyId]);
         } else {
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Gagal menambahkan balasan']);
+            echo json_encode(['success' => false, 'message' => 'Failed to add reply.']);
         }
         exit;
     }
@@ -476,7 +476,7 @@ class CommentController
         header('Content-Type: application/json');
 
         if (!isset($_POST['comment_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Comment ID tidak ditemukan']);
+            echo json_encode(['success' => false, 'message' => 'Comment ID not found.']);
             return;
         }
 
@@ -485,7 +485,7 @@ class CommentController
         $details = $this->commentModel->getCommentDetailsTopic($commentId);
 
         if (!$details['success']) {
-            echo json_encode(['success' => false, 'message' => 'Komentar tidak ditemukan']);
+            echo json_encode(['success' => false, 'message' => 'Comment not found.']);
             return;
         }
 
@@ -499,7 +499,7 @@ class CommentController
             $_SESSION['user_id'] !== $postOwner['ID'] &&
             ($_SESSION['role'] ?? '') !== 'ADMIN'
         ) {
-            echo json_encode(['success' => false, 'message' => 'Tidak punya izin menghapus komentar']);
+            echo json_encode(['success' => false, 'message' => 'No permission to delete comments.']);
             return;
         }
 
@@ -514,7 +514,7 @@ class CommentController
         header('Content-Type: application/json');
 
         if (!isset($_POST['reply_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Reply ID tidak ditemukan']);
+            echo json_encode(['success' => false, 'message' => 'Reply ID not found']);
             return;
         }
 
@@ -523,7 +523,7 @@ class CommentController
         $details = $this->commentModel->getReplyDetailsTopic($replyId);
 
         if (!$details['success']) {
-            echo json_encode(['success' => false, 'message' => 'Reply tidak ditemukan']);
+            echo json_encode(['success' => false, 'message' => 'Reply not found']);
             return;
         }
 
@@ -539,7 +539,7 @@ class CommentController
             $_SESSION['user_id'] !== ($postOwner['ID'] ?? null) &&
             ($_SESSION['role'] ?? '') !== 'ADMIN'
         ) {
-            echo json_encode(['success' => false, 'message' => 'Tidak punya izin menghapus reply']);
+            echo json_encode(['success' => false, 'message' => 'No permission to delete reply.']);
             return;
         }
 
