@@ -169,4 +169,50 @@ class NotifController
         }
         exit;
     }
+
+    public function deleteInviteNotif()
+    {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+            exit;
+        }
+
+        if (empty($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            exit;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $targetId = $input['target_id'] ?? null;
+        $type = $input['type'] ?? null;
+
+        if (!$targetId || !$type) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Target ID and Type are required']);
+            exit;
+        }
+
+        // Validasi tipe notifikasi yang diperbolehkan
+        $allowedTypes = ['INVITE_GROUP', 'INVITE_FORUM', 'ADMIN_INVITE_FORUM'];
+        if (!in_array($type, $allowedTypes)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid notification type']);
+            exit;
+        }
+
+        $userId = $_SESSION['user_id'];
+
+        $result = $this->notificationModel->deleteInviteNotification($userId, $targetId, $type);
+
+        if ($result) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to delete notification.']);
+        }
+        exit;
+    }
 }

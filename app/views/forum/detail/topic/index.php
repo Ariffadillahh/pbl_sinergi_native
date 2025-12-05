@@ -307,6 +307,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
+    const BASEURL = '<?php echo BASEURL; ?>';
     document.addEventListener("DOMContentLoaded", function() {
         // Swiper initialization
         var swiper = new Swiper(".myPostSwiper", {

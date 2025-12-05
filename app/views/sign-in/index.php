@@ -18,17 +18,19 @@
                 if (isset($_SESSION['login_error'])):
                 ?>
                     <section id="error-notification" class="bg-red-500 text-center py-3 rounded-xl my-3">
-
                         <p class="font-medium text-white"><?= htmlspecialchars($_SESSION['login_error']); ?></p>
-
                     </section>
-
                 <?php
-
+                    // Simpan error type sebelum unset
+                    $errorType = $_SESSION['login_error_type'] ?? 'all';
+                    $savedUsername = $_SESSION['login_username'] ?? '';
+                    
+                    // Unset error messages
                     unset($_SESSION['login_error']);
+                    unset($_SESSION['login_error_type']);
+                    unset($_SESSION['login_username']);
                 endif;
                 ?>
-
 
                 <section class="flex flex-col gap-10 bg-white md:bg-transparent md:p-0 md:drop-shadow-none p-5 rounded-xl drop-shadow-2xl">
                     <form class="flex flex-col gap-10" action="<?php echo BASEURL ?>/sign-in/action" method="POST">
@@ -40,14 +42,24 @@
                             </header>
 
                             <div class="flex flex-col gap-6">
+                                <!-- Username/Email Field -->
                                 <div class="relative">
                                     <div class="group relative">
-                                        <input type="text" id="username_or_email" name="username_or_email" class="w-full h-[72px] pl-[80px] pr-6 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all" placeholder=" " required />
+                                        <input 
+                                            type="text" 
+                                            id="username_or_email" 
+                                            name="username_or_email" 
+                                            class="w-full h-[72px] pl-[80px] pr-6 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all" 
+                                            placeholder=" " 
+                                            value="<?php echo isset($savedUsername) ? htmlspecialchars($savedUsername) : ''; ?>"
+                                            required />
                                         <label for="username_or_email" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">Email Or Username</label>
                                         <img src="src/asset/icons/sms-grey.svg" alt="Email icon" class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
                                         <div class="absolute left-[64px] top-1/2 -translate-y-1/2 w-[1.5px] h-6 bg-gray-300"></div>
                                     </div>
                                 </div>
+
+                                <!-- Password Field -->
                                 <div class="relative">
                                     <div class="group relative">
                                         <input type="password" id="password" name="password" class="w-full h-[72px] pl-[80px] pr-14 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all" placeholder=" " required />
@@ -60,18 +72,20 @@
                                         </button>
                                     </div>
                                 </div>
+
+                                <!-- Captcha Field -->
                                 <div>
                                     <div class="flex gap-3 items-center mb-3">
-                                        <img id="captcha-img" src="<?php echo BASEURL; ?>/captcha.php" alt="captcha">
+                                        <img id="captcha-img" src="<?php echo BASEURL; ?>/captcha.php?t=<?php echo time(); ?>" alt="captcha">
                                         <button type="button" id="refresh-captcha" style="cursor:pointer;" class="p-1 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900">
-                                            <img src="src/asset/image/refresh.png" alt="Email icon" class="size-6" />
+                                            <img src="src/asset/image/refresh.png" alt="Refresh captcha" class="size-6" />
                                         </button>
                                     </div>
                                     <div class="relative">
                                         <div class="group relative">
                                             <input type="text" id="captcha" name="captcha" class="w-full h-[72px] pl-[80px] pr-6 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all" placeholder=" " required />
                                             <label for="captcha" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">Captcha</label>
-                                            <img src="src/asset/image/captcha.png" alt="Email icon" class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
+                                            <img src="src/asset/image/captcha.png" alt="Captcha icon" class="absolute left-6 top-1/2 -translate-y-1/2 size-6" />
                                             <div class="absolute left-[64px] top-1/2 -translate-y-1/2 w-[1.5px] h-6 bg-gray-300"></div>
                                         </div>
                                     </div>
@@ -89,7 +103,7 @@
                             </button>
 
                             <p class="font-medium text-center text-gray-700">
-                                Don’t have an account?
+                                Don't have an account?
                                 <a href="<?php echo BASEURL; ?>/sign-up" class="text-blue-600 font-semibold hover:text-blue-700 hover:underline transition">
                                     Sign Up
                                 </a>
@@ -109,13 +123,13 @@
 
         form.addEventListener('submit', () => {
             loginButton.innerHTML = `
-                    <svg class="inline w-5 h-5 animate-spin mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                        </path>
-                    </svg>
-                `;
+                <svg class="inline w-5 h-5 animate-spin mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+            `;
 
             loginButton.disabled = true;
             loginButton.classList.add('opacity-70', 'cursor-not-allowed');
@@ -136,6 +150,18 @@
                     console.error('Error refreshing captcha:', error);
                 });
         });
+
+        // Auto-hide error notification after 5 seconds
+        const errorNotification = document.getElementById('error-notification');
+        if (errorNotification) {
+            setTimeout(() => {
+                errorNotification.style.transition = 'opacity 0.5s';
+                errorNotification.style.opacity = '0';
+                setTimeout(() => {
+                    errorNotification.remove();
+                }, 500);
+            }, 5000);
+        }
     </script>
 
 </body>

@@ -277,4 +277,36 @@ class NotificationModel extends BaseModel
 
         return $result;
     }
+
+    public function deleteInviteNotification($userId, $targetId, $type)
+    {
+        $conn = self::getConnection();
+
+        // Query untuk menghapus notifikasi berdasarkan user_id, type, dan target_id di JSON
+        $sql = "DELETE FROM NOTIFICATIONS 
+                WHERE USER_ID = :user_id 
+                AND TYPE = :type 
+                AND JSON_VALUE(DATA, '$.target_id') = :target_id";
+
+        $stmt = oci_parse($conn, $sql);
+
+        // Bind parameters
+        oci_bind_by_name($stmt, ":user_id", $userId);
+        oci_bind_by_name($stmt, ":type", $type);
+        
+        // Cast target_id ke string untuk mencocokkan dengan JSON
+        $targetIdStr = (string)$targetId;
+        oci_bind_by_name($stmt, ":target_id", $targetIdStr);
+
+        // Execute
+        $result = oci_execute($stmt, OCI_COMMIT_ON_SUCCESS);
+        
+        if (!$result) {
+            $error = oci_error($stmt);
+            error_log("Gagal menghapus invite notification: " . $error['message']);
+        }
+        
+        oci_free_statement($stmt);
+        return $result;
+    }
 }

@@ -110,7 +110,7 @@
             <div class="flex gap-3">
                 <button id="invite-forum-decline"
                     class="flex-1 px-4 py-3 text-sm font-medium rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors duration-200">
-                    Maybe Later
+                    Decline
                 </button>
 
                 <button id="invite-forum-join"
@@ -385,26 +385,49 @@
             inviteForumJoin.dataset.forumId = data.ID;
         }
 
-        // Handle join button click
+        // Tambahkan fungsi ini di dalam IIFE modal forum (setelah fungsi showToast)
+
+        async function deleteInviteNotification(forumId, notificationType = 'INVITE_FORUM') {
+            try {
+                const response = await fetch(`${BASEURL}/notifications/deleteInviteNotif`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        target_id: forumId,
+                        type: notificationType
+                    })
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to delete notification');
+                }
+            } catch (error) {
+                console.error('Error deleting notification:', error);
+            }
+        }
+
+        // UPDATE EVENT LISTENER JOIN BUTTON - Ganti yang lama:
         inviteForumJoin.addEventListener('click', async function(e) {
             e.preventDefault();
             e.stopPropagation();
             
             const forumId = this.dataset.forumId;
             
-            console.log('Join button clicked, Forum ID:', forumId); // Debug log
+            console.log('Join button clicked, Forum ID:', forumId);
             
             if (!forumId) {
                 showToast('Forum ID not found', 'error');
                 return;
             }
 
-            // Disable button and show loading
             this.disabled = true;
             inviteJoinText.classList.add('hidden');
             inviteJoinSpinner.classList.remove('hidden');
 
             try {
+                // 1. Join Forum
                 const formData = new URLSearchParams();
                 formData.append('forum_id', forumId);
                 
@@ -423,6 +446,10 @@
                 const json = await response.json();
 
                 if (json.success) {
+                    // 2. Hapus Notifikasi (Support INVITE_FORUM dan ADMIN_INVITE_FORUM)
+                    await deleteInviteNotification(forumId, 'INVITE_FORUM');
+                    await deleteInviteNotification(forumId, 'ADMIN_INVITE_FORUM');
+                    
                     showToast('Successfully joined the forum!', 'success');
                     setTimeout(() => {
                         window.location.href = json.redirect;
@@ -435,19 +462,31 @@
                 console.error('Error joining forum:', error);
                 showToast(error.message || 'Failed to join forum', 'error');
                 
-                // Re-enable button
                 this.disabled = false;
                 inviteJoinText.classList.remove('hidden');
                 inviteJoinSpinner.classList.add('hidden');
             }
         });
 
-        // Close modal functions
+        // UPDATE EVENT LISTENER DECLINE BUTTON - Tambahkan handler khusus:
+        inviteForumDecline.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Decline button clicked');
+            
+            // Hapus notifikasi jika user klik "Maybe Later"
+            if (currentForumId) {
+                await deleteInviteNotification(currentForumId, 'INVITE_FORUM');
+                await deleteInviteNotification(currentForumId, 'ADMIN_INVITE_FORUM');
+            }
+            closeModal();
+        });
+
+        // FUNGSI closeModal - TIDAK menghapus notifikasi (hanya untuk tombol X dan klik outside)
         function closeModal() {
             modalInviteForum.classList.add('hidden');
             currentForumId = null;
             
-            // Reset button state
             inviteForumJoin.disabled = false;
             inviteJoinText.classList.remove('hidden');
             inviteJoinSpinner.classList.add('hidden');

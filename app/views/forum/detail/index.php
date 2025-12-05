@@ -490,6 +490,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
 
     <script>
+        const BASEURL = '<?php echo BASEURL; ?>';
         const succsesDiv = document.getElementById("succsesDiv")
         const errorDivReq = document.getElementById("errorDivReq")
         async function joinForum(forumId) {

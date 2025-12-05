@@ -125,81 +125,105 @@ class AuthController
             $password = $_POST['password'] ?? '';
             $captchaInput = $_POST['captcha'] ?? '';
 
+            // Validasi field kosong
             if (empty($identifier) || empty($password) || empty($captchaInput)) {
                 $_SESSION['login_error'] = "All field must be filled!";
+                $_SESSION['login_error_type'] = 'all'; // Reset semua field
                 header('Location: ' . BASEURL . '/sign-in');
                 exit();
             }
 
             $sessionCaptcha = $_SESSION['captcha'] ?? '';
 
+            // Validasi Captcha
             if (empty($sessionCaptcha) || $captchaInput !== $sessionCaptcha) {
                 $_SESSION['login_error'] = "Captcha you entered is incorrect!";
-
+                $_SESSION['login_error_type'] = 'captcha'; // Hanya captcha yang salah
+                $_SESSION['login_username'] = $identifier; // Simpan username untuk diisi ulang
+                
                 unset($_SESSION['captcha']);
-
                 header('Location: ' . BASEURL . '/sign-in');
                 exit();
             }
 
             unset($_SESSION['captcha']);
 
+            // Cek apakah user ada
             $user = $this->loginModel->getUserByUsernameOrEmail($identifier);
 
-            if ($user['STATUS'] !== 'APPROVED') {
+            // Jika user tidak ditemukan (username/email salah)
+            if (!$user) {
                 $_SESSION['login_error'] = "Incorrect username, email, or password!";
+                $_SESSION['login_error_type'] = 'username'; // Username salah - reset semua
                 header('Location: ' . BASEURL . '/sign-in');
                 exit();
             }
 
-            if ($user && password_verify($password, $user['PASSWORD'])) {
+            // Jika user belum approved
+            if ($user['STATUS'] !== 'APPROVED') {
+                $_SESSION['login_error'] = "Your account is not approved yet!";
+                $_SESSION['login_error_type'] = 'username'; // Reset semua
+                header('Location: ' . BASEURL . '/sign-in');
+                exit();
+            }
 
-                if ($user['ROLE'] == 'MAHASISWA') {
-                    $tahunMasuk = (int)$user['TAHUN_MASUK'];
-                    $jenjangStudi = $user['JENJANG_STUDI'];
-                    $userId = $user['ID'];
+            // Validasi password
+            if (!password_verify($password, $user['PASSWORD'])) {
+                $_SESSION['login_error'] = "Incorrect password!";
+                $_SESSION['login_error_type'] = 'password'; // Hanya password yang salah
+                $_SESSION['login_username'] = $identifier; // Simpan username untuk diisi ulang
+                header('Location: ' . BASEURL . '/sign-in');
+                exit();
+            }
 
-                    if ($tahunMasuk > 0 && !empty($jenjangStudi)) {
-                        $durasiStudi = 0;
-                        if ($jenjangStudi == 'D4') {
-                            $durasiStudi = 4;
-                        } elseif ($jenjangStudi == 'D3') {
-                            $durasiStudi = 3;
-                        }
+            // Login berhasil - proses role checking
+            if ($user['ROLE'] == 'MAHASISWA') {
+                $tahunMasuk = (int)$user['TAHUN_MASUK'];
+                $jenjangStudi = $user['JENJANG_STUDI'];
+                $userId = $user['ID'];
 
-                        if ($durasiStudi > 0) {
-                            $tahunLulus = $tahunMasuk + $durasiStudi;
-                            $bulanLulus = 10;
-                            $tahunSekarang = (int)date('Y');
-                            $bulanSekarang = (int)date('m');
+                if ($tahunMasuk > 0 && !empty($jenjangStudi)) {
+                    $durasiStudi = 0;
+                    if ($jenjangStudi == 'D4') {
+                        $durasiStudi = 4;
+                    } elseif ($jenjangStudi == 'D3') {
+                        $durasiStudi = 3;
+                    }
 
-                            if ($tahunSekarang > $tahunLulus || ($tahunSekarang == $tahunLulus && $bulanSekarang >= $bulanLulus)) {
-                                $this->loginModel->updateUserRole($userId, 'ALUMNI');
-                                $user['ROLE'] = 'ALUMNI';
-                                $this->createSession($user);
-                                header('Location: ' . BASEURL . '/forums');
-                                exit();
-                            }
+                    if ($durasiStudi > 0) {
+                        $tahunLulus = $tahunMasuk + $durasiStudi;
+                        $bulanLulus = 10;
+                        $tahunSekarang = (int)date('Y');
+                        $bulanSekarang = (int)date('m');
+
+                        if ($tahunSekarang > $tahunLulus || ($tahunSekarang == $tahunLulus && $bulanSekarang >= $bulanLulus)) {
+                            $this->loginModel->updateUserRole($userId, 'ALUMNI');
+                            $user['ROLE'] = 'ALUMNI';
+                            $this->createSession($user);
+                            header('Location: ' . BASEURL . '/forums');
+                            exit();
                         }
                     }
                 }
+            }
 
-                $this->createSession($user);
-                $role = $user['ROLE'];
+            // Bersihkan session error jika ada
+            unset($_SESSION['login_error']);
+            unset($_SESSION['login_error_type']);
+            unset($_SESSION['login_username']);
 
-                if ($role == 'MAHASISWA' || $role == 'DOSEN') {
-                    header('Location: ' . BASEURL . '/homepage');
-                    exit();
-                } elseif ($role == 'ALUMNI' || $role == 'MITRA') {
-                    header('Location: ' . BASEURL . '/forums');
-                    exit();
-                } else {
-                    header('Location: ' . BASEURL . '/dashboard');
-                    exit();
-                }
+            $this->createSession($user);
+            $role = $user['ROLE'];
+
+            // Redirect berdasarkan role
+            if ($role == 'MAHASISWA' || $role == 'DOSEN') {
+                header('Location: ' . BASEURL . '/homepage');
+                exit();
+            } elseif ($role == 'ALUMNI' || $role == 'MITRA') {
+                header('Location: ' . BASEURL . '/forums');
+                exit();
             } else {
-                $_SESSION['login_error'] = "Incorrect username, email, or password!";
-                header('Location: ' . BASEURL . '/sign-in');
+                header('Location: ' . BASEURL . '/dashboard');
                 exit();
             }
         } else {
