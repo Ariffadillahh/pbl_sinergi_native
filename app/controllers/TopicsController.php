@@ -67,7 +67,7 @@ class TopicsController
 
         if (!isset($_SESSION['user_id'])) {
             header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'message' => 'Unauthorized: Silakan login terlebih dahulu.']);
+            echo json_encode(['success' => false, 'message' => 'Unauthorized: Please login first.']);
             exit;
         }
 
@@ -77,13 +77,13 @@ class TopicsController
 
             if (empty($content) && empty($_FILES['images']['name'][0])) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Konten atau gambar tidak boleh kosong!']);
+                echo json_encode(['success' => false, 'message' => 'Content or images cannot be empty!']);
                 exit;
             }
 
             if (empty($forumId)) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Forum ID tidak ditemukan!']);
+                echo json_encode(['success' => false, 'message' => 'Forum ID not found!']);
                 exit;
             }
 
@@ -104,7 +104,7 @@ class TopicsController
 
                         $allowedExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt'];
                         if (!in_array($ext, $allowedExts)) {
-                            $uploadErrors[] = "File '$fileName' memiliki format yang tidak diizinkan.";
+                            $uploadErrors[] = "File '$fileName' has an unauthorized format.";
                             continue;
                         }
 
@@ -128,7 +128,7 @@ class TopicsController
                                 'original_filename' => $fileName
                             ];
                         } else {
-                            $uploadErrors[] = "Gagal mengupload file: $fileName";
+                            $uploadErrors[] = "Failed uploading file: $fileName";
                         }
                     }
                 }
@@ -184,7 +184,7 @@ class TopicsController
             $forumId = $_POST['forum_id'] ?? '';
 
             if (empty($topicId) || empty($forumId)) {
-                echo json_encode(['success' => false, 'message' => 'Data tidak lengkap (ID Topik/Forum hilang)']);
+                echo json_encode(['success' => false, 'message' => 'Incomplete data (Topic/Forum ID missing)']);
                 exit;
             }
 
@@ -200,7 +200,7 @@ class TopicsController
         header('Content-Type: application/json');
 
         if (!isset($_SESSION['user_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Anda harus login.']);
+            echo json_encode(['success' => false, 'message' => 'You must log in.']);
             exit;
         }
 
@@ -208,7 +208,7 @@ class TopicsController
             $topicId = $_POST['topic_id'] ?? '';
 
             if (empty($topicId)) {
-                echo json_encode(['success' => false, 'message' => 'ID Topik tidak valid.']);
+                echo json_encode(['success' => false, 'message' => 'ID Topic not found.']);
                 exit;
             }
 

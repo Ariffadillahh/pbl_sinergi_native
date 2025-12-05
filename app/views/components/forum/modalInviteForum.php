@@ -168,7 +168,7 @@
 </style>
 
 <script>
-const BASEURL = '<?php echo BASEURL; ?>';
+// const BASEURL = '<?php echo BASEURL; ?>';
 (function() {
     'use strict';
 

@@ -31,7 +31,7 @@ class PostController
         }
 
         if (empty($_SESSION['logged_in']) || !isset($_SESSION['user_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Anda harus login untuk membuat postingan.']);
+            echo json_encode(['success' => false, 'message' => 'You must log in to create a post.']);
             exit;
         }
 
@@ -42,7 +42,7 @@ class PostController
         ];
 
         if (!in_array($user['ROLE'], ['MAHASISWA', 'DOSEN', 'ADMIN'])) {
-            echo json_encode(['success' => false, 'message' => 'Role Anda tidak diizinkan membuat postingan.']);
+            echo json_encode(['success' => false, 'message' => 'Your role does not allow you to create posts.']);
             exit;
         }
 
@@ -55,7 +55,7 @@ class PostController
         if (empty($caption) && !$hasImages) {
             echo json_encode([
                 'success' => false,
-                'message' => 'Tuliskan caption atau tambahkan gambar terlebih dahulu.'
+                'message' => 'Write a caption or add an image first.'
             ]);
             exit;
         }
@@ -70,7 +70,7 @@ class PostController
             $totalFiles = count($_FILES['images']['name']);
 
             if ($totalFiles > 5) {
-                echo json_encode(['success' => false, 'message' => 'Maksimal 5 gambar per postingan.']);
+                echo json_encode(['success' => false, 'message' => 'Maximum of 5 images per post.']);
                 exit;
             }
 
@@ -85,12 +85,12 @@ class PostController
                 $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
 
                 if (!in_array($fileType, $allowedTypes)) {
-                    echo json_encode(['success' => false, 'message' => 'Hanya file gambar (JPG, JPEG, PNG, GIF) yang diperbolehkan.']);
+                    echo json_encode(['success' => false, 'message' => 'Only image files (JPG, JPEG, PNG, GIF) are allowed.']);
                     exit;
                 }
 
                 if (!move_uploaded_file($_FILES['images']['tmp_name'][$i], $targetFile)) {
-                    echo json_encode(['success' => false, 'message' => 'Gagal mengunggah file gambar.']);
+                    echo json_encode(['success' => false, 'message' => 'Failed to upload image file.']);
                     exit;
                 }
 
@@ -139,7 +139,7 @@ class PostController
             ]);
             exit;
         } else {
-            echo json_encode(['success' => false, 'message' => 'Gagal menyimpan postingan ke database.']);
+            echo json_encode(['success' => false, 'message' => 'Failed to save the post to the database.']);
             exit;
         }
     }
@@ -155,14 +155,14 @@ class PostController
         }
 
         if (empty($_SESSION['logged_in']) || !isset($_SESSION['user_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Anda harus login untuk mengedit postingan.']);
+            echo json_encode(['success' => false, 'message' => 'You must log in to edit posts.']);
             exit;
         }
 
         $postId = $_POST['post_id'] ?? null;
         $caption = trim($_POST['content'] ?? '');
         if (!$postId) {
-            echo json_encode(['success' => false, 'message' => 'ID postingan tidak ditemukan.']);
+            echo json_encode(['success' => false, 'message' => 'Post ID not found.']);
             exit;
         }
 
@@ -185,7 +185,7 @@ class PostController
                 $fileExtension = strtolower(pathinfo($_FILES['images']['name'][$i], PATHINFO_EXTENSION));
                 $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
                 if (!in_array($fileExtension, $allowedExtensions)) {
-                    echo json_encode(['success' => false, 'message' => 'Format file tidak diizinkan. Hanya (JPG, JPEG, PNG, GIF, WEBP).']);
+                    echo json_encode(['success' => false, 'message' => 'File format not allowed. Only (JPG, JPEG, PNG, GIF, WEBP).']);
                     exit;
                 }
 
@@ -193,7 +193,7 @@ class PostController
                 $targetFile = $uploadDir . $fileName;
 
                 if (!move_uploaded_file($_FILES['images']['tmp_name'][$i], $targetFile)) {
-                    echo json_encode(['success' => false, 'message' => 'Gagal memindahkan file upload. Periksa izin folder.']);
+                    echo json_encode(['success' => false, 'message' => 'Failed to move the uploaded file. Check the folder permissions.']);
                     exit;
                 }
                 $newlyUploadedPaths[] = 'storage/posts/images/' . $fileName;
@@ -213,7 +213,7 @@ class PostController
         $finalMediaPaths = array_merge($existingMedia, $newlyUploadedPaths);
 
         if (empty($caption) && empty($finalMediaPaths)) {
-            echo json_encode(['success' => false, 'message' => 'Postingan tidak boleh kosong.']);
+            echo json_encode(['success' => false, 'message' => 'Posts cannot be empty.']);
             exit;
         }
 
@@ -222,7 +222,7 @@ class PostController
         if ($success) {
             echo json_encode(['success' => true, 'message' => 'Post updated successfully']);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Gagal memperbarui postingan di database.']);
+            echo json_encode(['success' => false, 'message' => 'Failed to update the post in the database.']);
         }
         exit;
     }
@@ -238,14 +238,14 @@ class PostController
         }
 
         if (empty($_SESSION['logged_in']) || !isset($_SESSION['user_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Anda harus login untuk menghapus postingan.']);
+            echo json_encode(['success' => false, 'message' => 'You must log in to delete a post.']);
             exit;
         }
 
         $postId = $_POST['post_id'] ?? null;
 
         if (!$postId) {
-            echo json_encode(['success' => false, 'message' => 'ID postingan tidak ditemukan.']);
+            echo json_encode(['success' => false, 'message' => 'Post ID not found.']);
             exit;
         }
 
@@ -255,7 +255,7 @@ class PostController
             echo json_encode(['success' => true, 'message' => 'Post successfully deleted.']);
             exit;
         } else {
-            echo json_encode(['success' => false, 'message' => 'Gagal menghapus postingan.']);
+            echo json_encode(['success' => false, 'message' => 'Failed to delete post.']);
             exit;
         }
     }

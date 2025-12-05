@@ -79,7 +79,7 @@ class LandingPageController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (!isset($_SESSION['img_mood'])) {
-                echo json_encode(['status' => 'error', 'message' => 'Session kosong']);
+                echo json_encode(['status' => 'error', 'message' => 'Null Session']);
                 exit;
             }
 
@@ -94,11 +94,11 @@ class LandingPageController
                     unset($_SESSION['img_mood']);
                     echo json_encode(['status' => 'success', 'debug_file' => $filename]);
                 } else {
-                    echo json_encode(['status' => 'error', 'message' => 'Gagal unlink permission']);
+                    echo json_encode(['status' => 'error', 'message' => 'Failed unlink permission']);
                 }
             } else {
                 unset($_SESSION['img_mood']);
-                echo json_encode(['status' => 'success', 'message' => 'File fisik tidak ada, session dibersihkan']);
+                echo json_encode(['status' => 'success', 'message' => 'No physical files exist, session cleared.']);
             }
             exit;
         }

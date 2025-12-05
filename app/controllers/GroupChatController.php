@@ -100,7 +100,7 @@ class GroupChatController
         $isPrivate = isset($_POST['isPrivate']) ? 1 : 0;
 
         if (empty($groupChatName) || empty($bio)) {
-            echo json_encode(['success' => false, 'message' => 'Nama Group Chat dan Bio tidak boleh kosong.']);
+            echo json_encode(['success' => false, 'message' => 'The Group Chat Name and Bio cannot be left blank.']);
             exit;
         }
 
@@ -127,9 +127,9 @@ class GroupChatController
 
         $newGroupChatId = $this->groupChatModel->create($data);
         if ($newGroupChatId) {
-            $response = ['success' => true, 'message' => 'Group berhasil dibuat!', 'redirectUrl' => BASEURL . "/groups/chat/" . $newGroupChatId];
+            $response = ['success' => true, 'message' => 'Group created successfully!', 'redirectUrl' => BASEURL . "/groups/chat/" . $newGroupChatId];
         } else {
-            $response = ['success' => false, 'message' => 'Gagal membuat Group.'];
+            $response = ['success' => false, 'message' => 'Failed creating group.'];
         }
         echo json_encode($response);
         exit;
@@ -151,19 +151,19 @@ class GroupChatController
         $keyGroupChat = $_POST['keyGroupChat'] ?? null;
 
         if (empty($groupChatId) || empty($groupChatName) || empty($bio)) {
-            echo json_encode(['success' => false, 'message' => 'Data tidak boleh kosong.']);
+            echo json_encode(['success' => false, 'message' => 'Data cannot be blank.']);
             exit;
         }
 
         $oldGroupChat = $this->groupChatModel->findById($groupChatId);
         if (!$oldGroupChat) {
-            echo json_encode(['success' => false, 'message' => 'Group tidak ditemukan.']);
+            echo json_encode(['success' => false, 'message' => 'Group not found.']);
             exit;
         }
 
         if ($oldGroupChat['OWNER_ID'] != $_SESSION['user_id']) {
             http_response_code(403);
-            echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki izin untuk mengedit group ini.']);
+            echo json_encode(['success' => false, 'message' => 'You do not have permission to edit this group.']);
             exit;
         }
 
@@ -193,9 +193,9 @@ class GroupChatController
         ];
 
         if ($this->groupChatModel->edit($groupChatId, $data)) {
-            $response = ['success' => true, 'message' => 'Group berhasil diperbarui!', 'redirectUrl' => BASEURL . "/groups/chat/" . $groupChatId];
+            $response = ['success' => true, 'message' => 'Group updated successfully!', 'redirectUrl' => BASEURL . "/groups/chat/" . $groupChatId];
         } else {
-            $response = ['success' => false, 'message' => 'Gagal memperbarui Group.'];
+            $response = ['success' => false, 'message' => 'Failed updating Group.'];
         }
         echo json_encode($response);
         exit;
@@ -212,14 +212,14 @@ class GroupChatController
 
         $groupChatId = $_POST['group_chat_id'] ?? null;
         if (empty($groupChatId)) {
-            echo json_encode(['success' => false, 'message' => 'Group ID tidak ditemukan.']);
+            echo json_encode(['success' => false, 'message' => 'Group ID not found.']);
             exit;
         }
 
         $groupChatToDelete = $this->groupChatModel->findById($groupChatId);
         if (!$groupChatToDelete || $groupChatToDelete['OWNER_ID'] != $_SESSION['user_id']) {
             http_response_code(403);
-            echo json_encode(['success' => false, 'message' => 'Anda tidak memiliki izin atau group tidak ditemukan.']);
+            echo json_encode(['success' => false, 'message' => 'You do not have permission or the group was not found.']);
             exit;
         }
 
@@ -231,9 +231,9 @@ class GroupChatController
                     unlink($fullPath);
                 }
             }
-            $response = ['success' => true, 'message' => 'Group berhasil dihapus!', 'redirectUrl' => BASEURL . "/groups"];
+            $response = ['success' => true, 'message' => 'Group deleted successfully!', 'redirectUrl' => BASEURL . "/groups"];
         } else {
-            $response = ['success' => false, 'message' => 'Gagal menghapus Group.'];
+            $response = ['success' => false, 'message' => 'Failed deleting group.'];
         }
         echo json_encode($response);
         exit;
@@ -252,14 +252,14 @@ class GroupChatController
         $groupChatId = $_POST['group_chat_id'] ?? null;
         if (empty($userId) || empty($groupChatId)) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Data tidak lengkap.']);
+            echo json_encode(['success' => false, 'message' => 'Incomplete data.']);
             exit;
         }
 
         if ($this->groupChatModel->exitGroupChat($groupChatId, $userId)) {
-            $response = ['success' => true, 'message' => 'Anda berhasil keluar dari group!', 'redirectUrl' => BASEURL . "/groups"];
+            $response = ['success' => true, 'message' => 'Successfully left the group!', 'redirectUrl' => BASEURL . "/groups"];
         } else {
-            $response = ['success' => false, 'message' => 'Gagal keluar dari group.'];
+            $response = ['success' => false, 'message' => 'Failed leaving group.'];
         }
         echo json_encode($response);
         exit;

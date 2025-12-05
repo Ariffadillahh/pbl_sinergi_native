@@ -165,7 +165,7 @@ class NotifController
         if ($result) {
             echo json_encode(['success' => true]);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Notification gagal di hapus.']);
+            echo json_encode(['success' => false, 'message' => 'Notification failed to delete.']);
         }
         exit;
     }

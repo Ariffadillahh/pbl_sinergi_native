@@ -188,7 +188,7 @@ class forumController
         header('Content-Type: application/json');
 
         if (!isset($_SESSION['user_id'])) {
-            echo json_encode(['status' => 'error', 'message' => 'Unauthorized: Silakan login terlebih dahulu.']);
+            echo json_encode(['status' => 'error', 'message' => 'Unauthorized: Please login first.']);
             return;
         }
 
@@ -199,12 +199,12 @@ class forumController
         $ownerId = $_SESSION['user_id'];
 
         if (empty($name)) {
-            echo json_encode(['status' => 'error', 'message' => 'Nama forum wajib diisi.']);
+            echo json_encode(['status' => 'error', 'message' => 'Forum name must be filled.']);
             return;
         }
 
         if ($isPrivate == 1 && empty($accessKey)) {
-            echo json_encode(['status' => 'error', 'message' => 'Forum private memerlukan kunci akses.']);
+            echo json_encode(['status' => 'error', 'message' => 'Private forums require an access key.']);
             return;
         }
 
@@ -225,7 +225,7 @@ class forumController
         if (isset($_FILES['PATH_PHOTO']) && $_FILES['PATH_PHOTO']['error'] === UPLOAD_ERR_OK) {
             $pathPhoto = $this->uploadFile($_FILES['PATH_PHOTO'], $uploadDir, 'profile');
             if (!$pathPhoto) {
-                echo json_encode(['status' => 'error', 'message' => 'Gagal upload foto profil (format/size salah).']);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to upload profile photo (incorrect format/size).']);
                 return;
             }
         }
@@ -233,7 +233,7 @@ class forumController
         if (isset($_FILES['PATH_THUMBNAIL']) && $_FILES['PATH_THUMBNAIL']['error'] === UPLOAD_ERR_OK) {
             $pathThumbnail = $this->uploadFile($_FILES['PATH_THUMBNAIL'], $uploadDirThumb, 'banner');
             if (!$pathThumbnail) {
-                echo json_encode(['status' => 'error', 'message' => 'Gagal upload banner (format/size salah).']);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to upload banner (incorrect format/size).']);
                 return;
             }
         }
@@ -255,14 +255,14 @@ class forumController
 
                 echo json_encode([
                     'status' => 'success',
-                    'message' => 'Forum berhasil dibuat!',
+                    'message' => 'Forum successfully created!',
                     'id' => $result['ID']
                 ]);
             } else {
 
                 echo json_encode([
                     'status' => 'error',
-                    'message' => 'Gagal menyimpan ke database.',
+                    'message' => 'Failed to save to the database.',
                     'error' => $result['error']
                 ]);
             }
@@ -282,18 +282,18 @@ class forumController
 
         $forumId = $_POST['ID'] ?? null;
         if (!$forumId) {
-            echo json_encode(['success' => false, 'message' => 'ID Forum tidak ditemukan']);
+            echo json_encode(['success' => false, 'message' => 'ID Forum not found.']);
             exit;
         }
 
         $oldForumData = $this->forumModel->getForumById($forumId);
         if (!$oldForumData) {
-            echo json_encode(['success' => false, 'message' => 'Forum tidak ditemukan']);
+            echo json_encode(['success' => false, 'message' => 'Forum not found.']);
             exit;
         }
 
         if ($oldForumData['OWNER_ID'] !== $_SESSION['user_id']) {
-            echo json_encode(['success' => false, 'message' => 'Anda bukan pemilik forum ini!']);
+            echo json_encode(['success' => false, 'message' => 'You are not the owner of this forum!']);
             exit;
         }
 
@@ -341,7 +341,7 @@ class forumController
         if ($this->forumModel->updateForum($forumId, $updateData)) {
             echo json_encode(['success' => true, 'message' => 'Changes saved successfully!']);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Gagal menyimpan ke database.']);
+            echo json_encode(['success' => false, 'message' => 'Failed saving to database.']);
         }
     }
 
@@ -356,19 +356,19 @@ class forumController
 
         $forumId = $_POST['ID'] ?? null;
         if (!$forumId) {
-            echo json_encode(['success' => false, 'message' => 'ID Forum tidak ditemukan']);
+            echo json_encode(['success' => false, 'message' => 'ID Forum not found.']);
             exit;
         }
 
         $forum = $this->forumModel->getForumById($forumId);
 
         if (!$forum) {
-            echo json_encode(['success' => false, 'message' => 'Forum tidak ditemukan']);
+            echo json_encode(['success' => false, 'message' => 'Forum not found']);
             exit;
         }
 
         if ($forum['OWNER_ID'] !== $_SESSION['user_id']) {
-            echo json_encode(['success' => false, 'message' => 'Anda bukan pemilik forum ini!']);
+            echo json_encode(['success' => false, 'message' => 'You are not the owner of this forum!']);
             exit;
         }
 
@@ -393,9 +393,9 @@ class forumController
                 }
             }
 
-            echo json_encode(['success' => true, 'message' => 'Forum dan seluruh isinya berhasil dihapus']);
+            echo json_encode(['success' => true, 'message' => 'The forum and all its contents have been successfully deleted.']);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Gagal menghapus data dari database']);
+            echo json_encode(['success' => false, 'message' => 'Failed to delete data from the database.']);
         }
     }
 
@@ -433,7 +433,7 @@ class forumController
 
         if (session_status() === PHP_SESSION_NONE) session_start();
         if (!isset($_SESSION['user_id'])) {
-            echo json_encode(["success" => false, "message" => "Sesi habis, silakan login kembali."]);
+            echo json_encode(["success" => false, "message" => "Session expired, please log in again."]);
             exit;
         }
 
@@ -441,19 +441,19 @@ class forumController
         $key     = trim($_POST['key'] ?? '');
 
         if (empty($forumId)) {
-            echo json_encode(["success" => false, "message" => "Forum ID hilang/kosong."]);
+            echo json_encode(["success" => false, "message" => "The ID field is missing/empty."]);
             exit;
         }
 
         $forum = $this->forumModel->getForumById($forumId);
 
         if (!$forum) {
-            echo json_encode(["success" => false, "message" => "Forum tidak ditemukan di database."]);
+            echo json_encode(["success" => false, "message" => "The forum was not found in the database."]);
             exit;
         }
 
         if ($this->forumModel->isMember($forumId, $_SESSION['user_id'])) {
-            echo json_encode(["success" => false, "message" => "Anda sudah bergabung di forum ini."]);
+            echo json_encode(["success" => false, "message" => "You have already joined this forum."]);
             exit;
         }
 
@@ -471,7 +471,7 @@ class forumController
         if ($this->forumModel->addMember($forumId, $_SESSION['user_id'])) {
             echo json_encode(["success" => true, "message" => "Successfully joined!"]);
         } else {
-            echo json_encode(["success" => false, "message" => "Gagal menyimpan data ke database."]);
+            echo json_encode(["success" => false, "message" => "Failed to save data to the database."]);
         }
         exit;
     }
@@ -520,26 +520,26 @@ class forumController
         header('Content-Type: application/json');
 
         if (!isset($_SESSION['user_id'])) {
-            echo json_encode(["success" => false, "message" => "Sesi habis, silakan login kembali."]);
+            echo json_encode(["success" => false, "message" => "Session expired, please log in again."]);
             exit;
         }
 
         $forumId = $_POST['forum_id'] ?? null;
 
         if (empty($forumId)) {
-            echo json_encode(["success" => false, "message" => "Forum ID hilang/kosong."]);
+            echo json_encode(["success" => false, "message" => "The ID field is missing/empty."]);
             exit;
         }
 
         if (!$this->forumModel->isMember($forumId, $_SESSION['user_id'])) {
-            echo json_encode(["success" => false, "message" => "Anda bukan anggota forum ini."]);
+            echo json_encode(["success" => false, "message" => "You are not a member of this forum."]);
             exit;
         }
 
         if ($this->forumModel->removeMember($forumId, $_SESSION['user_id'])) {
-            echo json_encode(["success" => true, "message" => "Berhasil keluar dari forum."]);
+            echo json_encode(["success" => true, "message" => "Successfully leave the forum."]);
         } else {
-            echo json_encode(["success" => false, "message" => "Gagal menghapus data dari database."]);
+            echo json_encode(["success" => false, "message" => "Failed to delete data from the database."]);
         }
         exit;
     }
@@ -650,7 +650,7 @@ class forumController
             if ($result) {
                 echo json_encode(['success' => true]);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Gagal update database']);
+                echo json_encode(['success' => false, 'message' => 'Failed updating database']);
             }
         } catch (Exception $e) {
             http_response_code(500);
@@ -665,7 +665,7 @@ class forumController
 
         if (session_status() === PHP_SESSION_NONE) session_start();
         if (!isset($_SESSION['user_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Silakan login terlebih dahulu.']);
+            echo json_encode(['success' => false, 'message' => 'Please log in first.']);
             exit;
         }
 
@@ -675,7 +675,7 @@ class forumController
         $userId  = $_SESSION['user_id'];
 
         if (!$forumId) {
-            echo json_encode(['success' => false, 'message' => 'Forum ID tidak valid.']);
+            echo json_encode(['success' => false, 'message' => 'Forum ID invalid.']);
             exit;
         }
 
@@ -795,34 +795,34 @@ class forumController
         $email = trim($_POST['email'] ?? '');
 
         if (empty($forumId) || empty($namaLengkap) || empty($username) || empty($personalNumber) || empty($email)) {
-            echo json_encode(['success' => false, 'message' => 'Semua field wajib diisi']);
+            echo json_encode(['success' => false, 'message' => 'All fields are required.']);
             exit;
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            echo json_encode(['success' => false, 'message' => 'Format email tidak valid']);
+            echo json_encode(['success' => false, 'message' => 'Invalid email format.']);
             exit;
         }
 
         $forum = $this->forumModel->getForumById($forumId);
         if (!$forum || $forum['OWNER_ID'] !== $_SESSION['user_id']) {
-            echo json_encode(['success' => false, 'message' => 'Hanya owner forum yang dapat membuat request']);
+            echo json_encode(['success' => false, 'message' => 'Only forum owner can make requests.']);
             exit;
         }
 
 
         if ($this->loginModel->getUserByUsernameOrEmail($email)) {
-            echo json_encode(['success' => false, 'message' => 'Email sudah terdaftar']);
+            echo json_encode(['success' => false, 'message' => 'The email already registered.']);
             exit;
         }
 
         if ($this->loginModel->getUserByUsernameOrEmail($username)) {
-            echo json_encode(['success' => false, 'message' => 'Username sudah digunakan']);
+            echo json_encode(['success' => false, 'message' => 'The username already in used']);
             exit;
         }
 
         if ($this->loginModel->getUserByUsernameOrEmail($personalNumber)) {
-            echo json_encode(['success' => false, 'message' => 'Nomor mitra sudah terdaftar']);
+            echo json_encode(['success' => false, 'message' => 'The partner number already registered']);
             exit;
         }
 
@@ -849,19 +849,19 @@ class forumController
                 if ($memberAdded) {
                     echo json_encode([
                         'success' => true,
-                        'message' => 'Request berhasil dikirim. Akun mitra akan otomatis bergabung ke forum setelah disetujui admin.'
+                        'message' => 'Request successfully sent. Partner accounts will automatically join the forum after being approved by the admin.'
                     ]);
                 } else {
                     $this->userModel->deletePendingUser($userId);
                     echo json_encode([
                         'success' => false,
-                        'message' => 'Gagal menambahkan mitra ke forum'
+                        'message' => 'Failed to add partner to forum.'
                     ]);
                 }
             } else {
                 echo json_encode([
                     'success' => false,
-                    'message' => 'Gagal mengirim request'
+                    'message' => 'Failed sending request.'
                 ]);
             }
         } catch (Exception $e) {
@@ -888,13 +888,13 @@ class forumController
         $deletedMedia = isset($_POST['deleted_media']) ? json_decode($_POST['deleted_media'], true) : [];
 
         if (!$topicId) {
-            echo json_encode(['success' => false, 'message' => 'Topic ID tidak ditemukan']);
+            echo json_encode(['success' => false, 'message' => 'Topic ID not found']);
             exit;
         }
 
         // Cek kepemilikan topic
         if (!$this->topicModel->isTopicOwner($topicId, $_SESSION['user_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Anda bukan pemilik topic ini']);
+            echo json_encode(['success' => false, 'message' => 'You are not the owner of this topic.']);
             exit;
         }
 
@@ -907,7 +907,7 @@ class forumController
         $totalMedia = $remainingMedia + $newMediaCount;
 
         if ($totalMedia > 5) {
-            echo json_encode(['success' => false, 'message' => 'Maksimal 5 media per topic']);
+            echo json_encode(['success' => false, 'message' => 'Maximum of 5 media per topic']);
             exit;
         }
 
@@ -975,12 +975,12 @@ class forumController
 
             // Validasi tipe file
             if (!in_array($fileMimeType, array_merge($allowedImageTypes, $allowedFileTypes))) {
-                return ['success' => false, 'message' => "Tipe file tidak diizinkan: $fileName"];
+                return ['success' => false, 'message' => "Unsupported file type: $fileName"];
             }
 
             // Validasi ukuran (10MB max)
             if ($fileSize > 10 * 1024 * 1024) {
-                return ['success' => false, 'message' => "File terlalu besar: $fileName (max 10MB)"];
+                return ['success' => false, 'message' => "File size too large: $fileName (max 10MB)"];
             }
 
             // Tentukan tipe media
@@ -993,7 +993,7 @@ class forumController
 
             // Upload file
             if (!move_uploaded_file($fileTmpName, $targetPath)) {
-                return ['success' => false, 'message' => "Gagal upload file: $fileName"];
+                return ['success' => false, 'message' => "Failed uploading file: $fileName"];
             }
 
             $uploadedFiles[] = [
