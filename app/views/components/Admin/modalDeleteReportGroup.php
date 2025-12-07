@@ -92,7 +92,7 @@
                     setTimeout(() => {
                         closeDelete();
                         location.reload();
-                    }, 1000);
+                    }, 1500);
                 } else {
                     console.error("Error deleting group:", result.message);
                     alert("❌ Failed deleting group: " + (result.message || "Something wrong."));

@@ -84,7 +84,9 @@
      <div class="bg-green-100 border border-green-700 text-green-700 p-3 px-5 fixed right-5 top-5 rounded-md hidden" id="divSuccsess"></div>
 
      <div class="flex min-h-full justify-center p-4 text-center sm:p-0 items-start mt-20">
-         <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+
+         <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all w-full sm:my-8 sm:w-full sm:max-w-2xl">
+
              <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                  <div class="sm:flex sm:items-start">
                      <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
@@ -92,10 +94,10 @@
                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                          </svg>
                      </div>
-                     <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                     <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
                          <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">Delete topic?</h3>
                          <div class="mt-2">
-                             <p class="text-sm text-gray-500">Are you sure to delete this post?</p>
+                             <p class="text-sm text-gray-500">Are you sure to delete this topic?</p>
                          </div>
                      </div>
                  </div>
@@ -118,6 +120,7 @@
 
  <div id="editTopicModal" class="hidden flex fixed inset-0 z-[9999] justify-center items-center w-full h-full bg-black/50 p-5 md:p-0 backdrop-blur-sm">
      <div class="bg-green-100 border border-green-700 text-green-700 p-3 px-5 fixed right-5 top-5 rounded-md hidden" id="divSuccsessEdit"></div>
+     <div class="bg-red-100 border border-red-700 text-red-700 p-3 px-5 fixed right-5 top-5 rounded-md hidden" id="divErrorEdit"></div>
      <div class="relative bg-white shadow-lg w-full max-w-xl drop-shadow rounded-xl">
 
          <form id="editTopicForm" action="<?= BASEURL ?>/forum/update-topic" method="POST" enctype="multipart/form-data">
@@ -323,7 +326,7 @@
 
                          setTimeout(() => {
                              window.location.reload();
-                         }, 2000)
+                         }, 1500)
 
                      } else {
                          divErrorPin.classList.remove('hidden')
@@ -333,7 +336,7 @@
                              divErrorPin.classList.add('hidden')
                              currentBtn.innerHTML = originalContent;
                              currentBtn.disabled = false;
-                         }, 2000)
+                         }, 1500)
 
                      }
 
@@ -346,7 +349,7 @@
                      setTimeout(() => {
                          currentBtn.innerHTML = originalContent;
                          currentBtn.disabled = false;
-                     }, 2000)
+                     }, 1500)
                  }
              });
          });
@@ -492,72 +495,77 @@
      }
 
 
-     document.getElementById('edit_image_input')?.addEventListener('change', function(e) {
-         const files = Array.from(e.target.files);
-         const container = document.getElementById('edit_media_preview_container');
+     const editImgInput = document.getElementById('edit_image_input');
 
-         const currentTotal = existingMediaData.length +
-             container.querySelectorAll('[data-media-id^="new_"]').length;
-         const newTotal = currentTotal + files.length;
+     if (editImgInput) {
+         // Gunakan .onchange agar fungsi lama tertimpa, jadi hanya ada 1 listener aktif
+         editImgInput.onchange = function(e) {
+             const files = Array.from(e.target.files);
+             const container = document.getElementById('edit_media_preview_container');
 
-         if (newTotal > MAX_FILES) {
-             alert(`Maximum ${MAX_FILES} file. You already have ${currentTotal} files.`);
-             e.target.value = '';
-             return;
-         }
+             const currentTotal = existingMediaData.length +
+                 container.querySelectorAll('[data-media-id^="new_"]').length;
+             const newTotal = currentTotal + files.length;
 
-         document.getElementById('edit_empty_msg').classList.add('hidden');
-
-         files.forEach(file => {
-             const allowedTypes = [
-                 'image/jpeg', 'image/png', 'image/jpg', 'image/gif',
-                 'application/pdf', 'application/msword',
-                 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                 'application/vnd.ms-excel',
-                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                 'application/zip'
-             ];
-
-             if (!allowedTypes.includes(file.type)) {
-                 alert(`File type not allowed: ${file.name}`);
+             if (newTotal > MAX_FILES) {
+                 alert(`Maximum ${MAX_FILES} file. You already have ${currentTotal} files.`);
+                 e.target.value = '';
                  return;
              }
 
-             if (file.size > 10 * 1024 * 1024) {
-                 alert(`File size too large: ${file.name} (max 10MB)`);
-                 return;
-             }
+             document.getElementById('edit_empty_msg').classList.add('hidden');
 
-             const reader = new FileReader();
-             reader.onload = function(event) {
-                 const mediaData = {
-                     name: file.name,
-                     type: file.type,
-                     preview: file.type.startsWith('image/') ? event.target.result : null
+             files.forEach(file => {
+                 const allowedTypes = [
+                     'image/jpeg', 'image/png', 'image/jpg', 'image/gif',
+                     'application/pdf', 'application/msword',
+                     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                     'application/vnd.ms-excel',
+                     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                     'application/zip'
+                 ];
+
+                 if (!allowedTypes.includes(file.type)) {
+                     alert(`File type not allowed: ${file.name}`);
+                     return;
+                 }
+
+                 if (file.size > 10 * 1024 * 1024) {
+                     alert(`File size too large: ${file.name} (max 10MB)`);
+                     return;
+                 }
+
+                 const reader = new FileReader();
+                 reader.onload = function(event) {
+                     const mediaData = {
+                         name: file.name,
+                         type: file.type,
+                         preview: file.type.startsWith('image/') ? event.target.result : null
+                     };
+
+                     const previewEl = createMediaPreviewElement(mediaData, false);
+                     container.appendChild(previewEl);
+
+                     updateFileCounter();
                  };
 
-                 const previewEl = createMediaPreviewElement(mediaData, false);
-                 container.appendChild(previewEl);
+                 if (file.type.startsWith('image/')) {
+                     reader.readAsDataURL(file);
+                 } else {
+                     const mediaData = {
+                         name: file.name,
+                         type: file.type,
+                         preview: null
+                     };
 
-                 updateFileCounter();
-             };
+                     const previewEl = createMediaPreviewElement(mediaData, false);
+                     container.appendChild(previewEl);
 
-             if (file.type.startsWith('image/')) {
-                 reader.readAsDataURL(file);
-             } else {
-                 const mediaData = {
-                     name: file.name,
-                     type: file.type,
-                     preview: null
-                 };
-
-                 const previewEl = createMediaPreviewElement(mediaData, false);
-                 container.appendChild(previewEl);
-
-                 updateFileCounter();
-             }
-         });
-     });
+                     updateFileCounter();
+                 }
+             });
+         };
+     }
 
 
      function updateFileCounter() {
@@ -595,6 +603,7 @@
 
          const submitBtn = this.querySelector('button[type="submit"]');
          const divSuccsesEdit = document.getElementById('divSuccsessEdit')
+         const divErrorEdit = document.getElementById('divErrorEdit')
 
          const originalText = submitBtn.textContent;
          submitBtn.disabled = true;
@@ -620,10 +629,14 @@
 
                  setTimeout(() => {
                      location.reload();
-                 }, 2000)
+                 }, 1500)
 
              } else {
-                 alert(result.message || 'Failed updating topic.');
+                 divErrorEdit.classList.remove('hidden')
+                 divErrorEdit.innerHTML = result.message || 'Failed updating topic.'
+                 setTimeout(() => {
+                     divErrorEdit.classList.add('hidden')
+                 }, 3000)
                  submitBtn.disabled = false;
                  submitBtn.textContent = originalText;
              }

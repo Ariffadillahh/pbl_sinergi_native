@@ -63,8 +63,7 @@ class TopicModel extends BaseModel
     {
         $conn = self::getConnection();
         $userId = $_SESSION['user_id'] ?? null;
-        
-        // Build SQL with IS_LIKED check
+
         $sql = "SELECT 
                     t.ID, 
                     t.CONTENT, 
@@ -84,8 +83,7 @@ class TopicModel extends BaseModel
                             JOIN TOPIC_COMMENTS tc_parent ON cr.COMMENT_ID = tc_parent.ID 
                             WHERE tc_parent.TOPIC_ID = t.ID)
                     ) AS TOTAL_COMMENTS";
-        
-        // Add IS_LIKED check if user is logged in
+
         if ($userId) {
             $sql .= ",
                     CASE WHEN EXISTS (
@@ -95,34 +93,33 @@ class TopicModel extends BaseModel
         } else {
             $sql .= ", 0 as IS_LIKED";
         }
-        
+
         $sql .= " FROM FORUM_TOPICS t
                 JOIN USERS u ON t.USER_ID = u.ID  
                 WHERE t.FORUM_ID = :forum_id
                 ORDER BY t.CREATED_AT DESC";
-        
+
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ":forum_id", $forumId);
-        
+
         if ($userId) {
             oci_bind_by_name($stmt, ":user_id", $userId);
         }
-        
+
         oci_execute($stmt);
-        
+
         $topics = [];
         while ($row = oci_fetch_assoc($stmt)) {
             if (is_object($row['CONTENT'])) {
                 $row['CONTENT'] = $row['CONTENT']->load();
             }
             $row['MEDIA'] = $this->getMediaByTopicId($row['ID']);
-            
-            // Ensure IS_LIKED is integer
+
             $row['IS_LIKED'] = (int) ($row['IS_LIKED'] ?? 0);
-            
+
             $topics[] = $row;
         }
-        
+
         return $topics;
     }
 
@@ -141,34 +138,41 @@ class TopicModel extends BaseModel
             oci_bind_by_name($stmtMedia, ":forum_id", $forumId);
             oci_execute($stmtMedia);
 
+            $filesToDelete = [];
             while ($row = oci_fetch_assoc($stmtMedia)) {
-                $filePath = __DIR__ . '/../../../storage/forums/topics/' . $row['MEDIA_PATH'];
-                if (file_exists($filePath)) {
-                    unlink($filePath);
-                }
+                $filesToDelete[] = __DIR__ . '/../../../storage/forums/topics/' . $row['MEDIA_PATH'];
             }
             oci_free_statement($stmtMedia);
+
+            $sqlDeleteMediaParams = "DELETE FROM TOPIC_MEDIA WHERE TOPIC_ID = :topic_id";
+            $stmtDelMedia = oci_parse($conn, $sqlDeleteMediaParams);
+            oci_bind_by_name($stmtDelMedia, ":topic_id", $topicId);
+
+            if (!oci_execute($stmtDelMedia, OCI_NO_AUTO_COMMIT)) {
+                throw new Exception("Gagal menghapus data referensi media.");
+            }
+            oci_free_statement($stmtDelMedia);
 
             $sqlDeleteTopic = "DELETE FROM FORUM_TOPICS 
                            WHERE ID = :topic_id 
                            AND FORUM_ID = :forum_id";
 
             $stmtTopic = oci_parse($conn, $sqlDeleteTopic);
-
             oci_bind_by_name($stmtTopic, ":topic_id", $topicId);
             oci_bind_by_name($stmtTopic, ":forum_id", $forumId);
 
-            oci_execute($stmtTopic, OCI_NO_AUTO_COMMIT);
-
+            $isExecuted = oci_execute($stmtTopic, OCI_NO_AUTO_COMMIT);
             $rowsDeleted = oci_num_rows($stmtTopic);
 
-            if ($rowsDeleted > 0) {
-                oci_commit($conn);
-                return ['status' => true, 'message' => 'Topik berhasil dihapus!'];
-            } else {
-                oci_rollback($conn);
-                return ['status' => false, 'message' => 'Gagal menghapus. Topik tidak ditemukan di forum ini atau Anda bukan pemiliknya.'];
+            oci_commit($conn);
+
+            foreach ($filesToDelete as $filePath) {
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
             }
+
+            return ['status' => true, 'message' => 'Topik berhasil dihapus!'];
         } catch (Exception $e) {
             oci_rollback($conn);
             return ['status' => false, 'message' => 'Database Error: ' . $e->getMessage()];
@@ -280,7 +284,7 @@ class TopicModel extends BaseModel
     {
         $conn = self::getConnection();
         $userId = $_SESSION['user_id'] ?? null;
-        
+
         $sql = "SELECT 
                     t.ID, 
                     t.FORUM_ID, 
@@ -301,7 +305,7 @@ class TopicModel extends BaseModel
                         JOIN TOPIC_COMMENTS tc_parent ON cr.COMMENT_ID = tc_parent.ID 
                         WHERE tc_parent.TOPIC_ID = t.ID)
                     ) AS TOTAL_COMMENTS";
-        
+
         // Add IS_LIKED check if user is logged in
         if ($userId) {
             $sql .= ",
@@ -312,39 +316,39 @@ class TopicModel extends BaseModel
         } else {
             $sql .= ", 0 as IS_LIKED";
         }
-        
+
         $sql .= " FROM FORUM_TOPICS t
                 JOIN USERS u ON t.USER_ID = u.ID  
                 WHERE t.ID = :topic_id";
-        
+
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ":topic_id", $topicId);
-        
+
         if ($userId) {
             oci_bind_by_name($stmt, ":user_id", $userId);
         }
-        
+
         if (!oci_execute($stmt)) {
             return false;
         }
-        
+
         $row = oci_fetch_assoc($stmt);
-        
+
         if ($row) {
             if (isset($row['CONTENT']) && is_object($row['CONTENT'])) {
                 $row['CONTENT'] = $row['CONTENT']->load();
             }
-            
+
             $row['MEDIA'] = $this->getMediaByTopicId($row['ID']);
             $row['TOTAL_LIKES'] = (int) ($row['TOTAL_LIKES'] ?? 0);
             $row['TOTAL_COMMENTS'] = (int) ($row['TOTAL_COMMENTS'] ?? 0);
-            
+
             // Ensure IS_LIKED is integer
             $row['IS_LIKED'] = (int) ($row['IS_LIKED'] ?? 0);
-            
+
             return $row;
         }
-        
+
         return false;
     }
 
@@ -372,14 +376,14 @@ class TopicModel extends BaseModel
             $sqlUpdate = "UPDATE FORUM_TOPICS 
                          SET CONTENT = :content 
                          WHERE ID = :id";
-            
+
             $stmt = oci_parse($conn, $sqlUpdate);
             oci_bind_by_name($stmt, ":id", $topicId);
-            
+
             $clob = oci_new_descriptor($conn, OCI_D_LOB);
             oci_bind_by_name($stmt, ":content", $clob, -1, OCI_B_CLOB);
             $clob->writeTemporary($content ?? '');
-            
+
             if (!oci_execute($stmt, OCI_NO_AUTO_COMMIT)) {
                 throw new Exception("Gagal update konten topic.");
             }
@@ -391,11 +395,11 @@ class TopicModel extends BaseModel
                 // Ambil path file untuk dihapus dari filesystem
                 $sqlGetPath = "SELECT MEDIA_PATH FROM TOPIC_MEDIA WHERE ID = :id";
                 $stmtPath = oci_parse($conn, $sqlGetPath);
-                
+
                 foreach ($deletedMediaIds as $mediaId) {
                     oci_bind_by_name($stmtPath, ":id", $mediaId);
                     oci_execute($stmtPath, OCI_NO_AUTO_COMMIT);
-                    
+
                     if ($row = oci_fetch_assoc($stmtPath)) {
                         $filePath = __DIR__ . '/../../../storage/forums/topics/' . $row['MEDIA_PATH'];
                         if (file_exists($filePath)) {
@@ -408,7 +412,7 @@ class TopicModel extends BaseModel
                 // Hapus dari database
                 $sqlDelete = "DELETE FROM TOPIC_MEDIA WHERE ID = :id";
                 $stmtDelete = oci_parse($conn, $sqlDelete);
-                
+
                 foreach ($deletedMediaIds as $mediaId) {
                     oci_bind_by_name($stmtDelete, ":id", $mediaId);
                     if (!oci_execute($stmtDelete, OCI_NO_AUTO_COMMIT)) {
@@ -417,11 +421,11 @@ class TopicModel extends BaseModel
                 }
                 oci_free_statement($stmtDelete);
             }
-            
+
             if (!empty($newFiles)) {
                 $sqlMedia = "INSERT INTO TOPIC_MEDIA (ID, TOPIC_ID, MEDIA_PATH, MEDIA_TYPE, ORIGINAL_FILENAME) 
                             VALUES (:id, :topic_id, :path, :type, :filename)";
-                
+
                 $stmtMedia = oci_parse($conn, $sqlMedia);
 
                 foreach ($newFiles as $file) {
@@ -442,7 +446,6 @@ class TopicModel extends BaseModel
 
             oci_commit($conn);
             return ['status' => true, 'message' => 'Topic berhasil diupdate!'];
-            
         } catch (Exception $e) {
             oci_rollback($conn);
             return ['status' => false, 'message' => $e->getMessage()];
@@ -452,37 +455,37 @@ class TopicModel extends BaseModel
     public function isTopicOwner($topicId, $userId)
     {
         $conn = self::getConnection();
-        
+
         $sql = "SELECT COUNT(*) AS TOTAL 
                 FROM FORUM_TOPICS 
                 WHERE ID = :topic_id AND USER_ID = :user_id";
-        
+
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ":topic_id", $topicId);
         oci_bind_by_name($stmt, ":user_id", $userId);
         oci_execute($stmt);
-        
+
         $row = oci_fetch_assoc($stmt);
         oci_free_statement($stmt);
-        
+
         return ($row['TOTAL'] > 0);
     }
 
     public function canPinMoreTopics($forumId)
     {
         $conn = self::getConnection();
-        
+
         $sql = "SELECT COUNT(*) AS TOTAL_PINNED 
                 FROM FORUM_TOPICS 
                 WHERE FORUM_ID = :forum_id AND IS_PINNED = 1";
-        
+
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ":forum_id", $forumId);
         oci_execute($stmt);
-        
+
         $row = oci_fetch_assoc($stmt);
         oci_free_statement($stmt);
-        
+
         return (int)$row['TOTAL_PINNED'] < 3;
     }
 }

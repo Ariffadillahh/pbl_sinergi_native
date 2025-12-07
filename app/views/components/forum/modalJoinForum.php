@@ -81,7 +81,7 @@
                 setTimeout(() => {
                     const forumId = document.getElementById('joinForumId').value;
                     location.href = '<?= BASEURL ?>/forum/' + forumId;
-                }, 1000);
+                }, 1500);
             } else {
                 errorDiv.textContent = result.message;
                 errorDiv.classList.remove('hidden');

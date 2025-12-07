@@ -78,16 +78,21 @@
                 quoteText.classList.add("hidden");
                 quoteAuthor.classList.add("hidden");
 
-                const response = await fetch("http://api.quotable.io/random");
+                const response = await fetch("https://api.api-ninjas.com/v1/quotes", {
+                    headers: {
+                        "X-Api-Key": "85LphZVPGv6BVs10/+4JBw==lG0hfJntisNI0483"
+                    }
+                });
+
                 if (!response.ok) throw new Error("Failed loading quote");
 
                 const data = await response.json();
 
-                quoteText.textContent = data.content;
-                quoteAuthor.textContent = data.author;
+                quoteText.textContent = data[0].quote;
+                quoteAuthor.textContent = data[0].author;
 
-                localStorage.setItem("quoteText", data.content);
-                localStorage.setItem("quoteAuthor", data.author);
+                localStorage.setItem("quoteText", data[0].quote);
+                localStorage.setItem("quoteAuthor", data[0].author);
 
             } catch (error) {
                 console.error("Terjadi kesalahan:", error);
@@ -100,6 +105,7 @@
                 quoteAuthor.classList.remove("hidden");
             }
         }
+
 
         openQuoteBtn.addEventListener("click", async () => {
             quoteModal.classList.remove("hidden");

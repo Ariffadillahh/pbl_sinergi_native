@@ -1,7 +1,4 @@
 <?php
-// File: app/views/components/forum/topics.php
-// COPY PASTE THIS FILE, REPLACE THE OLD ONE
-
 $visibleTopics = $topics;
 $hasMorePosts  = false;
 
@@ -240,13 +237,14 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
         var swiper = new Swiper(".myPostSwiper", {
             pagination: {
                 el: ".swiper-pagination",
-                dynamicBullets: true
+                dynamicBullets: true, // Membuat dots mengecil jika banyak slide
+                clickable: true // Agar dots bisa diklik
             },
             navigation: {
                 nextEl: ".swiper-button-next",
                 prevEl: ".swiper-button-prev"
             },
-            spaceBetween: 0,
+            spaceBetween: 30, // Memberi sedikit jarak antar slide saat digeser
             grabCursor: true,
         });
 

@@ -101,13 +101,13 @@
             toast.classList.remove("hidden");
             setTimeout(() => {
                 toast.classList.add("hidden");
-            }, 2500);
+            }, 1500);
         }
 
         function showEmptyPostToast() {
             errorDiv.innerHTML = "Content or photo cannot be empty!";
             errorDiv.classList.remove("hidden");
-            setTimeout(() => errorDiv.classList.add("hidden"), 2500);
+            setTimeout(() => errorDiv.classList.add("hidden"), 1500);
         }
 
         function updateInputFiles() {
@@ -276,11 +276,11 @@
 
                     successDiv.innerHTML = result.message;
                     successDiv.classList.remove("hidden");
-                    setTimeout(() => window.location.reload(), 1200);
+                    setTimeout(() => window.location.reload(), 1500);
                 } else {
                     errorDiv.innerHTML = result.message;
                     errorDiv.classList.remove("hidden");
-                    setTimeout(() => errorDiv.classList.add("hidden"), 2500);
+                    setTimeout(() => errorDiv.classList.add("hidden"), 1500);
                 }
             } catch (err) {
                 console.error(err);

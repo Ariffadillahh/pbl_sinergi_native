@@ -189,7 +189,7 @@
             
             setTimeout(() => {
                 toast.remove();
-            }, 3000);
+            }, 1500);
         }
     }
 
@@ -453,7 +453,7 @@
                     showToast('Successfully joined the forum!', 'success');
                     setTimeout(() => {
                         window.location.href = json.redirect;
-                    }, 1000);
+                    }, 1500);
                 } else {
                     throw new Error(json.message || 'Failed to join forum');
                 }

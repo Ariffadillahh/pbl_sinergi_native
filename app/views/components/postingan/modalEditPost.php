@@ -183,7 +183,7 @@
     toast.classList.remove("hidden");
     setTimeout(() => {
       toast.classList.add("hidden");
-    }, 2500);
+    }, 1500);
   }
 
   btnChangePostPhoto.addEventListener('click', () => fileInputPost.click());

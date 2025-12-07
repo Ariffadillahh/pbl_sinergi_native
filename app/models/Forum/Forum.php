@@ -158,13 +158,14 @@ class ForumModel extends BaseModel
         $conn = self::getConnection();
         $bindings = [];
 
+        // 1. SELECT query (IS_MEMBER sudah dihitung disini: 1 = join, 0 = tidak)
         $sql = "SELECT 
-                f.*, 
-                u.FULL_NAME AS OWNER_NAME,
-                (SELECT COUNT(*) FROM FORUM_MEMBERS fm WHERE fm.FORUM_ID = f.ID AND fm.STATUS = 'JOINED') AS TOTAL_MEMBERS,
-                (SELECT COUNT(*) FROM FORUM_MEMBERS fm2 WHERE fm2.FORUM_ID = f.ID AND fm2.USER_ID = :userid_check AND fm2.STATUS = 'JOINED') AS IS_MEMBER
-            FROM FORUMS f
-            JOIN USERS u ON f.OWNER_ID = u.ID ";
+            f.*, 
+            u.FULL_NAME AS OWNER_NAME,
+            (SELECT COUNT(*) FROM FORUM_MEMBERS fm WHERE fm.FORUM_ID = f.ID AND fm.STATUS = 'JOINED') AS TOTAL_MEMBERS,
+            (SELECT COUNT(*) FROM FORUM_MEMBERS fm2 WHERE fm2.FORUM_ID = f.ID AND fm2.USER_ID = :userid_check AND fm2.STATUS = 'JOINED') AS IS_MEMBER
+        FROM FORUMS f
+        JOIN USERS u ON f.OWNER_ID = u.ID ";
 
         if ($filter === 'joined') {
             $sql .= " JOIN FORUM_MEMBERS fm_filter ON f.ID = fm_filter.FORUM_ID ";
@@ -191,17 +192,24 @@ class ForumModel extends BaseModel
             $bindings[':search_desc'] = $search;
         }
 
-        $sql .= " ORDER BY f.CREATED_AT DESC OFFSET :offset_val ROWS FETCH NEXT :limit_val ROWS ONLY";
+        // --- PERUBAHAN DISINI ---
+        // Tambahkan 'IS_MEMBER DESC' di awal ORDER BY
+        // Ini akan menaruh forum yg sudah dijoin (nilai 1) di atas forum yg belum dijoin (nilai 0)
+        $sql .= " ORDER BY IS_MEMBER DESC, f.CREATED_AT DESC OFFSET :offset_val ROWS FETCH NEXT :limit_val ROWS ONLY";
 
         $bindings[':offset_val'] = $offset;
         $bindings[':limit_val'] = $limit;
         $bindings[':userid_check'] = $userId;
 
         $stmt = oci_parse($conn, $sql);
+
+        // Perbaikan binding loop (Best Practice oci_bind_by_name)
         foreach ($bindings as $key => $val) {
-            $tempVal = $val;
+            // oci_bind_by_name butuh variable reference, jadi hindari pass value langsung
+            // Kita bind langsung ke array elementnya
             oci_bind_by_name($stmt, $key, $bindings[$key]);
         }
+
         oci_execute($stmt);
 
         $forums = [];
@@ -323,17 +331,21 @@ class ForumModel extends BaseModel
         $conn = self::getConnection();
 
         try {
+            $sqlReport = "DELETE FROM REPORT WHERE TARGET_ID = :id AND TARGET_TYPE = 'FORUM'";
+            $stmtReport = oci_parse($conn, $sqlReport);
+            oci_bind_by_name($stmtReport, ":id", $id);
+            if (!oci_execute($stmtReport, OCI_NO_AUTO_COMMIT)) throw new Exception("Gagal menghapus report forum");
+            oci_free_statement($stmtReport);
+
             $sqlMember = "DELETE FROM FORUM_MEMBERS WHERE FORUM_ID = :id";
             $stmtMember = oci_parse($conn, $sqlMember);
             oci_bind_by_name($stmtMember, ":id", $id);
-            $resMember = oci_execute($stmtMember, OCI_NO_AUTO_COMMIT);
-            if (!$resMember) throw new Exception("Gagal menghapus member");
+            if (!oci_execute($stmtMember, OCI_NO_AUTO_COMMIT)) throw new Exception("Gagal menghapus member");
 
             $sqlForum = "DELETE FROM FORUMS WHERE ID = :id";
             $stmtForum = oci_parse($conn, $sqlForum);
             oci_bind_by_name($stmtForum, ":id", $id);
-            $resForum = oci_execute($stmtForum, OCI_NO_AUTO_COMMIT);
-            if (!$resForum) throw new Exception("Gagal menghapus forum");
+            if (!oci_execute($stmtForum, OCI_NO_AUTO_COMMIT)) throw new Exception("Gagal menghapus forum");
 
             oci_commit($conn);
             return true;

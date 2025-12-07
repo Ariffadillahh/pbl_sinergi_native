@@ -291,7 +291,7 @@ function organizeReplies($replies)
         const toast = document.getElementById("toastSuccess");
         toast.textContent = message;
         toast.classList.remove("opacity-0");
-        setTimeout(() => toast.classList.add("opacity-0"), 2000);
+        setTimeout(() => toast.classList.add("opacity-0"), 1500);
     }
 
     document.addEventListener('DOMContentLoaded', function() {

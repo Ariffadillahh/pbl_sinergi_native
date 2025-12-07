@@ -166,7 +166,7 @@
 
                 setTimeout(() => {
                     closeModalReportForum();
-                }, 1000);
+                }, 1500);
             } else {
                 showMessage(result.message || "Failed to send report.", "error");
             }

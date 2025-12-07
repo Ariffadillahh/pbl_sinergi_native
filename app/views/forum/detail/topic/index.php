@@ -17,7 +17,7 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link href="<?php echo BASEURL; ?>/src/css/output.css" rel="stylesheet">
-    <title>Forum <?= $forumById['NAME'] ?></title>
+    <title><?= $forumById['NAME'] ?> | Discussion Forum</title>
 </head>
 
 <body>

@@ -92,7 +92,7 @@
                     setTimeout(() => {
                         closeDelete();
                         location.reload();
-                    }, 1000);
+                    }, 1500);
                 } else {
                     console.error("Error deleting post:", result.message);
                     alert("❌ Failed deleting post: " + (result.message || "Something wrong."));

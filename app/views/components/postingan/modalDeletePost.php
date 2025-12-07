@@ -31,6 +31,7 @@
             </form>
 
             <p id="delete-post-error" class="bg-red-100 text-red-600 text-sm mx-4 mb-4 p-3 rounded-lg hidden text-center border border-red-200"></p>
+            <p id="delete-post-succsess" class="bg-green-100 text-green-600 text-sm mx-4 mb-4 p-3 rounded-lg hidden text-center border border-green-200"></p>
         </div>
     </div>
 </div>
@@ -42,6 +43,7 @@
     const formDeletePost = document.getElementById("form-delete-post");
     const inputDeletePostId = document.getElementById("delete-post-id");
     const errorDeletePost = document.getElementById("delete-post-error");
+    const succsessDeletePost = document.getElementById("delete-post-succsess");
 
     btnCancelDeletePost.addEventListener("click", () => {
         modalDeletePost.classList.add("hidden");
@@ -62,16 +64,24 @@
         btnConfirmDeletePost.disabled = true;
         btnConfirmDeletePost.textContent = "Deleting...";
         try {
-            const response = await fetch(formDeletePost.action, { method: "POST", body: formData });
+            const response = await fetch(formDeletePost.action, {
+                method: "POST",
+                body: formData
+            });
             const result = await response.json();
-            if (result.success) window.location.reload();
-            else { 
-                errorDeletePost.textContent = result.message || "Failed to delete post."; 
-                errorDeletePost.classList.remove("hidden"); 
+            if (result.success) {
+                succsessDeletePost.classList.remove("hidden")
+                succsessDeletePost.textContent = "Successfully Deleted";
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500)
+            } else {
+                errorDeletePost.textContent = result.message || "Failed to delete post.";
+                errorDeletePost.classList.remove("hidden");
             }
-        } catch(err) {
+        } catch (err) {
             console.error(err);
-            errorDeletePost.textContent = "Network error while deleting post."; 
+            errorDeletePost.textContent = "Network error while deleting post.";
             errorDeletePost.classList.remove("hidden");
         } finally {
             btnConfirmDeletePost.disabled = false;

@@ -1,3 +1,3 @@
 <?php
 define('BASEURL', 'http://localhost/sinergi');
-// define('BASEURL', 'https://4187da65d978.ngrok-free.app/sinergi');
+// define('BASEURL', 'https://798vjd5k-80.asse.devtunnels.ms/sinergi');

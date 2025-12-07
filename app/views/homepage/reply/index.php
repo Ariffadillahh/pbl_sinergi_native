@@ -64,7 +64,7 @@ function organizeReplies($replies)
 
 <body>
     <main class="w-full h-screen overflow-y-auto border-gray-200 hide-scrollbar relative z-[999]">
-        <div class="sticky top-0 z-10 bg-white w-full px-5 py-3 mb-4 border-b border-gray-200">
+        <div class="sticky top-0 z-[999] bg-white w-full px-5 py-3 mb-4 border-b border-gray-200">
             <button onclick="window.history.back()" class="flex items-center gap-3 text-black font-semibold cursor-pointer">
                 <img src="<?php echo BASEURL . '/src/asset/icons/left-arrow-svgrepo-com.svg'; ?>" alt="icon" class="w-6 h-6">
                 <h1 class="text-xl">Post</h1>
@@ -237,35 +237,34 @@ function organizeReplies($replies)
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
-
-            <div id="deleteModal"
-                class="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center hidden z-50">
-
-                <div class="bg-white rounded-xl shadow-lg w-80 p-6">
-                    <h2 class="text-lg font-semibold mb-2">Deletion Confirmation</h2>
-                    <p id="deleteMessage" class="text-sm text-gray-600 mb-4"></p>
-
-                    <div class="flex justify-end gap-3">
-                        <button onclick="closeDeleteModal()"
-                            class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 cursor-pointer">
-                            Cancel
-                        </button>
-
-                        <button id="deleteConfirmBtn"
-                            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 cursor-pointer">
-                            Delete
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="toastSuccess"
-                class="fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-all duration-300 z-50">
-                Delete successful.
-            </div>
-
         </div>
     </main>
+
+    <div id="deleteModal"
+        class="fixed inset-0 backdrop-blur-sm bg-black/50 z-[99999] flex items-center justify-center hidden ">
+
+        <div class="bg-white rounded-xl shadow-lg w-80 p-6">
+            <h2 class="text-lg font-semibold mb-2">Deletion Confirmation</h2>
+            <p id="deleteMessage" class="text-sm text-gray-600 mb-4"></p>
+
+            <div class="flex justify-end gap-3">
+                <button onclick="closeDeleteModal()"
+                    class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 cursor-pointer">
+                    Cancel
+                </button>
+
+                <button id="deleteConfirmBtn"
+                    class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 cursor-pointer">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastSuccess"
+        class="fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-all duration-300 z-50">
+        Delete successful.
+    </div>
 
     <script>
         let deleteTargetId = null;
@@ -300,7 +299,7 @@ function organizeReplies($replies)
             setTimeout(() => {
                 toast.classList.add("opacity-0");
                 toast.classList.remove("opacity-100");
-            }, 2000);
+            }, 1500);
         }
 
         console.log('Comments data:', <?= json_encode($comments) ?>);

@@ -96,6 +96,13 @@
                         startCooldown();
                     }
 
+                    setTimeout(() => {
+                        const firstOtpInput = document.querySelector('.otp-input');
+                        if (firstOtpInput) {
+                            firstOtpInput.focus();
+                        }
+                    }, 100);
+
                 } else {
                     alert(result.message || "An error occurred while processing the request.");
                 }

@@ -209,7 +209,7 @@
                 setTimeout(() => {
                     closeRequestMitraModal();
                     location.reload();
-                }, 2500);
+                }, 1500);
             } else {
                 showAlert(result.message, true);
             }

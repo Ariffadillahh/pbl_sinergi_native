@@ -262,40 +262,18 @@ class GroupChat extends BaseModel
     public function delete($id)
     {
         $conn = self::getConnection();
-        $stmt_get_messages = null;
+        $stmt_report = null;
         $stmt_messages = null;
         $stmt_members = null;
         $stmt_groupChat = null;
 
         try {
-            $sql_get_messages = "SELECT PATH_MEDIA FROM GROUP_CHAT_MESSAGES 
-                             WHERE GROUP_CHAT_ID = :GROUP_CHAT_id";
-
-            $stmt_get_messages = oci_parse($conn, $sql_get_messages);
-            oci_bind_by_name($stmt_get_messages, ':group_chat_id', $id);
-            oci_execute($stmt_get_messages);
-
-            $filesToDelete = [];
-            while ($row = oci_fetch_assoc($stmt_get_messages)) {
-                if (!empty($row['PATH_MEDIA'])) {
-                    $filesToDelete[] = $row['PATH_MEDIA'];
-                }
-            }
-            oci_free_statement($stmt_get_messages);
-
-            $projectRoot = realpath(__DIR__ . '/../../../');
-
-            foreach ($filesToDelete as $filePath) {
-
-                $fullPath = $projectRoot . '/' . $filePath;
-
-                if (file_exists($fullPath)) {
-                    unlink($fullPath);
-                } else {
-                    error_log("File tidak ditemukan: " . $fullPath);
-                }
-            }
-
+            
+            $sql_report = "DELETE FROM REPORT WHERE TARGET_ID = :id AND TARGET_TYPE = 'GROUP'";
+            $stmt_report = oci_parse($conn, $sql_report);
+            oci_bind_by_name($stmt_report, ':id', $id);
+            if (!oci_execute($stmt_report, OCI_NO_AUTO_COMMIT)) throw new Exception("Gagal hapus report group");
+           
             $sql_messages = "DELETE FROM GROUP_CHAT_MESSAGES WHERE GROUP_CHAT_ID = :group_chat_id";
             $stmt_messages = oci_parse($conn, $sql_messages);
             oci_bind_by_name($stmt_messages, ':group_chat_id', $id);
@@ -315,12 +293,11 @@ class GroupChat extends BaseModel
 
             return true;
         } catch (Exception $e) {
-
             oci_rollback($conn);
             error_log($e->getMessage());
             return false;
         } finally {
-
+            if ($stmt_report) oci_free_statement($stmt_report); 
             if ($stmt_messages) oci_free_statement($stmt_messages);
             if ($stmt_members) oci_free_statement($stmt_members);
             if ($stmt_groupChat) oci_free_statement($stmt_groupChat);

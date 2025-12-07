@@ -92,7 +92,7 @@
                     setTimeout(() => {
                         closeWarningModal();
                         location.reload();
-                    }, 1000);
+                    }, 1500);
                 } else {
                     alert("Failed sending warning: " + (result.message || "Something wrong."));
                 }

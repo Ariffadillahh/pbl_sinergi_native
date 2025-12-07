@@ -1,5 +1,5 @@
 <div id="modal-exit-forum" class="hidden fixed inset-0 z-[9999] overflow-y-auto justify-center items-center" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-black/50 transition-opacity"></div>
+    <div class="fixed inset-0 backdrop-blur-sm bg-black/50 transition-opacity"></div>
 
     <div class="flex min-h-full justify-center p-4 text-center sm:p-0 items-center">
         <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">

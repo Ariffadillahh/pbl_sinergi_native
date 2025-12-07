@@ -331,6 +331,7 @@
                         modalOtp.classList.add("flex");
                         const userEmail = document.getElementById("username_or_email").value;
                         const emailDisplayElement = document.getElementById("otp-email-display");
+
                         if (emailDisplayElement && result.email) {
                             emailDisplayElement.textContent = maskEmail(result.email);
                         }
@@ -338,6 +339,13 @@
                         if (typeof startCooldown === 'function') {
                             startCooldown();
                         }
+
+                        setTimeout(() => {
+                            const firstOtpInput = document.querySelector('.otp-input');
+                            if (firstOtpInput) {
+                                firstOtpInput.focus();
+                            }
+                        }, 100);
                     } else {
                         errorNotif.textContent = result.message || "An error occurred.";
                         errorNotif.classList.remove("hidden");

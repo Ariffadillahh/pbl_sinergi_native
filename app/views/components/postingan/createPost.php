@@ -116,13 +116,13 @@ if (isset($_SESSION['img_mood']) && !empty($_SESSION['img_mood'])) {
             toast.classList.remove("hidden");
             setTimeout(() => {
                 toast.classList.add("hidden");
-            }, 2500);
+            }, 1500);
         }
 
         function showEmptyPostToast() {
             errorDiv.innerHTML = "Content or images cannot be empty!";
             errorDiv.classList.remove("hidden");
-            setTimeout(() => errorDiv.classList.add("hidden"), 2500);
+            setTimeout(() => errorDiv.classList.add("hidden"), 1500);
         }
 
         function updateInputFiles() {
@@ -318,7 +318,7 @@ if (isset($_SESSION['img_mood']) && !empty($_SESSION['img_mood'])) {
 
                     setTimeout(() => {
                         window.location.reload();
-                    }, 1200);
+                    }, 1500);
 
                 } else {
                     errorDiv.innerHTML = `

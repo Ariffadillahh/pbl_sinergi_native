@@ -92,7 +92,7 @@
                     setTimeout(() => {
                         closeDelete();
                         location.reload();
-                    }, 1000);
+                    }, 1500);
                 } else {
                     console.error("Error deleting forum:", result.message);
                     alert("❌ Failed deleting forum: " + (result.message || "Something wrong"));

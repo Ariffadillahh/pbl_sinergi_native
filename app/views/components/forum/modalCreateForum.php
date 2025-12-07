@@ -2,20 +2,20 @@
 
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all duration-300 scale-95 flex flex-col max-h-[90vh]">
 
-        <div class="relative shrink-0 bg-gray-50 border-b border-gray-200 z-10">
+        <div class="relative shrink-0 bg-gray-50 border-b border-gray-200 z-[9999]">
             <div id="bannerPreview" class="h-36 md:h-44 bg-gray-300 w-full object-cover flex items-center justify-center relative overflow-hidden group">
                 <span id="defaultBannerText" class="text-gray-500 font-bold text-3xl tracking-widest select-none opacity-50">SINERGI</span>
                 <img id="bannerImage" src="" alt="Banner" class="w-full h-full object-cover absolute inset-0 hidden">
             </div>
 
-            <div class="absolute bottom-0 left-0 right-0 px-6 translate-y-1/2 flex items-end justify-between z-10">
+            <div class="absolute bottom-0 left-0 right-0 px-6 translate-y-1/2 flex items-end justify-between z-50">
                 <div class="flex items-end gap-4">
                     <div class="relative group cursor-pointer">
                         <img id="profilePreview" src="https://ui-avatars.com/api/?name=New+Forum&&background=3B82F6&color=fff&size=128"
                             alt="Profile"
                             class="w-20 h-20 md:w-24 md:h-24 rounded-xl border-4 border-white bg-white shadow-lg object-cover">
                     </div>
-                    <div class="mb-1 md:mb-2 pt-16 ">
+                    <div class="mb-1 md:mb-2 pt-16">
                         <h2 id="groupNamePreview" class="text-xl md:text-2xl font-bold text-gray-900 leading-tight truncate max-w-[200px] md:max-w-xs drop-shadow-sm bg-white/50 backdrop-blur-sm px-2 rounded-lg">New Forum</h2>
                         <p class="mt-1 flex items-center gap-1 bg-white/80 backdrop-blur-md px-2 py-0.5 rounded-full w-max shadow-sm border border-gray-100">
                             <span id="privacyIcon" class="text-lg">

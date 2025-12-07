@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="<?php echo BASEURL; ?>/src/css/output.css" rel="stylesheet">
-    <title>Sign Up | SINERGI</title>
+    <title>Sign Up | Sinergi</title>
 </head>
 
 <body>
@@ -267,6 +267,13 @@
                         if (typeof startCooldown === 'function') {
                             startCooldown();
                         }
+
+                        setTimeout(() => {
+                            const firstOtpInput = document.querySelector('.otp-input');
+                            if (firstOtpInput) {
+                                firstOtpInput.focus();
+                            }
+                        }, 100);
                     } else {
                         errorNotif.textContent = result.message || "An error occurred.";
                         errorNotif.classList.remove('hidden');

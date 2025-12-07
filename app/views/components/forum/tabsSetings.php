@@ -478,7 +478,7 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
 
                     setTimeout(() => {
                         location.reload();
-                    }, 1000);
+                    }, 1500);
                 } else {
                     throw new Error(result.message);
                 }

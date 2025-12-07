@@ -337,7 +337,7 @@
 
                     setTimeout(() => {
                         closeModal();
-                    }, 2000);
+                    }, 1500);
 
                 } else {
                     errorBox.textContent = result.message || "An error occurred."; // Translated

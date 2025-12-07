@@ -173,7 +173,7 @@
                 showMessage(result.message || "Report sending successfully!", "success");
                 setTimeout(() => {
                     closeModalReportForum();
-                }, 1000);
+                }, 1500);
             } else {
                 showMessage(result.message || "Report sending failed.", "error");
             }

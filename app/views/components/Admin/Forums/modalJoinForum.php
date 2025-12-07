@@ -149,7 +149,7 @@
 
         setTimeout(() => {
             errorDiv.classList.add("hidden");
-        }, 2000);
+        }, 1500);
     }
 
     function ShowSuccsess(message) {
@@ -158,6 +158,6 @@
 
         setTimeout(() => {
             successDiv.classList.add("hidden");
-        }, 2000);
+        }, 1500);
     }
 </script>

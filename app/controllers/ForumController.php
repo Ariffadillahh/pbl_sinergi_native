@@ -38,7 +38,7 @@ class forumController
         }
 
         $page   = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $limit  = 9;
+        $limit  = 6;
 
         if ($page < 1) $page = 1;
 
@@ -88,8 +88,7 @@ class forumController
         if ($currentUserId) {
             if ($currentUserRole === 'ADMIN' || $currentUserRole === 'DOSEN') {
                 $canPin = true;
-            }
-            elseif ($currentUserId == $forumOwnerId) {
+            } elseif ($currentUserId == $forumOwnerId) {
                 $canPin = true;
             }
         }
@@ -884,36 +883,46 @@ class forumController
         }
 
         $topicId = $_POST['topic_id'] ?? null;
-        $content = $_POST['content'] ?? '';
-        $deletedMedia = isset($_POST['deleted_media']) ? json_decode($_POST['deleted_media'], true) : [];
+        $content = trim($_POST['content'] ?? '');
+        $deletedMediaIds = isset($_POST['deleted_media']) ? json_decode($_POST['deleted_media'], true) : [];
 
         if (!$topicId) {
             echo json_encode(['success' => false, 'message' => 'Topic ID not found']);
             exit;
         }
 
-        // Cek kepemilikan topic
         if (!$this->topicModel->isTopicOwner($topicId, $_SESSION['user_id'])) {
             echo json_encode(['success' => false, 'message' => 'You are not the owner of this topic.']);
             exit;
         }
-
-        // Hitung total media yang tersisa
         $currentMedia = $this->topicModel->getMediaByTopicId($topicId);
-        $remainingMedia = count($currentMedia) - count($deletedMedia);
 
-        // Hitung media baru
-        $newMediaCount = isset($_FILES['new_media']) ? count($_FILES['new_media']['name']) : 0;
-        $totalMedia = $remainingMedia + $newMediaCount;
+        $existingMediaIds = array_column($currentMedia, 'ID');
 
-        if ($totalMedia > 5) {
-            echo json_encode(['success' => false, 'message' => 'Maximum of 5 media per topic']);
+        $validDeletedIds = array_intersect($deletedMediaIds, $existingMediaIds);
+
+        $countExisting = count($existingMediaIds);
+        $countDeleted = count($validDeletedIds);
+        $countRemaining = $countExisting - $countDeleted;
+
+        $countNewUpload = (isset($_FILES['new_media']) && !empty($_FILES['new_media']['name'][0]))
+            ? count($_FILES['new_media']['name'])
+            : 0;
+
+        $totalMediaFinal = $countRemaining + $countNewUpload;
+
+        if (empty($content) && $countNewUpload === 0 && $countRemaining === 0) {
+            echo json_encode(['success' => false, 'message' => 'Content or media cannot be empty!']);
             exit;
         }
 
-        // Handle upload media baru
+        if ($totalMediaFinal > 5) {
+            echo json_encode(['success' => false, 'message' => "Maximum 5 media allowed. You have $countRemaining, deleting $countDeleted, adding $countNewUpload."]);
+            exit;
+        }
+
         $uploadedFiles = [];
-        if (isset($_FILES['new_media']) && !empty($_FILES['new_media']['name'][0])) {
+        if ($countNewUpload > 0) {
             $uploadResult = $this->handleMultipleFileUpload($_FILES['new_media']);
 
             if (!$uploadResult['success']) {
@@ -924,7 +933,7 @@ class forumController
             $uploadedFiles = $uploadResult['files'];
         }
 
-        $result = $this->topicModel->updateTopic($topicId, $content, $uploadedFiles, $deletedMedia);
+        $result = $this->topicModel->updateTopic($topicId, $content, $uploadedFiles, $validDeletedIds);
 
         if ($result['status']) {
             echo json_encode(['success' => true, 'message' => $result['message']]);
@@ -935,7 +944,6 @@ class forumController
                     unlink($filePath);
                 }
             }
-
             echo json_encode(['success' => false, 'message' => $result['message']]);
         }
         exit;

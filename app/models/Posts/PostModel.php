@@ -201,73 +201,61 @@ class PostModel extends BaseModel
         oci_bind_by_name($checkStmt, ":id", $postId);
 
         if (!oci_execute($checkStmt)) {
-            error_log("Gagal cek kepemilikan post: " . oci_error($checkStmt)['message']);
             return false;
         }
         $row = oci_fetch_assoc($checkStmt);
 
         if (!$row || $row['USER_ID'] !== $userId) {
-            return false; 
-        }
-
-        $mediaSql = "SELECT MEDIA_PATH FROM POST_MEDIA WHERE POST_ID = :post_id";
-        $stmtMedia = oci_parse($conn, $mediaSql);
-        oci_bind_by_name($stmtMedia, ":post_id", $postId);
-
-        if (!oci_execute($stmtMedia)) {
-            error_log("Gagal get media path: " . oci_error($stmtMedia)['message']);
             return false;
         }
 
-        $mediaPaths = [];
-        while ($mediaRow = oci_fetch_assoc($stmtMedia)) {
-            $mediaPaths[] = $mediaRow['MEDIA_PATH'];
-        }
+        try {
+            $mediaSql = "SELECT MEDIA_PATH FROM POST_MEDIA WHERE POST_ID = :post_id";
+            $stmtMedia = oci_parse($conn, $mediaSql);
+            oci_bind_by_name($stmtMedia, ":post_id", $postId);
+            oci_execute($stmtMedia);
 
-        foreach ($mediaPaths as $path) {
-            $filePath = realpath(__DIR__ . '/../../../' . $path);
-
-            if ($filePath && file_exists($filePath)) {
-                @unlink($filePath);
+            $mediaPaths = [];
+            while ($mediaRow = oci_fetch_assoc($stmtMedia)) {
+                $mediaPaths[] = $mediaRow['MEDIA_PATH'];
             }
-        }
 
-        $deleteReplySql = "
-        DELETE FROM REPLY_COMMENTAR 
-        WHERE COMMENTAR_ID IN (
-            SELECT ID FROM COMMENTAR WHERE POST_ID = :post_id
-        )";
-        
-        $stmtReply = oci_parse($conn, $deleteReplySql);
-        oci_bind_by_name($stmtReply, ":post_id", $postId);
+            $sqlDelReport = "DELETE FROM REPORT WHERE TARGET_ID = :id AND TARGET_TYPE = 'POSTINGAN'";
+            $stmtReport = oci_parse($conn, $sqlDelReport);
+            oci_bind_by_name($stmtReport, ":id", $postId);
+            if (!oci_execute($stmtReport, OCI_NO_AUTO_COMMIT)) throw new Exception("Gagal hapus report");
+            oci_free_statement($stmtReport);
+         
+            $deleteReplySql = "DELETE FROM REPLY_COMMENTAR WHERE COMMENTAR_ID IN (SELECT ID FROM COMMENTAR WHERE POST_ID = :post_id)";
+            $stmtReply = oci_parse($conn, $deleteReplySql);
+            oci_bind_by_name($stmtReply, ":post_id", $postId);
+            if (!oci_execute($stmtReply, OCI_NO_AUTO_COMMIT)) throw new Exception("Gagal hapus reply");
 
-        if (!oci_execute($stmtReply)) {
-            error_log("Gagal delete REPLY_COMMENTAR: " . oci_error($stmtReply)['message']);
+            $deleteCommentSql = "DELETE FROM COMMENTAR WHERE POST_ID = :post_id";
+            $stmtComment = oci_parse($conn, $deleteCommentSql);
+            oci_bind_by_name($stmtComment, ":post_id", $postId);
+            if (!oci_execute($stmtComment, OCI_NO_AUTO_COMMIT)) throw new Exception("Gagal hapus komentar");
+
+            $deletePostSql = "DELETE FROM POSTS WHERE ID = :id";
+            $stmtDelPost = oci_parse($conn, $deletePostSql);
+            oci_bind_by_name($stmtDelPost, ":id", $postId);
+            if (!oci_execute($stmtDelPost, OCI_NO_AUTO_COMMIT)) throw new Exception("Gagal hapus post");
+
+            oci_commit($conn);
+
+            foreach ($mediaPaths as $path) {
+                $filePath = realpath(__DIR__ . '/../../../' . $path);
+                if ($filePath && file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+            }
+
+            return true;
+        } catch (Exception $e) {
+            oci_rollback($conn);
+            error_log("Error deletePost: " . $e->getMessage());
             return false;
         }
-
-        $deleteCommentSql = "DELETE FROM COMMENTAR WHERE POST_ID = :post_id";
-        $stmtComment = oci_parse($conn, $deleteCommentSql);
-        oci_bind_by_name($stmtComment, ":post_id", $postId);
-
-        if (!oci_execute($stmtComment)) {
-            error_log("Gagal delete COMMENTAR: " . oci_error($stmtComment)['message']);
-            return false;
-        }
-
-
-        $deletePostSql = "DELETE FROM POSTS WHERE ID = :id";
-        $stmtDelPost = oci_parse($conn, $deletePostSql);
-        oci_bind_by_name($stmtDelPost, ":id", $postId);
-
-        if (!oci_execute($stmtDelPost)) {
-            $e = oci_error($stmtDelPost);
-            error_log("Gagal delete POSTS: " . $e['message']);
-            return false;
-        }
-
-
-        return true; 
     }
 
     public function getPostsByUser($userId)
@@ -329,7 +317,7 @@ class PostModel extends BaseModel
         }
 
         return $posts;
-    }                          
+    }
 
     public function getPostById($postId)
     {
@@ -492,27 +480,26 @@ class PostModel extends BaseModel
     }
 
     public function searchUsers($keyword)
-{
-    $conn = self::getConnection();
+    {
+        $conn = self::getConnection();
 
-    $sql = "SELECT ID, USERNAME, FULL_NAME, PATH_PHOTO
+        $sql = "SELECT ID, USERNAME, FULL_NAME, PATH_PHOTO
             FROM USERS
             WHERE LOWER(USERNAME) LIKE LOWER(:kw)
                OR LOWER(FULL_NAME) LIKE LOWER(:kw)
             FETCH FIRST 10 ROWS ONLY";
 
-    $stmt = oci_parse($conn, $sql);
-    $like = "%$keyword%";
-    oci_bind_by_name($stmt, ':kw', $like);
+        $stmt = oci_parse($conn, $sql);
+        $like = "%$keyword%";
+        oci_bind_by_name($stmt, ':kw', $like);
 
-    oci_execute($stmt);
+        oci_execute($stmt);
 
-    $results = [];
-    while ($row = oci_fetch_assoc($stmt)) {
-        $results[] = $row;
+        $results = [];
+        while ($row = oci_fetch_assoc($stmt)) {
+            $results[] = $row;
+        }
+
+        return $results;
     }
-
-    return $results;
-}
-
 }

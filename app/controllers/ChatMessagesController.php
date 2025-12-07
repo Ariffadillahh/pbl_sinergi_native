@@ -124,6 +124,9 @@ class ChatMessagesController
             }
 
             $userId = $_SESSION['user_id'];
+            // AMBIL ROLE DARI SESSION (Sesuaikan kuncinya, misal 'role', 'level', atau 'user_role')
+            $userRole = $_SESSION['role'] ?? 'user';
+
             $groupChatId = isset($_GET['group_chat_id']) ? trim($_GET['group_chat_id']) : '';
             $lastTimestamp = $_GET['since'] ?? null;
 
@@ -134,7 +137,10 @@ class ChatMessagesController
                 return;
             }
 
-            if (!$this->chatMessageModel->isUserInGroupChat($userId, $groupChatId)) {
+            $isMember = $this->chatMessageModel->isUserInGroupChat($userId, $groupChatId);
+            $isAdmin  = (strtoupper($userRole) === 'ADMIN'); 
+
+            if (!$isMember && !$isAdmin) {
                 http_response_code(403);
                 echo json_encode(['error' => 'You are not a member of this group.']);
                 return;
@@ -144,8 +150,7 @@ class ChatMessagesController
             $startTime = time();
 
             while ((time() - $startTime) < 55) {
-
-                if (!$this->chatMessageModel->isUserInGroupChat($userId, $groupChatId)) {
+                if (!$isAdmin && !$this->chatMessageModel->isUserInGroupChat($userId, $groupChatId)) {
                     http_response_code(403);
                     echo json_encode(['error' => 'You have been removed from the group.']);
                     return;
@@ -194,81 +199,80 @@ class ChatMessagesController
     }
 
     public function pollCounts()
-{
-    header('Content-Type: application/json');
-    set_time_limit(40);
+    {
+        header('Content-Type: application/json');
+        set_time_limit(40);
 
-    try {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        if (!isset($_SESSION['user_id'])) {
-            http_response_code(403);
-            echo json_encode(['error' => 'Unauthorized']);
-            exit;
-        }
-        
-        $userId = $_SESSION['user_id'];
-        session_write_close();
-
-        $lastHash = $_GET['lastHash'] ?? '';
-        $startTime = time();
-
-        while (time() - $startTime < 35) {
-
-            $groupChatsData = $this->groupChatModel->getGroupChatsByUserId($userId);
-
-            $payload = [];
-            
-            foreach ($groupChatsData as $groupChat) {
-                // Handle CLOB if needed
-                $content = $groupChat['LAST_MESSAGE_CONTENT'] ?? null;
-                if (is_object($content) && get_class($content) === 'OCILob') {
-                    $content = $content->load();
-                }
-
-                $lastMessage = $this->formatLastMessage(
-                    $content,
-                    $groupChat['LAST_MESSAGE_TYPE'] ?? 'TEXT'
-                );
-
-                $lastTime = $groupChat['LAST_MESSAGE_AT'] ?? $groupChat['CREATED_AT'];
-
-                // ✅ Trim the ID
-                $payload[] = [
-                    'group_chat_id' => trim($groupChat['ID']),
-                    'count' => (int) ($groupChat['UNREAD_COUNT'] ?? 0),
-                    'lastMessage' => $lastMessage,
-                    'lastTime' => $lastTime
-                ];
+        try {
+            if (session_status() == PHP_SESSION_NONE) {
+                session_start();
             }
 
-            $newHash = md5(json_encode($payload));
-
-            // Always return on first poll or if changed
-            if ($lastHash === '' || $newHash != $lastHash) {
-                http_response_code(200);
-                echo json_encode([
-                    'hash' => $newHash,
-                    'data' => $payload
-                ]);
+            if (!isset($_SESSION['user_id'])) {
+                http_response_code(403);
+                echo json_encode(['error' => 'Unauthorized']);
                 exit;
             }
 
-            sleep(2);
-        }
+            $userId = $_SESSION['user_id'];
+            session_write_close();
 
-        http_response_code(204);
-        exit;
-        
-    } catch (\Throwable $e) {
-        error_log('Error in pollCounts: ' . $e->getMessage());
-        http_response_code(500);
-        echo json_encode(['error' => 'An error occurred on the server.']);
-        exit;
+            $lastHash = $_GET['lastHash'] ?? '';
+            $startTime = time();
+
+            while (time() - $startTime < 35) {
+
+                $groupChatsData = $this->groupChatModel->getGroupChatsByUserId($userId);
+
+                $payload = [];
+
+                foreach ($groupChatsData as $groupChat) {
+                    // Handle CLOB if needed
+                    $content = $groupChat['LAST_MESSAGE_CONTENT'] ?? null;
+                    if (is_object($content) && get_class($content) === 'OCILob') {
+                        $content = $content->load();
+                    }
+
+                    $lastMessage = $this->formatLastMessage(
+                        $content,
+                        $groupChat['LAST_MESSAGE_TYPE'] ?? 'TEXT'
+                    );
+
+                    $lastTime = $groupChat['LAST_MESSAGE_AT'] ?? $groupChat['CREATED_AT'];
+
+                    // ✅ Trim the ID
+                    $payload[] = [
+                        'group_chat_id' => trim($groupChat['ID']),
+                        'count' => (int) ($groupChat['UNREAD_COUNT'] ?? 0),
+                        'lastMessage' => $lastMessage,
+                        'lastTime' => $lastTime
+                    ];
+                }
+
+                $newHash = md5(json_encode($payload));
+
+                // Always return on first poll or if changed
+                if ($lastHash === '' || $newHash != $lastHash) {
+                    http_response_code(200);
+                    echo json_encode([
+                        'hash' => $newHash,
+                        'data' => $payload
+                    ]);
+                    exit;
+                }
+
+                sleep(2);
+            }
+
+            http_response_code(204);
+            exit;
+        } catch (\Throwable $e) {
+            error_log('Error in pollCounts: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['error' => 'An error occurred on the server.']);
+            exit;
+        }
     }
-}
 
     private function formatLastMessage($content, $type)
     {

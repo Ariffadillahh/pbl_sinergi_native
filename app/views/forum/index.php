@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="<?php echo BASEURL; ?>/src/css/output.css" rel="stylesheet">
-    <title>Community Forum List</title>
+    <title>Forums | Sinergi</title>
 </head>
 
 <body>
     <div class="w-full h-full overflow-y-auto">
-        <div class="w-full p-8 lg:p-12">
+        <div class="w-full p-4 lg:p-12">
             <?php
             $userRole = $_SESSION['role'] ?? '';
 
@@ -28,12 +28,23 @@
                 </div>
 
                 <?php if (!$isRestricted): ?>
-                    <button id="openModalBtn" class="group relative inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-full shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer">
-                        <svg class="w-5 h-5 transition-transform group-hover:rotate-90 duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+                    <button id="openModalBtn"
+                        class="group relative inline-flex items-center justify-center gap-2 
+                                px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 
+                                text-white font-semibold rounded-full shadow-lg shadow-blue-500/30 
+                                hover:shadow-blue-500/50 hover:-translate-y-0.5 
+                                transition-all duration-300 cursor-pointer 
+                                w-full md:w-fit text-center">
+
+                        <svg class="w-5 h-5 transition-transform group-hover:rotate-90 duration-300"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M12 4v16m8-8H4"></path>
                         </svg>
-                        <span>Create New Forum</span>
+
+                        <span class="text-center">Create New Forum</span>
                     </button>
+
                 <?php endif; ?>
             </div>
 
@@ -118,7 +129,7 @@
                 </div>
             <?php endif; ?>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10 pb-22 lg:pb-0">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16 lg:pb-0">
                 <?php foreach ($forums as $forum): ?>
                     <?php
                     $isActive  = ($forum['STATUS'] == 'ACTIVE');
@@ -285,22 +296,29 @@
             </div>
 
             <?php if ($totalPages > 1): ?>
-                <div class="flex justify-center items-center gap-2 mb-10 pb-20 lg:pb-0">
+                <div class="flex justify-center items-center gap-2 mb-10 pb-10 lg:pb-0">
+
                     <a href="<?= ($page > 1) ? buildUrl('page', $page - 1) : '#' ?>"
-                        class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 transition <?= ($page > 1) ? 'hover:bg-gray-50' : 'opacity-50 cursor-not-allowed' ?>">
-                        &laquo; Prev
+                        class="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 rounded-lg text-gray-700 transition <?= ($page > 1) ? 'hover:bg-gray-50 hover:text-blue-600' : 'opacity-50 cursor-not-allowed' ?>">
+
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
                     </a>
 
                     <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                         <a href="<?= buildUrl('page', $i) ?>"
-                            class="w-10 h-10 flex items-center justify-center rounded-lg border transition font-medium <?= $i == $page ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50' ?>">
+                            class="w-10 h-10 flex items-center justify-center rounded-lg border transition font-medium <?= $i == $page ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-blue-600' ?>">
                             <?= $i ?>
                         </a>
                     <?php endfor; ?>
 
                     <a href="<?= ($page < $totalPages) ? buildUrl('page', $page + 1) : '#' ?>"
-                        class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 transition <?= ($page < $totalPages) ? 'hover:bg-gray-50' : 'opacity-50 cursor-not-allowed' ?>">
-                        Next &raquo;
+                        class="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 rounded-lg text-gray-700 transition <?= ($page < $totalPages) ? 'hover:bg-gray-50 hover:text-blue-600' : 'opacity-50 cursor-not-allowed' ?>">
+
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        </svg>
                     </a>
                 </div>
             <?php endif; ?>
@@ -342,7 +360,7 @@
 
                     setTimeout(() => {
                         succsesDiv.classList.add("hidden")
-                    }, 2000)
+                    }, 1500)
 
                 } else {
                     errorDivReq.classList.remove('hidden')
@@ -350,7 +368,7 @@
 
                     setTimeout(() => {
                         errorDivReq.classList.add("hidden")
-                    }, 2000)
+                    }, 1500)
                 }
 
             } catch (error) {

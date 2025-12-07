@@ -443,7 +443,7 @@
                         : BASEURL; 
                         
                     window.location.href = redirectUrl;
-                }, 1000);
+                }, 1500);
             } else {
                 throw new Error(json.message || 'Failed to join group due to server response.');
             }
