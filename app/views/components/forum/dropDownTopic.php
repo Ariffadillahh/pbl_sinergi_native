@@ -154,7 +154,7 @@
                      <span
                          id="aboutCounter"
                          class="absolute right-3 bottom-3 text-xs text-gray-400 pointer-events-none">
-                         0/250
+                         0/1500
                      </span>
                  </div>
 
@@ -195,7 +195,13 @@
  <script>
      var editTextTopic = document.getElementById('input_edit_topic_content');
      var aboutCounter = document.getElementById('aboutCounter');
-     var MAX_LENGTH_EDIT = 250;
+     const textarea = document.getElementById("input_edit_topic_content");
+     var MAX_LENGTH_EDIT = 1500;
+
+
+     textarea.addEventListener("input", function() {
+         this.value = this.value.replace(/\n{3,}/g, "\n\n\n");
+     });
 
      function updateCounter() {
          const textarea = document.getElementById('input_edit_topic_content');

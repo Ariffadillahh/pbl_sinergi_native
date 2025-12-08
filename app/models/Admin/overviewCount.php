@@ -71,34 +71,25 @@ class overviewCount extends BaseModel
     public function countForum()
     {
         $conn = self::getConnection();
-        if (!$conn) {
-            error_log("Gagal mendapatkan koneksi database.");
-            return 0;
-        }
 
-        $sql = "SELECT COUNT(*) AS JUMLAH_FORUM FROM FORUMS";
+        $sql = "
+        SELECT 
+            COUNT(*) AS TOTAL,
+            SUM(CASE WHEN STATUS = 'NONACTIVE' THEN 1 ELSE 0 END) AS NONACTIVE
+        FROM FORUMS
+    ";
+
         $stmt = oci_parse($conn, $sql);
-
-        if (!$stmt) {
-            $e = oci_error($conn);
-            error_log("Gagal mem-parsing SQL: " . $e['message']);
-            return 0;
-        }
-
-        $result = oci_execute($stmt);
-        if (!$result) {
-            $e = oci_error($stmt);
-            error_log("Gagal mengeksekusi query: " . $e['message']);
-            oci_free_statement($stmt);
-            return 0;
-        }
-
+        oci_execute($stmt);
         $row = oci_fetch_assoc($stmt);
-        $count = $row ? $row['JUMLAH_FORUM'] : 0;
 
-        oci_free_statement($stmt);
-        return $count;
+        return [
+            'TOTAL' => $row['TOTAL'] ?? 0,
+            'NONACTIVE' => $row['NONACTIVE'] ?? 0
+        ];
     }
+
+
 
     public function groupCount()
     {
@@ -136,32 +127,33 @@ class overviewCount extends BaseModel
     {
         $conn = self::getConnection();
         if (!$conn) {
-            error_log("Gagal mendapatkan koneksi database.");
-            return 0;
+            return ['CASES' => 0, 'TOTAL' => 0];
         }
 
-        $sql = "SELECT COUNT(*) AS JUMLAH_LAPORAN FROM REPORT";
+        $sql = "SELECT 
+                COUNT(*) AS TOTAL_REPORTS, 
+                COUNT(DISTINCT TARGET_ID) AS UNIQUE_CASES 
+            FROM REPORT";
+
         $stmt = oci_parse($conn, $sql);
 
         if (!$stmt) {
-            $e = oci_error($conn);
-            error_log("Gagal mem-parsing SQL: " . $e['message']);
-            return 0;
+            return ['CASES' => 0, 'TOTAL' => 0];
         }
 
         $result = oci_execute($stmt);
+
         if (!$result) {
-            $e = oci_error($stmt);
-            error_log("Gagal mengeksekusi query: " . $e['message']);
             oci_free_statement($stmt);
-            return 0;
+            return ['CASES' => 0, 'TOTAL' => 0];
         }
 
         $row = oci_fetch_assoc($stmt);
-        $count = $row ? $row['JUMLAH_LAPORAN'] : 0;
 
-        oci_free_statement($stmt);
-        return $count;
+        return [
+            'CASES' => $row['UNIQUE_CASES'] ?? 0,
+            'TOTAL' => $row['TOTAL_REPORTS'] ?? 0 
+        ];
     }
 
     private function fetchSingleValue($sql)

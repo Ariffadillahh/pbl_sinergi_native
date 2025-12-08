@@ -333,11 +333,11 @@ $iconUrl = !empty($forumById['PATH_PHOTO'])
 
                                         <div class="text-sm mb-3">
                                             <p class="text-gray-800 leading-relaxed">
-                                                <?= nl2br(htmlspecialchars(substr($pin['CONTENT'], 0, 300))) ?>
-                                                <?= strlen($pin['CONTENT']) > 300 ? '...' : '' ?>
+                                                <?= nl2br(htmlspecialchars(substr($pin['CONTENT'], 0, 250))) ?>
+                                                <?= strlen($pin['CONTENT']) > 250 ? '...' : '' ?>
                                             </p>
-                                            <?php if (strlen($pin['CONTENT']) > 300): ?>
-                                                <a href="<?= BASEURL ?>/topic/<?= $pin['ID'] ?>" class="cursor-pointer text-blue-600 text-xs font-semibold hover:underline">Read More</a>
+                                            <?php if (strlen($pin['CONTENT']) > 250): ?>
+                                                <a href="<?= BASEURL ?>/forum/topic/<?= $pin['ID'] ?>" class="cursor-pointer text-blue-600 text-xs font-semibold hover:underline">Read More</a>
                                             <?php endif; ?>
                                         </div>
 

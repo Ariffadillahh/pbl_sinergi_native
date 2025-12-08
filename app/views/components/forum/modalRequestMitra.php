@@ -112,6 +112,7 @@
                             <option value="" disabled selected>-- Select Role</option>
                             <option value="MITRA">PARTNER</option>
                             <option value="ALUMNI">ALUMNI</option>
+                            <option value="DOSEN">LECTURER</option>
                         </select>
                     </div>
 

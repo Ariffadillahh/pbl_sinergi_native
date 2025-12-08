@@ -97,7 +97,7 @@
         </div>
 
         <div class="mt-3">
-            <p class="text-black text-[15px] leading-relaxed whitespace-normal break-words"><?= $post['CONTENT_FORMATTED'] ?? '' ?></p>
+            <p class="text-black text-[15px] leading-relaxed whitespace-pre-wrap break-words"><?= $post['CONTENT_FORMATTED'] ?? '' ?></p>
         </div>
     </div>
 

@@ -65,6 +65,7 @@
                                     <option value="ALUMNI">ALUMNI</option>
                                     <option value="MITRA">PARTNER</option>
                                     <option value="ADMIN">ADMIN</option>
+                                    <option value="DOSEN">LECTURER</option>
                                 </select>
                             </div>
                         </div>

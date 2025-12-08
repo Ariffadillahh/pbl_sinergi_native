@@ -116,7 +116,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
                 <?php endif; ?>
 
                 <?php if (!empty($topic['CONTENT'])): ?>
-                    <p class="text-gray-900 mb-2 leading-relaxed whitespace-normal break-words"><?= htmlspecialchars($topic['CONTENT']) ?></p>
+                    <p class="text-gray-900 mb-2 leading-relaxed whitespace-pre-wrap break-words"><?= htmlspecialchars($topic['CONTENT']) ?></p>
                 <?php endif; ?>
             </div>
 

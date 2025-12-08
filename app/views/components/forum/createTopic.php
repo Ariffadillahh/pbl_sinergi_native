@@ -29,7 +29,7 @@
                         <span
                             id="contentCounter"
                             class="absolute right-4 pt-3 bottom-3 text-xs text-gray-500 pointer-events-none">
-                            0/250
+                            0/1500
                         </span>
                     </div>
 
@@ -82,12 +82,16 @@
         const uploadBtnWrapper = document.getElementById("upload-btn-wrapper");
         const content = document.getElementById('content');
         const contentCounter = document.getElementById('contentCounter');
-        const CONTENT_MAX = 250;
+        const CONTENT_MAX = 1500;
 
         const MAX_FILES = 5;
 
         let fileBuffer = [];
         let fileIdCounter = 0;
+
+        textarea.addEventListener("input", function() {
+            this.value = this.value.replace(/\n{3,}/g, "\n\n\n");
+        });
 
         content.addEventListener('input', function() {
             if (this.value.length > CONTENT_MAX) {

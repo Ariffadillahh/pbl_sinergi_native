@@ -3,6 +3,10 @@
 
     <div class="flex min-h-full justify-center p-4 text-center sm:p-0 items-center">
         <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+            <div class="mt-3">
+                <p id="delete-post-error" class="bg-red-100 text-red-600 text-sm mx-4 mb-4 p-3 rounded-lg hidden text-center border border-red-200"></p>
+                <p id="delete-post-succsess" class="bg-green-100 text-green-600 text-sm mx-4 mb-4 p-3 rounded-lg hidden text-center border border-green-200"></p>
+            </div>
             <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                 <div class="sm:flex sm:items-start">
                     <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
@@ -30,8 +34,7 @@
                 </button>
             </form>
 
-            <p id="delete-post-error" class="bg-red-100 text-red-600 text-sm mx-4 mb-4 p-3 rounded-lg hidden text-center border border-red-200"></p>
-            <p id="delete-post-succsess" class="bg-green-100 text-green-600 text-sm mx-4 mb-4 p-3 rounded-lg hidden text-center border border-green-200"></p>
+
         </div>
     </div>
 </div>

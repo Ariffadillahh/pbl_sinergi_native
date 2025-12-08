@@ -22,7 +22,7 @@
 
             <span id="contentCounter"
                 class="absolute bottom-2 right-4 text-xs text-gray-500 pointer-events-none">
-                0/250
+                0/1200
             </span>
 
             <div id="mention"
@@ -110,6 +110,10 @@ if (isset($_SESSION['img_mood']) && !empty($_SESSION['img_mood'])) {
 
         let fileBuffer = [];
         let fileIdCounter = 0;
+
+        textarea.addEventListener("input", function() {
+            this.value = this.value.replace(/\n{3,}/g, "\n\n\n");
+        });
 
         function showCreateLimitToast() {
             const toast = document.getElementById("toast-limit-create");
@@ -358,7 +362,7 @@ if (isset($_SESSION['img_mood']) && !empty($_SESSION['img_mood'])) {
 
     const contentInput = document.getElementById('content');
     const contentCounter = document.getElementById('contentCounter');
-    const CONTENT_MAX = 250;
+    const CONTENT_MAX = 1200;
 
     contentInput.addEventListener('input', function() {
         if (this.value.length > CONTENT_MAX) {

@@ -31,24 +31,30 @@
                 <p class="text-lg font-medium text-gray-700">Total Forums</p>
                 <img src="<?php echo BASEURL ?>/src/asset/icons/forums.svg" class="size-10">
             </div>
-            <h1 id="total-forums" class="text-xl font-bold mt-4"><?= $forumCount ?? 0 ?></h1>
-            <p class="text-sm md:text-md font-medium text-[#7C3AED] line-clamp-1">Created</p>
+            <h1 id="total-forums" class="text-xl font-bold mt-4"><?= $totalForum ?? 0 ?></h1>
+            <p class="text-sm md:text-md font-medium text-[#7C3AED] line-clamp-1">Created • <?= $forumNonActive ?? 0 ?> NON ACTIVE</p>
         </div>
         <div class="bg-white drop-shadow rounded-xl p-4">
             <div class="flex justify-between items-center">
                 <p class="text-lg font-medium text-gray-700">Total Groups</p>
                 <img src="<?php echo BASEURL ?>/src/asset/icons/group.svg" class="size-10">
             </div>
-            <h1 id="total-forums" class="text-xl font-bold mt-4"><?= $groupCount ?? 0 ?></h1>
+            <h1 id="total-groups" class="text-xl font-bold mt-4"><?= $groupCount ?? 0 ?></h1>
             <p class="text-sm md:text-md font-medium text-[#C163A6] line-clamp-1">Created</p>
         </div>
         <div class="bg-white drop-shadow rounded-xl p-4">
             <div class="flex justify-between items-center">
-                <p class="text-lg font-medium text-gray-700">Reports</p>
+                <p class="text-lg font-medium text-gray-700">Reports (Cases)</p>
                 <img src="<?php echo BASEURL ?>/src/asset/icons/reportCount.svg" class="size-10">
             </div>
-            <h1 id="total-laporan" class="text-xl font-bold mt-4"><?= $laporanCount ?? 0 ?></h1>
-            <p class="text-sm md:text-md font-medium text-[#EF4444] line-clamp-1">Received</p>
+
+            <h1 id="total-laporan" class="text-xl font-bold mt-4">
+                <?= $kasusCount ?? 0 ?>
+            </h1>
+
+            <p class="text-sm md:text-md font-medium text-[#EF4444] line-clamp-1">
+                Cases from <?= $totalLaporan ?? 0 ?> Reports
+            </p>
         </div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:mt-10 mt-4">
@@ -109,12 +115,12 @@
 
                 const data = await response.json();
 
-                console.log('Data from API:', data);
-
                 if (data.success) {
-                    // Update overview counts
-                    updateOverviewCounts(data.overview_counts);
+                    // --- BAGIAN INI DI KOMENTAR (MATIKAN) ---
+                    // Karena PHP sudah menampilkan angka yang benar, kita tidak perlu JS menimpanya lagi saat loading awal.
+                    // updateOverviewCounts(data.overview_counts); 
 
+                    // --- BAGIAN INI TETAP JALAN ---
                     // Update Forum Engagement Chart (Biru)
                     updateActivityChart(data.forum_engagement);
 
@@ -122,22 +128,39 @@
                     updateContentChart(data.content_engagement);
                 } else {
                     console.error('API Error:', data.error);
-                    showError('Failed to load dashboard data');
                 }
 
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
-                showError('Failed to connect to server');
             }
         }
 
         // Update angka overview
+        // Cari function ini di dalam script Anda
         function updateOverviewCounts(counts) {
             if (counts) {
-                document.getElementById('total-anggota').textContent = formatNumber(counts.anggota || 0);
-                document.getElementById('total-posts').textContent = formatNumber(counts.posts || 0);
-                document.getElementById('total-forums').textContent = formatNumber(counts.forums || 0);
-                document.getElementById('total-laporan').textContent = formatNumber(counts.laporan || 0);
+                // PERHATIKAN: Cek console log, apakah key-nya 'forums', 'TOTAL', atau 'total_forum'?
+                // Kode PHP Anda sebelumnya return ['TOTAL' => ...], jadi kemungkinan di sini harusnya .TOTAL
+
+                // Gunakan logika fallback ini untuk mengecek variasi nama key
+                const totalAnggota = counts.anggota || counts.TOTAL_MEMBERS || 0;
+                const totalPost = counts.posts || counts.TOTAL_POSTS || 0;
+
+                // --- PERBAIKAN DI SINI ---
+                // JS mengharapkan 'forums', tapi PHP mungkin mengirim 'TOTAL'
+                const totalForum = counts.forums || counts.TOTAL || 0;
+
+                const totalLaporan = counts.laporan || counts.TOTAL_REPORTS || 0;
+                const totalGroups = counts.groups || counts.TOTAL_GROUPS || 0;
+
+                document.getElementById('total-anggota').textContent = formatNumber(totalAnggota);
+                document.getElementById('total-posts').textContent = formatNumber(totalPost);
+
+                // Update elemen ID total-forums
+                document.getElementById('total-forums').textContent = formatNumber(totalForum);
+
+                document.getElementById('total-laporan').textContent = formatNumber(totalLaporan);
+                document.getElementById('total-groups').textContent = formatNumber(totalGroups);
             }
         }
 

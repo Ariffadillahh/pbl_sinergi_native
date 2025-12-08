@@ -35,11 +35,19 @@ class DashboardController
     public function index()
     {
         $anggotaCount = $this->overviewCount->countAnggota();
-        $postCount = $this->overviewCount->countPost();
-        $forumCount = $this->overviewCount->countForum();
+        $postCount    = $this->overviewCount->countPost();
+
+        $forumCount     = $this->overviewCount->countForum();
+        $totalForum     = $forumCount['TOTAL'];
+        $forumNonActive = $forumCount['NONACTIVE'];
+
         $groupCount = $this->overviewCount->groupCount();
-        $laporanCount = $this->overviewCount->countLaporan();
-        $contentViewDashboard =  __DIR__ . '/../views/dashboard/index.php';
+
+        $laporanData  = $this->overviewCount->countLaporan();
+        $kasusCount   = $laporanData['CASES']; 
+        $totalLaporan = $laporanData['TOTAL']; 
+
+        $contentViewDashboard = __DIR__ . '/../views/dashboard/index.php';
         require_once __DIR__ . '/../views/dashboard/layout.php';
     }
 
@@ -115,7 +123,7 @@ class DashboardController
     {
         $limit = 6;
 
-        $activeTab = $_GET['tab'] ?? 'my-groups'; 
+        $activeTab = $_GET['tab'] ?? 'my-groups';
 
         $mySearch = $_GET['my_search'] ?? '';
         $myPage = isset($_GET['my_page']) ? (int)$_GET['my_page'] : 1;
@@ -570,7 +578,7 @@ class DashboardController
 
                     $resetLink = BASEURL . '/forget-password';
 
-                  
+
                     $mail->Body = "Hello <b>{$userData['FULL_NAME']}</b>,<br><br>"
                         . "Your account for the SINERGI application has been successfully created by the administrator.<br><br>"
                         . "You can log in using the following details:<br>"
