@@ -43,7 +43,7 @@ class ForumModel extends BaseModel
                 ACCESS_KEY, OWNER_ID, STATUS, CREATED_AT
             ) VALUES (
                 :id, :name, :path_thumbnail, :path_photo, :about,
-                :is_private, :access_key, :owner_id, 'NONACTIVE', SYSDATE
+                :is_private, :access_key, :owner_id, :status_forum, SYSDATE
             )";
 
         $stmt = oci_parse($conn, $sql);
@@ -56,6 +56,7 @@ class ForumModel extends BaseModel
         oci_bind_by_name($stmt, ":is_private", $data['IS_PRIVATE']);
         oci_bind_by_name($stmt, ":access_key", $data['ACCESS_KEY']);
         oci_bind_by_name($stmt, ":owner_id", $ownerId);
+        oci_bind_by_name($stmt, ":status_forum", $data['STATUS']);
 
         $result = oci_execute($stmt, OCI_NO_AUTO_COMMIT);
 
@@ -158,7 +159,6 @@ class ForumModel extends BaseModel
         $conn = self::getConnection();
         $bindings = [];
 
-        // 1. SELECT query (IS_MEMBER sudah dihitung disini: 1 = join, 0 = tidak)
         $sql = "SELECT 
             f.*, 
             u.FULL_NAME AS OWNER_NAME,

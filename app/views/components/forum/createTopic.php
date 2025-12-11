@@ -68,6 +68,26 @@
     </div>
 </div>
 
+<?php if ($forumById['STATUS'] === 'NONACTIVE'): ?>
+    <div class="bg-red-100 text-red-700 border border-red-400 px-4 py-3 rounded mb-4">
+        This forum is currently <strong>inactive</strong>. You cannot create a new topic.
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById("createPostForm");
+            const inputs = form.querySelectorAll("textarea, input, button, label");
+
+            inputs.forEach(el => {
+                el.disabled = true;
+                el.classList.add("opacity-50", "cursor-not-allowed");
+            });
+        });
+    </script>
+
+<?php endif; ?>
+
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('createPostForm');

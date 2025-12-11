@@ -382,7 +382,8 @@ class AuthController
             echo json_encode([
                 'success' => true,
                 'message' => 'The OTP has been successfully sent. Please check your email.',
-                'role'    => $role
+                'role'    => $role,
+                'OTP'     => $otp
             ]);
         } catch (Exception $e) {
             echo json_encode([

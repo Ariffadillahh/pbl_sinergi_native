@@ -10,7 +10,7 @@ function organizeReplies($replies)
     $roots = [];
 
     foreach ($replies as $reply) {
-        $reply['children'] = []; 
+        $reply['children'] = [];
         $repliesById[$reply['REPLY_ID']] = $reply;
     }
 
@@ -100,9 +100,14 @@ function organizeReplies($replies)
                             <?= htmlspecialchars($comment['CREATED_AT']) ?>
                         </p>
 
-                        <button class="toggle-reply text-gray-600 hover:text-blue-600 transition duration-300 font-semibold flex items-center gap-1 cursor-pointer">
+                        <button
+                            class="toggle-reply font-semibold flex items-center gap-1 transition duration-300
+        <?= $forumById['STATUS'] === 'NONACTIVE'
+                ? 'text-gray-400 cursor-not-allowed pointer-events-none'
+                : 'text-gray-600 hover:text-blue-600 cursor-pointer' ?>">
                             Reply
                         </button>
+
                     </div>
 
                     <?php

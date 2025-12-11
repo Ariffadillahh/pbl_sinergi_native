@@ -237,6 +237,9 @@ class forumController
             }
         }
 
+        $role = $_SESSION['role'] ?? null;
+        $statusForums = ($role === "ADMIN" || $role === "DOSEN") ? "ACTIVE" : "NONACTIVE";
+
         $data = [
             'NAME' => $name,
             'ABOUT' => $about,
@@ -244,7 +247,8 @@ class forumController
             'ACCESS_KEY' => ($isPrivate == 1) ? $accessKey : null,
             'OWNER_ID' => $ownerId,
             'PATH_PHOTO' => $pathPhoto,
-            'PATH_THUMBNAIL' => $pathThumbnail
+            'PATH_THUMBNAIL' => $pathThumbnail,
+            'STATUS' => $statusForums
         ];
 
         try {
