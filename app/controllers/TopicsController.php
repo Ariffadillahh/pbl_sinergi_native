@@ -50,7 +50,7 @@ class TopicsController
             'forumById' => $forumById,
             'topic'     => $topic,
             'comments'  => $comments,
-            'isMember'  => $isMember 
+            'isMember'  => $isMember
         ];
 
         extract($data);
@@ -94,9 +94,27 @@ class TopicsController
                 $count = count($_FILES['images']['name']);
 
                 for ($i = 0; $i < $count; $i++) {
+
+                    $maxTotalSize = 20 * 1024 * 1024;
+                    $currentTotalSize = 0;
+
+                    if (isset($_FILES['images']['size'])) {
+                        foreach ($_FILES['images']['size'] as $size) {
+                            $currentTotalSize += $size;
+                        }
+                    }
+
+                    if ($currentTotalSize > $maxTotalSize) {
+                        header('Content-Type: application/json');
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Total file size exceeds the 20MB limit.'
+                        ]);
+                        exit;
+                    }
+
                     $fileName = $_FILES['images']['name'][$i];
                     $fileTmp  = $_FILES['images']['tmp_name'][$i];
-                    $fileSize = $_FILES['images']['size'][$i];
                     $fileError = $_FILES['images']['error'][$i];
 
                     if ($fileError === 0) {

@@ -33,10 +33,8 @@ class ChatMessagesController
         }
 
         $user_id  = $_SESSION['user_id'];
-
         $groupChatId = isset($_POST['group_chat_id']) ? trim($_POST['group_chat_id']) : null;
         $message  = trim($_POST['message'] ?? '');
-
 
         if (!$groupChatId || !$this->chatMessageModel->isUserInGroupChat($user_id, $groupChatId)) {
             http_response_code(403);
@@ -62,7 +60,31 @@ class ChatMessagesController
         ];
 
         if ($hasFile) {
-            $uploadStart = microtime(true);
+            $fileTmpPath = $_FILES['attachment']['tmp_name'];
+            $fileSize    = $_FILES['attachment']['size'];
+
+            // 1. Cek MIME Type dari file sementara
+            $mime = mime_content_type($fileTmpPath);
+
+            // 2. Tentukan Tipe dan Batas Ukuran
+            $fileType = 'FILE';
+            $maxSize  = 10 * 1024 * 1024; // Default FILE: 10 MB
+
+            if (strpos($mime, 'image/') === 0) {
+                $fileType = 'IMAGE';
+                $maxSize  = 5 * 1024 * 1024; // IMAGE: 5 MB
+            } elseif (strpos($mime, 'video/') === 0) {
+                $fileType = 'VIDEO';
+                $maxSize  = 30 * 1024 * 1024; // VIDEO: 30 MB
+            }
+
+            // 3. Validasi Ukuran Berdasarkan Tipe
+            if ($fileSize > $maxSize) {
+                http_response_code(400);
+                $limitInMb = $maxSize / (1024 * 1024);
+                echo json_encode(['error' => "File too large. Max size for $fileType is {$limitInMb}MB."]);
+                return;
+            }
 
             $uploadDir = __DIR__ . '/../../storage/groups/attachment/';
             if (!is_dir($uploadDir)) {
@@ -74,13 +96,7 @@ class ChatMessagesController
             $fileName = uniqid('', true) . '-' . $cleanName;
             $targetPath = $uploadDir . $fileName;
 
-            if (move_uploaded_file($_FILES['attachment']['tmp_name'], $targetPath)) {
-                $mime = mime_content_type($targetPath);
-
-                if (strpos($mime, 'image/') === 0) $fileType = 'IMAGE';
-                elseif (strpos($mime, 'video/') === 0) $fileType = 'VIDEO';
-                else $fileType = 'FILE';
-
+            if (move_uploaded_file($fileTmpPath, $targetPath)) {
                 $data['path_media'] = 'storage/groups/attachment/' . $fileName;
                 $data['original_filename'] = $originalName;
                 $data['type'] = $fileType;
@@ -89,13 +105,9 @@ class ChatMessagesController
                 echo json_encode(['error' => 'Failed to process the file.']);
                 return;
             }
-
-            $uploadEnd = microtime(true);
         }
 
-        $dbStart = microtime(true);
         $result = $this->chatMessageModel->createMessage($data);
-        $dbEnd = microtime(true);
 
         if (is_array($result) && isset($result['ID'])) {
             echo json_encode([
@@ -138,7 +150,7 @@ class ChatMessagesController
             }
 
             $isMember = $this->chatMessageModel->isUserInGroupChat($userId, $groupChatId);
-            $isAdmin  = (strtoupper($userRole) === 'ADMIN'); 
+            $isAdmin  = (strtoupper($userRole) === 'ADMIN');
 
             if (!$isMember && !$isAdmin) {
                 http_response_code(403);
@@ -280,9 +292,9 @@ class ChatMessagesController
             case 'IMAGE':
                 return '📷 Photo';
             case 'VIDEO':
-                return '🎥 Video';
+                return '▶️ Video';
             case 'FILE':
-                return '📎 File';
+                return '🗂️ File';
             case 'TEXT':
             default:
                 return $content ?: 'No messages yet';

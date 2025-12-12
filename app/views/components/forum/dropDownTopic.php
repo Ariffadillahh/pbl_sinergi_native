@@ -536,8 +536,8 @@
                      return;
                  }
 
-                 if (file.size > 10 * 1024 * 1024) {
-                     alert(`File size too large: ${file.name} (max 10MB)`);
+                 if (file.size > 20 * 1024 * 1024) {
+                     alert(`File size too large: ${file.name} (max 20MB)`);
                      return;
                  }
 

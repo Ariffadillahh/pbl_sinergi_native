@@ -174,8 +174,8 @@
         chatInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 if (!e.shiftKey) {
-                    e.preventDefault(); 
-                    sendButton.click(); 
+                    e.preventDefault();
+                    sendButton.click();
                 }
             }
         });
@@ -433,6 +433,10 @@
                     errorDiv.classList.remove('hidden')
                     errorDiv.innerHTML = result.error || "The server encountered an issue."
                     updateMessageStatus(tempId, 'failed');
+
+                    setTimeout(() => {
+                        errorDiv.classList.add('hidden')
+                    }, 3000)
                     return;
                 }
                 updateMessageStatus(tempId, 'sent', result);

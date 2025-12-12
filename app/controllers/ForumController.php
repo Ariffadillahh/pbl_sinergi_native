@@ -927,6 +927,22 @@ class forumController
 
         $uploadedFiles = [];
         if ($countNewUpload > 0) {
+
+            $maxTotalSize = 20 * 1024 * 1024; // 20 MB
+            $currentTotalSize = 0;
+
+            foreach ($_FILES['new_media']['size'] as $size) {
+                $currentTotalSize += $size;
+            }
+
+            if ($currentTotalSize > $maxTotalSize) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Total size of new files cannot exceed 20 MB.'
+                ]);
+                exit;
+            }
+            
             $uploadResult = $this->handleMultipleFileUpload($_FILES['new_media']);
 
             if (!$uploadResult['success']) {

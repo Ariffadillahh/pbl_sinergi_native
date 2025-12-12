@@ -74,9 +74,24 @@ class PostController
                 exit;
             }
 
+            $maxTotalSize = 10 * 1024 * 1024; // 10 MB
+            $currentTotalSize = 0;
+
+            foreach ($_FILES['images']['size'] as $size) {
+                $currentTotalSize += $size;
+            }
+
+            if ($currentTotalSize > $maxTotalSize) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Total size of images cannot exceed 10 MB.'
+                ]);
+                exit;
+            }
+
             for ($i = 0; $i < $totalFiles; $i++) {
                 if ($_FILES['images']['error'][$i] !== UPLOAD_ERR_OK) {
-                    continue; 
+                    continue;
                 }
 
                 $fileName = uniqid('post_', true) . '-' . basename($_FILES['images']['name'][$i]);
@@ -121,18 +136,6 @@ class PostController
                 }
             }
 
-            if (isset($_SESSION['img_mood']) && !empty($_SESSION['img_mood'])) {
-                $filename = $_SESSION['img_mood'];
-
-                $filePath = __DIR__ . '/../../' . $filename;
-
-                if (file_exists($filePath)) {
-                    unlink($filePath);
-                }
-
-                unset($_SESSION['img_mood']);
-            }
-
             echo json_encode([
                 'success' => true,
                 'message' => 'Post created successfully.',
@@ -161,10 +164,47 @@ class PostController
 
         $postId = $_POST['post_id'] ?? null;
         $caption = trim($_POST['content'] ?? '');
+
+        $existingMedia = $_POST['existing_media'] ?? []; 
+        $mediaToDelete = $_POST['deleted_media'] ?? [];  
+
         if (!$postId) {
             echo json_encode(['success' => false, 'message' => 'Post ID not found.']);
             exit;
         }
+
+        $countNewUpload = 0;
+        $totalNewSize = 0;
+
+        if (isset($_FILES['images']) && is_array($_FILES['images']['name'])) {
+            $validFiles = array_filter($_FILES['images']['name']);
+            $countNewUpload = count($validFiles);
+
+            foreach ($_FILES['images']['size'] as $size) {
+                $totalNewSize += $size;
+            }
+        }
+
+        $countExisting = count($existingMedia);
+        $totalCount = $countExisting + $countNewUpload;
+
+        if ($totalCount > 5) {
+            echo json_encode([
+                'success' => false,
+                'message' => "Maximum 5 images allowed. You have $countExisting existing and adding $countNewUpload new."
+            ]);
+            exit;
+        }
+
+        $maxTotalSize = 10 * 1024 * 1024; 
+        if ($totalNewSize > $maxTotalSize) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Total size of new images cannot exceed 10 MB.'
+            ]);
+            exit;
+        }
+
 
         $uploadDir = __DIR__ . '/../../storage/posts/images/';
         if (!is_dir($uploadDir)) {
@@ -172,8 +212,11 @@ class PostController
         }
 
         $newlyUploadedPaths = [];
-        if (isset($_FILES['images']) && is_array($_FILES['images']['name'])) {
+
+        if ($countNewUpload > 0) {
             foreach (array_keys($_FILES['images']['name']) as $i) {
+                if (empty($_FILES['images']['name'][$i])) continue;
+
                 if ($_FILES['images']['error'][$i] !== UPLOAD_ERR_OK) {
                     if ($_FILES['images']['error'][$i] == UPLOAD_ERR_NO_FILE) {
                         continue;
@@ -200,7 +243,6 @@ class PostController
             }
         }
 
-        $mediaToDelete = $_POST['deleted_media'] ?? [];
         foreach ($mediaToDelete as $path) {
             $filePath = realpath(__DIR__ . '/../../' . $path);
             $baseDir = realpath($uploadDir);
@@ -209,7 +251,6 @@ class PostController
             }
         }
 
-        $existingMedia = $_POST['existing_media'] ?? [];
         $finalMediaPaths = array_merge($existingMedia, $newlyUploadedPaths);
 
         if (empty($caption) && empty($finalMediaPaths)) {

@@ -122,7 +122,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
 
             <?php if (!empty($images)): ?>
                 <div class="bg-gradient-to-b from-gray-200 to-white mb-2 -mx-4 sm:mx-0">
-                    <div class="swiper myPostSwiper w-full rounded-lg relative overflow-visible" style="max-height: 500px;">
+                    <div class="swiper myPostSwiper w-full relative overflow-visible" style="max-height: 500px;">
                         <div class="swiper-wrapper">
                             <?php foreach ($images as $img): ?>
                                 <div class="swiper-slide flex justify-center items-center bg-gray-100" style="max-height: 500px;">

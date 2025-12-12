@@ -312,7 +312,7 @@
                 errorDiv.classList.remove("hidden");
             } finally {
                 submitButton.disabled = false;
-                submitButton.innerHTML = `Posting ...`;
+                submitButton.innerHTML = `Post`;
             }
         });
     });
