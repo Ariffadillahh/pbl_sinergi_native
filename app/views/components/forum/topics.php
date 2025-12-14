@@ -121,22 +121,22 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
             </div>
 
             <?php if (!empty($images)): ?>
-                <div class="bg-gradient-to-b from-gray-200 to-white mb-2 -mx-4 sm:mx-0">
-                    <div class="swiper myPostSwiper w-full relative overflow-visible" style="max-height: 500px;">
+                <div class="mb-2 w-full bg-gray-100 overflow-hidden border border-gray-200">
+
+                    <div class="swiper myPostSwiper swiper-container-fixed">
                         <div class="swiper-wrapper">
                             <?php foreach ($images as $img): ?>
-                                <div class="swiper-slide flex justify-center items-center bg-gray-100" style="max-height: 500px;">
+                                <div class="swiper-slide">
                                     <img src="<?= BASEURL ?>/storage/forums/topics/<?= $img['MEDIA_PATH'] ?>"
                                         loading="lazy"
-                                        style="max-height: 500px; max-width: 100%;"
-                                        class="object-contain">
+                                        alt="Post Image">
                                 </div>
                             <?php endforeach; ?>
                         </div>
 
                         <?php if (count($images) > 1): ?>
-                            <div class="swiper-button-next hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg z-[999999]"></div>
-                            <div class="swiper-button-prev hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg z-[999999]"></div>
+                            <div class="swiper-button-next hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg z-[10]"></div>
+                            <div class="swiper-button-prev hidden sm:flex text-white bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 items-center justify-center hover:bg-black/50 transition-all after:text-lg z-[10]"></div>
                             <div class="swiper-pagination !bottom-3"></div>
                         <?php endif; ?>
                     </div>

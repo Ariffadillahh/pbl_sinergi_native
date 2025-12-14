@@ -161,16 +161,25 @@ html {
 }
 
 .swiper-slide {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f3f4f6;
+  height: 100% !important;
+  background-color: #f3f4f6;
+  position: relative !important;
+  overflow: hidden;
 }
 
 .swiper-slide img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+
+  width: auto !important;
+  height: auto !important;
+  display: block !important;
 }
 
 .swiper-button-next,
@@ -213,6 +222,18 @@ html {
   }
 }
 
+.swiper-container-fixed {
+  height: 250px;
+  width: 100%;
+  position: relative;
+}
+
+@media (min-width: 640px) {
+  .swiper-container-fixed {
+    height: 450px;
+  }
+}
+
 .swiper-button-next.swiper-button-disabled,
 .swiper-button-prev.swiper-button-disabled {
   opacity: 0 !important;
@@ -221,14 +242,14 @@ html {
 .swiper-pagination-bullet {
   width: 8px;
   height: 8px;
-  background: #fff;
+  background: #000;
   opacity: 0.5;
   transition: all 0.3s ease;
 }
 
 .swiper-pagination-bullet-active {
   opacity: 1;
-  background: #fff;
+  background: #155dfc;
   width: 24px;
   border-radius: 4px;
 }

@@ -87,7 +87,7 @@ if (!isset($groups)) $groups = [];
               <?php if (!empty($group['PATH_PHOTO'])): ?>
                 <img src="<?= BASEURL . '/storage/groups/photos/' . $group['PATH_PHOTO'] ?>" class="w-full h-full object-cover">
               <?php else: ?>
-                <span class="text-white font-bold text-lg bg-purple-500 w-full h-full flex items-center justify-center">
+                <span class="text-white font-bold text-lg bg-pink-500 w-full h-full flex items-center justify-center">
                   <?= strtoupper(substr($group['NAME'], 0, 2)) ?>
                 </span>
               <?php endif; ?>
