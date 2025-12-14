@@ -62,7 +62,7 @@
                                 <div class="w-3 h-3 rounded-full bg-green-500"></div>
                             </div>
                             <div class="flex-1 bg-gray-100 rounded px-3 py-1 text-xs text-gray-500 mx-4">
-                                https://sinergi.com
+                                <?= BASEURL ?>
                             </div>
                         </div>
 

@@ -121,7 +121,7 @@ if (isset($postLimit) && $postLimit !== null && count($topics) > $postLimit) {
             </div>
 
             <?php if (!empty($images)): ?>
-                <div class="mb-2 w-full bg-gray-100 overflow-hidden border border-gray-200">
+                <div class="mb-2 w-full bg-gray-100 overflow-hidden">
 
                     <div class="swiper myPostSwiper swiper-container-fixed">
                         <div class="swiper-wrapper">

@@ -159,7 +159,7 @@
 
         renderGrid: function() {
             const grid = document.getElementById('media-grid');
-            if (!grid) return; 
+            if (!grid) return;
 
             grid.innerHTML = '';
 
@@ -213,7 +213,26 @@
             if (modalDate) modalDate.textContent = item.FORMATTED_DATE || '';
 
             const modalCaption = document.getElementById('modal-caption');
-            if (modalCaption) modalCaption.textContent = item.TOPIC_CONTENT || '';
+            if (modalCaption) {
+                modalCaption.innerHTML = '';
+
+                const fullText = item.TOPIC_CONTENT || '';
+                const maxLength = 200;
+
+                if (fullText.length > maxLength) {
+                    const textNode = document.createTextNode(fullText.substring(0, maxLength) + '... ');
+                    modalCaption.appendChild(textNode);
+
+                    const seeMoreLink = document.createElement('a');
+                    seeMoreLink.href = `${this.baseUrl}/forum/topic/${item.TOPIC_ID}`;
+                    seeMoreLink.textContent = 'See more';
+                    seeMoreLink.className = 'text-blue-600 font-medium hover:underline ml-1 cursor-pointer';
+
+                    modalCaption.appendChild(seeMoreLink);
+                } else {
+                    modalCaption.textContent = fullText;
+                }
+            }
 
             this.setupRoleBadge(item);
 
@@ -247,7 +266,7 @@
             if (userRole) {
                 const roleClass = roleClasses[userRole] || 'bg-gray-100 text-gray-800';
                 roleElement.className = `text-xs font-medium px-2 py-0.5 rounded-sm ${roleClass}`;
-                roleElement.textContent = userRole; 
+                roleElement.textContent = userRole;
                 roleElement.style.display = 'inline-block';
             } else {
                 roleElement.style.display = 'none';

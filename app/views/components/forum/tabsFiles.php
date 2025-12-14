@@ -174,8 +174,26 @@
 
                 if (group.topic.TOPIC_CONTENT) {
                     const content = document.createElement('p');
-                    content.className = 'text-gray-700 mb-4 text-sm italic';
-                    content.textContent = group.topic.TOPIC_CONTENT;
+                    content.className = 'text-gray-700 mb-4 text-sm leading-relaxed whitespace-pre-wrap break-words';
+
+                    const fullText = group.topic.TOPIC_CONTENT;
+                    const maxLength = 200;
+
+                    if (fullText.length > maxLength) {
+                        content.textContent = fullText.substring(0, maxLength) + '... ';
+
+                        // Buat element Link 'See more'
+                        const seeMoreLink = document.createElement('a');
+                        seeMoreLink.href = BASE_URL + '/forum/topic/' + group.topic.TOPIC_ID;
+                        seeMoreLink.textContent = 'See more';
+                        seeMoreLink.className = 'text-blue-600 font-medium hover:underline ml-1 cursor-pointer';
+
+                        // Masukkan link ke dalam paragraf
+                        content.appendChild(seeMoreLink);
+                    } else {
+                        content.textContent = fullText;
+                    }
+
                     topicDiv.appendChild(content);
                 }
 
