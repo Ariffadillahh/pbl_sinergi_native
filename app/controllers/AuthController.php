@@ -33,7 +33,7 @@ class AuthController
 
     private function generateAndStoreCaptcha()
     {
-        $length = 6;
+        $length = 8;
         $charset = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghizklmnopqrstuvwxyz123456789_#!";
         $captchaText = '';
         for ($i = 0, $n = strlen($charset); $i < $length; ++$i) {
@@ -169,7 +169,7 @@ class AuthController
 
             // Validasi password
             if (!password_verify($password, $user['PASSWORD'])) {
-                $_SESSION['login_error'] = "Incorrect password!";
+                $_SESSION['login_error'] = "Incorrect username, email, or password!";
                 $_SESSION['login_error_type'] = 'password'; // Hanya password yang salah
                 $_SESSION['login_username'] = $identifier; // Simpan username untuk diisi ulang
                 header('Location: ' . BASEURL . '/sign-in');

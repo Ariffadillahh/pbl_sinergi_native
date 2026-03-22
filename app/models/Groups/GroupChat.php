@@ -126,21 +126,21 @@ class GroupChat extends BaseModel
         $conn = self::getConnection();
         $sql = "
             SELECT 
-                gc.ID, 
-                gc.NAME, 
-                gc.ABOUT, 
-                gc.IS_PRIVATE, 
-                gc.ACCESS_KEY, 
-                gc.PATH_PHOTO, 
-                gc.OWNER_ID, 
-                gc.CREATED_AT,
-                u.FULL_NAME AS OWNER_NAME,
-                u.ROLE AS ROLE_OWNER,
-                u.PATH_PHOTO AS PATH_PHOTO_OWNER
-            FROM GROUP_CHATS gc
-            LEFT JOIN USERS u ON gc.OWNER_ID = u.ID
-            WHERE gc.ID = :id_bv
+                ID,
+                NAME,
+                ABOUT,
+                IS_PRIVATE,
+                ACCESS_KEY,
+                PATH_PHOTO,
+                OWNER_ID,
+                CREATED_AT,
+                OWNER_NAME,
+                ROLE_OWNER,
+                PATH_PHOTO_OWNER
+            FROM PBL_SINERGI.view_group_chat_detail
+            WHERE ID = :id_bv
         ";
+
 
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ':id_bv', $id);
@@ -268,12 +268,12 @@ class GroupChat extends BaseModel
         $stmt_groupChat = null;
 
         try {
-            
+
             $sql_report = "DELETE FROM REPORT WHERE TARGET_ID = :id AND TARGET_TYPE = 'GROUP'";
             $stmt_report = oci_parse($conn, $sql_report);
             oci_bind_by_name($stmt_report, ':id', $id);
             if (!oci_execute($stmt_report, OCI_NO_AUTO_COMMIT)) throw new Exception("Gagal hapus report group");
-           
+
             $sql_messages = "DELETE FROM GROUP_CHAT_MESSAGES WHERE GROUP_CHAT_ID = :group_chat_id";
             $stmt_messages = oci_parse($conn, $sql_messages);
             oci_bind_by_name($stmt_messages, ':group_chat_id', $id);
@@ -297,7 +297,7 @@ class GroupChat extends BaseModel
             error_log($e->getMessage());
             return false;
         } finally {
-            if ($stmt_report) oci_free_statement($stmt_report); 
+            if ($stmt_report) oci_free_statement($stmt_report);
             if ($stmt_messages) oci_free_statement($stmt_messages);
             if ($stmt_members) oci_free_statement($stmt_members);
             if ($stmt_groupChat) oci_free_statement($stmt_groupChat);

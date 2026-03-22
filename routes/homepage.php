@@ -12,7 +12,7 @@ switch (true) {
     case preg_match('#^homepage/reply/([a-zA-Z0-9\-]+)$#', $route, $matches):
         $replyId = $matches[1];
         requireLogin();
-        checkRoleAccess(['MAHASISWA', 'DOSEN', 'ADMIN']);
+        checkRoleAccess(['MAHASISWA', 'DOSEN', 'ADMIN', 'ALUMNI']);
         $controller = new HomepageController();
         $controller->replyPage($replyId);
         break;

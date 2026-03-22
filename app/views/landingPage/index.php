@@ -128,9 +128,9 @@
                             <img src="<?php echo BASEURL; ?>/src/asset/icons/icon-notifikasi.svg" class="w-14 h-14 group-hover:scale-110 transition duration-300" alt="">
                         </div>
                     </div>
-                    <h3 class="font-bold text-lg mb-3 text-gray-900">Real-time Notifications</h3>
+                    <h3 class="font-bold text-lg mb-3 text-gray-900">Smart Notifications</h3>
                     <p class="text-gray-500 text-sm leading-relaxed">
-                        Get instant updates whenever there is a reply or a new thread.
+                        Receive real-time alerts for messages, replies, and important updates.
                     </p>
                 </div>
 

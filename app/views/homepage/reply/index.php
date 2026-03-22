@@ -67,7 +67,7 @@ function organizeReplies($replies)
         <div class="sticky top-0 z-[999] bg-white w-full px-5 py-3 mb-4 border-b border-gray-200">
             <button onclick="window.history.back()" class="flex items-center gap-3 text-black font-semibold cursor-pointer">
                 <img src="<?php echo BASEURL . '/src/asset/icons/left-arrow-svgrepo-com.svg'; ?>" alt="icon" class="w-6 h-6">
-                <h1 class="text-xl">Post</h1>
+                <h1 class="text-xl">Back</h1>
             </button>
         </div>
         <div class="max-w-xl mx-auto px-5 md:p-0 mb-20 lg:mb-10">

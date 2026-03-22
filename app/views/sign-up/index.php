@@ -86,6 +86,7 @@
                                         minlength="6"
                                         class="w-full h-[72px] pl-[80px] pr-14 pt-6 pb-2 font-semibold text-gray-900 border-[1.5px] border-gray-300 rounded-[24px] focus:outline-none focus:border-blue-500 peer transition-all"
                                         placeholder=" "
+                                        maxlength="6"
                                         required />
 
                                     <label for="password" class="absolute left-[80px] top-1/2 -translate-y-1/2 text-gray-500 font-medium peer-focus:top-4 peer-focus:text-sm peer-placeholder-shown:top-1/2 peer-[&:not(:placeholder-shown)]:top-4 peer-[&:not(:placeholder-shown)]:text-sm transition-all">Password</label>
@@ -149,6 +150,17 @@
                     strengthBar.style.width = '0%';
                     strengthText.innerText = 'Minimum 6 characters with combination';
                     strengthText.className = 'text-xs text-gray-500 mt-1.5 font-medium text-right';
+                    return;
+                }
+
+                if (len == 6) {
+                    strengthBar.style.width = "20%";
+                    strengthBar.classList.add("bg-red-500");
+
+                    strengthText.innerText = `MAX-MIN 6`;
+                    strengthText.className =
+                        "text-xs text-red-500 mt-1.5 font-medium text-right";
+
                     return;
                 }
 

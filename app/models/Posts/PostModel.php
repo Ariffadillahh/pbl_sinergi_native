@@ -67,28 +67,27 @@ class PostModel extends BaseModel
 
         $sql = "
             SELECT 
-                P.ID AS POST_ID,
-                P.CONTENT,
-                P.USER_ID,
-                TO_CHAR(P.CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT,
-                U.USERNAME,
-                U.ID AS USER_ID,
-                U.FULL_NAME,
-                U.PATH_PHOTO,
-                U.ROLE,
-                (
-                    SELECT COUNT(*) FROM LIKE_POST L WHERE L.POST_ID = P.ID
-                ) AS TOTAL_LIKES,
-                (
-                    SELECT COUNT(*) FROM COMMENTAR C WHERE C.POST_ID = P.ID
-                ) AS COMMENT_COUNT,
-                (
-                    SELECT COUNT(*) FROM LIKE_POST L 
-                    WHERE L.POST_ID = P.ID AND L.USER_ID = :current_user_id
-                ) AS IS_LIKED
-            FROM POSTS P
-            JOIN USERS U ON P.USER_ID = U.ID
-            ORDER BY P.CREATED_AT DESC
+                v.POST_ID,
+                v.CONTENT,
+                v.USER_ID,
+                v.CREATED_AT,
+                v.USERNAME,
+                v.FULL_NAME,
+                v.PATH_PHOTO,
+                v.ROLE,
+                v.TOTAL_LIKES,
+                v.COMMENT_COUNT,
+                CASE 
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM LIKE_POST l
+                        WHERE l.POST_ID = v.POST_ID
+                        AND l.USER_ID = :current_user_id
+                    ) THEN 1
+                    ELSE 0
+                END AS IS_LIKED
+            FROM PBL_SINERGI.VIEW_POST_LIST v
+            ORDER BY v.CREATED_AT DESC
         ";
 
         $stmt = oci_parse($conn, $sql);

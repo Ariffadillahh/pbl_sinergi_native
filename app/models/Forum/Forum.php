@@ -411,18 +411,19 @@ class ForumModel extends BaseModel
         $conn = self::getConnection();
 
         $sql = "SELECT 
-                fm.USER_ID, 
-                fm.JOINED_AT,
-                u.FULL_NAME, 
-                u.PATH_PHOTO, 
-                u.ROLE 
-            FROM FORUM_MEMBERS fm
-            JOIN USERS u ON fm.USER_ID = u.ID
-            WHERE fm.FORUM_ID = :forum_id AND fm.STATUS = 'JOINED'
-            ORDER BY fm.JOINED_AT DESC";
+            USER_ID,
+            JOINED_AT,
+            FULL_NAME,
+            PATH_PHOTO,
+            ROLE
+        FROM PBL_SINERGI.view_forum_members
+        WHERE FORUM_ID = :forum_id
+        ORDER BY JOINED_AT DESC";
 
         $stmt = oci_parse($conn, $sql);
         oci_bind_by_name($stmt, ":forum_id", $forumId);
+        oci_execute($stmt);
+
 
         if (!oci_execute($stmt)) {
             $e = oci_error($stmt);

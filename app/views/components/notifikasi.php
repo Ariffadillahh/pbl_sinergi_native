@@ -302,8 +302,7 @@
             if (isPolling) return;
             isPolling = true;
 
-            // 1. Kumpulkan semua ID notifikasi yang sedang tampil di layar
-            // Ini penting: Kita kirim ke server "Ini lho ID yang user liat, tolong cek mana yang udah diapus"
+    
             const visibleIds = [];
             document.querySelectorAll('.notification-item').forEach(item => {
                 if (item.dataset.notifId) {

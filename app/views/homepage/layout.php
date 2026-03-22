@@ -14,9 +14,11 @@
     <div class="w-full flex flex-1 justify-center overflow-hidden">
         <?php require_once $contentViewPost; ?>
 
-        <aside class="hidden lg:block w-[360px] p-4 flex-shrink-0 bg-white border-l border-gray-200">
-            <?php require_once 'app/views/components/postingan/forYouPage.php' ?>
-        </aside>
+        <?php if ($_SESSION['role'] !== 'ALUMNI') : ?>
+            <aside class="hidden lg:block w-[360px] p-4 flex-shrink-0 bg-white border-l border-gray-200">
+                <?php require_once 'app/views/components/postingan/forYouPage.php' ?>
+            </aside>
+        <?php endif; ?>
     </div>
     <?php require_once 'app/views/components/modalInvite.php'; ?>
     <?php require_once 'app/views/components/forum/modalInviteForum.php'; ?>

@@ -73,11 +73,11 @@ class overviewCount extends BaseModel
         $conn = self::getConnection();
 
         $sql = "
-        SELECT 
-            COUNT(*) AS TOTAL,
-            SUM(CASE WHEN STATUS = 'NONACTIVE' THEN 1 ELSE 0 END) AS NONACTIVE
-        FROM FORUMS
-    ";
+            SELECT 
+                COUNT(*) AS TOTAL,
+                SUM(CASE WHEN STATUS = 'NONACTIVE' THEN 1 ELSE 0 END) AS NONACTIVE
+            FROM FORUMS
+        ";
 
         $stmt = oci_parse($conn, $sql);
         oci_execute($stmt);
@@ -317,24 +317,19 @@ class overviewCount extends BaseModel
     public function getMonthlyActivityTrend()
     {
         $sql = "
-            WITH all_forum_activities AS (
+           SELECT 
+                TO_CHAR(CREATED_AT, 'MM') AS ACTIVITY_MONTH,
+                COUNT(*) AS TOTAL_ACTIVITY
+            FROM (
                 SELECT CREATED_AT FROM FORUMS
-                
                 UNION ALL
-                
-                SELECT JOINED_AT AS CREATED_AT FROM FORUM_MEMBERS
-                
+                SELECT JOINED_AT FROM FORUM_MEMBERS
                 UNION ALL
-                
                 SELECT CREATED_AT FROM FORUM_MESSAGES
             )
-            SELECT 
-                TO_CHAR(CREATED_AT, 'MM') AS ACTIVITY_MONTH, 
-                COUNT(*) AS TOTAL_ACTIVITY
-            FROM all_forum_activities
             WHERE TO_CHAR(CREATED_AT, 'YYYY') = TO_CHAR(SYSDATE, 'YYYY')
             GROUP BY TO_CHAR(CREATED_AT, 'MM')
-            ORDER BY ACTIVITY_MONTH ASC
+            ORDER BY ACTIVITY_MONTH;
         ";
 
         return $this->executeQuery($sql);

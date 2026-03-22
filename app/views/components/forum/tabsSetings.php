@@ -183,7 +183,6 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
                 <input type="text" id="editAccessKeyInput" name="ACCESS_KEY"
                     value="<?= htmlspecialchars($forumById['ACCESS_KEY'] ?? '') ?>"
                     placeholder="Enter new access key..."
-                    required
                     class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-yellow-50 outline-none transition">
             </div>
 
@@ -452,6 +451,30 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
         updateForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            const privacySelected = document.querySelector('input[name="IS_PRIVATE"]:checked');
+            const accessKeyInput = document.getElementById('editAccessKeyInput');
+            const editAlertBox = document.getElementById('editAlertBox');
+
+            if (privacySelected && privacySelected.value === '1') {
+                if (!accessKeyInput.value.trim()) {
+                    editAlertBox.className = "bg-red-100 text-red-700 fixed right-5 top-5 mb-4 p-4 rounded-lg text-sm z-[999999]";
+                    editAlertBox.textContent = "Access Key is required if the forum is Private!";
+                    editAlertBox.classList.remove('hidden');
+
+                    accessKeyInput.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                    accessKeyInput.focus();
+
+                    accessKeyInput.addEventListener('input', function() {
+                        this.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+                        editAlertBox.classList.add('hidden');
+                    }, {
+                        once: true
+                    });
+
+                    return;
+                }
+            }
+
             updateBtn.disabled = true;
             updateBtn.innerHTML = "Saving...";
             editAlertBox.classList.add('hidden');
@@ -484,7 +507,7 @@ $isPrivate     = $forumById['IS_PRIVATE'] == 1;
                 }
 
             } catch (error) {
-                editAlertBox.className = "bg-red-100 text-red-700 fixed right-5 top-5 mb-4 p-4 rounded-lg text-sm hidden";
+                editAlertBox.className = "bg-red-100 text-red-700 fixed right-5 top-5 mb-4 p-4 rounded-lg text-sm z-[999999]";
                 editAlertBox.textContent = error.message;
                 editAlertBox.classList.remove('hidden');
                 updateBtn.disabled = false;

@@ -41,13 +41,11 @@ class HomepageController
     {
         $posts = $this->postController->fetchPosts();
 
-        // Get sidebar data
         $sidebarData = $this->getSidebarData();
         $trending = $sidebarData['trending'];
         $forums = $sidebarData['forums'];
         $groups = $sidebarData['groups'];
 
-        // Format mentions in posts
         foreach ($posts as &$post) {
             $post['CONTENT_FORMATTED'] = mentionHelper::formatMentions($post['CONTENT']);
         }
@@ -60,9 +58,21 @@ class HomepageController
     public function replyPage($id)
     {
         $post = $this->postModel->getPostById($id);
+
         if (!$post) {
             header("Location: " . BASEURL . "/homepage");
             exit();
+        }
+
+        $currentUserRole = $_SESSION['role'] ?? '';
+        $currentUserId   = $_SESSION['user_id'] ?? 0;
+        $postOwnerId     = $post['USER_ID'];
+
+        if ($currentUserRole == 'ALUMNI') {
+            if ($currentUserId != $postOwnerId) {
+                header("Location: " . BASEURL . "/profile");
+                exit();
+            }
         }
 
         $post['CONTENT_FORMATTED'] = mentionHelper::extractMentions($post['CONTENT']);
@@ -85,7 +95,6 @@ class HomepageController
         }
         unset($comment);
 
-        // Get sidebar data
         $sidebarData = $this->getSidebarData();
         $trending = $sidebarData['trending'];
         $forums = $sidebarData['forums'];
@@ -111,7 +120,6 @@ class HomepageController
 
         $userById = $this->signInModel->getUserByUsernameOrEmail($id);
 
-        // Get sidebar data
         $sidebarData = $this->getSidebarData();
         $trending = $sidebarData['trending'];
         $forums = $sidebarData['forums'];
@@ -125,8 +133,7 @@ class HomepageController
     public function searchPage()
     {
         $keyword = $_GET['keyword'] ?? '';
-        
-        // Get sidebar data
+
         $sidebarData = $this->getSidebarData();
         $trending = $sidebarData['trending'];
         $forums = $sidebarData['forums'];

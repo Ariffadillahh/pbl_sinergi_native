@@ -247,7 +247,7 @@ function translateRole($role)
             </div>
         </div>
 
-        <?php if ($_SESSION['role'] !== 'MITRA' && $_SESSION['role'] !== 'ALUMNI') : ?>
+        <?php if ($_SESSION['role'] !== 'MITRA') : ?>
             <div class="max-w-xl mx-auto mt-12 mb-5 md:mb-0">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -321,16 +321,17 @@ function translateRole($role)
                                                         'media' => $media,
                                                     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), ENT_QUOTES);
                                                     ?>
-                                                    <button type="button"
-                                                        class="edit-post-btn group flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer"
-                                                        data-post="<?= $postJson ?>">
+                                                    <?php if ($_SESSION['role'] !== 'ALUMNI') : ?>
+                                                        <button type="button"
+                                                            class="edit-post-btn group flex w-full items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer"
+                                                            data-post="<?= $postJson ?>">
 
-                                                        <svg class="w-4 h-4 text-gray-500 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                                        </svg>
-                                                        Edit Post
-                                                    </button>
-
+                                                            <svg class="w-4 h-4 text-gray-500 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                            </svg>
+                                                            Edit Post
+                                                        </button>
+                                                    <?php endif; ?>
                                                     <div class="h-px bg-gray-100 my-1"></div>
 
                                                     <button type="button"
